@@ -273,7 +273,7 @@ function advance(passed = false) {
 // Position-based estimates, normalized by shoulder width. No video is uploaded.
 function poseScore(p, target) {
   const required = target.type === 'neck' ? [7, 8, 11, 12] : [11, 12, 13, 14, 15, 16];
-  if (!visible(p, required)) return null;
+  if (!p || !required.every(i => p[i] && (p[i].visibility ?? 1) > .3)) return null;
   if (target.type === 'neck') { const tilt = Math.atan2(p[8].y - p[7].y, Math.abs(p[7].x - p[8].x)) * 180 / Math.PI; return Math.max(0, 100 - Math.abs(tilt - target.target) * 4); }
   const w = Math.hypot(p[11].x - p[12].x, p[11].y - p[12].y); if (w < .04) return null;
   const mid = { x: (p[11].x + p[12].x) / 2, y: (p[11].y + p[12].y) / 2 };
@@ -294,28 +294,30 @@ function poseScore(p, target) {
   if (handsY > 1.05 || handsY < .12 || elbowL > 145 || elbowR > 145) return 0;
   return Math.max(0, 100 - Math.max(0, handGap - .4) * 50 - Math.abs(handsY - .55) * 45 - Math.abs(elbowL - elbowR) * .3);
 }
+// Lenient on purpose: get close for half a second and move on.
+const PASS = 45, PASS_MS = 500;
 function updateGame(p, now) {
   if (gameDone || now < betweenUntil) return;
   if (!guidePlaying) { holdStart = 0; missingSince = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Play the guide to continue.'); return; }
-  if (now - poseStarted < 4000) { holdStart = 0; text('hold-label', 'Watch the figure, then follow along.'); return; }
+  if (now - poseStarted < 1200) { holdStart = 0; text('hold-label', 'Watch the figure, then follow along.'); return; }
   const target = queue[round], value = poseScore(p, target);
   if (value === null) {
     holdStart = 0; $('hold-bar').style.width = '0'; text('match-score', '—'); light('idle');
     if (!missingSince) missingSince = now;
     text('hold-label', target.type === 'neck' ? 'Keep your face and shoulders in view.' : 'Keep both arms in view. Skipping in a few seconds.');
-    if (target.type !== 'neck' && now - missingSince > 8000) { toast('Arms out of view. Skipped.'); advance(); }
+    if (target.type !== 'neck' && now - missingSince > 4000) { toast('Arms out of view. Skipped.'); advance(); }
     return;
   }
   missingSince = 0;
   const score = Math.round(value);
-  text('match-score', score); light(score >= 60 ? 'green' : score >= 40 ? 'amber' : 'red');
-  if (score >= 60) {
+  text('match-score', score); light(score >= PASS ? 'green' : score >= PASS - 15 ? 'amber' : 'red');
+  if (score >= PASS) {
     if (!holdStart) holdStart = now;
     const elapsed = now - holdStart;
-    $('hold-bar').style.width = Math.min(100, elapsed / 20) + '%';
-    text('hold-label', `Hold for ${(Math.max(0, 2000 - elapsed) / 1000).toFixed(1)}s`);
-    if (elapsed >= 2000) advance(true);
-  } else { holdStart = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Mirror the figure. Reach 60% and hold for 2s.'); }
+    $('hold-bar').style.width = Math.min(100, elapsed / PASS_MS * 100) + '%';
+    text('hold-label', 'Nice, that\'s it.');
+    if (elapsed >= PASS_MS) advance(true);
+  } else if (score < PASS - 10) { holdStart = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Mirror the figure as closely as you can.'); }
 }
 
 // ---------- Break: breathe ----------

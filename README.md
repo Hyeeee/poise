@@ -6,7 +6,7 @@ Serve the repository root through localhost or HTTPS (GitHub Pages works from `/
 ## Flow
 1. **Welcome** → **Begin** opens a short voice-guided setup (first visit only). Five questions set focus length, how firmly to nudge, eye care, break style, and whether breaks start on their own. The answers become two modes: *My focus* and *My reset*.
 2. **Studio** — the camera fills the screen. The side panel shows posture state, the focus timer, and session stats (time aligned, blinks per minute, distance). A thin line along the top mirrors the light bar color.
-3. **Break** — either guided stretches (YouTube clips from CUH NHS, pose-matched: 60% held for 2 s scores) or a breathing and eye-rest timer.
+3. **Break** — either guided stretches (an animated sketch figure demonstrates each seated stretch; getting about 45% close for half a second passes) or a breathing and eye-rest timer.
 
 ## Modes
 Focus modes: name, focus length, sensitivity (gentle / balanced / firm), seconds before a strong cue, eye care, chime.
