@@ -7,19 +7,38 @@
 <title>Poise</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="sky" aria-hidden="true"></div>
+<svg class="paint" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfd4d8"/><stop offset=".28" stop-color="#d9dcd9"/><stop offset=".5" stop-color="#e3e2da"/>
+      <stop offset=".66" stop-color="#c9c9b0"/><stop offset=".8" stop-color="#a9ac86"/><stop offset="1" stop-color="#cfcfbe"/>
+    </linearGradient>
+    <radialGradient id="pb" cx=".22" cy=".18" r=".5"><stop offset="0" stop-color="#b9c5d3" stop-opacity=".9"/><stop offset="1" stop-color="#b9c5d3" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ps" cx=".7" cy=".82" r=".45"><stop offset="0" stop-color="#8f9670" stop-opacity=".7"/><stop offset="1" stop-color="#8f9670" stop-opacity="0"/></radialGradient>
+    <filter id="brush" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".0016 .011" numOctaves="5" seed="7"/>
+      <feDisplacementMap in="SourceGraphic" scale="110" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="strokes"><feTurbulence type="fractalNoise" baseFrequency=".006 .045" numOctaves="4" seed="3"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 -.32"/></filter>
+  </defs>
+  <g filter="url(#brush)">
+    <rect x="-80" y="-80" width="1760" height="1160" fill="url(#pg)"/>
+    <rect x="-80" y="-80" width="1760" height="1160" fill="url(#pb)"/>
+    <rect x="-80" y="-80" width="1760" height="1160" fill="url(#ps)"/>
+  </g>
+  <rect width="1600" height="1000" filter="url(#strokes)" opacity=".22"/>
+</svg>
 <div class="grain" aria-hidden="true"></div>
 
 <!-- Welcome -->
 <section id="welcome" class="welcome">
   <main class="welcome-main">
-    <div class="orb hero" aria-hidden="true"><i></i></div>
-    <h1 class="wordmark">poise</h1>
-    <p class="lede">Sit well without thinking about it.</p>
+    <div class="agent hero" aria-hidden="true"></div>
+        <p class="lede"><b>Poise.</b> <span>Sit well without thinking about it.</span></p>
     <div class="cta">
       <button id="start" class="primary">Begin</button>
       <button id="preview" class="text-btn">Look around first</button>
@@ -40,7 +59,7 @@
     <button id="setup-skip" class="text-btn">Skip</button>
   </div>
   <div class="setup-stage">
-    <div class="orb" id="setup-orb" aria-hidden="true"><i></i></div>
+    <div class="agent" id="setup-orb" aria-hidden="true"></div>
     <p class="setup-line" id="setup-line" aria-live="polite"></p>
     <div class="setup-choices" id="setup-choices"></div>
   </div>
@@ -54,7 +73,7 @@
   <div id="lightbar" aria-hidden="true"></div>
 
   <header class="topbar">
-    <button id="home" class="brand" aria-label="Back to start"><span class="orb mini" aria-hidden="true"><i></i></span>poise</button>
+    <button id="home" class="brand" aria-label="Back to start"><span class="agent mini" data-shape="ring" aria-hidden="true"></span>poise</button>
     <nav class="segmented glass" aria-label="Mode">
       <button id="work" class="active">Focus</button>
       <button id="break">Break</button>
@@ -72,26 +91,26 @@
     </div>
   </header>
 
-  <div id="empty-camera" class="empty glass">
-    <p>Turn on your camera to start tracking.</p>
+  <div id="empty-camera" class="empty card">
+    <p class="say"><b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span></p>
     <button class="primary" id="enable">Turn on camera</button>
   </div>
 
   <span id="tracking" class="chip glass">Camera off</span>
 
-  <aside class="panel glass" aria-label="Session">
+  <aside class="panel" aria-label="Session">
     <!-- Focus -->
-    <div id="work-panel">
-      <section class="block state">
-        <div class="state-row"><i id="state-dot"></i><h2 id="posture-state">Set a reference</h2></div>
-        <p id="posture-hint" class="sub">Sit the way you want to stay, then save it.</p>
+    <div id="work-panel" class="stack">
+      <section class="card state">
+        <p class="say"><b id="posture-state">Set a reference</b> <span id="posture-hint">Sit the way you want to stay, then save it.</span></p>
         <div class="meter"><div id="deviation-bar"></div></div>
-        <div class="state-foot">
+        <div class="card-foot">
+          <div class="agent glyph" id="state-agent" data-mood="idle" aria-hidden="true"></div>
           <span class="sub"><b id="deviation">—</b>% shift</span>
           <button class="ghost" id="calibrate">Set reference</button>
         </div>
       </section>
-      <section class="block session">
+      <section class="card session">
         <button class="mode-name" id="work-mode-name" title="Change focus mode"></button>
         <div class="timer">
           <span id="timer">25:00</span>
@@ -100,7 +119,7 @@
         <div class="meter thin"><div id="timer-bar"></div></div>
         <p class="sub" id="next-break"></p>
       </section>
-      <section class="block stats">
+      <section class="card stats">
         <div><b id="aligned">—</b><small>aligned</small></div>
         <div id="eye-stat"><b id="blinks">—</b><small>blinks/min</small></div>
         <div id="dist-stat"><b id="distance">—</b><small>distance</small></div>
@@ -108,7 +127,7 @@
     </div>
 
     <!-- Break: stretch -->
-    <div id="break-panel" hidden>
+    <div id="break-panel" class="card" hidden>
       <div class="reel-head">
         <div class="reel-progress" id="reel-progress" aria-label="Stretch progress"></div>
         <span id="round" class="sub">1 / 5</span>
@@ -143,8 +162,8 @@
     </div>
 
     <!-- Break: breathe -->
-    <div id="breathe-panel" hidden>
-      <div class="breath-stage"><div class="orb breath" id="breath-orb" aria-hidden="true"><i></i></div></div>
+    <div id="breathe-panel" class="card" hidden>
+      <div class="breath-stage"><div class="agent breath" id="breath-orb" data-shape="sphere" aria-hidden="true"></div></div>
       <h2 id="breath-cue">Breathe in</h2>
       <p class="sub" id="breath-tip">Rest your eyes on something far away.</p>
       <div class="meter thin"><div id="breath-bar"></div></div>
@@ -161,7 +180,7 @@
       <div class="suggest" id="suggest"></div>
     </div>
     <form class="askbar glass" id="ask-form" autocomplete="off">
-      <span class="orb mini" id="ask-orb" aria-hidden="true"><i></i></span>
+      <span class="agent mini" id="ask-orb" aria-hidden="true"></span>
       <input id="ask-input" aria-label="Ask Poise" placeholder="Ask Poise to change anything">
       <button type="button" id="mic" class="icon-btn" aria-label="Speak instead" hidden>
         <svg viewBox="0 0 24 24"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v3"/></svg>
