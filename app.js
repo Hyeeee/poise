@@ -1,4 +1,4 @@
-import { ReelPlayer } from './reels.js';
+import { GuidePlayer } from './guide.js';
 import { store, SENSITIVITY, SENS_ORDER, createMode, deleteMode, patchMode, describeWork, describeBreak, clamp } from './settings.js';
 import { runOnboarding, speak } from './onboarding.js';
 import { respond } from './assistant.js';
@@ -236,7 +236,7 @@ const poses = [
   { name: 'Upper-back release', tip: 'Wrap your arms around an imaginary cushion and let your shoulders round forward.', type: 'hug', video: 'GcPujVayIbI', start: 38, end: 56 },
 ];
 let queue = [], round = 0, points = 0, perfect = 0, holdStart = 0, missingSince = 0, betweenUntil = 0, gameDone = false, guidePlaying = false, poseStarted = 0;
-const reel = new ReelPlayer({ onPlaying(playing) { guidePlaying = playing; if (!playing) holdStart = 0; }, onError() { holdStart = 0; light('idle'); } });
+const reel = new GuidePlayer({ onPlaying(playing) { guidePlaying = playing; if (!playing) holdStart = 0; } });
 const angle = (a, b, c) => { const u = [a.x - b.x, a.y - b.y], v = [c.x - b.x, c.y - b.y]; return Math.acos(Math.max(-1, Math.min(1, (u[0] * v[0] + u[1] * v[1]) / (Math.hypot(...u) * Math.hypot(...v) || 1)))) * 180 / Math.PI; };
 
 function newGame() {
@@ -261,7 +261,7 @@ function showPose() {
   }
   text('pose-name', p.name); text('pose-instruction', p.tip); text('round', `${round + 1} / ${queue.length}`);
   text('match-score', '—'); $('hold-bar').style.width = '0';
-  text('hold-label', active ? 'Watch first, then follow along.' : 'Turn on your camera to get a match score.');
+  text('hold-label', active ? 'Watch the figure, then follow along.' : 'Turn on your camera to get a match score.');
   text('points', `${points} points`);
   reel.load(p);
 }
@@ -297,7 +297,7 @@ function poseScore(p, target) {
 function updateGame(p, now) {
   if (gameDone || now < betweenUntil) return;
   if (!guidePlaying) { holdStart = 0; missingSince = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Play the guide to continue.'); return; }
-  if (now - poseStarted < 4000) { holdStart = 0; text('hold-label', 'Watch first, then follow along.'); return; }
+  if (now - poseStarted < 4000) { holdStart = 0; text('hold-label', 'Watch the figure, then follow along.'); return; }
   const target = queue[round], value = poseScore(p, target);
   if (value === null) {
     holdStart = 0; $('hold-bar').style.width = '0'; text('match-score', '—'); light('idle');
@@ -315,7 +315,7 @@ function updateGame(p, now) {
     $('hold-bar').style.width = Math.min(100, elapsed / 20) + '%';
     text('hold-label', `Hold for ${(Math.max(0, 2000 - elapsed) / 1000).toFixed(1)}s`);
     if (elapsed >= 2000) advance(true);
-  } else { holdStart = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Mirror the guide. Reach 60% and hold for 2s.'); }
+  } else { holdStart = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Mirror the figure. Reach 60% and hold for 2s.'); }
 }
 
 // ---------- Break: breathe ----------
