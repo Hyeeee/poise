@@ -1,76 +1,634 @@
 import { ReelPlayer } from './reels.js';
-const $=id=>document.getElementById(id);let session=0;let mode='work',stream,pose,face,loading=false,active=false,landmarks=null,reference=null,lastFrame=-1,lastDetect=0,lastFace=0,showBones=true,driftSince=0,nearSince=0,blinkTimes=[],eyesClosed=false,faceStart=0,remaining=1500,timerRunning=false,timerLast=0,port,writer,lastSerial='',lastSerialTime=0,serialBusy=false,toastTimeout;const camera=$('camera'),canvas=$('skeleton'),ctx=canvas.getContext('2d');
-const colors={green:'#77dab1',amber:'#edc472',red:'#ec8c88',idle:'#b9d0c7'};
-function text(id,value){$(id).textContent=value}function toast(msg){text('toast',msg);$('toast').hidden=false;clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>$('toast').hidden=true,5000)}
-function light(state){document.documentElement.style.setProperty('--signal',colors[state]);if(writer&&(lastSerial!==state||performance.now()-lastSerialTime>1000)&&!serialBusy){serialBusy=true;writer.write(new TextEncoder().encode(state.toUpperCase()+'\n')).then(()=>{lastSerial=state;lastSerialTime=performance.now()}).catch(()=>{writer=null;text('connect','◉ Reconnect');toast('Light bar disconnected.')}).finally(()=>serialBusy=false)}}
-function enter(){ $('welcome').hidden=true;$('studio').hidden=false;window.scrollTo(0,0)}
-async function models(){if(pose)return;const {FilesetResolver,PoseLandmarker,FaceLandmarker}=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs');const files=await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm');pose=await PoseLandmarker.createFromOptions(files,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task'},runningMode:'VIDEO',numPoses:1,minPoseDetectionConfidence:.55,minTrackingConfidence:.55});try{face=await FaceLandmarker.createFromOptions(files,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'},runningMode:'VIDEO',numFaces:1,outputFaceBlendshapes:true})}catch(e){text('eye-note','Eye tracking is unavailable. Posture tracking is still ready.')}}
-async function start(){if(loading||active)return;loading=true;const run=++session;for(const id of ['start','enable'])$(id).disabled=true;text('start-status','Preparing your camera and tracking…');try{stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:'user'},audio:false});if(run!==session){stream.getTracks().forEach(t=>t.stop());return;}camera.srcObject=stream;await camera.play();enter();text('live-label','Loading movement tracking…');await models();if(run!==session)return;active=true;lastFrame=-1;faceStart=performance.now();$('empty-camera').hidden=true;text('live-label','LIVE · ON DEVICE');text('stop','Turn camera off');text('start-status','');requestAnimationFrame(loop)}catch(e){stream?.getTracks().forEach(t=>t.stop());stream=null;camera.srcObject=null;active=false;const msg=e.name==='NotAllowedError'?'Camera access was blocked. Allow camera access in your browser, then try again.':e.name==='NotFoundError'?'No camera found. Connect a camera and try again.':'Camera or tracking could not start. Check your connection and try again.';text('start-status',msg);text('live-label','Camera connection needed');toast(msg)}finally{loading=false;for(const id of ['start','enable'])$(id).disabled=false}}
-function stop(){session++;active=false;stream?.getTracks().forEach(t=>t.stop());stream=null;camera.srcObject=null;landmarks=null;reference=null;timerRunning=false;holdStart=0;driftSince=0;nearSince=0;blinkTimes=[];eyesClosed=false;ctx.clearRect(0,0,canvas.width,canvas.height);$('empty-camera').hidden=false;text('live-label','Camera off');text('stop','Enable camera');text('pause','▶');text('deviation','—');text('blinks','—');text('distance','Distance pending');text('posture-state','Set your reference');text('tracking','◌ Waiting for movement');text('match-score','—');$('hold-bar').style.width='0';$('deviation-bar').style.width='0';light('idle')}
-function visible(p,ids){return p&&ids.every(i=>p[i]&&(p[i].visibility??1)>.6)}
-function cue(p){const a=p[11],b=p[12],w=Math.hypot(a.x-b.x,a.y-b.y);return {x:(p[0].x-(a.x+b.x)/2)/w,y:(p[0].y-(a.y+b.y)/2)/w,tilt:(a.y-b.y)/w,width:w}}
-function draw(p){const w=canvas.clientWidth,h=canvas.clientHeight;canvas.width=w;canvas.height=h;if(!showBones)return;const scale=Math.max(w/camera.videoWidth,h/camera.videoHeight),vw=camera.videoWidth*scale,vh=camera.videoHeight*scale,ox=(w-vw)/2,oy=(h-vh)/2;const xy=a=>[a.x*vw+ox,a.y*vh+oy];ctx.strokeStyle='#c7ffe7';ctx.fillStyle='#f3fff9';ctx.lineWidth=2;ctx.shadowBlur=9;ctx.shadowColor='#88ffc9';for(const [a,b] of [[0,7],[0,8],[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[24,26]]){if(!visible(p,[a,b]))continue;ctx.beginPath();ctx.moveTo(...xy(p[a]));ctx.lineTo(...xy(p[b]));ctx.stroke()}for(const i of [0,7,8,11,12,13,14,15,16,23,24,25,26])if(visible(p,[i])){ctx.beginPath();ctx.arc(...xy(p[i]),4,0,Math.PI*2);ctx.fill()}}
-function updateWork(p,now){if(!reference){text('posture-state','Set your reference position');return}const c=cue(p),d=Math.min(100,Math.round((Math.abs(c.x-reference.x)+Math.abs(c.y-reference.y)+Math.abs(c.tilt-reference.tilt)) *100));text('deviation',d);$('deviation-bar').style.width=d+'%';let state='green';if(d>18){if(!driftSince)driftSince=now;state=now-driftSince>=5000?'red':'amber'}else driftSince=0;light(state);text('posture-state',state==='green'?'In balance · Near your reference':state==='amber'?'Drifting · A small shift':'Reset gently · Notice your position');text('posture-hint',state==='red'?'Your position has shifted for over 5 seconds.':'Comparing your head and shoulders with your reference.');if(c.width/reference.width>1.25){if(!nearSince)nearSince=now;text('distance',now-nearSince>3000?'A little too close':'Checking distance')}else{nearSince=0;text('distance','Near reference')}}
-function updateFace(now){if(!face)return;const r=face.detectForVideo(camera,now),s=r.faceBlendshapes?.[0]?.categories;if(!s){text('blinks','—');text('eye-note','Look toward the camera for eye tracking.');return}const l=s.find(x=>x.categoryName==='eyeBlinkLeft')?.score||0,rgt=s.find(x=>x.categoryName==='eyeBlinkRight')?.score||0;const closed=(l+rgt)/2>.45;if(closed&&!eyesClosed)blinkTimes.push(now);eyesClosed=closed;blinkTimes=blinkTimes.filter(t=>now-t<60000);text('blinks',blinkTimes.length);text('eye-note',now-faceStart<60000?'First 60 seconds · blinks observed so far':'Blinks observed in the last 60 seconds')}
-function loop(now){if(!active)return;try{if(camera.readyState>=2&&camera.currentTime!==lastFrame&&now-lastDetect>65){lastFrame=camera.currentTime;lastDetect=now;const r=pose.detectForVideo(camera,now);landmarks=r.landmarks[0];if(visible(landmarks,[0,11,12])){draw(landmarks);text('tracking','◉ Live joint tracking');if(mode==='work')updateWork(landmarks,now);else updateGame(landmarks,now)}else{landmarks=null;ctx.clearRect(0,0,canvas.width,canvas.height);driftSince=0;nearSince=0;holdStart=0;text('tracking','◌ Keep your head and shoulders in view');text('posture-state','Tracking paused');text('deviation','—');text('match-score','—');$('hold-bar').style.width='0';light('idle')}if(now-lastFace>120){updateFace(now);lastFace=now}}}catch(e){stop();toast('Tracking error. Restart your camera to try again.');return}requestAnimationFrame(loop)}
+import { store, SENSITIVITY, SENS_ORDER, createMode, deleteMode, patchMode, describeWork, describeBreak, clamp } from './settings.js';
+import { runOnboarding, speak } from './onboarding.js';
+import { respond } from './assistant.js';
+
+const $ = id => document.getElementById(id);
+const text = (id, value) => { $(id).textContent = value; };
+const camera = $('camera'), canvas = $('skeleton'), ctx = canvas.getContext('2d');
+
+const ICON = {
+  play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24"><rect x="6.5" y="5.5" width="3.6" height="13" rx="1"/><rect x="13.9" y="5.5" width="3.6" height="13" rx="1"/></svg>',
+};
+const colors = { green: '#7fd6b2', amber: '#efc46a', red: '#ec8d87', idle: '#b3c2d8' };
+
+// ---------- State ----------
+let session = 0, screen = 'work', stream, pose, face, loading = false, active = false;
+let landmarks = null, reference = null, lastFrame = -1, lastDetect = 0, lastFace = 0;
+let driftSince = 0, nearSince = 0, lastState = 'idle', blinkTimes = [], eyesClosed = false, faceStart = 0;
+let remaining = store.work().focus * 60, timerRunning = false, timerLast = 0, lastFocus = store.work().focus;
+let stats = { green: 0, amber: 0, red: 0 }, lastStatTick = 0;
+let port, writer, lastSerial = '', lastSerialTime = 0, serialBusy = false, toastTimeout;
+
+const threshold = () => SENSITIVITY[store.work().sensitivity].threshold;
+const strongDelay = () => store.work().delay * 1000;
+
+// ---------- Output: light bar, toast, chime ----------
+function light(state) {
+  document.documentElement.style.setProperty('--signal', colors[state]);
+  if (writer && (lastSerial !== state || performance.now() - lastSerialTime > 1000) && !serialBusy) {
+    serialBusy = true;
+    writer.write(new TextEncoder().encode(state.toUpperCase() + '\n'))
+      .then(() => { lastSerial = state; lastSerialTime = performance.now(); })
+      .catch(() => { writer = null; $('connect').classList.remove('on'); toast('Light bar disconnected'); })
+      .finally(() => { serialBusy = false; });
+  }
+}
+function toast(msg) {
+  text('toast', msg); $('toast').hidden = false;
+  clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { $('toast').hidden = true; }, 4000);
+}
+let audio;
+function chime() {
+  try {
+    audio ||= new AudioContext();
+    const now = audio.currentTime;
+    [660, 880].forEach((f, i) => {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0, now + i * .12);
+      g.gain.linearRampToValueAtTime(.12, now + i * .12 + .02);
+      g.gain.exponentialRampToValueAtTime(.0001, now + i * .12 + .9);
+      o.connect(g).connect(audio.destination); o.start(now + i * .12); o.stop(now + i * .12 + 1);
+    });
+  } catch {}
+}
+
+// ---------- Camera + models ----------
+function enter() { $('welcome').hidden = true; $('studio').hidden = false; syncUI(); }
+
+async function models() {
+  if (pose) return;
+  const { FilesetResolver, PoseLandmarker, FaceLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs');
+  const files = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm');
+  pose = await PoseLandmarker.createFromOptions(files, {
+    baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task' },
+    runningMode: 'VIDEO', numPoses: 1, minPoseDetectionConfidence: .55, minTrackingConfidence: .55,
+  });
+  try {
+    face = await FaceLandmarker.createFromOptions(files, {
+      baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task' },
+      runningMode: 'VIDEO', numFaces: 1, outputFaceBlendshapes: true,
+    });
+  } catch { face = null; }
+}
+
+async function start() {
+  if (loading || active) return;
+  loading = true;
+  const run = ++session;
+  for (const id of ['start', 'enable']) $(id).disabled = true;
+  text('start-status', 'Starting camera…');
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false });
+    if (run !== session) { stream.getTracks().forEach(t => t.stop()); return; }
+    camera.srcObject = stream; await camera.play();
+    enter();
+    setChip('Loading tracking…');
+    await models();
+    if (run !== session) return;
+    active = true; lastFrame = -1; faceStart = performance.now();
+    $('empty-camera').hidden = true;
+    $('stop').classList.add('on'); $('stop').setAttribute('aria-label', 'Turn camera off');
+    text('start-status', '');
+    setChip('Find your frame', false);
+    requestAnimationFrame(loop);
+  } catch (e) {
+    stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null; active = false;
+    const msg = e.name === 'NotAllowedError' ? 'Camera access is blocked. Allow it in your browser settings, then try again.'
+      : e.name === 'NotFoundError' ? 'No camera found. Connect one and try again.'
+      : 'Tracking could not start. Check your connection and try again.';
+    text('start-status', msg); setChip('Camera off'); toast(msg);
+  } finally {
+    loading = false;
+    for (const id of ['start', 'enable']) $(id).disabled = false;
+  }
+}
+
+function stop() {
+  session++; active = false;
+  stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null;
+  landmarks = null; reference = null; timerRunning = false; holdStart = 0; driftSince = 0; nearSince = 0; blinkTimes = []; eyesClosed = false;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  $('empty-camera').hidden = false;
+  $('stop').classList.remove('on'); $('stop').setAttribute('aria-label', 'Turn camera on');
+  setChip('Camera off');
+  text('deviation', '—'); text('blinks', '—'); text('distance', '—'); text('match-score', '—');
+  text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); text('calibrate', 'Set reference');
+  $('hold-bar').style.width = '0'; $('deviation-bar').style.width = '0';
+  renderPause(); light('idle');
+}
+
+function setChip(label, live = false) { text('tracking', label); $('tracking').classList.toggle('live', live); }
+
+const visible = (p, ids) => p && ids.every(i => p[i] && (p[i].visibility ?? 1) > .6);
+function cue(p) {
+  const a = p[11], b = p[12], w = Math.hypot(a.x - b.x, a.y - b.y);
+  return { x: (p[0].x - (a.x + b.x) / 2) / w, y: (p[0].y - (a.y + b.y) / 2) / w, tilt: (a.y - b.y) / w, width: w };
+}
+
+function draw(p) {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w; canvas.height = h;
+  if (!store.state.joints) return;
+  const scale = Math.max(w / camera.videoWidth, h / camera.videoHeight), vw = camera.videoWidth * scale, vh = camera.videoHeight * scale, ox = (w - vw) / 2, oy = (h - vh) / 2;
+  const xy = a => [a.x * vw + ox, a.y * vh + oy];
+  ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.fillStyle = '#fff'; ctx.lineWidth = 1.5; ctx.shadowBlur = 12; ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--signal');
+  for (const [a, b] of [[0, 7], [0, 8], [11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [24, 26]]) {
+    if (!visible(p, [a, b])) continue;
+    ctx.beginPath(); ctx.moveTo(...xy(p[a])); ctx.lineTo(...xy(p[b])); ctx.stroke();
+  }
+  for (const i of [0, 7, 8, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26]) if (visible(p, [i])) { ctx.beginPath(); ctx.arc(...xy(p[i]), 3.5, 0, Math.PI * 2); ctx.fill(); }
+}
+
+const STATE_COPY = {
+  green: ['Aligned', 'Close to your reference.'],
+  amber: ['Drifting', 'A small shift. Settle back when you can.'],
+  red: ['Reset your posture', 'You have been out of position for a while.'],
+};
+
+function updateWork(p, now) {
+  if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); return; }
+  const c = cue(p);
+  const d = Math.min(100, Math.round((Math.abs(c.x - reference.x) + Math.abs(c.y - reference.y) + Math.abs(c.tilt - reference.tilt)) * 100));
+  text('deviation', d); $('deviation-bar').style.width = d + '%';
+  let state = 'green';
+  if (d > threshold()) { if (!driftSince) driftSince = now; state = now - driftSince >= strongDelay() ? 'red' : 'amber'; } else driftSince = 0;
+  if (state === 'red' && lastState !== 'red' && store.work().chime) chime();
+  lastState = state;
+  light(state);
+  text('posture-state', STATE_COPY[state][0]); text('posture-hint', STATE_COPY[state][1]);
+  // Share of the session spent aligned
+  if (lastStatTick && timerRunning) stats[state] += Math.min(now - lastStatTick, 500);
+  lastStatTick = now;
+  renderAligned();
+  if (store.work().eyes) {
+    if (c.width / reference.width > 1.25) { if (!nearSince) nearSince = now; text('distance', now - nearSince > 3000 ? 'Too close' : 'Close'); }
+    else { nearSince = 0; text('distance', 'Good'); }
+  }
+}
+
+function renderAligned() {
+  const total = stats.green + stats.amber + stats.red;
+  text('aligned', total > 3000 ? Math.round(stats.green / total * 100) + '%' : '—');
+}
+
+function updateFace(now) {
+  if (!face || !store.work().eyes) return;
+  const r = face.detectForVideo(camera, now), s = r.faceBlendshapes?.[0]?.categories;
+  if (!s) { text('blinks', '—'); return; }
+  const l = s.find(x => x.categoryName === 'eyeBlinkLeft')?.score || 0, rgt = s.find(x => x.categoryName === 'eyeBlinkRight')?.score || 0;
+  const closed = (l + rgt) / 2 > .45;
+  if (closed && !eyesClosed) blinkTimes.push(now);
+  eyesClosed = closed;
+  blinkTimes = blinkTimes.filter(t => now - t < 60000);
+  text('blinks', now - faceStart < 15000 ? '…' : blinkTimes.length);
+}
+
+function loop(now) {
+  if (!active) return;
+  try {
+    if (camera.readyState >= 2 && camera.currentTime !== lastFrame && now - lastDetect > 65) {
+      lastFrame = camera.currentTime; lastDetect = now;
+      const r = pose.detectForVideo(camera, now);
+      landmarks = r.landmarks[0];
+      if (visible(landmarks, [0, 11, 12])) {
+        draw(landmarks);
+        setChip('Tracking', true);
+        if (screen === 'work') updateWork(landmarks, now);
+        else if (store.brk().style === 'stretch') updateGame(landmarks, now);
+      } else {
+        landmarks = null; ctx.clearRect(0, 0, canvas.width, canvas.height);
+        driftSince = 0; nearSince = 0; holdStart = 0; lastStatTick = 0;
+        setChip('Keep your head and shoulders in view');
+        if (screen === 'work') { text('posture-state', 'Paused'); text('posture-hint', 'Move back into the frame to continue.'); text('deviation', '—'); }
+        text('match-score', '—'); $('hold-bar').style.width = '0';
+        if (!(screen === 'break' && store.brk().style === 'breathe')) light('idle');
+      }
+      if (now - lastFace > 120) { updateFace(now); lastFace = now; }
+    }
+  } catch (e) {
+    stop(); toast('Tracking stopped. Turn the camera on to try again.'); return;
+  }
+  requestAnimationFrame(loop);
+}
+
+function calibrate() {
+  if (!active || !visible(landmarks, [0, 11, 12])) { toast('Keep your head and both shoulders in view'); return false; }
+  reference = cue(landmarks); driftSince = 0; nearSince = 0;
+  stats = { green: 0, amber: 0, red: 0 }; lastStatTick = 0;
+  text('calibrate', 'Reset reference');
+  toast('Reference saved');
+  timerRunning = true; timerLast = performance.now(); renderPause();
+  return true;
+}
+
+// ---------- Break: stretch game ----------
 // Each target matches the visible direction and movement in its video segment.
-const poses=[
- {name:'Shoulder release · Left',tip:'Bring the arm on the left of your mirror across your chest. Support it gently with your other hand.',type:'cross',side:'left',video:'GcPujVayIbI',start:8,end:21},
- {name:'Shoulder release · Right',tip:'Switch sides. Bring the arm on the right of your mirror across your chest, like the instructor.',type:'cross',side:'right',video:'GcPujVayIbI',start:23,end:36},
- {name:'Neck release · Right',tip:'Soften your shoulders. Gently tip your head right and slightly forward, as shown.',type:'neck',target:18,video:'Q14tE13GNrs',start:65,end:79},
- {name:'Neck release · Left',tip:'Follow the instructor to the left. Stay within a comfortable range.',type:'neck',target:-18,video:'Q14tE13GNrs',start:81,end:90},
- {name:'Upper-back release',tip:'Wrap your arms around an imaginary cushion. Let your shoulders soften forward.',type:'hug',video:'GcPujVayIbI',start:38,end:56}
+const poses = [
+  { name: 'Shoulder release, left', tip: 'Bring the arm on the left of your mirror across your chest. Support it with your other hand.', type: 'cross', side: 'left', video: 'GcPujVayIbI', start: 8, end: 21 },
+  { name: 'Shoulder release, right', tip: 'Switch sides. Bring the arm on the right of your mirror across your chest.', type: 'cross', side: 'right', video: 'GcPujVayIbI', start: 23, end: 36 },
+  { name: 'Neck release, right', tip: 'Soften your shoulders. Tip your head right and slightly forward.', type: 'neck', target: 18, video: 'Q14tE13GNrs', start: 65, end: 79 },
+  { name: 'Neck release, left', tip: 'Now to the left. Stay within a comfortable range.', type: 'neck', target: -18, video: 'Q14tE13GNrs', start: 81, end: 90 },
+  { name: 'Upper-back release', tip: 'Wrap your arms around an imaginary cushion and let your shoulders round forward.', type: 'hug', video: 'GcPujVayIbI', start: 38, end: 56 },
 ];
-let queue=[],round=0,points=0,perfect=0,holdStart=0,missingSince=0,betweenUntil=0,gameDone=false,guidePlaying=false,poseStarted=0;
-const reel=new ReelPlayer({onPlaying(playing){guidePlaying=playing;if(!playing)holdStart=0;},onError(){holdStart=0;light('idle');}});
-function angle(a,b,c){const u=[a.x-b.x,a.y-b.y],v=[c.x-b.x,c.y-b.y];return Math.acos(Math.max(-1,Math.min(1,(u[0]*v[0]+u[1]*v[1])/(Math.hypot(...u)*Math.hypot(...v)||1))))*180/Math.PI}
-function newGame(){queue=[...poses];round=0;points=0;perfect=0;gameDone=false;betweenUntil=0;showPose()}
-function showPose(){
- holdStart=0;missingSince=0;poseStarted=performance.now();guidePlaying=false;
- const p=queue[round];$('reel-progress').innerHTML=queue.map((_,i)=>`<span class="${i<round?'done':i===round?'current':''}"></span>`).join('');
- $('reel-complete').hidden=!!p;$('replay').hidden=!p;$('skip').hidden=!p;
- if(!p){gameDone=true;reel.stop();text('pose-name','Your reset is complete.');text('pose-instruction','A little movement, a fresh start. Stay here for a moment, or return to your focus.');text('round',`${queue.length} / ${queue.length}`);text('hold-label',`${perfect} movements completed · ${points} points`);text('match-score','—');$('hold-bar').style.width='100%';return}
- text('pose-name',p.name);text('pose-instruction',p.tip);text('round',`${round+1} / ${queue.length}`);text('match-score','—');$('hold-bar').style.width='0';text('hold-label',active?'Watch, then match the movement.':'Enable your camera to play along.');text('points',`${points} points`);reel.load(p);
+let queue = [], round = 0, points = 0, perfect = 0, holdStart = 0, missingSince = 0, betweenUntil = 0, gameDone = false, guidePlaying = false, poseStarted = 0;
+const reel = new ReelPlayer({ onPlaying(playing) { guidePlaying = playing; if (!playing) holdStart = 0; }, onError() { holdStart = 0; light('idle'); } });
+const angle = (a, b, c) => { const u = [a.x - b.x, a.y - b.y], v = [c.x - b.x, c.y - b.y]; return Math.acos(Math.max(-1, Math.min(1, (u[0] * v[0] + u[1] * v[1]) / (Math.hypot(...u) * Math.hypot(...v) || 1)))) * 180 / Math.PI; };
+
+function newGame() {
+  const count = clamp(store.brk().count || 5, 1, poses.length);
+  // Random subset, kept in the guide's original order so paired sides stay together.
+  const picked = new Set([...poses.keys()].sort(() => Math.random() - .5).slice(0, count));
+  queue = poses.filter((_, i) => picked.has(i));
+  round = 0; points = 0; perfect = 0; gameDone = false; betweenUntil = 0;
+  showPose();
 }
-function advance(passed=false){if(gameDone)return;if(passed){points+=100;perfect++;toast('✧ Perfect! +100');light('green')}round++;betweenUntil=performance.now()+1500;showPose();text('points',`${points} points`)}
+function showPose() {
+  holdStart = 0; missingSince = 0; poseStarted = performance.now(); guidePlaying = false;
+  const p = queue[round];
+  $('reel-progress').innerHTML = queue.map((_, i) => `<span class="${i < round ? 'done' : i === round ? 'current' : ''}"></span>`).join('');
+  $('reel-complete').hidden = !!p; $('pose-actions').hidden = !p;
+  if (!p) {
+    gameDone = true; reel.stop();
+    text('pose-name', 'Break complete'); text('pose-instruction', `${perfect} of ${queue.length} stretches matched.`);
+    text('round', `${queue.length} / ${queue.length}`); text('hold-label', ''); text('match-score', '—');
+    $('hold-bar').style.width = '100%';
+    return;
+  }
+  text('pose-name', p.name); text('pose-instruction', p.tip); text('round', `${round + 1} / ${queue.length}`);
+  text('match-score', '—'); $('hold-bar').style.width = '0';
+  text('hold-label', active ? 'Watch first, then follow along.' : 'Turn on your camera to get a match score.');
+  text('points', `${points} points`);
+  reel.load(p);
+}
+function advance(passed = false) {
+  if (gameDone) return;
+  if (passed) { points += 100; perfect++; toast('Perfect  +100'); light('green'); }
+  round++; betweenUntil = performance.now() + 1500; showPose(); text('points', `${points} points`);
+}
 // Position-based estimates, normalized by shoulder width. No video is uploaded.
-function poseScore(p,target){
- const required=target.type==='neck'?[7,8,11,12]:[11,12,13,14,15,16];
- if(!visible(p,required))return null;
- if(target.type==='neck'){const tilt=Math.atan2(p[8].y-p[7].y,Math.abs(p[7].x-p[8].x))*180/Math.PI;return Math.max(0,100-Math.abs(tilt-target.target)*4)}
- const w=Math.hypot(p[11].x-p[12].x,p[11].y-p[12].y);if(w<.04)return null;
- const mid={x:(p[11].x+p[12].x)/2,y:(p[11].y+p[12].y)/2};
- if(target.type==='cross'){
-  const left=target.side==='left',shoulder=p[left?11:12],elbow=p[left?13:14],wrist=p[left?15:16],support=p[left?16:15];
-  // Anatomical left is screen-left after the camera mirror transform.
-  const across=(left?mid.x-wrist.x:wrist.x-mid.x)/w;
-  if(across<.08)return 0;
-  const heightError=Math.abs((wrist.y-mid.y)/w-.12);
-  const supportGap=Math.hypot(support.x-elbow.x,support.y-elbow.y)/w;
-  const elbowAngle=angle(shoulder,elbow,wrist);
-  return Math.max(0,100-heightError*65-Math.max(0,supportGap-.45)*50-Math.max(0,120-elbowAngle)*.35);
- }
- // Upper-back hug: both elbows bent and hands together in front of the torso.
- const handGap=Math.hypot(p[15].x-p[16].x,p[15].y-p[16].y)/w;
- const handsY=((p[15].y+p[16].y)/2-mid.y)/w;
- const elbowL=angle(p[11],p[13],p[15]),elbowR=angle(p[12],p[14],p[16]);
- if(handsY>1.05||handsY<.12||elbowL>145||elbowR>145)return 0;
- return Math.max(0,100-Math.max(0,handGap-.4)*50-Math.abs(handsY-.55)*45-Math.abs(elbowL-elbowR)*.3);
+function poseScore(p, target) {
+  const required = target.type === 'neck' ? [7, 8, 11, 12] : [11, 12, 13, 14, 15, 16];
+  if (!visible(p, required)) return null;
+  if (target.type === 'neck') { const tilt = Math.atan2(p[8].y - p[7].y, Math.abs(p[7].x - p[8].x)) * 180 / Math.PI; return Math.max(0, 100 - Math.abs(tilt - target.target) * 4); }
+  const w = Math.hypot(p[11].x - p[12].x, p[11].y - p[12].y); if (w < .04) return null;
+  const mid = { x: (p[11].x + p[12].x) / 2, y: (p[11].y + p[12].y) / 2 };
+  if (target.type === 'cross') {
+    const left = target.side === 'left', shoulder = p[left ? 11 : 12], elbow = p[left ? 13 : 14], wrist = p[left ? 15 : 16], support = p[left ? 16 : 15];
+    // Anatomical left is screen-left after the camera mirror transform.
+    const across = (left ? mid.x - wrist.x : wrist.x - mid.x) / w;
+    if (across < .08) return 0;
+    const heightError = Math.abs((wrist.y - mid.y) / w - .12);
+    const supportGap = Math.hypot(support.x - elbow.x, support.y - elbow.y) / w;
+    const elbowAngle = angle(shoulder, elbow, wrist);
+    return Math.max(0, 100 - heightError * 65 - Math.max(0, supportGap - .45) * 50 - Math.max(0, 120 - elbowAngle) * .35);
+  }
+  // Upper-back hug: both elbows bent and hands together in front of the torso.
+  const handGap = Math.hypot(p[15].x - p[16].x, p[15].y - p[16].y) / w;
+  const handsY = ((p[15].y + p[16].y) / 2 - mid.y) / w;
+  const elbowL = angle(p[11], p[13], p[15]), elbowR = angle(p[12], p[14], p[16]);
+  if (handsY > 1.05 || handsY < .12 || elbowL > 145 || elbowR > 145) return 0;
+  return Math.max(0, 100 - Math.max(0, handGap - .4) * 50 - Math.abs(handsY - .55) * 45 - Math.abs(elbowL - elbowR) * .3);
 }
-function updateGame(p,now){
- if(gameDone||now<betweenUntil)return;
- if(!guidePlaying){holdStart=0;missingSince=0;$('hold-bar').style.width='0';text('hold-label','Play the guide to continue.');return}
- if(now-poseStarted<4000){holdStart=0;text('hold-label','Watch the movement, then follow along.');return}
- const target=queue[round],value=poseScore(p,target);
- if(value===null){holdStart=0;$('hold-bar').style.width='0';text('match-score','—');light('idle');if(!missingSince)missingSince=now;text('hold-label',target.type==='neck'?'Keep your face and shoulders in view.':'Keep both arms in view · auto-skip after 8 seconds');if(target.type!=='neck'&&now-missingSince>8000){toast('Arms are out of view. Moving to the next stretch.');advance()}return}
- missingSince=0;const score=Math.round(value);text('match-score',score);light(score>=60?'green':score>=40?'amber':'red');
- if(score>=60){if(!holdStart)holdStart=now;const elapsed=now-holdStart;$('hold-bar').style.width=Math.min(100,elapsed/20)+'%';text('hold-label',`Nice. Hold for ${(Math.max(0,2000-elapsed)/1000).toFixed(1)} more seconds.`);if(elapsed>=2000)advance(true)}else{holdStart=0;$('hold-bar').style.width='0';text('hold-label','Follow the same screen direction as the instructor.')}
+function updateGame(p, now) {
+  if (gameDone || now < betweenUntil) return;
+  if (!guidePlaying) { holdStart = 0; missingSince = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Play the guide to continue.'); return; }
+  if (now - poseStarted < 4000) { holdStart = 0; text('hold-label', 'Watch first, then follow along.'); return; }
+  const target = queue[round], value = poseScore(p, target);
+  if (value === null) {
+    holdStart = 0; $('hold-bar').style.width = '0'; text('match-score', '—'); light('idle');
+    if (!missingSince) missingSince = now;
+    text('hold-label', target.type === 'neck' ? 'Keep your face and shoulders in view.' : 'Keep both arms in view. Skipping in a few seconds.');
+    if (target.type !== 'neck' && now - missingSince > 8000) { toast('Arms out of view. Skipped.'); advance(); }
+    return;
+  }
+  missingSince = 0;
+  const score = Math.round(value);
+  text('match-score', score); light(score >= 60 ? 'green' : score >= 40 ? 'amber' : 'red');
+  if (score >= 60) {
+    if (!holdStart) holdStart = now;
+    const elapsed = now - holdStart;
+    $('hold-bar').style.width = Math.min(100, elapsed / 20) + '%';
+    text('hold-label', `Hold for ${(Math.max(0, 2000 - elapsed) / 1000).toFixed(1)}s`);
+    if (elapsed >= 2000) advance(true);
+  } else { holdStart = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Mirror the guide. Reach 60% and hold for 2s.'); }
 }
-function setMode(next){
- mode=next;$('studio').classList.toggle('break-mode',next==='break');$('scene-title').hidden=next==='break';
- $('work-panel').hidden=next!=='work';$('break-panel').hidden=next!=='break';$('work').classList.toggle('active',next==='work');$('break').classList.toggle('active',next==='break');text('panel-title',next==='work'?'Your alignment':'Your little reset');
- holdStart=0;driftSince=0;light('idle');if(next==='break'){timerRunning=false;text('pause','▶');newGame()}else{reel.stop();remaining=Number($('duration').value)*60;renderTimer()}
+
+// ---------- Break: breathe ----------
+const TIPS = ['Rest your eyes on something far away.', 'Let your shoulders drop.', 'Blink slowly a few times.', 'Unclench your jaw.'];
+let breathTimer = null;
+function startBreathe() {
+  stopBreathe();
+  const total = store.brk().minutes * 60 * 1000, began = performance.now();
+  const orb = $('breath-orb');
+  let inhale = true, phaseEnd = 0;
+  const tick = () => {
+    const now = performance.now(), left = Math.max(0, total - (now - began));
+    $('breath-bar').style.width = (100 - left / total * 100) + '%';
+    text('breath-left', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')} left`);
+    if (!left) {
+      stopBreathe(); orb.classList.remove('in'); text('breath-cue', 'Break complete'); text('breath-tip', 'Nice. Ready when you are.'); light('green');
+      return;
+    }
+    if (now >= phaseEnd) {
+      inhale = !inhale || phaseEnd === 0;
+      const ms = inhale ? 4000 : 6000;
+      orb.style.transitionDuration = ms + 'ms';
+      orb.classList.toggle('in', inhale);
+      text('breath-cue', inhale ? 'Breathe in' : 'Breathe out');
+      light(inhale ? 'green' : 'idle');
+      phaseEnd = now + ms;
+      text('breath-tip', TIPS[Math.floor((now - began) / 20000) % TIPS.length]);
+    }
+  };
+  tick(); breathTimer = setInterval(tick, 250);
 }
-function renderTimer(){text('timer',`${Math.floor(remaining/60).toString().padStart(2,'0')}:${Math.floor(remaining%60).toString().padStart(2,'0')}`);$('timer-bar').style.width=(1-remaining/(Number($('duration').value)*60))*100+'%'}setInterval(()=>{const now=performance.now();if(timerRunning&&active&&mode==='work'&&!document.hidden){remaining=Math.max(0,remaining-(now-timerLast)/1000);renderTimer();if(!remaining){setMode('break');toast('A little focus, a little movement. Time for your reset.')}}timerLast=now},200);
-$('start').onclick=start;$('enable').onclick=start;$('preview').onclick=enter;$('stop').onclick=()=>active?stop():start();$('home').onclick=()=>{reel.stop();stop();$('studio').hidden=true;$('welcome').hidden=false};$('about').onclick=()=>$('info').showModal();document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('work').onclick=()=>setMode('work');$('break').onclick=()=>setMode('break');$('skip').onclick=()=>advance();$('replay').onclick=()=>{holdStart=0;poseStarted=performance.now();reel.replay()};$('restart-break').onclick=newGame;$('return-work').onclick=()=>setMode('work');$('calibrate').onclick=()=>{if(!active||!visible(landmarks,[0,11,12]))return toast('Keep your head and both shoulders in the camera frame.');reference=cue(landmarks);driftSince=0;nearSince=0;toast('Reference saved. Settle into your focus.');text('calibrate','⊕ Reset reference');timerRunning=true;timerLast=performance.now();text('pause','Ⅱ')};$('pause').onclick=()=>{if(!active)return toast('Enable your camera first.');timerRunning=!timerRunning;timerLast=performance.now();text('pause',timerRunning?'Ⅱ':'▶')};$('duration').onchange=()=>{remaining=Number($('duration').value)*60;renderTimer()};$('toggle-skeleton').onclick=()=>{showBones=!showBones;text('toggle-skeleton',`Show joints · ${showBones?'ON':'OFF'}`);if(!showBones)ctx.clearRect(0,0,canvas.width,canvas.height)};
-$('connect').onclick=async()=>{if(!('serial'in navigator))return toast('Use desktop Chrome or Edge to connect your light bar.');try{if(writer){await writer.close();writer.releaseLock();await port.close();writer=null;text('connect','◉ Connect light bar');return}port=await navigator.serial.requestPort();await port.open({baudRate:115200});writer=port.writable.getWriter();lastSerial='';text('connect','◉ Light bar connected');light('idle')}catch(e){if(e.name!=='NotFoundError')toast('Check your USB connection. Another app may be using the port.')}};document.addEventListener('visibilitychange',()=>{driftSince=0;holdStart=0;timerLast=performance.now();if(document.hidden){light('idle');reel.suspend()}else if(mode==='break'&&!gameDone&&!$('studio').hidden)reel.resume()});window.addEventListener('pagehide',()=>{reel.stop();stream?.getTracks().forEach(t=>t.stop())});
+function stopBreathe() { clearInterval(breathTimer); breathTimer = null; }
+
+// ---------- Screens ----------
+function setScreen(next) {
+  screen = next;
+  const brk = store.brk();
+  $('studio').classList.toggle('break-mode', next === 'break');
+  $('studio').classList.toggle('breathing', next === 'break' && brk.style === 'breathe');
+  $('work-panel').hidden = next !== 'work';
+  $('break-panel').hidden = !(next === 'break' && brk.style === 'stretch');
+  $('breathe-panel').hidden = !(next === 'break' && brk.style === 'breathe');
+  $('work').classList.toggle('active', next === 'work'); $('break').classList.toggle('active', next === 'break');
+  holdStart = 0; driftSince = 0; light('idle');
+  reel.stop(); stopBreathe();
+  if (next === 'break') {
+    timerRunning = false; renderPause();
+    if (brk.style === 'stretch') newGame(); else startBreathe();
+  } else {
+    remaining = store.work().focus * 60; renderTimer();
+    if (reference) { timerRunning = true; timerLast = performance.now(); renderPause(); }
+  }
+}
+
+function renderTimer() {
+  const total = store.work().focus * 60;
+  text('timer', `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(Math.floor(remaining % 60)).padStart(2, '0')}`);
+  $('timer-bar').style.width = (1 - remaining / total) * 100 + '%';
+}
+function renderPause() {
+  $('pause').innerHTML = timerRunning ? ICON.pause : ICON.play;
+  $('pause').setAttribute('aria-label', timerRunning ? 'Pause timer' : 'Start timer');
+}
+setInterval(() => {
+  const now = performance.now();
+  if (timerRunning && active && screen === 'work' && !document.hidden) {
+    remaining = Math.max(0, remaining - (now - timerLast) / 1000);
+    renderTimer();
+    if (!remaining) {
+      if (store.work().chime || !store.brk().auto) chime();
+      if (store.brk().auto) { setScreen('break'); toast('Focus done. Time for a break.'); }
+      else {
+        timerRunning = false; remaining = store.work().focus * 60; renderTimer(); renderPause();
+        addMessage('poise', 'Focus time is up. Want to take a break?');
+        openThread(['Take a break', 'Keep going']);
+      }
+    }
+  }
+  timerLast = now;
+}, 200);
+
+// Keep panel text in sync with the current modes.
+function syncUI() {
+  const work = store.work(), brk = store.brk();
+  if (work.focus !== lastFocus) { lastFocus = work.focus; remaining = work.focus * 60; }
+  text('work-mode-name', work.name);
+  text('next-break', `Then ${brk.name.toLowerCase()}: ${describeBreak(brk)}`);
+  $('eye-stat').hidden = !work.eyes; $('dist-stat').hidden = !work.eyes;
+  renderTimer(); renderPause();
+  if (screen === 'break') {
+    const wantStretch = brk.style === 'stretch';
+    if ($('break-panel').hidden === wantStretch) setScreen('break');
+  }
+}
+store.on(() => { syncUI(); if ($('modes').open) renderModeList(); });
+
+// ---------- Modes sheet ----------
+let tab = 'work';
+function openModes(kind = tab) { tab = kind; renderModes(); if (!$('modes').open) $('modes').showModal(); }
+function renderModes() {
+  document.querySelectorAll('#modes-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  $('pref-voice').checked = store.state.voice; $('pref-joints').checked = store.state.joints;
+  renderModeList(); renderEditor();
+}
+function renderModeList() {
+  const list = tab === 'work' ? store.state.works : store.state.breaks;
+  const current = tab === 'work' ? store.state.workId : store.state.breakId;
+  $('mode-list').innerHTML = '';
+  list.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'mode-chip' + (m.id === current ? ' active' : '');
+    b.textContent = m.name;
+    b.onclick = () => { store.update(s => { if (tab === 'work') s.workId = m.id; else s.breakId = m.id; }); renderEditor(); };
+    $('mode-list').append(b);
+  });
+  const add = document.createElement('button');
+  add.className = 'mode-chip add'; add.textContent = 'New mode';
+  add.onclick = () => { createMode(tab, ''); renderModes(); $('editor').querySelector('input[type=text]')?.select(); };
+  $('mode-list').append(add);
+}
+function field(label, control, output = '') {
+  return `<div class="field"><span>${label}</span>${output}${control.replace('<input ', `<input aria-label="${label}" `)}</div>`;
+}
+function segmented(name, options, value) {
+  return `<div class="segmented" role="group" data-seg="${name}">${options.map(([v, l]) => `<button type="button" data-v="${v}" class="${v === value ? 'active' : ''}">${l}</button>`).join('')}</div>`;
+}
+function toggle(name, checked) { return `<label class="toggle"><input type="checkbox" data-k="${name}" ${checked ? 'checked' : ''}></label>`; }
+function renderEditor() {
+  const ed = $('editor');
+  const m = tab === 'work' ? store.work() : store.brk();
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  let html = field('Name', `<input type="text" data-k="name" maxlength="32" value="${esc(m.name)}">`);
+  if (tab === 'work') {
+    html += field('Focus length', `<input type="range" data-k="focus" min="5" max="90" step="5" value="${m.focus}">`, `<output>${m.focus} min</output>`);
+    html += field('Sensitivity', segmented('sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
+    html += field('Strong cue after', `<input type="range" data-k="delay" min="2" max="20" step="1" value="${m.delay}">`, `<output>${m.delay}s</output>`);
+    html += field('Eye care', toggle('eyes', m.eyes));
+    html += field('Chime', toggle('chime', m.chime));
+  } else {
+    html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Breathe']], m.style));
+    html += m.style === 'stretch'
+      ? field('Stretches', `<input type="range" data-k="count" min="1" max="5" step="1" value="${m.count}">`, `<output>${m.count}</output>`)
+      : field('Length', `<input type="range" data-k="minutes" min="1" max="10" step="1" value="${m.minutes}">`, `<output>${m.minutes} min</output>`);
+    html += field('Start automatically', toggle('auto', m.auto));
+  }
+  const list = tab === 'work' ? store.state.works : store.state.breaks;
+  html += `<div class="editor-foot"><span class="sub">${tab === 'work' ? describeWork(m) : describeBreak(m)}</span>${list.length > 1 ? '<button type="button" class="danger" id="delete-mode">Delete</button>' : ''}</div>`;
+  ed.innerHTML = html;
+
+  ed.querySelectorAll('input[type=range]').forEach(inp => inp.oninput = () => {
+    const v = Number(inp.value); patchMode(tab, { [inp.dataset.k]: v });
+    const unit = { focus: ' min', minutes: ' min', delay: 's', count: '' }[inp.dataset.k];
+    inp.parentElement.querySelector('output').textContent = v + unit;
+    ed.querySelector('.editor-foot .sub').textContent = tab === 'work' ? describeWork(store.work()) : describeBreak(store.brk());
+  });
+  ed.querySelectorAll('input[type=checkbox]').forEach(inp => inp.onchange = () => patchMode(tab, { [inp.dataset.k]: inp.checked }));
+  ed.querySelector('input[type=text]').oninput = e => patchMode(tab, { name: e.target.value.trim() || 'Untitled' });
+  ed.querySelectorAll('[data-seg] button').forEach(b => b.onclick = () => { patchMode(tab, { [b.parentElement.dataset.seg]: b.dataset.v }); renderEditor(); });
+  const del = $('delete-mode');
+  if (del) del.onclick = () => { deleteMode(tab, m.id); renderModes(); };
+}
+document.querySelectorAll('#modes-tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; renderModes(); });
+$('pref-voice').onchange = e => store.update(s => { s.voice = e.target.checked; });
+$('pref-joints').onchange = e => setJoints(e.target.checked);
+$('pref-setup').onclick = () => { $('modes').close(); rerunSetup(); };
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
+$('modes').addEventListener('click', e => { if (e.target === $('modes')) $('modes').close(); });
+
+function setJoints(v) {
+  store.update(s => { s.joints = v; });
+  if (!v) ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+async function rerunSetup() {
+  const wasBreak = screen === 'break';
+  await runOnboarding();
+  if (wasBreak) setScreen('work'); else syncUI();
+}
+
+// ---------- Ask Poise ----------
+const SUGGEST = ['Focus 40 minutes', 'Less sensitive', 'Breaks with breathing', 'How am I doing?'];
+function addMessage(who, msg) {
+  const el = document.createElement('div');
+  el.className = `msg ${who}`; el.textContent = msg;
+  $('messages').append(el);
+  $('messages').scrollTop = $('messages').scrollHeight;
+}
+function openThread(suggestions = SUGGEST) {
+  $('thread').hidden = false; $('studio').classList.add('chatting');
+  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, eye care, your breaks, or a new mode.');
+  $('suggest').innerHTML = '';
+  suggestions.forEach(s => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = s;
+    b.onclick = () => send(s === 'Keep going' ? 'resume timer' : s);
+    $('suggest').append(b);
+  });
+}
+function closeThread() { $('thread').hidden = true; $('studio').classList.remove('chatting'); }
+
+const assistantCtx = {
+  work: () => store.work(), brk: () => store.brk(),
+  works: () => store.state.works, breaks: () => store.state.breaks,
+  patchWork: p => patchMode('work', p), patchBreak: p => patchMode('break', p),
+  selectWork: id => store.update(s => { s.workId = id; }),
+  selectBreak: id => store.update(s => { s.breakId = id; }),
+  newMode: (kind, name) => createMode(kind, name),
+  startBreak: () => setScreen('break'),
+  startFocus: () => setScreen('work'),
+  pauseTimer: () => { timerRunning = false; renderPause(); },
+  resumeTimer: () => { if (screen !== 'work') setScreen('work'); timerRunning = true; timerLast = performance.now(); renderPause(); },
+  calibrate: () => calibrate(),
+  setJoints, setVoice: v => store.update(s => { s.voice = v; }),
+  rerunSetup: () => { closeThread(); rerunSetup(); },
+  openModes: () => openModes(),
+  status: () => {
+    const total = stats.green + stats.amber + stats.red;
+    const share = total > 3000 ? Math.round(stats.green / total * 100) : null;
+    const mins = Math.ceil(remaining / 60);
+    const blinks = store.work().eyes && active ? blinkTimes.length : null;
+    return {
+      en: [share !== null ? `You've been aligned ${share}% of this session.` : 'Set a reference and start the timer to see how you are doing.',
+        `${mins} min left in ${store.work().name}.`, blinks !== null ? `${blinks} blinks in the last minute.` : ''].join(' ').trim(),
+      ko: [share !== null ? `이번 세션에서 ${share}% 동안 바른 자세였어요.` : '기준 자세를 저장하고 타이머를 시작하면 알려드릴게요.',
+        `${store.work().name} 모드 ${mins}분 남았어요.`, blinks !== null ? `최근 1분 동안 ${blinks}번 깜빡였어요.` : ''].join(' ').trim(),
+    };
+  },
+};
+
+let spoken = false;
+function send(message) {
+  const msg = message.trim();
+  if (!msg) return;
+  openThread();
+  addMessage('me', msg);
+  $('ask-input').value = '';
+  $('ask-form').classList.add('thinking');
+  setTimeout(() => {
+    const { reply } = respond(msg, assistantCtx);
+    $('ask-form').classList.remove('thinking');
+    addMessage('poise', reply);
+    if (spoken) speak(reply, $('ask-orb'), /[가-힣]/.test(reply) ? 'ko' : 'en');
+    spoken = false;
+    if ($('modes').open) renderEditor();
+  }, 380);
+}
+$('ask-form').onsubmit = e => { e.preventDefault(); send($('ask-input').value); };
+$('ask-input').onfocus = () => openThread();
+document.addEventListener('pointerdown', e => { if (!$('ask').contains(e.target) && !$('thread').hidden) closeThread(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('thread').hidden) { closeThread(); $('ask-input').blur(); } });
+
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (Recognition) {
+  const rec = new Recognition();
+  rec.lang = navigator.languages?.some(l => l.startsWith('ko')) ? 'ko-KR' : 'en-US';
+  rec.interimResults = false;
+  $('mic').hidden = false;
+  rec.onresult = e => { spoken = true; send(e.results[0][0].transcript); };
+  rec.onend = () => $('mic').classList.remove('listening');
+  rec.onerror = () => $('mic').classList.remove('listening');
+  $('mic').onclick = () => {
+    if ($('mic').classList.contains('listening')) { rec.stop(); return; }
+    try { rec.start(); $('mic').classList.add('listening'); openThread(); } catch {}
+  };
+}
+
+// ---------- Wiring ----------
+async function begin(withCamera) {
+  if (!store.state.onboarded) {
+    $('welcome').hidden = true;
+    await runOnboarding();
+  }
+  setScreen('work');
+  enter();
+  if (withCamera) start();
+}
+$('start').onclick = () => begin(true);
+$('preview').onclick = () => begin(false);
+$('enable').onclick = start;
+$('stop').onclick = () => (active ? stop() : start());
+$('home').onclick = () => { reel.stop(); stopBreathe(); stop(); closeThread(); $('studio').hidden = true; $('welcome').hidden = false; };
+$('work').onclick = () => setScreen('work');
+$('break').onclick = () => setScreen('break');
+$('skip').onclick = () => advance();
+$('replay').onclick = () => { holdStart = 0; poseStarted = performance.now(); reel.replay(); };
+$('restart-break').onclick = newGame;
+$('return-work').onclick = () => setScreen('work');
+$('breath-end').onclick = () => setScreen('work');
+$('calibrate').onclick = calibrate;
+$('work-mode-name').onclick = () => openModes('work');
+$('open-modes').onclick = () => openModes(screen === 'break' ? 'break' : 'work');
+$('pause').onclick = () => {
+  if (!active) return toast('Turn on your camera first');
+  timerRunning = !timerRunning; timerLast = performance.now(); renderPause();
+};
+$('connect').onclick = async () => {
+  if (!('serial' in navigator)) return toast('Use desktop Chrome or Edge to connect the light bar');
+  try {
+    if (writer) {
+      await writer.close(); writer.releaseLock(); await port.close(); writer = null;
+      $('connect').classList.remove('on'); $('connect').setAttribute('aria-label', 'Connect light bar');
+      return;
+    }
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 115200 });
+    writer = port.writable.getWriter(); lastSerial = '';
+    $('connect').classList.add('on'); $('connect').setAttribute('aria-label', 'Disconnect light bar');
+    toast('Light bar connected'); light('idle');
+  } catch (e) { if (e.name !== 'NotFoundError') toast('Check the USB connection. Another app may be using the port.'); }
+};
+document.addEventListener('visibilitychange', () => {
+  driftSince = 0; holdStart = 0; timerLast = performance.now(); lastStatTick = 0;
+  if (document.hidden) { light('idle'); reel.suspend(); }
+  else if (screen === 'break' && !gameDone && !$('studio').hidden && store.brk().style === 'stretch') reel.resume();
+});
+window.addEventListener('pagehide', () => { reel.stop(); stream?.getTracks().forEach(t => t.stop()); });
+
+syncUI();
+renderPause();

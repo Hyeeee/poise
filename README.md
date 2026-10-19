@@ -1,19 +1,33 @@
 # Poise
-A browser-local posture awareness prototype, with an English glass interface.
+A browser-local posture companion for a monitor-mounted light bar. Glass interface, voice-guided setup, custom focus and break modes, and an assistant you can type or talk to.
 
-Serve this repository root through localhost or HTTPS. GitHub Pages can deploy the main branch from / (root). Choose Begin with camera, allow access, keep your head and shoulders visible, and select Set reference. Head/shoulder deviation persists for 5 seconds before red feedback. No camera frames are stored or uploaded. Models and fonts load from external CDNs.
+Serve the repository root through localhost or HTTPS (GitHub Pages works from `/`). No camera frames are stored or uploaded. Models and fonts load from CDNs.
 
-Break mode now uses five real-person follow-along clips from CUH's official YouTube videos: two shoulder releases, two neck releases, and an upper-back release. Clips autoplay muted and repeat their selected 9–18 second segment through the YouTube IFrame API. Replay, pause, sound, next, error recovery, and source links are available. Work mode and leaving the page stop playback; hidden tabs pause it. Autoplay restrictions may require one tap on Play.
+## Flow
+1. **Welcome** → **Begin** opens a short voice-guided setup (first visit only). Five questions set focus length, how firmly to nudge, eye care, break style, and whether breaks start on their own. The answers become two modes: *My focus* and *My reset*.
+2. **Studio** — the camera fills the screen. The side panel shows posture state, the focus timer, and session stats (time aligned, blinks per minute, distance). A thin line along the top mirrors the light bar color.
+3. **Break** — either guided stretches (YouTube clips from CUH NHS, pose-matched: 60% held for 2 s scores) or a breathing and eye-rest timer.
 
-A 60% match held continuously for two seconds earns 100 points. The first four seconds allow time to watch the guide. Scores estimate the demonstrated target using live landmarks (not frame-by-frame analysis of the instructor). Missing arm visibility skips an arm target after eight seconds. Left/right are aligned to the on-screen direction. The large Break marketing headline and the static stick-figure guide have been removed.
+## Modes
+Focus modes: name, focus length, sensitivity (gentle / balanced / firm), seconds before a strong cue, eye care, chime.
+Break modes: name, style (stretch / breathe), number of stretches or minutes, start automatically.
+Three presets of each ship by default; create, edit, and delete more from the sliders button. Everything is saved in `localStorage`.
 
-The eye panel counts detected blinks in a rolling 60-second window. Distance uses apparent shoulder width relative to calibration; it is not a centimeter measurement. These are prototype estimates, not clinical measures.
+## Ask Poise
+The bar at the bottom accepts English or Korean, typed or spoken (Chrome speech recognition). Examples: `focus 40 minutes`, `집중 40분, 휴식은 호흡으로`, `덜 민감하게`, `turn off eye care`, `'공부' 모드 만들어줘`, `take a break`, `how am I doing?`. Parsing runs locally in `assistant.js`; no API key is needed. To connect a hosted LLM later, replace `respond()` and keep the `ctx` actions.
+
+## Files
+- `app.js` — camera, MediaPipe tracking, timer, break game, light bar serial, UI wiring
+- `settings.js` — modes and preferences store
+- `onboarding.js` — voice-guided setup (Web Speech synthesis)
+- `assistant.js` — intent parser for Ask Poise
+- `reels.js` — YouTube follow-along player
+- `hardware/poise-lightbar.ino` — NeoPixel sketch
 
 ## Light bar
-Use desktop Chrome/Edge and an Arduino-compatible board with the Adafruit NeoPixel library. Adjust LED_PIN and LED_COUNT in hardware/poise-lightbar.ino for your actual hardware. The web app sends GREEN, AMBER, RED, or IDLE followed by a newline at 115200 baud. The sketch fades between colors and returns to neutral if messages stop. Hardware has not been physically tested.
+Use desktop Chrome/Edge and an Arduino-compatible board with the Adafruit NeoPixel library. Adjust `LED_PIN` and `LED_COUNT` in `hardware/poise-lightbar.ino`. The web app sends `GREEN`, `AMBER`, `RED`, or `IDLE` plus a newline at 115200 baud. During breathing breaks the bar alternates `GREEN` (inhale) and `IDLE` (exhale). Hardware has not been physically tested.
 
-## Verification
-Browser verification covered the English screens, muted video autoplay, clip changes, and pause/resume controls; both MediaPipe models were initialized in the earlier version. Logic checks now cover the 60% threshold, continuous two-second holds, loss-of-tracking and paused-video guards, zero points for skipped moves, and mirrored shoulder/neck direction. Live tracking accuracy requires a person and camera; physical serial output requires the actual board.
+Position, distance, and blink counts are relative prototype estimates, not health measurements.
 
 ## Sources
 - MediaPipe: https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker/web_js

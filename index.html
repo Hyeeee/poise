@@ -1,6 +1,201 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#c5d4d0"><title>Poise — Find your balance</title><link rel="stylesheet" href="style.css"></head><body>
-<div class="ambient"><div class="orb one"></div><div class="orb two"></div><div class="horizon"></div></div>
-<section id="welcome" class="start-screen"><button class="start-info" id="about" aria-label="About Poise">i</button><main class="start-center"><div class="start-emblem" aria-hidden="true"><span></span><span></span></div><h1 class="start-logo">poise<span>°</span></h1><p class="start-subtitle">A moment to find your balance.</p><div class="start-card glass"><div class="start-modes"><span>Posture awareness</span><span class="start-dot">·</span><span>Mindful breaks</span></div><button id="start" class="primary">Begin with camera <span>↗</span></button><button id="preview" class="text-btn">Explore without camera</button><p id="start-status" role="status"></p></div><p class="start-privacy"><svg width="12" height="14" viewBox="0 0 12 14" fill="none" aria-hidden="true"><rect x="1.5" y="6" width="9" height="6.5" rx="2" stroke="currentColor"/><path d="M3.5 6V3.5a2.5 2.5 0 0 1 5 0V6" stroke="currentColor"/></svg> Your camera stays yours.<small>Processed on your device. Never recorded or uploaded.</small></p></main></section>
-<section id="studio" hidden><video id="camera" autoplay playsinline muted></video><canvas id="skeleton"></canvas><div class="camera-shade"></div><div id="lightbar"></div><header class="studio-header"><button id="home" class="wordmark">poise<span>°</span></button><div class="glass pill"><i id="live-dot"></i><span id="live-label">Camera standing by</span></div><div class="header-actions"><button id="connect" class="glass pill">◉ Connect light bar</button><button id="stop" class="glass pill">Enable camera</button></div></header><div class="scene-title" id="scene-title"><div class="eyebrow" id="mode-label">YOUR SPACE TO FOCUS</div><h2 id="scene-heading">A little more<br><em>in balance.</em></h2><p id="scene-description">Soften your shoulders. Let your focus flow.</p></div><div id="empty-camera" class="glass empty-camera"><span>◎</span><h3>A mirror, just for you</h3><p>Turn on your camera to see<br>your movement come to life.</p><button class="primary" id="enable">Enable camera ↗</button><small>Preview mode · no simulated measurements</small></div><aside class="glass sidebar"><div class="panel-heading"><span id="panel-title">Your alignment</span><span>↗</span></div><div id="work-panel"><div class="status-line"><i id="state-dot"></i><span id="posture-state">Set your reference</span></div><div class="score"><span id="deviation">—</span><small>%<br>DEVIATION</small></div><div class="meter"><div id="deviation-bar"></div></div><p class="muted" id="posture-hint">Sit comfortably, then save your reference position.</p><button class="outline" id="calibrate">⊕ Set reference</button><div class="divider"></div><div class="panel-heading"><span>Eye care</span><span>◉</span></div><div class="eye-row"><div><b id="blinks">—</b><small>blinks / min</small></div><span class="soft-badge" id="distance">Distance pending</span></div><p class="muted" id="eye-note">Keep your face visible to track your blinks.</p><div class="divider"></div><div class="timer-label"><span>Next little reset</span><select id="duration" aria-label="Focus duration"><option value="25">25 min</option><option value="15">15 min</option><option value="1">1 min · test</option></select></div><div class="timer"><span id="timer">25:00</span><button id="pause" aria-label="Start or pause timer">▶</button></div><div class="meter timer-meter"><div id="timer-bar"></div></div><small class="muted">Your next reset begins when the timer ends.</small></div><div id="break-panel" hidden><div class="reel-progress" id="reel-progress" aria-label="Stretch progress"></div><div class="reel-topline"><span>FOLLOW ALONG</span><span id="round">1 / 5</span></div><div class="reel-video"><div id="reel-player"></div></div><div class="reel-toolbar"><span id="reel-status" role="status">Loading your guide…</span><button id="reel-play" aria-label="Pause guide">Ⅱ</button><button id="reel-sound" aria-label="Turn guide sound on">Sound off</button></div><div class="reel-error" id="reel-error" hidden><p>The guide could not play.</p><button id="reel-retry" class="outline">Try again</button><a id="reel-original" target="_blank" rel="noopener">Watch original ↗</a></div><h3 id="pose-name"></h3><p id="pose-instruction" class="muted"></p><div class="reel-score"><div><b id="match-score">—</b><span>% match</span><small class="pass-rule">60% · 2s to pass</small></div><span id="points">0 points</span></div><div class="meter"><div id="hold-bar"></div></div><p id="hold-label" class="muted">Reach 60% and hold for 2 seconds</p><div class="break-actions"><button id="replay" class="outline">↺ Replay</button><button id="skip" class="outline">Next stretch →</button></div><div id="reel-complete" hidden><button id="restart-break" class="outline">Start another reset ↺</button><button id="return-work" class="primary">Back to Work →</button></div><div class="reel-credit"><a href="https://www.cuh.nhs.uk/our-services/physiotherapy-outpatients/outpatient-physio-resources/resources/shoulder/seated-stretches/" target="_blank" rel="noopener">Guide by CUH · NHS ↗</a><span>Move gently. Follow the same screen direction.</span></div></div></aside><div id="toast" class="glass toast" role="status" hidden></div><div class="bottom-controls"><span class="glass pill tracking-chip" id="tracking">◌ Waiting for movement</span><nav class="glass mode-switch" aria-label="Mode"><button id="work" class="active">◫ Work</button><button id="break">✧ Break</button></nav><button id="toggle-skeleton" class="glass pill">Show joints · ON</button></div></section>
-<dialog id="info"><button class="close" data-close>×</button><div class="eyebrow">AWARENESS, NOT PERFECTION</div><h2>Small shifts.<br>Better balance.</h2><p>Poise is a physical computing prototype that compares your head and shoulder position with a reference you choose.</p><p>Camera video is analyzed in your browser, never stored or uploaded. Position and distance are relative estimates, not a health diagnosis.</p><p>Green: near reference. Amber: a shift. Red: a shift lasting over 5 seconds.<br>Connect a USB light bar using desktop Chrome or Edge with Web Serial support.</p><button class="primary" data-close>Got it</button></dialog>
-<script type="module" src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#a9bbd3">
+<title>Poise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Welcome -->
+<section id="welcome" class="welcome">
+  <main class="welcome-main">
+    <div class="orb hero" aria-hidden="true"><i></i></div>
+    <h1 class="wordmark">poise</h1>
+    <p class="lede">Sit well without thinking about it.</p>
+    <div class="cta">
+      <button id="start" class="primary">Begin</button>
+      <button id="preview" class="text-btn">Look around first</button>
+    </div>
+    <p id="start-status" class="status" role="status"></p>
+  </main>
+  <p class="privacy">Your camera is processed on this device and never uploaded.</p>
+</section>
+
+<!-- Voice-guided setup -->
+<section id="setup" class="setup" hidden>
+  <div class="setup-top">
+    <div class="setup-progress" aria-hidden="true"><i id="setup-bar"></i></div>
+    <button id="setup-voice" class="icon-btn" aria-label="Mute voice" aria-pressed="true">
+      <svg class="i-on" viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+      <svg class="i-off" viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg>
+    </button>
+    <button id="setup-skip" class="text-btn">Skip</button>
+  </div>
+  <div class="setup-stage">
+    <div class="orb" id="setup-orb" aria-hidden="true"><i></i></div>
+    <p class="setup-line" id="setup-line" aria-live="polite"></p>
+    <div class="setup-choices" id="setup-choices"></div>
+  </div>
+</section>
+
+<!-- Studio -->
+<section id="studio" class="studio" hidden>
+  <video id="camera" autoplay playsinline muted></video>
+  <canvas id="skeleton"></canvas>
+  <div class="veil" aria-hidden="true"></div>
+  <div id="lightbar" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <button id="home" class="brand" aria-label="Back to start"><span class="orb mini" aria-hidden="true"><i></i></span>poise</button>
+    <nav class="segmented glass" aria-label="Mode">
+      <button id="work" class="active">Focus</button>
+      <button id="break">Break</button>
+    </nav>
+    <div class="tools">
+      <button id="connect" class="icon-btn glass" aria-label="Connect light bar" title="Connect light bar">
+        <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="4" rx="2"/><path d="M8 15h8M12 11v8"/></svg>
+      </button>
+      <button id="stop" class="icon-btn glass" aria-label="Turn camera on" title="Camera">
+        <svg viewBox="0 0 24 24"><rect x="3" y="6.5" width="13" height="11" rx="3"/><path d="m16 10.5 5-3v9l-5-3"/></svg>
+      </button>
+      <button id="open-modes" class="icon-btn glass" aria-label="Modes and settings" title="Modes">
+        <svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="empty-camera" class="empty glass">
+    <p>Turn on your camera to start tracking.</p>
+    <button class="primary" id="enable">Turn on camera</button>
+  </div>
+
+  <span id="tracking" class="chip glass">Camera off</span>
+
+  <aside class="panel glass" aria-label="Session">
+    <!-- Focus -->
+    <div id="work-panel">
+      <section class="block state">
+        <div class="state-row"><i id="state-dot"></i><h2 id="posture-state">Set a reference</h2></div>
+        <p id="posture-hint" class="sub">Sit the way you want to stay, then save it.</p>
+        <div class="meter"><div id="deviation-bar"></div></div>
+        <div class="state-foot">
+          <span class="sub"><b id="deviation">—</b>% shift</span>
+          <button class="ghost" id="calibrate">Set reference</button>
+        </div>
+      </section>
+      <section class="block session">
+        <button class="mode-name" id="work-mode-name" title="Change focus mode"></button>
+        <div class="timer">
+          <span id="timer">25:00</span>
+          <button id="pause" class="round" aria-label="Start timer"></button>
+        </div>
+        <div class="meter thin"><div id="timer-bar"></div></div>
+        <p class="sub" id="next-break"></p>
+      </section>
+      <section class="block stats">
+        <div><b id="aligned">—</b><small>aligned</small></div>
+        <div id="eye-stat"><b id="blinks">—</b><small>blinks/min</small></div>
+        <div id="dist-stat"><b id="distance">—</b><small>distance</small></div>
+      </section>
+    </div>
+
+    <!-- Break: stretch -->
+    <div id="break-panel" hidden>
+      <div class="reel-head">
+        <div class="reel-progress" id="reel-progress" aria-label="Stretch progress"></div>
+        <span id="round" class="sub">1 / 5</span>
+      </div>
+      <div class="reel-video">
+        <div id="reel-player"></div>
+        <div class="reel-ctrl">
+          <button id="reel-play" class="icon-btn glass" aria-label="Pause guide"></button>
+          <button id="reel-sound" class="icon-btn glass" aria-label="Turn guide sound on"></button>
+        </div>
+      </div>
+      <p id="reel-status" class="tiny" role="status"></p>
+      <div class="reel-error" id="reel-error" hidden>
+        <p>The guide video didn't load.</p>
+        <button id="reel-retry" class="ghost">Try again</button>
+        <a id="reel-original" target="_blank" rel="noopener">Open on YouTube</a>
+      </div>
+      <h2 id="pose-name"></h2>
+      <p id="pose-instruction" class="sub"></p>
+      <div class="match"><span><b id="match-score">—</b>% match</span><span id="points" class="sub">0 points</span></div>
+      <div class="meter"><div id="hold-bar"></div></div>
+      <p id="hold-label" class="sub"></p>
+      <div class="row" id="pose-actions">
+        <button id="replay" class="ghost">Replay</button>
+        <button id="skip" class="ghost">Skip</button>
+      </div>
+      <div class="row" id="reel-complete" hidden>
+        <button id="restart-break" class="ghost">Again</button>
+        <button id="return-work" class="primary">Back to focus</button>
+      </div>
+      <a class="credit" href="https://www.cuh.nhs.uk/our-services/physiotherapy-outpatients/outpatient-physio-resources/resources/shoulder/seated-stretches/" target="_blank" rel="noopener">Guide videos: CUH NHS physiotherapy</a>
+    </div>
+
+    <!-- Break: breathe -->
+    <div id="breathe-panel" hidden>
+      <div class="breath-stage"><div class="orb breath" id="breath-orb" aria-hidden="true"><i></i></div></div>
+      <h2 id="breath-cue">Breathe in</h2>
+      <p class="sub" id="breath-tip">Rest your eyes on something far away.</p>
+      <div class="meter thin"><div id="breath-bar"></div></div>
+      <div class="state-foot">
+        <span class="sub" id="breath-left"></span>
+        <button id="breath-end" class="primary">Back to focus</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="ask" id="ask">
+    <div class="thread glass" id="thread" hidden>
+      <div class="messages" id="messages" aria-live="polite"></div>
+      <div class="suggest" id="suggest"></div>
+    </div>
+    <form class="askbar glass" id="ask-form" autocomplete="off">
+      <span class="orb mini" id="ask-orb" aria-hidden="true"><i></i></span>
+      <input id="ask-input" aria-label="Ask Poise" placeholder="Ask Poise to change anything">
+      <button type="button" id="mic" class="icon-btn" aria-label="Speak instead" hidden>
+        <svg viewBox="0 0 24 24"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v3"/></svg>
+      </button>
+      <button type="submit" class="send" aria-label="Send">
+        <svg viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
+      </button>
+    </form>
+  </div>
+
+  <div id="toast" class="toast glass" role="status" hidden></div>
+</section>
+
+<!-- Modes -->
+<dialog id="modes" class="sheet">
+  <header class="sheet-head">
+    <h2>Modes</h2>
+    <button class="icon-btn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+    </button>
+  </header>
+  <nav class="segmented" id="modes-tabs" aria-label="Mode type">
+    <button data-tab="work" class="active">Focus</button>
+    <button data-tab="break">Break</button>
+  </nav>
+  <div class="mode-list" id="mode-list"></div>
+  <div class="editor" id="editor"></div>
+  <footer class="prefs">
+    <label class="toggle"><input type="checkbox" id="pref-voice"><span>Voice</span></label>
+    <label class="toggle"><input type="checkbox" id="pref-joints"><span>Show joints</span></label>
+    <button class="text-btn" id="pref-setup">Run setup again</button>
+  </footer>
+</dialog>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
