@@ -1,6 +1,6 @@
-// Poise light bar — Arduino Nano Every + NeoPixel strip + HC-SR04
+// Poise light bar — Arduino UNO (or Nano Every) + NeoPixel strip + HC-SR04
 // Wiring: D6 -> 330Ω -> strip DIN, D7 -> HC-SR04 Trig, D8 -> HC-SR04 Echo.
-// Strip 5V from the external adapter, Nano from USB, all GNDs joined.
+// Prototype: strip and sensor powered from the board 5V pin over USB, all GNDs joined.
 //
 // What it does
 // 1. On power-up: quick red / green / blue test so you can see the strip works.
@@ -16,7 +16,7 @@ constexpr uint8_t LED_PIN   = 6;
 constexpr uint16_t LED_COUNT = 30;   // <- change to your strip's LED count
 constexpr uint8_t TRIG_PIN  = 7;
 constexpr uint8_t ECHO_PIN  = 8;
-constexpr uint8_t BRIGHTNESS = 60;   // keep low while testing on USB-sized adapters
+constexpr uint8_t BRIGHTNESS = 40;   // keep low: the strip runs from USB power
 
 // Distance thresholds in cm (tune at your desk).
 constexpr int TOO_CLOSE = 40;
