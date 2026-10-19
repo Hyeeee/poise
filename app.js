@@ -2,6 +2,7 @@ import { ReelPlayer } from './reels.js';
 import { store, SENSITIVITY, SENS_ORDER, createMode, deleteMode, patchMode, describeWork, describeBreak, clamp } from './settings.js';
 import { runOnboarding, speak } from './onboarding.js';
 import { respond } from './assistant.js';
+import { mountAgents } from './agent.js';
 
 const $ = id => document.getElementById(id);
 const text = (id, value) => { $(id).textContent = value; };
@@ -27,6 +28,7 @@ const strongDelay = () => store.work().delay * 1000;
 // ---------- Output: light bar, toast, chime ----------
 function light(state) {
   document.documentElement.style.setProperty('--signal', colors[state]);
+  $('state-agent').dataset.mood = state;
   if (writer && (lastSerial !== state || performance.now() - lastSerialTime > 1000) && !serialBusy) {
     serialBusy = true;
     writer.write(new TextEncoder().encode(state.toUpperCase() + '\n'))
@@ -335,7 +337,6 @@ function startBreathe() {
     if (now >= phaseEnd) {
       inhale = !inhale || phaseEnd === 0;
       const ms = inhale ? 4000 : 6000;
-      orb.style.transitionDuration = ms + 'ms';
       orb.classList.toggle('in', inhale);
       text('breath-cue', inhale ? 'Breathe in' : 'Breathe out');
       light(inhale ? 'green' : 'idle');
@@ -549,10 +550,10 @@ function send(message) {
   openThread();
   addMessage('me', msg);
   $('ask-input').value = '';
-  $('ask-form').classList.add('thinking');
+  $('ask-form').classList.add('thinking'); $('ask-orb').classList.add('thinking');
   setTimeout(() => {
     const { reply } = respond(msg, assistantCtx);
-    $('ask-form').classList.remove('thinking');
+    $('ask-form').classList.remove('thinking'); $('ask-orb').classList.remove('thinking');
     addMessage('poise', reply);
     if (spoken) speak(reply, $('ask-orb'), /[가-힣]/.test(reply) ? 'ko' : 'en');
     spoken = false;
@@ -571,11 +572,10 @@ if (Recognition) {
   rec.interimResults = false;
   $('mic').hidden = false;
   rec.onresult = e => { spoken = true; send(e.results[0][0].transcript); };
-  rec.onend = () => $('mic').classList.remove('listening');
-  rec.onerror = () => $('mic').classList.remove('listening');
+  rec.onend = rec.onerror = () => { $('mic').classList.remove('listening'); $('ask-orb').classList.remove('listening'); };
   $('mic').onclick = () => {
     if ($('mic').classList.contains('listening')) { rec.stop(); return; }
-    try { rec.start(); $('mic').classList.add('listening'); openThread(); } catch {}
+    try { rec.start(); $('mic').classList.add('listening'); $('ask-orb').classList.add('listening'); openThread(); } catch {}
   };
 }
 
@@ -632,3 +632,4 @@ window.addEventListener('pagehide', () => { reel.stop(); stream?.getTracks().for
 
 syncUI();
 renderPause();
+mountAgents();

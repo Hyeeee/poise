@@ -1,5 +1,6 @@
 // Voice-guided setup that turns a few answers into a personal focus mode and break mode.
 import { store, describeWork, describeBreak } from './settings.js';
+import { mountAgents } from './agent.js';
 
 const $ = id => document.getElementById(id);
 
@@ -96,6 +97,7 @@ export function runOnboarding() {
     const token = { cancelled: false };
     let index = -1;
     section.hidden = false;
+    mountAgents(section);
     syncVoiceButton();
 
     const finish = saved => {
@@ -118,6 +120,10 @@ export function runOnboarding() {
     async function show(text, renderChoices) {
       choices.classList.remove('in');
       choices.innerHTML = '';
+      orb.classList.add('thinking');
+      await new Promise(r => setTimeout(r, reducedMotion() ? 0 : 650));
+      orb.classList.remove('thinking');
+      if (token.cancelled) return;
       speak(text, orb);
       await typeLine(line, text, token);
       if (token.cancelled) return;
