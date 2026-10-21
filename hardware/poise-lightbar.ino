@@ -16,7 +16,7 @@ constexpr uint8_t LED_PIN   = 6;
 constexpr uint16_t LED_COUNT = 30;   // <- change to your strip's LED count
 constexpr uint8_t TRIG_PIN  = 7;
 constexpr uint8_t ECHO_PIN  = 8;
-constexpr uint8_t BRIGHTNESS = 40;   // keep low: the strip runs from USB power
+constexpr uint8_t BRIGHTNESS = 90;   // brighter, saturated colors; white is kept dim to stay within USB power
 
 // Distance thresholds in cm (tune at your desk).
 constexpr int TOO_CLOSE = 40;
@@ -26,7 +26,7 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 String input;
 float r = 0, g = 0, b = 0;            // current color (faded)
-uint8_t tr = 60, tg = 75, tb = 70;    // target color
+uint8_t tr = 40, tg = 45, tb = 50;    // target color
 unsigned long lastMessage = 0, lastFrame = 0, lastPing = 0;
 bool appConnected = false;
 int distanceCm = -1;
@@ -62,17 +62,17 @@ void handleMessage(String msg) {
   msg.trim();
   lastMessage = millis();
   appConnected = true;
-  if (msg == "GREEN")      setTarget(65, 220, 145);
-  else if (msg == "AMBER") setTarget(245, 170, 45);
-  else if (msg == "RED")   setTarget(230, 65, 60);
-  else                     setTarget(60, 75, 70);   // IDLE or anything else
+  if (msg == "GREEN")      setTarget(0, 255, 30);
+  else if (msg == "AMBER") setTarget(255, 130, 0);
+  else if (msg == "RED")   setTarget(255, 0, 0);
+  else                     setTarget(40, 45, 50);   // IDLE or anything else
 }
 
 void sensorDemo() {
-  if (distanceCm < 0)              setTarget(40, 50, 60);     // nobody there
-  else if (distanceCm < TOO_CLOSE) setTarget(230, 65, 60);    // red
-  else if (distanceCm < CLOSE)     setTarget(245, 170, 45);   // amber
-  else                             setTarget(200, 200, 185);  // soft white
+  if (distanceCm < 0)              setTarget(20, 25, 35);     // nobody there
+  else if (distanceCm < TOO_CLOSE) setTarget(255, 0, 0);      // red
+  else if (distanceCm < CLOSE)     setTarget(255, 130, 0);    // amber
+  else                             setTarget(110, 110, 100);  // soft white (dim: white draws the most current)
 }
 
 void setup() {
