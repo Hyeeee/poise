@@ -12,12 +12,12 @@ const ICON = {
   play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>',
   pause: '<svg viewBox="0 0 24 24"><rect x="6.5" y="5.5" width="3.6" height="13" rx="1"/><rect x="13.9" y="5.5" width="3.6" height="13" rx="1"/></svg>',
 };
-const colors = { green: '#7fd6b2', amber: '#efc46a', red: '#ec8d87', idle: '#b3c2d8' };
+const colors = { green: '#4fbf73', amber: '#f0a020', red: '#e5483d', idle: '#b3c2d8', white: '#e9e7df' };
 
 // ---------- State ----------
 let session = 0, screen = 'work', stream, pose, face, loading = false, active = false;
 let landmarks = null, reference = null, lastFrame = -1, lastDetect = 0, lastFace = 0;
-let driftSince = 0, nearSince = 0, lastState = 'idle', blinkTimes = [], eyesClosed = false, faceStart = 0;
+let driftSince = 0, nearSince = 0, recoverAt = 0, lastState = 'idle', blinkTimes = [], eyesClosed = false, faceStart = 0;
 let remaining = store.work().focus * 60, timerRunning = false, timerLast = 0, lastFocus = store.work().focus;
 let stats = { green: 0, amber: 0, red: 0 }, lastStatTick = 0;
 let port, writer, lastSerial = '', lastSerialTime = 0, serialBusy = false, toastTimeout;
@@ -26,13 +26,15 @@ const threshold = () => SENSITIVITY[store.work().sensitivity].threshold;
 const strongDelay = () => store.work().delay * 1000;
 
 // ---------- Output: light bar, toast, chime ----------
-function light(state) {
-  document.documentElement.style.setProperty('--signal', colors[state]);
-  $('state-agent').dataset.mood = state;
-  if (writer && (lastSerial !== state || performance.now() - lastSerialTime > 1000) && !serialBusy) {
+// state: green | amber | red | idle | white. rgb (optional) sends an exact blended color to the bar.
+function light(state, rgb) {
+  document.documentElement.style.setProperty('--signal', rgb ? `rgb(${rgb.join(',')})` : colors[state]);
+  $('state-agent').dataset.mood = state === 'white' ? 'green' : state;
+  const msg = rgb ? `RGB ${rgb.join(' ')}` : state.toUpperCase();
+  if (writer && (lastSerial !== msg || performance.now() - lastSerialTime > 1000) && !serialBusy) {
     serialBusy = true;
-    writer.write(new TextEncoder().encode(state.toUpperCase() + '\n'))
-      .then(() => { lastSerial = state; lastSerialTime = performance.now(); })
+    writer.write(new TextEncoder().encode(msg + '\n'))
+      .then(() => { lastSerial = msg; lastSerialTime = performance.now(); })
       .catch(() => { writer = null; $('connect').classList.remove('on'); toast('Light bar disconnected'); })
       .finally(() => { serialBusy = false; });
   }
@@ -145,7 +147,8 @@ function draw(p) {
 }
 
 const STATE_COPY = {
-  green: ['Aligned', 'Close to your reference.'],
+  white: ['Aligned', 'Close to your reference.'],
+  green: ['Back in balance', 'Nice correction.'],
   amber: ['Drifting', 'A small shift. Settle back when you can.'],
   red: ['Reset your posture', 'You have been out of position for a while.'],
 };
@@ -155,14 +158,26 @@ function updateWork(p, now) {
   const c = cue(p);
   const d = Math.min(100, Math.round((Math.abs(c.x - reference.x) + Math.abs(c.y - reference.y) + Math.abs(c.tilt - reference.tilt)) * 100));
   text('deviation', d); $('deviation-bar').style.width = d + '%';
-  let state = 'green';
-  if (d > threshold()) { if (!driftSince) driftSince = now; state = now - driftSince >= strongDelay() ? 'red' : 'amber'; } else driftSince = 0;
+  let state, rgb = null;
+  if (d > threshold()) {
+    // Off reference: yellow up to 50% shift, blending to full red at 100% (or after the strong-cue delay).
+    if (!driftSince) driftSince = now;
+    const k = now - driftSince >= strongDelay() ? 1 : Math.max(0, Math.min(1, (d - 50) / 50));
+    state = k >= 1 ? 'red' : 'amber';
+    rgb = [255, Math.round(130 * (1 - k)), 0];
+    recoverAt = 0;
+  } else {
+    driftSince = 0;
+    // Just corrected: green for 3 seconds, then back to neutral white.
+    if (lastState === 'amber' || lastState === 'red') recoverAt = now;
+    state = recoverAt && now - recoverAt < 3000 ? 'green' : 'white';
+  }
   if (state === 'red' && lastState !== 'red' && store.work().chime) chime();
   lastState = state;
-  light(state);
+  light(state, rgb);
   text('posture-state', STATE_COPY[state][0]); text('posture-hint', STATE_COPY[state][1]);
   // Share of the session spent aligned
-  if (lastStatTick && timerRunning) stats[state] += Math.min(now - lastStatTick, 500);
+  if (lastStatTick && timerRunning) stats[state === 'white' ? 'green' : state] += Math.min(now - lastStatTick, 500);
   lastStatTick = now;
   renderAligned();
   if (store.work().eyes) {

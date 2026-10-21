@@ -62,7 +62,13 @@ void handleMessage(String msg) {
   msg.trim();
   lastMessage = millis();
   appConnected = true;
-  if (msg == "GREEN")      setTarget(0, 255, 30);
+  if (msg.startsWith("RGB ")) {             // exact color from the web app: "RGB r g b"
+    int r1 = msg.indexOf(' '), r2 = msg.indexOf(' ', r1 + 1), r3 = msg.indexOf(' ', r2 + 1);
+    if (r1 > 0 && r2 > 0 && r3 > 0)
+      setTarget(msg.substring(r1 + 1, r2).toInt(), msg.substring(r2 + 1, r3).toInt(), msg.substring(r3 + 1).toInt());
+  }
+  else if (msg == "WHITE")  setTarget(110, 110, 100);
+  else if (msg == "GREEN")  setTarget(0, 255, 30);
   else if (msg == "AMBER") setTarget(255, 130, 0);
   else if (msg == "RED")   setTarget(255, 0, 0);
   else                     setTarget(40, 45, 50);   // IDLE or anything else
@@ -93,7 +99,7 @@ void loop() {
   while (Serial.available()) {
     char c = Serial.read();
     if (c == '\n') { handleMessage(input); input = ""; }
-    else if (input.length() < 20) input += c;
+    else if (input.length() < 24) input += c;
   }
   if (appConnected && millis() - lastMessage > 4000) appConnected = false;
 
