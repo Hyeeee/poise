@@ -124,13 +124,12 @@
         <button class="mode-name" id="work-mode-name" title="Change focus mode"></button>
         <div class="timer">
           <span id="timer">25:00</span>
-          <button id="pause" class="round" aria-label="Start timer"></button>
+          <div class="timer-btns"><button id="end-session" class="ghost" hidden>End</button><button id="pause" class="round" aria-label="Start timer"></button></div>
         </div>
         <div class="meter thin"><div id="timer-bar"></div></div>
         <p class="sub" id="next-break"></p>
       </section>
       <section class="card stats">
-        <div><b id="aligned">—</b><small>in good posture</small></div>
         <div id="eye-stat"><b id="blinks">—</b><small>blinks/min</small></div>
         <div id="dist-stat"><b id="distance">—</b><small>distance</small></div>
       </section>
@@ -220,6 +219,33 @@
     <button class="text-btn" id="pref-setup">Run setup again</button>
   </footer>
 </dialog>
+
+<!-- Session report -->
+<div id="report" class="report" hidden>
+  <div class="report-card" role="dialog" aria-labelledby="report-title">
+    <div class="report-head">
+      <div class="agent glyph" data-shape="sphere" aria-hidden="true"></div>
+      <span id="report-len" class="sub"></span>
+    </div>
+    <p class="say report-say"><b id="report-title"></b> <span id="report-line"></span></p>
+    <div id="report-chart" class="report-chart"></div>
+    <div class="report-legend"><span><i style="background:var(--aligned)"></i>Aligned</span><span><i style="background:var(--drift)"></i>Drifting</span><span><i style="background:var(--reset)"></i>Reset</span><span class="sub">line = how far you moved from your reference</span></div>
+    <div class="report-stats">
+      <div><b id="rep-aligned">—</b><small>in good posture</small></div>
+      <div><b id="rep-recover">—</b><small>average time to correct</small></div>
+      <div><b id="rep-drifts">0</b><small id="rep-drift-note">drifts</small></div>
+    </div>
+    <h3 class="report-h">What pulled you out of position</h3>
+    <div id="rep-causes" class="causes"></div>
+    <p id="rep-tip" class="say report-tip"></p>
+    <div class="report-actions">
+      <button id="report-done" class="text-btn">Done</button>
+      <span class="tour-gap"></span>
+      <button id="report-new" class="ghost">New session</button>
+      <button id="report-break" class="primary">Take a break</button>
+    </div>
+  </div>
+</div>
 
 <!-- Guided tour -->
 <div id="tour" class="tour" hidden>

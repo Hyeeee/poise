@@ -295,3 +295,36 @@ input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 
 /* Side panel waits until a reference is saved (shown during the tour). */
 .studio.no-ref:not(.touring) .panel { display: none; }
 #ref-prompt .say { margin-bottom: 22px; }
+
+/* End button */
+.timer-btns { display: flex; align-items: center; gap: 10px; }
+
+/* Session report */
+.report { position: fixed; inset: 0; z-index: 35; display: grid; place-items: center; padding: 20px; background: rgba(28, 30, 26, .45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.report-card { width: min(640px, 100%); max-height: calc(100vh - 40px); overflow: auto; background: var(--paper); border-radius: 34px; padding: 26px 30px 22px; box-shadow: 0 40px 100px -30px rgba(0, 0, 0, .5); }
+.report-head { display: flex; align-items: center; justify-content: space-between; }
+.report-say { font-size: 28px; margin: 14px 0 18px; }
+.report-chart { background: var(--paper-2); border-radius: 18px; padding: 10px 12px 6px; }
+.tl { width: 100%; height: auto; display: block; }
+.tl-line { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linejoin: round; }
+.tl-mid { stroke: rgba(30, 31, 28, .15); stroke-dasharray: 3 5; }
+.tl-empty { font: 14px var(--sans); fill: var(--ink-3); }
+.report-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 2px 0; font-size: 12px; color: var(--ink-2); }
+.report-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.report-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0 6px; }
+.report-stats b { display: block; font-family: var(--serif); font-size: 34px; font-weight: 300; letter-spacing: -.02em; }
+.report-stats small { color: var(--ink-2); font-size: 13px; }
+.report-h { font-size: 13px; font-weight: 500; color: var(--ink-2); margin: 18px 0 8px; }
+.causes { display: flex; flex-direction: column; gap: 8px; }
+.cause { display: grid; grid-template-columns: 170px 1fr 44px; align-items: center; gap: 10px; font-size: 14px; }
+.cause i { height: 6px; border-radius: 6px; background: linear-gradient(90deg, var(--ink) var(--w), var(--hair) var(--w)); }
+.cause b { font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.report-tip { font-size: 19px; margin: 18px 0 18px; padding: 14px 16px; border-radius: 16px; background: var(--paper-2); }
+.report-actions { display: flex; align-items: center; gap: 8px; }
+@media (max-width: 560px) {
+  .report-card { padding: 22px 20px 18px; }
+  .report-say { font-size: 23px; }
+  .report-stats b { font-size: 26px; }
+  .cause { grid-template-columns: 1fr 44px; }
+  .cause i { grid-column: 1 / -1; grid-row: 2; }
+}

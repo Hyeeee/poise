@@ -5,6 +5,7 @@ import { respond } from './assistant.js';
 import { mountAgents } from './agent.js';
 import { ambient } from './ambient.js';
 import { startTour } from './tour.js';
+import { session as posture, showReport } from './report.js';
 
 const $ = id => document.getElementById(id);
 const text = (id, value) => { $(id).textContent = value; };
@@ -180,20 +181,15 @@ function updateWork(p, now) {
   lastState = state;
   light(state, rgb);
   text('posture-state', STATE_COPY[state][0]); text('posture-hint', STATE_COPY[state][1]);
-  // Share of the session spent aligned
-  if (lastStatTick && timerRunning) stats[state === 'white' ? 'green' : state] += Math.min(now - lastStatTick, 500);
-  lastStatTick = now;
-  renderAligned();
+  // Session analysis (only while the focus timer runs).
+  if (timerRunning) posture.record(now, d, state, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt }, c.width / reference.width);
+  else posture.pause();
   if (store.work().eyes) {
     if (c.width / reference.width > 1.25) { if (!nearSince) nearSince = now; text('distance', now - nearSince > 3000 ? 'Too close' : 'Close'); }
     else { nearSince = 0; text('distance', 'Good'); }
   }
 }
 
-function renderAligned() {
-  const total = stats.green + stats.amber + stats.red;
-  text('aligned', total > 3000 ? Math.round(stats.green / total * 100) + '%' : '—');
-}
 
 function updateFace(now) {
   if (!face || !store.work().eyes) return;
@@ -221,7 +217,7 @@ function loop(now) {
         else if (store.brk().style === 'stretch') updateGame(landmarks, now);
       } else {
         landmarks = null; ctx.clearRect(0, 0, canvas.width, canvas.height);
-        driftSince = 0; nearSince = 0; holdStart = 0; lastStatTick = 0;
+        driftSince = 0; nearSince = 0; holdStart = 0; lastStatTick = 0; posture.pause();
         setChip('Keep your head and shoulders in view');
         if (screen === 'work') { text('posture-state', 'Paused'); text('posture-hint', 'Move back into the frame to continue.'); text('deviation', '—'); }
         text('match-score', '—'); $('hold-bar').style.width = '0';
@@ -238,13 +234,14 @@ function loop(now) {
 // Before a reference exists: the side panel is hidden and the main screen asks for one.
 function syncRef() {
   $('studio').classList.toggle('no-ref', !reference);
+  $('end-session').hidden = !reference;
   $('ref-prompt').hidden = !!reference || !active || screen !== 'work';
 }
 function calibrate() {
   if (!active || !visible(landmarks, [0, 11, 12])) { toast('Keep your head and both shoulders in view'); return false; }
   reference = cue(landmarks); driftSince = 0; nearSince = 0;
   syncRef();
-  stats = { green: 0, amber: 0, red: 0 }; lastStatTick = 0;
+  if (!posture.active) posture.reset();
   text('calibrate', 'Reset reference');
   toast('Reference saved');
   timerRunning = true; timerLast = performance.now(); renderPause();
@@ -412,13 +409,8 @@ setInterval(() => {
     remaining = Math.max(0, remaining - (now - timerLast) / 1000);
     renderTimer();
     if (!remaining) {
-      if (store.work().chime || !store.brk().auto) chime();
-      if (store.brk().auto) { setScreen('break'); toast('Focus done. Time for a break.'); }
-      else {
-        timerRunning = false; remaining = store.work().focus * 60; renderTimer(); renderPause();
-        addMessage('poise', 'Focus time is up. Want to take a break?');
-        openThread(['Take a break', 'Keep going']);
-      }
+      chime();
+      endSession('timer');
     }
   }
   timerLast = now;
@@ -431,6 +423,7 @@ function syncUI() {
   text('work-mode-name', work.name);
   text('next-break', `Then ${brk.name.toLowerCase()}: ${describeBreak(brk)}`);
   $('eye-stat').hidden = !work.eyes; $('dist-stat').hidden = !work.eyes;
+  document.querySelector('.card.stats').hidden = !work.eyes;
   renderTimer(); renderPause();
   if (screen === 'break') {
     const wantStretch = brk.style === 'stretch';
@@ -559,8 +552,8 @@ const assistantCtx = {
   rerunSetup: () => { closeThread(); rerunSetup(); },
   openModes: () => openModes(),
   status: () => {
-    const total = stats.green + stats.amber + stats.red;
-    const share = total > 3000 ? Math.round(stats.green / total * 100) : null;
+    const sum = posture.summary();
+    const share = sum ? sum.aligned : null;
     const mins = Math.ceil(remaining / 60);
     const blinks = store.work().eyes && active ? blinkTimes.length : null;
     return {
@@ -607,6 +600,29 @@ if (Recognition) {
     try { rec.start(); $('mic').classList.add('listening'); $('ask-orb').classList.add('listening'); openThread(); } catch {}
   };
 }
+
+// ---------- End of a focus session ----------
+let ending = false;
+async function endSession(reason) {
+  if (ending) return;
+  ending = true;
+  timerRunning = false; renderPause();
+  const r = posture.summary();
+  posture.clear();
+  if (reason === 'end') { light('idle'); }
+  const choice = r ? await showReport(r, line => speak(line, $('ask-orb'))) : 'break';
+  ending = false;
+  remaining = store.work().focus * 60; renderTimer();
+  if (choice === 'break') { setScreen('break'); if (!active) toast('Turn on your camera to follow the stretches'); }
+  else if (choice === 'new') {
+    setScreen('work');
+    if (reference) { posture.reset(); timerRunning = true; timerLast = performance.now(); renderPause(); }
+  } else {
+    reel.stop(); stopBreathe(); stop(); closeThread();
+    $('studio').hidden = true; $('welcome').hidden = false;
+  }
+}
+$('end-session').onclick = () => endSession('end');
 
 // ---------- Background music ----------
 function syncMusic() {
