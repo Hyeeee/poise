@@ -259,6 +259,7 @@ function calibrate() {
   text('calibrate', 'Reset reference');
   toast('Reference saved');
   timerRunning = true; timerLast = performance.now(); renderPause();
+  maybeTour();
   return true;
 }
 
@@ -682,12 +683,20 @@ async function begin(withCamera) {
   }
   setScreen('work');
   enter();
-  if (ALWAYS_ONBOARD || !store.state.toured) {
-    await new Promise(r => setTimeout(r, 600));
-    await new Promise(r => startTour(r));
-    store.update(s => { s.toured = true; });
-  }
+  tourPending = ALWAYS_ONBOARD || !store.state.toured;
   if (withCamera) start();
+}
+// The studio guide waits until the first reference is set, so people can start right away.
+let tourPending = false;
+async function maybeTour() {
+  if (!tourPending) return;
+  tourPending = false;
+  const wasRunning = timerRunning;
+  timerRunning = false; renderPause();
+  await new Promise(r => setTimeout(r, 900));
+  await new Promise(r => startTour(r));
+  store.update(s => { s.toured = true; });
+  if (wasRunning && reference) { timerRunning = true; timerLast = performance.now(); renderPause(); }
 }
 $('start').onclick = () => begin(true);
 $('preview').onclick = () => begin(false);

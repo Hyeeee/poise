@@ -344,7 +344,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .reel-head .end-btn { margin-left: auto; min-height: 30px; padding: 0 14px; font-size: 13px; }
 /* Glass: buttons and side panel let the painting show through. */
 :root { --glass-blur: blur(26px) saturate(1.35); }
-.card, .studio .card, .panel .card, .glass, .choice, .ghost, .suggest button, .msg.me, .tour-card, #ref-prompt, .summary-card, .report-card, .sheet, .voice-opt {
+.card, .studio .card, .panel .card, .glass, .choice, .ghost, .suggest button, .msg.me, #ref-prompt, .summary-card, .report-card, .sheet, .voice-opt {
   background: linear-gradient(150deg, rgba(255, 255, 250, .66), rgba(255, 255, 248, .44)) !important;
   -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
   border: 0;
@@ -401,3 +401,11 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .summary-card em { font-style: normal; float: right; opacity: 0; transition: opacity .3s; color: var(--ink-2); }
 .summary-card:hover em, .summary-card:focus-visible em { opacity: 1; }
 .summary-card:hover { background: linear-gradient(150deg, rgba(255,255,253,.9), rgba(255,255,250,.66)) !important; transform: translateY(-2px); }
+
+/* Guide card: solid and bright so it reads clearly over the dimmed studio. */
+.tour-card { background: #fbfaf6 !important; color: var(--ink); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.9), 0 30px 70px -20px rgba(20, 24, 16, .55) !important; text-shadow: none; }
+.tour-card .sub, .tour-card p { color: #45463f; }
+.tour-card .primary { background: var(--ink) !important; color: #fff; }
+.tour-card .ghost { background: #ecebe4 !important; box-shadow: none; }
+.tour-card .text-btn { color: #45463f; }
