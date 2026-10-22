@@ -735,13 +735,15 @@ $('breath-end').onclick = () => endBreak();
 $('end-break').onclick = () => endBreak();
 // ---------- Break: movement game ----------
 const fmtClock = ms => { const t = Math.ceil(ms / 1000); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
+let gameRgb = null;
 const moveGame = new MoveGame($('game-canvas'), camera, {
   onTick({ score, left, combo, tracking }) {
+    gameRgb ? light('idle', gameRgb) : light('idle');
     text('game-score', score); text('game-left', fmtClock(left));
     $('game-bar').style.width = (100 - left / (store.brk().minutes * 60000) * 100) + '%';
     text('game-label', !tracking ? 'Step back so your arms fit in the frame.' : combo > 2 ? `${combo} in a row` : 'Reach for the bubbles.');
-    light(combo > 2 ? 'green' : 'idle');
   },
+  onColor(rgb) { gameRgb = rgb; },
   onEnd(r) { breakLog.game(r); endBreak(); },
 });
 function resetGamePanel() {

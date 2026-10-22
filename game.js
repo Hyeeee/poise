@@ -4,11 +4,23 @@
 // Coordinates are MediaPipe's normalized video space, drawn on a canvas mirrored like the camera.
 
 const TAU = Math.PI * 2;
+// Bubble colors. The light bar shows the same color as the bubble you should go for next.
+const COLORS = [
+  [255, 70, 90],   // coral red
+  [255, 150, 0],   // orange
+  [255, 220, 0],   // yellow
+  [40, 220, 90],   // green
+  [0, 200, 220],   // cyan
+  [40, 110, 255],  // blue
+  [150, 70, 255],  // violet
+  [255, 60, 200],  // pink
+];
+const GOLD = [255, 190, 40];
 
 export class MoveGame {
-  constructor(canvas, video, { onTick, onEnd } = {}) {
+  constructor(canvas, video, { onTick, onEnd, onColor } = {}) {
     this.cv = canvas; this.ctx = canvas.getContext('2d'); this.video = video;
-    this.onTick = onTick; this.onEnd = onEnd;
+    this.onTick = onTick; this.onEnd = onEnd; this.onColor = onColor; this.lastColor = '';
     this.running = false; this.raf = 0;
   }
   start(seconds = 60) {
@@ -48,8 +60,11 @@ export class MoveGame {
     else { zone = 'head'; a = -Math.PI / 2 + (Math.random() < .5 ? -.9 : .9); dist = 1.25; }
     const aspect = (this.video.videoWidth / this.video.videoHeight) || 16 / 9;
     let x = b.cx + Math.cos(a) * dist * b.w, y = b.cy + Math.sin(a) * dist * b.w * aspect * .7;
-    x = Math.min(.94, Math.max(.06, x)); y = Math.min(.94, Math.max(.06, y));
-    this.bubbles.push({ x, y, r: b.w * (zone === 'head' ? .42 : .36), zone, born: now, life: zone === 'head' ? 4200 : 3600, seed: Math.random() * TAU });
+    const r = Math.min(.07, b.w * (zone === 'head' ? .26 : .22));
+    const mx = r + .03, my = r * aspect + .04;            // keep the whole bubble on screen
+    x = Math.min(1 - mx, Math.max(mx, x)); y = Math.min(1 - my, Math.max(my, y));
+    const color = zone === 'head' ? GOLD : COLORS[Math.floor(Math.random() * COLORS.length)];
+    this.bubbles.push({ x, y, r, zone, color, born: now, life: zone === 'head' ? 4200 : 3600, seed: Math.random() * TAU });
   }
   step(now) {
     const { cv, ctx } = this;
@@ -77,38 +92,66 @@ export class MoveGame {
           bub.dead = true; this.popped++; this.combo++; this.best = Math.max(this.best, this.combo);
           const pts = (bub.zone === 'head' ? 150 : 100) + Math.min(5, this.combo - 1) * 20;
           this.score += pts; this.zones[bub.zone]++;
-          this.pops.push({ x: bub.x, y: bub.y, r: bub.r, t: now, pts, gold: bub.zone === 'head' });
+          this.pops.push({ x: bub.x, y: bub.y, r: bub.r, t: now, pts, color: bub.color, drops: Array.from({ length: 10 }, (_, i) => ({ a: i / 10 * TAU + Math.random() * .4, v: .7 + Math.random() * .6 })) });
+          this.flash = { color: bub.color, until: now + 350 };
         }
       }
     }
     for (const bub of this.bubbles) if (!bub.dead && now - bub.born > bub.life) { bub.dead = true; this.missed++; this.combo = 0; }
     this.bubbles = this.bubbles.filter(x => !x.dead);
 
-    // Bubbles: soft glass discs with a ring that runs down like a timer.
+    // Bubbles: soap-film spheres tinted with their color, a rim that catches light,
+    // a bright highlight, and a thin ring that runs down like a timer.
     for (const bub of this.bubbles) {
-      const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 380);
-      const r = bub.r * vw * (.6 + .4 * grow) * (1 + .04 * Math.sin(now / 300 + bub.seed));
-      const x = X(bub.x), y = Y(bub.y);
-      const g = ctx.createRadialGradient(x - r * .35, y - r * .4, r * .1, x, y, r);
-      if (bub.zone === 'head') { g.addColorStop(0, 'rgba(255,248,220,.95)'); g.addColorStop(1, 'rgba(226,196,120,.35)'); }
-      else { g.addColorStop(0, 'rgba(255,255,250,.92)'); g.addColorStop(1, 'rgba(190,210,170,.32)'); }
-      ctx.globalAlpha = grow; ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-      ctx.lineWidth = 3; ctx.strokeStyle = bub.zone === 'head' ? 'rgba(170,130,40,.8)' : 'rgba(60,80,50,.55)';
-      ctx.beginPath(); ctx.arc(x, y, r + 6, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - age)); ctx.stroke();
+      const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 420);
+      const ease = 1 - Math.pow(1 - grow, 3);
+      const r = bub.r * vw * (.55 + .45 * ease) * (1 + .03 * Math.sin(now / 280 + bub.seed));
+      const x = X(bub.x), y = Y(bub.y) + Math.sin(now / 700 + bub.seed) * 4;
+      const [cr, cg, cb] = bub.color, c = a => `rgba(${cr},${cg},${cb},${a})`;
+      const fade = age > .8 ? 1 - (age - .8) / .2 * .5 : 1;
+      ctx.globalAlpha = ease * fade;
+      // soft colored glow behind
+      ctx.shadowColor = c(.55); ctx.shadowBlur = r * .6;
+      const body = ctx.createRadialGradient(x, y, r * .2, x, y, r);
+      body.addColorStop(0, c(.10)); body.addColorStop(.72, c(.22)); body.addColorStop(1, c(.62));
+      ctx.fillStyle = body; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+      ctx.shadowBlur = 0;
+      // iridescent rim
+      const rim = ctx.createLinearGradient(x - r, y - r, x + r, y + r);
+      rim.addColorStop(0, 'rgba(255,255,255,.9)'); rim.addColorStop(.5, c(.9)); rim.addColorStop(1, 'rgba(255,255,255,.5)');
+      ctx.lineWidth = Math.max(1.5, r * .06); ctx.strokeStyle = rim;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
+      // highlights
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      ctx.beginPath(); ctx.ellipse(x - r * .38, y - r * .42, r * .22, r * .12, -.7, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.45)';
+      ctx.beginPath(); ctx.arc(x + r * .42, y + r * .38, r * .07, 0, TAU); ctx.fill();
+      // countdown ring
+      ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = c(.95);
+      ctx.beginPath(); ctx.arc(x, y, r + 7, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - age)); ctx.stroke();
       ctx.globalAlpha = 1;
     }
-    // Pops: an expanding ring and the points, drawn un-mirrored so the number reads correctly.
-    this.pops = this.pops.filter(p => now - p.t < 700);
+    // Pops: colored droplets fly out, a ring expands, and the points float up (un-mirrored).
+    this.pops = this.pops.filter(p => now - p.t < 750);
     for (const p of this.pops) {
-      const k = (now - p.t) / 700, x = X(p.x), y = Y(p.y), r = p.r * vw * (1 + k * .9);
-      ctx.globalAlpha = 1 - k; ctx.lineWidth = 2; ctx.strokeStyle = p.gold ? '#c9a24a' : '#fff';
-      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
-      ctx.save(); ctx.translate(x, y - r * .2 - k * 30); ctx.scale(-1, 1);
+      const k = (now - p.t) / 750, x = X(p.x), y = Y(p.y), r0 = p.r * vw, [cr, cg, cb] = p.color;
+      ctx.globalAlpha = 1 - k;
+      ctx.lineWidth = 2; ctx.strokeStyle = `rgba(${cr},${cg},${cb},.9)`;
+      ctx.beginPath(); ctx.arc(x, y, r0 * (1 + k * .8), 0, TAU); ctx.stroke();
+      ctx.fillStyle = `rgb(${cr},${cg},${cb})`;
+      for (const d of p.drops) {
+        const dist = r0 * (1 + k * 1.6 * d.v);
+        ctx.beginPath(); ctx.arc(x + Math.cos(d.a) * dist, y + Math.sin(d.a) * dist + k * k * 20, Math.max(1, 4 * (1 - k)), 0, TAU); ctx.fill();
+      }
+      ctx.save(); ctx.translate(x, y - r0 * .2 - k * 34); ctx.scale(-1, 1);
       ctx.fillStyle = '#fff'; ctx.font = '500 22px Newsreader, serif'; ctx.textAlign = 'center';
-      ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 8; ctx.fillText(`+${p.pts}`, 0, 0);
+      ctx.shadowColor = `rgba(${cr},${cg},${cb},.9)`; ctx.shadowBlur = 10; ctx.fillText(`+${p.pts}`, 0, 0);
       ctx.restore(); ctx.globalAlpha = 1;
     }
+    // Light bar: flash the popped color, otherwise show the oldest bubble on screen.
+    const target = this.flash && now < this.flash.until ? this.flash.color : this.bubbles[0]?.color;
+    const key = target ? target.join(' ') : 'none';
+    if (key !== this.lastColor) { this.lastColor = key; this.onColor?.(target || null); }
     this.onTick?.({ score: this.score, left: this.duration - elapsed, combo: this.combo, popped: this.popped, tracking: !!b });
   }
 }
