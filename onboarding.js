@@ -85,13 +85,14 @@ export function speak(text, orb, lang = 'en') {
       const ko = speechSynthesis.getVoices().find(v => v.lang?.startsWith('ko'));
       if (ko) u.voice = ko;
     } else if (voice) u.voice = voice;
-    u.rate = 0.98; u.pitch = 1;
+    u.rate = 0.9; u.pitch = 0.95; u.volume = 0.7;
     u.onstart = begin;
     u.onend = u.onerror = end;
     speechSynthesis.speak(u);
   };
   if (lang !== 'en') return fallback();
   const audio = new Audio(voiceFile(text));
+  audio.volume = 0.7;
   currentAudio = audio;
   audio.onplay = begin;
   audio.onended = end;

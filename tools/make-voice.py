@@ -2,7 +2,7 @@
 
 Run once from the repo root (needs internet):
     pip install edge-tts
-    python3 tools/make-voice.py            # default voice: en-US-AvaNeural
+    python3 tools/make-voice.py            # default voice: en-US-JennyNeural
     python3 tools/make-voice.py en-US-AndrewNeural
 
 It writes voice/<hash>.mp3 for every line Poise speaks during setup. The site plays
@@ -13,7 +13,7 @@ import asyncio, pathlib, re, sys
 import edge_tts
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-VOICE = sys.argv[1] if len(sys.argv) > 1 else "en-US-AvaNeural"
+VOICE = sys.argv[1] if len(sys.argv) > 1 else "en-US-JennyNeural"
 
 def file_for(text):
     h = 5381
@@ -31,7 +31,7 @@ async def main():
     (ROOT / "voice").mkdir(exist_ok=True)
     for text in lines():
         out = file_for(text)
-        await edge_tts.Communicate(text, VOICE, rate="-4%").save(str(out))
+        await edge_tts.Communicate(text, VOICE, rate="-12%", pitch="-4Hz", volume="-10%").save(str(out))
         print("saved", out.name, "-", text)
 
 asyncio.run(main())
