@@ -17,13 +17,21 @@ const WORK_STEPS = [
 ];
 
 const BREAK_STEPS = {
+  game: [
+    { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, breathing and a movement game any time.' },
+    { sel: '#game-panel h2', title: 'Pop the bubbles', text: 'Bubbles appear around you. Reach up, out and down to pop them with your hands. Gold ones need a head lean.' },
+    { sel: '#game-start', title: 'Start when ready', text: 'Step back so your arms fit in the frame, then press Start.' },
+    { sel: '#game-end', title: 'End break', text: 'Finish any time to see your score and how you moved.' },
+  ],
   stretch: [
+    { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, breathing and a movement game any time.' },
     { sel: '#reel-player', title: 'Follow the figure', text: 'Watch the sketch, then copy the stretch in front of your camera.' },
     { sel: '.match', title: 'Match score', text: 'How close you are to the figure. Get near it for half a second and the next stretch begins.' },
     { sel: '#reel-progress', title: 'Your stretches', text: 'Each dot is one stretch. Skip any you can’t do.' },
     { sel: '#end-break', title: 'End break', text: 'Finish any time to see how long you rested and how much you followed.' },
   ],
   breathe: [
+    { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, breathing and a movement game any time.' },
     { sel: '#breath-orb', title: 'Breathe with it', text: 'Breathe in as the dots grow, out as they shrink.' },
     { sel: '#breath-bar', title: 'Time left', text: 'Your rest runs until the line fills.' },
     { sel: '#breath-end', title: 'End break', text: 'Finish any time to see your rest summary.' },
@@ -86,7 +94,7 @@ function keys(e) {
 }
 
 export function startTour(done, kind) {
-  STEPS = kind ? BREAK_STEPS[kind] : WORK_STEPS;
+  STEPS = kind ? (BREAK_STEPS[kind] || BREAK_STEPS.stretch) : WORK_STEPS;
   onDone = done; i = 0;
   $('tour').hidden = false;
   $('studio').classList.add('touring');

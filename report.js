@@ -70,6 +70,9 @@ const SAY = {
   'Good rest.': 'Good rest. Here is how your break went.',
   'Short rest.': 'A short rest. Try two minutes or more next time.',
   breakOther: 'Break ended. Here is your summary.',
+  'Great moves.': 'Great moves. Here is how you did.',
+  'Nice moves.': 'Nice moves. Here is how you did.',
+  'A quick move.': 'A quick move. Every bit helps.',
 };
 export const SPOKEN_LINES = Object.values(SAY);
 
@@ -133,6 +136,7 @@ export const breakLog = {
   matched() { const p = b?.poses.at(-1); if (p) { p.matched = true; p.took = performance.now() - p.began; } },
   skipped() { const p = b?.poses.at(-1); if (p && !p.matched) p.skipped = true; },
   breath() { if (b) b.cycles++; },
+  game(r) { if (b) b.game = r; },
   summary() {
     if (!b) return null;
     const r = { ...b, ms: performance.now() - b.start, poses: b.poses.slice() };
@@ -156,7 +160,22 @@ export function showBreakReport(r, speak) {
     for (const k in labels) labels[k] = $(k).textContent;
     const legend = $('report-legend'); const legendWas = legend.hidden;
     let title, line;
-    if (r.kind === 'breathe') {
+    if (r.kind === 'game') {
+      const g = r.game || { score: 0, popped: 0, missed: 0, best: 0, zones: { high: 0, side: 0, low: 0, head: 0 } };
+      const tries = g.popped + g.missed, rate = tries ? Math.round(g.popped / tries * 100) : 0;
+      title = g.popped >= 20 ? 'Great moves.' : g.popped >= 8 ? 'Nice moves.' : 'A quick move.';
+      line = g.popped ? `You popped ${g.popped} bubbles for ${g.score} points, best streak ${g.best}.` : 'Start the game next time to get moving.';
+      $('report-chart').hidden = true; legend.hidden = true;
+      set('rep-aligned', g.score); set('rep-aligned-l', 'points');
+      set('rep-recover', g.popped); set('rep-recover-l', 'bubbles popped');
+      set('rep-drifts', tries ? rate + '%' : '—'); set('rep-drift-note', 'hit rate');
+      const zones = [['high', 'Reaching up'], ['side', 'Reaching out'], ['low', 'Reaching down'], ['head', 'Leaning (head)']];
+      const zt = Object.values(g.zones).reduce((a, n) => a + n, 0);
+      $('rep-causes-h').hidden = !zt; $('rep-causes-h').textContent = 'How you moved';
+      $('rep-causes').innerHTML = zt ? zones.map(([k, l]) => `<div class="cause"><span>${l}</span><i style="--w:${Math.round(g.zones[k] / zt * 100)}%"></i><b>${g.zones[k]}</b></div>`).join('') : '';
+      const weakest = zones.filter(([k]) => k !== 'head').sort((a, c) => g.zones[a[0]] - g.zones[c[0]])[0];
+      $('rep-tip').innerHTML = zt ? `<b>Next round:</b> <span>Try more ${weakest[1].toLowerCase()} — it opens the parts you use least while sitting.</span>` : '<b>Tip:</b> <span>Step back from the screen so your whole upper body and arms are in view.</span>';
+    } else if (r.kind === 'breathe') {
       title = mins >= 2 ? 'Good rest.' : 'Short rest.';
       line = `You rested ${len} and took ${r.cycles} slow breath${r.cycles === 1 ? '' : 's'}.`;
       $('report-chart').innerHTML = ''; $('report-chart').hidden = true; legend.hidden = true;
@@ -180,7 +199,7 @@ export function showBreakReport(r, speak) {
       $('rep-tip').innerHTML = miss ? `<b>Try again later: ${miss.name}.</b> <span>Keep your arms in view and mirror the figure slowly.</span>` : '<b>Nicely done.</b> <span>Your shoulders and neck should feel looser now.</span>';
     }
     set('report-title', title); set('report-line', line); set('report-len', `${len} break`);
-    set('report-new', 'Stretch again'); set('report-break', 'Back to focus');
+    set('report-new', r.kind === 'game' ? 'Play again' : r.kind === 'breathe' ? 'Breathe again' : 'Stretch again'); set('report-break', 'Back to focus');
     $('report').hidden = false; $('report-break').focus({ preventScroll: true });
     speak?.(SAY[title] || SAY.breakOther);
     const finish = choice => {

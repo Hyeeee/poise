@@ -5,6 +5,7 @@ import { respond } from './assistant.js';
 import { mountAgents } from './agent.js';
 import { ambient } from './ambient.js';
 import { mountPainting } from './painting.js';
+import { MoveGame } from './game.js';
 mountPainting();
 // Welcome entrance: words drift in, then the buttons.
 (() => {
@@ -229,6 +230,7 @@ function loop(now) {
         setChip('Tracking', true);
         if (screen === 'work') updateWork(landmarks, now);
         else if (store.brk().style === 'stretch') updateGame(landmarks, now);
+        else if (store.brk().style === 'game') moveGame.update(landmarks);
       } else {
         landmarks = null; ctx.clearRect(0, 0, canvas.width, canvas.height);
         driftSince = 0; nearSince = 0; holdStart = 0; lastStatTick = 0; posture.pause();
@@ -406,18 +408,21 @@ function setScreen(next) {
   $('work-panel').hidden = next !== 'work';
   $('break-panel').hidden = !(next === 'break' && brk.style === 'stretch');
   $('breathe-panel').hidden = !(next === 'break' && brk.style === 'breathe');
+  $('game-panel').hidden = !(next === 'break' && brk.style === 'game');
+  $('break-switch').hidden = next !== 'break';
+  document.querySelectorAll('#break-switch button').forEach(b => b.classList.toggle('active', b.dataset.style === brk.style));
   $('work').classList.toggle('active', next === 'work'); $('break').classList.toggle('active', next === 'break');
   holdStart = 0; driftSince = 0; light('idle');
-  reel.stop(); stopBreathe();
+  reel.stop(); stopBreathe(); moveGame.stop();
   if (next === 'break') {
     timerRunning = false; renderPause();
     if (breakToured === null) breakToured = !ALWAYS_ONBOARD && !!store.state.breakToured;
     if (!breakToured) {
       breakToured = true; store.update(st => { st.breakToured = true; });
-      setTimeout(() => startTour(() => { if (screen === 'break') { if (brk.style === 'stretch') newGame(); else startBreathe(); } }, brk.style === 'breathe' ? 'breathe' : 'stretch'), 400);
+      setTimeout(() => startTour(() => { if (screen === 'break') startBreakStyle(brk); }, brk.style), 400);
       return;
     }
-    if (brk.style === 'stretch') newGame(); else startBreathe();
+    startBreakStyle(brk);
   } else {
     remaining = store.work().focus * 60; renderTimer();
     if (reference) { timerRunning = true; timerLast = performance.now(); renderPause(); }
@@ -456,8 +461,8 @@ function syncUI() {
   document.querySelector('.card.stats').hidden = true;
   renderTimer(); renderPause();
   if (screen === 'break') {
-    const wantStretch = brk.style === 'stretch';
-    if ($('break-panel').hidden === wantStretch) setScreen('break');
+    const showing = !$('break-panel').hidden ? 'stretch' : !$('breathe-panel').hidden ? 'breathe' : 'game';
+    if (showing !== brk.style && !endingBreak) setScreen('break');
   }
 }
 store.on(() => { syncUI(); if ($('modes').open) renderModeList(); });
@@ -505,7 +510,7 @@ function renderEditor() {
     html += field('Eye care', toggle('eyes', m.eyes));
     html += field('Chime', toggle('chime', m.chime));
   } else {
-    html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Breathe']], m.style));
+    html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
     html += m.style === 'stretch'
       ? field('Stretches', `<input type="range" data-k="count" min="1" max="5" step="1" value="${m.count}">`, `<output>${m.count}</output>`)
       : field('Length', `<input type="range" data-k="minutes" min="1" max="10" step="1" value="${m.minutes}">`, `<output>${m.minutes} min</output>`);
@@ -711,11 +716,47 @@ $('restart-break').onclick = newGame;
 $('return-work').onclick = () => setScreen('work');
 $('breath-end').onclick = () => endBreak();
 $('end-break').onclick = () => endBreak();
+// ---------- Break: movement game ----------
+const fmtClock = ms => { const t = Math.ceil(ms / 1000); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
+const moveGame = new MoveGame($('game-canvas'), camera, {
+  onTick({ score, left, combo, tracking }) {
+    text('game-score', score); text('game-left', fmtClock(left));
+    $('game-bar').style.width = (100 - left / (store.brk().minutes * 60000) * 100) + '%';
+    text('game-label', !tracking ? 'Step back so your arms fit in the frame.' : combo > 2 ? `${combo} in a row` : 'Reach for the bubbles.');
+    light(combo > 2 ? 'green' : 'idle');
+  },
+  onEnd(r) { breakLog.game(r); endBreak(); },
+});
+function resetGamePanel() {
+  moveGame.stop();
+  text('game-score', 0); text('game-left', fmtClock(store.brk().minutes * 60000)); $('game-bar').style.width = '0';
+  text('game-label', active ? 'Step back so your arms fit in the frame.' : 'Turn on your camera to play.');
+  $('game-start').hidden = false;
+}
+$('game-start').onclick = () => {
+  if (!active) { toast('Turn on your camera to play'); return; }
+  $('game-start').hidden = true;
+  moveGame.start(store.brk().minutes * 60);
+};
+$('game-end').onclick = () => { if (moveGame.running) breakLog.game(moveGame.result()); endBreak(); };
+function startBreakStyle(brk) {
+  if (brk.style === 'stretch') newGame();
+  else if (brk.style === 'breathe') startBreathe();
+  else { breakLog.start('game'); resetGamePanel(); }
+}
+// Switch break type on the spot.
+document.querySelectorAll('#break-switch button').forEach(b => b.onclick = () => {
+  const id = { stretch: 'stretch', breathe: 'breathe', game: 'game' }[b.dataset.style];
+  const own = store.state.breaks.find(m => m.style === b.dataset.style && !m.preset);
+  if (store.brk().style === b.dataset.style) return;
+  store.update(s => { s.breakId = own?.id || id; });
+  setScreen('break');
+});
 let endingBreak = false;
 async function endBreak() {
   if (endingBreak || screen !== 'break') return;
   endingBreak = true;
-  reel.stop(); stopBreathe(); light('idle');
+  reel.stop(); stopBreathe(); moveGame.stop(); light('idle');
   const r = breakLog.summary();
   const choice = r ? await showBreakReport(r, line => speak(line, $('ask-orb'))) : 'focus';
   endingBreak = false;

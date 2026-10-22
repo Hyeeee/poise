@@ -28,9 +28,9 @@ const QUESTIONS = [
     key: 'rest',
     say: 'And when it is time to rest, what helps you reset?',
     options: [
-      { label: 'Five guided stretches', value: { style: 'stretch', count: 5 } },
-      { label: 'Three quick stretches', value: { style: 'stretch', count: 3 } },
+      { label: 'Guided stretches', value: { style: 'stretch', count: 5 } },
       { label: 'Breathing and eye rest', value: { style: 'breathe', minutes: 3 } },
+      { label: 'A quick movement game', value: { style: 'game', minutes: 1 } },
     ],
   },
   {

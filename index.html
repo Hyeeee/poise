@@ -72,6 +72,7 @@
 <section id="studio" class="studio" hidden>
   <video id="camera" autoplay playsinline muted></video>
   <canvas id="skeleton"></canvas>
+  <canvas id="game-canvas" hidden></canvas>
   <div class="veil" aria-hidden="true"></div>
   <div id="lightbar" aria-hidden="true"></div>
 
@@ -133,6 +134,22 @@
         <div id="eye-stat"><b id="blinks">—</b><small>blinks/min</small></div>
         <div id="dist-stat"><b id="distance">—</b><small>distance</small></div>
       </section>
+    </div>
+
+    <nav id="break-switch" class="segmented glass break-switch" aria-label="Break type" hidden>
+      <button data-style="stretch">Stretch</button><button data-style="breathe">Breathe</button><button data-style="game">Game</button>
+    </nav>
+
+    <!-- Break: movement game -->
+    <div id="game-panel" class="card" hidden>
+      <p class="tiny">Reach &amp; Pop</p>
+      <h2 id="game-title">Pop the bubbles</h2>
+      <p class="sub" id="game-tip">Reach up, out and down to pop them with your hands. Gold ones are for your head — lean to touch them.</p>
+      <div class="match"><span><b id="game-score">0</b> points</span><span id="game-left" class="sub">1:00</span></div>
+      <div class="meter"><div id="game-bar"></div></div>
+      <p id="game-label" class="sub">Step back so your arms fit in the frame.</p>
+      <button id="game-start" class="primary btn-l end-wide">Start</button>
+      <button id="game-end" class="ghost end-wide">End break</button>
     </div>
 
     <!-- Break: stretch -->
