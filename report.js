@@ -6,6 +6,7 @@ const CAUSES = {
   forward: { label: 'Leaning forward', tip: 'Your head drifted forward and down, toward the screen.', stretch: 'Upper-back release', ko: '앞으로 숙임' },
   side: { label: 'Tilting to one side', tip: 'Your head leaned off to one side.', stretch: 'Neck release', ko: '옆으로 기울어짐' },
   shoulders: { label: 'Uneven shoulders', tip: 'One shoulder dropped lower than the other.', stretch: 'Shoulder release', ko: '어깨 비대칭' },
+  far: { label: 'Too far from the screen', tip: 'You sat back far from the screen, which often ends in leaning in to read.', stretch: 'Shoulder release', ko: '화면에서 너무 멂' },
   close: { label: 'Too close to the screen', tip: 'You leaned in close to the screen.', stretch: 'Breathe and look far away', ko: '화면에 너무 가까움' },
 };
 
@@ -14,7 +15,7 @@ let s = null;
 export const session = {
   reset() {
     s = { start: performance.now(), samples: [], time: { good: 0, amber: 0, red: 0 }, drifts: 0, reds: 0,
-      driftStart: 0, longest: 0, recoveries: [], causes: { forward: 0, side: 0, shoulders: 0, close: 0 }, lastT: 0, lastSample: 0, prev: 'white' };
+      driftStart: 0, longest: 0, recoveries: [], causes: { forward: 0, side: 0, shoulders: 0, close: 0, far: 0 }, lastT: 0, lastSample: 0, prev: 'white' };
   },
   get active() { return !!s; },
   clear() { s = null; },
@@ -32,7 +33,7 @@ export const session = {
     }
     if (bad && delta) {
       // Which part of the posture moved the most while off reference.
-      const scores = { forward: Math.max(0, delta.y) * 1.2, side: Math.abs(delta.x), shoulders: Math.abs(delta.tilt), close: Math.max(0, widthRatio - 1) * 1.5 };
+      const scores = { forward: Math.max(0, delta.y) * 1.2, side: Math.abs(delta.x), shoulders: Math.abs(delta.tilt), close: widthRatio > 1 ? Math.log(widthRatio) * 2.5 : 0, far: widthRatio < 1 ? -Math.log(widthRatio) * 2.5 : 0 };
       const top = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
       s.causes[top]++;
     }

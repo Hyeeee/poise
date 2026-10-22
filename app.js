@@ -222,6 +222,27 @@ function draw(p) {
   for (const i of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26]) if (visible(p, [i])) { ctx.beginPath(); ctx.arc(...xy(p[i]), 3.5, 0, Math.PI * 2); ctx.fill(); }
 }
 
+// Which part of the shift is largest → a specific message.
+// widthRatio > 1: shoulders look wider than at the reference = closer to the screen.
+function shiftCause(delta, widthRatio = 1) {
+  const parts = {
+    close: widthRatio > 1 ? Math.log(widthRatio) * 2.5 : 0,
+    far: widthRatio < 1 ? -Math.log(widthRatio) * 2.5 : 0,
+    forward: Math.max(0, delta?.y || 0),
+    side: Math.abs(delta?.x || 0) + Math.abs(delta?.roll || 0) * .6,
+    shoulders: Math.abs(delta?.tilt || 0),
+  };
+  const [key, size] = Object.entries(parts).sort((a, b) => b[1] - a[1])[0];
+  if (size < .05) return null;
+  return {
+    close: ['Too close to the screen', 'Sit back a little — about an arm’s length away.'],
+    far: ['Too far from the screen', 'Move a little closer so you don’t lean in to read.'],
+    forward: ['Leaning forward', 'Bring your head back over your shoulders.'],
+    side: ['Tilting to one side', 'Center your head between your shoulders.'],
+    shoulders: ['Uneven shoulders', 'Let both shoulders drop evenly.'],
+  }[key];
+}
+
 const STATE_COPY = {
   white: ['Aligned', 'Close to your reference.'],
   green: ['Back in balance', 'Nice correction.'],
@@ -239,7 +260,7 @@ function updateWork(p, now) {
   // The distance sensor is more exact about leaning toward the screen than the camera.
   let widthRatio = c.width / reference.width;
   if (sensor.live && sensor.base) { widthRatio = Math.max(widthRatio, sensor.closeness); d = Math.max(d, sensorShift()); }
-  applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt }, widthRatio);
+  applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt, roll: c.roll - (reference.roll || 0) }, widthRatio);
 }
 // How far you've leaned toward the screen, 0–100, from the sensor alone.
 function sensorShift() {
@@ -293,7 +314,13 @@ function applyPosture(d, now, delta, widthRatio) {
   if (state === 'red' && lastState !== 'red' && store.work().chime) chime();
   lastState = state; lastRgb = rgb;
   light(state, rgb);
-  text('posture-state', STATE_COPY[state][0]); text('posture-hint', STATE_COPY[state][1]);
+  // Say WHAT moved, not just that something did: the biggest part of the shift wins.
+  let [title, hint] = STATE_COPY[state];
+  if (state === 'amber' || state === 'red') {
+    const c = shiftCause(delta, widthRatio);
+    if (c) { title = c[0]; hint = state === 'red' ? `${c[1]} You've been like this for a while.` : c[1]; }
+  }
+  text('posture-state', title); text('posture-hint', hint);
   // Session analysis (only while the focus timer runs).
   if (timerRunning) posture.record(now, d, state, delta, widthRatio);
   else posture.pause();

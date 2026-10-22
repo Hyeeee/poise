@@ -4,17 +4,16 @@
 //
 // What it does
 // 1. On power-up: quick red / green / blue test so you can see the strip works.
-// 2. Until the web app sends anything: "sensor demo" — color follows HC-SR04 distance
-//    (far = soft white, close = amber, too close = red). Good for a first test.
-// 3. When the web app sends GREEN / AMBER / RED / IDLE (115200 baud, newline): follow it.
-//    Falls back to the sensor demo if messages stop for 4 seconds.
-// Always prints "DIST <cm>" a few times per second. The web app reads these lines to:
-//   - pause the focus timer when you leave your desk, and resume when you sit back down
-//   - catch leaning toward the screen more precisely than the camera
-//   - track posture with the camera off ("Use the distance sensor instead")
-//   - log how long you actually stepped away during a break
-//   - treat a quick hand wave close to the sensor (<15 cm) as a tap
-// No change is needed here for those features: upload this sketch as before.
+// 2. The web app (camera) decides the color and sends it over USB, 115200 baud, one line each:
+//      "RGB r g b"  exact color, e.g. "RGB 255 130 0"
+//      WHITE / GREEN / AMBER / RED / IDLE  preset colors
+//    The strip fades slowly to each new color (about 1.5 s), so changes feel calm.
+// 3. If the app stops sending for 4 seconds, the strip dims to a soft idle glow.
+//
+// The HC-SR04 distance sensor is OPTIONAL (an exercise, not needed for Poise).
+//   USE_SENSOR = false : sensor ignored, nothing needs to be wired on D7/D8.
+//   USE_SENSOR = true  : prints "DIST <cm>" ~6x a second (the web app can use it), and when the
+//                        app isn't connected the color follows distance as a demo.
 
 #include <Adafruit_NeoPixel.h>
 
@@ -22,9 +21,14 @@ constexpr uint8_t LED_PIN   = 6;
 constexpr uint16_t LED_COUNT = 30;   // <- change to your strip's LED count
 constexpr uint8_t TRIG_PIN  = 7;
 constexpr uint8_t ECHO_PIN  = 8;
+constexpr bool    USE_SENSOR = false; // <- set true if the HC-SR04 is wired and you want to use it
 constexpr uint8_t BRIGHTNESS = 90;   // brighter, saturated colors; white is kept dim to stay within USB power
 
-// Distance thresholds in cm (tune at your desk).
+// How fast the strip moves toward a new color each frame (every 20 ms).
+// 0.07 ≈ 0.6 s (snappy) · 0.03 ≈ 1.5 s (calm) · 0.015 ≈ 3 s (very slow)
+constexpr float FADE = 0.03;
+
+// Sensor demo distance thresholds in cm (only used when USE_SENSOR is true).
 constexpr int TOO_CLOSE = 40;
 constexpr int CLOSE     = 55;
 
@@ -89,8 +93,10 @@ void sensorDemo() {
 
 void setup() {
   Serial.begin(115200);
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
+  if (USE_SENSOR) {
+    pinMode(TRIG_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
+  }
   strip.begin();
   strip.setBrightness(BRIGHTNESS);
   // Power-on test.
@@ -107,10 +113,13 @@ void loop() {
     if (c == '\n') { handleMessage(input); input = ""; }
     else if (input.length() < 24) input += c;
   }
-  if (appConnected && millis() - lastMessage > 4000) appConnected = false;
+  if (appConnected && millis() - lastMessage > 4000) {
+    appConnected = false;
+    setTarget(40, 45, 50);                     // app went quiet: soft idle glow
+  }
 
-  // 2. Distance, ~6 times a second.
-  if (millis() - lastPing > 150) {
+  // 2. Distance (optional), ~6 times a second.
+  if (USE_SENSOR && millis() - lastPing > 150) {
     lastPing = millis();
     distanceCm = readDistanceSmooth();
     Serial.print("DIST ");
@@ -121,7 +130,7 @@ void loop() {
   // 3. Smooth fade toward the target color.
   if (millis() - lastFrame > 20) {
     lastFrame = millis();
-    r += (tr - r) * .07; g += (tg - g) * .07; b += (tb - b) * .07;
+    r += (tr - r) * FADE; g += (tg - g) * FADE; b += (tb - b) * FADE;
     showAll(r, g, b);
   }
 }
