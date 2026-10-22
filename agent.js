@@ -34,9 +34,35 @@ const SHAPES = {
       return [Math.cos(a) * .62, -.85 + t * 1.7, Math.sin(a) * .62];
     });
   },
+  // A coiled spring: one continuous line wound around the body's axis.
+  spring(n) {
+    return Array.from({ length: n }, (_, i) => {
+      const t = i / (n - 1), a = t * TAU * 5.5;
+      return [Math.cos(a) * .58, -.82 + t * 1.64, Math.sin(a) * .58];
+    });
+  },
+  // A spine: stacked vertebra rings following a gentle S-curve.
+  spine(n) {
+    const rows = 9, per = Math.ceil(n / rows);
+    return Array.from({ length: n }, (_, i) => {
+      const r = Math.floor(i / per), v = r / (rows - 1), a = (i % per) / per * TAU;
+      const y = -.86 + v * 1.72, bend = .16 * Math.sin(v * TAU * .9), rad = .2 + .14 * Math.sin(v * Math.PI);
+      return [Math.cos(a) * rad * 1.5, y, Math.sin(a) * rad + bend];
+    });
+  },
+  // A ribcage: rings that swell in the middle, like a breath held in the chest.
+  ribs(n) {
+    const rows = 6, per = Math.ceil(n / rows);
+    return Array.from({ length: n }, (_, i) => {
+      const r = Math.floor(i / per), v = r / (rows - 1), a = (i % per) / per * TAU;
+      const rad = .42 + .4 * Math.sin(.15 + v * (Math.PI - .3));
+      return [Math.cos(a) * rad, -.78 + v * 1.56, Math.sin(a) * rad * .7];
+    });
+  },
 };
-const ORDER = ['cylinder', 'sphere', 'torus', 'vase', 'cone', 'helix'];
-const MOOD_SHAPE = { green: 'sphere', amber: 'helix', red: 'cone' };
+// The sphere is home: Poise returns to it between every other formation.
+const ORDER = ['sphere', 'spring', 'sphere', 'spine', 'sphere', 'ribs'];
+const MOOD_SHAPE = { green: 'sphere', amber: 'spring', red: 'spine' };
 
 const agents = new Set();
 let raf = 0, pointer = { x: -1e4, y: -1e4 };
@@ -52,11 +78,11 @@ class Agent {
     const small = this.size < 60;
     this.n = Number(host.dataset.dots) || (small ? 12 : this.size < 140 ? 32 : 84);
     this.dot = Number(host.dataset.dot) || Math.max(1, this.size / (small ? 16 : 72));
-    this.shapeIndex = Math.floor(Math.random() * ORDER.length);
+    this.shapeIndex = 0;
     this.target = this.build(host.dataset.shape || ORDER[this.shapeIndex]);
     this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU }));
     this.spin = Math.random() * TAU;
-    this.next = performance.now() + 4000 + Math.random() * 3000;
+    this.next = performance.now() + 9000;
     this.scale = 1; this.energy = 0;
     this.resize();
     new ResizeObserver(() => this.resize()).observe(host);
@@ -92,18 +118,18 @@ class Agent {
     else if (now > this.next) {
       this.shapeIndex = (this.shapeIndex + 1) % ORDER.length;
       this.morph(ORDER[this.shapeIndex]);
-      this.next = now + 5200 + Math.random() * 2600;
+      this.next = now + (this.shape === 'sphere' ? 9000 : 6500);
     }
 
     const wantScale = (cl.contains('in') ? 1.32 : 1) * (listening ? 1.12 : 1) * (mood === 'red' ? .86 : 1);
     this.scale += (wantScale - this.scale) * Math.min(1, dt * (cl.contains('in') ? .7 : 4));
     const wantEnergy = speaking ? 1 : thinking ? .7 : listening ? .5 : mood === 'amber' ? .45 : mood === 'red' ? .8 : .12;
     this.energy += (wantEnergy - this.energy) * Math.min(1, dt * 3);
-    this.spin += dt * (.18 + this.energy * (thinking ? 2.2 : .6));
+    this.spin += dt * (.12 + this.energy * (thinking ? 2.2 : .6));
 
     const { ctx, w, hgt = this.h } = { ctx: this.ctx, w: this.w, hgt: this.h };
     ctx.clearRect(0, 0, w, hgt);
-    const cx = w / 2, cy = hgt / 2, R = this.size / 2 - this.dot * 2;
+    const cx = w / 2, cy = hgt / 2, R = (this.size / 2 - this.dot * 2) * .8;
     const rect = this.canvas.getBoundingClientRect();
     const mx = pointer.x - rect.left, my = pointer.y - rect.top;
     const cos = Math.cos(this.spin), sin = Math.sin(this.spin);
@@ -112,7 +138,7 @@ class Agent {
     ctx.fillStyle = ink;
 
     const speakPulse = speaking ? .06 * Math.sin(now / 90) + .05 * Math.sin(now / 37) : 0;
-    const k = reduced ? 1 : Math.min(1, dt * 5.5);
+    const k = reduced ? 1 : Math.min(1, dt * 1.6);
 
     for (let i = 0; i < this.pts.length; i++) {
       const p = this.pts[i], t = this.target[i];

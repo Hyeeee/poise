@@ -41,7 +41,7 @@ function setup() {
   setup.input = tone;
 }
 
-function pad(freqs, at) {
+function pad(freqs, at, attack = 3.5) {
   const dur = CHORD_SECONDS + 4;
   freqs.forEach((f, i) => {
     for (const detune of [-6, 6]) {
@@ -50,7 +50,7 @@ function pad(freqs, at) {
       o.frequency.value = f; o.detune.value = detune;
       const peak = (i === 0 ? .09 : .045) / 2;
       g.gain.setValueAtTime(0, at);
-      g.gain.linearRampToValueAtTime(peak, at + 3.5);
+      g.gain.linearRampToValueAtTime(peak, at + attack);
       g.gain.setValueAtTime(peak, at + dur - 4);
       g.gain.linearRampToValueAtTime(0, at + dur);
       o.connect(g).connect(setup.input);
@@ -108,9 +108,10 @@ export const ambient = {
     playing = true;
     master.gain.cancelScheduledValues(ctx.currentTime);
     master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(.7, ctx.currentTime + 4);
-    schedule();
-    bellTimer = setTimeout(bell, 3000);
+    master.gain.linearRampToValueAtTime(.7, ctx.currentTime + .6);
+    pad(CHORDS[0], ctx.currentTime + .02, .5); step = 1;
+    timer = setTimeout(schedule, CHORD_SECONDS * 1000);
+    bellTimer = setTimeout(bell, 600);
   },
   stop() {
     wanted = false;
