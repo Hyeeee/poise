@@ -58,6 +58,21 @@ export const session = {
 
 const fmtSec = ms => ms == null ? '—' : ms < 60000 ? `${(ms / 1000).toFixed(ms < 10000 ? 1 : 0)}s` : `${Math.round(ms / 60000)}m`;
 
+// Spoken lines are fixed so they can be pre-recorded in every voice (tools/make-voice.py).
+const SAY = {
+  'Great session.': 'Great session. Here is how your posture went.',
+  'Good session.': 'Good session. Here is how your posture went.',
+  'Time to reset.': 'A tough one. A short break will help.',
+  other: 'Session ended. Here is your summary.',
+  'Great stretch.': 'Great stretch. Here is how your break went.',
+  'Nice stretch.': 'Nice stretch. Here is how your break went.',
+  'A light stretch.': 'A light stretch. Try again when you can.',
+  'Good rest.': 'Good rest. Here is how your break went.',
+  'Short rest.': 'A short rest. Try two minutes or more next time.',
+  breakOther: 'Break ended. Here is your summary.',
+};
+export const SPOKEN_LINES = Object.values(SAY);
+
 function headline(r) {
   if (r.aligned == null) return { en: 'Short session. Set a reference and keep the timer running to see your full analysis.', title: 'Session ended.' };
   const quick = r.avgRecover != null && r.avgRecover < 6000;
@@ -101,7 +116,7 @@ export function showReport(r, speak) {
     $('rep-tip').innerHTML = top ? `<b>Try: ${top.stretch}.</b> <span>${top.tip}</span>` : '<b>Keep it up.</b> <span>Take a short break anyway — moving helps.</span>';
     $('report').hidden = false;
     $('report-break').focus({ preventScroll: true });
-    speak?.(h.en);
+    speak?.(SAY[h.title] || SAY.other);
     const done = choice => { $('report').hidden = true; ['report-break', 'report-new', 'report-done'].forEach(id => { $(id).onclick = null; }); resolve(choice); };
     $('report-break').onclick = () => done('break');
     $('report-new').onclick = () => done('new');
@@ -167,7 +182,7 @@ export function showBreakReport(r, speak) {
     set('report-title', title); set('report-line', line); set('report-len', `${len} break`);
     set('report-new', 'Stretch again'); set('report-break', 'Back to focus');
     $('report').hidden = false; $('report-break').focus({ preventScroll: true });
-    speak?.(`${title} ${line}`);
+    speak?.(SAY[title] || SAY.breakOther);
     const finish = choice => {
       $('report').hidden = true;
       for (const k in labels) $(k).textContent = labels[k];

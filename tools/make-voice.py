@@ -31,6 +31,9 @@ def lines():
     found = re.findall(r"say: '((?:[^'\\]|\\.)*)'", src)
     found += re.findall(r"(?:show|speak)\('((?:[^'\\]|\\.)*)'", src)
     found += re.findall(r"const hello = '((?:[^'\\]|\\.)*)'", src)
+    report = (ROOT / "report.js").read_text(encoding="utf-8")
+    block = report.split("const SAY = {", 1)[1].split("};", 1)[0]
+    found += re.findall(r":\s*'((?:[^'\\]|\\.)*)'", block)
     return [t.replace("\\'", "'") for t in dict.fromkeys(found)]
 
 async def main():

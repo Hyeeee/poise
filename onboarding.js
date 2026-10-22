@@ -74,6 +74,16 @@ export function voiceFile(text, id = store.state.voiceId || 'ava') {
   return `voice/${id === 'ava' ? '' : id + '/'}${h.toString(16)}.mp3`;
 }
 
+// For lines that can't be pre-recorded (chat replies), use the browser voice closest to the chosen one.
+const LIKE = { ava: { lang: 'en-US', female: true }, sonia: { lang: 'en-GB', female: true }, andrew: { lang: 'en-US', female: false } };
+const FEMALE = /ava|samantha|allison|susan|zira|aria|jenny|emma|sonia|serena|kate|libby|female|victoria|karen|moira|fiona/i;
+function matchVoice() {
+  const want = LIKE[store.state.voiceId || 'ava'];
+  const all = ('speechSynthesis' in window ? speechSynthesis.getVoices() : []).filter(v => v.lang?.startsWith('en'));
+  const score = v => (v.lang === want.lang ? 4 : 0) + (FEMALE.test(v.name) === want.female ? 5 : 0) + (/natural|premium|enhanced|neural/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 1 : 0);
+  return all.sort((a, b) => score(b) - score(a))[0] || voice;
+}
+
 let currentAudio = null;
 // Speak a line. Uses a natural pre-recorded voice when one exists for this exact text,
 // otherwise falls back to the browser's built-in speech.
@@ -90,7 +100,7 @@ export function speak(text, orb, lang = 'en') {
       u.lang = 'ko-KR';
       const ko = speechSynthesis.getVoices().find(v => v.lang?.startsWith('ko'));
       if (ko) u.voice = ko;
-    } else if (voice) u.voice = voice;
+    } else { const v = matchVoice(); if (v) u.voice = v; }
     u.rate = 0.9; u.pitch = 0.95; u.volume = 0.7;
     u.onstart = begin;
     u.onend = u.onerror = end;
