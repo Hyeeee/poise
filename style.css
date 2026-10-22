@@ -425,3 +425,6 @@ button { transition: background-color .7s ease, background .7s ease, color .7s e
 .text-btn:hover { color: var(--ink); }
 .icon-btn:hover { background: rgba(255, 255, 255, .5); }
 .icon-btn.glass.on:hover { background: rgba(30, 31, 28, .92) !important; }
+/* Selected: no ring, just whiter glass. */
+.voice-opt.on, .choice.picked { box-shadow: inset 0 1px 1px rgba(255,255,255,.8), 0 10px 30px -18px rgba(60,70,45,.28) !important; transform: none; }
+.voice-opt.on::after, .choice.picked::after { opacity: 1; background: rgba(255, 255, 255, .85); }
