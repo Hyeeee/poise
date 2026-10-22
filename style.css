@@ -479,3 +479,22 @@ button { transition: background-color .7s ease, background .7s ease, color .7s e
 .setup .choice::after { background: rgba(0, 0, 0, .35); }
 .setup .choice.picked::after { background: rgba(0, 0, 0, .5); }
 .setup .choice.picked { color: #fff; }
+
+/* Components (buttons, fields, chips) use a sans-serif; running text stays serif.
+   Geist sits evenly on its line, and line-height 1 + flex centering keeps the space
+   above and below the label equal. */
+:root { --ui: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+button, input, select, textarea, .chip, .quick-chip, .min-label, .min-help, .min-unit, .voice-label, .segmented button, .field label {
+  font-family: var(--ui) !important; letter-spacing: -.005em;
+}
+button:not(.summary-card):not(.voice-opt):not(.icon-btn):not(.round):not(.send):not(.brand) {
+  display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding-top: 0; padding-bottom: 0;
+}
+.choice { justify-content: flex-start; font-size: var(--t-m) !important; font-weight: 500; }
+.setup .choice { min-width: 150px; justify-content: center; }
+.voice-opt { line-height: 1.25; }
+.voice-opt b { font-weight: 500; }
+.summary-card, .summary-card * { font-family: var(--serif) !important; }
+.summary-card span { font-family: var(--ui) !important; }
+.min-box input { font-family: var(--ui) !important; font-weight: 500; line-height: 1; }
+.chip { line-height: 1; }
