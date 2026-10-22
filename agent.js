@@ -8,16 +8,16 @@ const TAU = Math.PI * 2;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Each formation returns N points in a unit space (-1..1), z used for depth.
+// Every formation is a 3D solid with evenly spaced points, so rotation keeps the grid aligned.
+function grid(n, rows, fn) {
+  const cols = Math.ceil(n / rows), out = [];
+  for (let r = 0; r < rows && out.length < n; r++)
+    for (let c = 0; c < cols && out.length < n; c++) out.push(fn(r / Math.max(1, rows - 1), c / cols, r, c));
+  return out;
+}
+const rowsFor = n => Math.max(3, Math.round(Math.sqrt(n / 2)));
 const SHAPES = {
-  ring(n) { return Array.from({ length: n }, (_, i) => { const a = i / n * TAU; return [Math.cos(a) * .82, Math.sin(a) * .82, 0]; }); },
-  diamond(n) {
-    return Array.from({ length: n }, (_, i) => {
-      const t = i / n * 4, side = Math.floor(t), f = t - side;
-      const c = [[0, -.9], [.9, 0], [0, .9], [-.9, 0]];
-      const a = c[side], b = c[(side + 1) % 4];
-      return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, 0];
-    });
-  },
+  cylinder(n) { return grid(n, rowsFor(n), (v, u) => { const a = u * TAU; return [Math.cos(a) * .72, -.78 + v * 1.56, Math.sin(a) * .72]; }); },
   sphere(n) {
     const g = Math.PI * (3 - Math.sqrt(5));
     return Array.from({ length: n }, (_, i) => {
@@ -25,28 +25,18 @@ const SHAPES = {
       return [Math.cos(a) * r * .9, y * .9, Math.sin(a) * r * .9];
     });
   },
-  stack(n) {
-    const rings = 5, per = Math.ceil(n / rings);
+  torus(n) { return grid(n, rowsFor(n), (v, u, r, c) => { const a = u * TAU, b = (r / rowsFor(n)) * TAU; const R = .62 + .26 * Math.cos(b); return [Math.cos(a) * R, .26 * Math.sin(b), Math.sin(a) * R]; }); },
+  vase(n) { return grid(n, rowsFor(n), (v, u, r) => { const a = u * TAU + r * .2, rad = .38 + .4 * Math.sin(v * Math.PI); return [Math.cos(a) * rad, -.8 + v * 1.6, Math.sin(a) * rad]; }); },
+  cone(n) { return grid(n, rowsFor(n), (v, u, r) => { const a = u * TAU + r * .25, rad = .3 + .56 * v; return [Math.cos(a) * rad, -.82 + v * 1.64, Math.sin(a) * rad]; }); },
+  helix(n) {
     return Array.from({ length: n }, (_, i) => {
-      const k = Math.floor(i / per), a = (i % per) / per * TAU;
-      return [Math.cos(a) * .7, -.62 + k * .31, Math.sin(a) * .7];
-    });
-  },
-  burst(n) {
-    return Array.from({ length: n }, (_, i) => {
-      const ring = i % 3, a = i / n * TAU * 3 + ring * .4, r = [.35, .62, .9][ring];
-      return [Math.cos(a) * r, Math.sin(a) * r, 0];
-    });
-  },
-  knot(n) {
-    return Array.from({ length: n }, (_, i) => {
-      const t = i / n * TAU, r = .55 + .25 * Math.cos(3 * t);
-      return [r * Math.cos(2 * t), r * Math.sin(2 * t), .35 * Math.sin(3 * t)];
+      const s = i % 2, t = Math.floor(i / 2) / Math.ceil(n / 2), a = t * TAU * 2 + s * Math.PI;
+      return [Math.cos(a) * .62, -.85 + t * 1.7, Math.sin(a) * .62];
     });
   },
 };
-const ORDER = ['ring', 'sphere', 'diamond', 'stack', 'burst', 'knot'];
-const MOOD_SHAPE = { green: 'ring', amber: 'knot', red: 'diamond' };
+const ORDER = ['cylinder', 'sphere', 'torus', 'vase', 'cone', 'helix'];
+const MOOD_SHAPE = { green: 'sphere', amber: 'helix', red: 'cone' };
 
 const agents = new Set();
 let raf = 0, pointer = { x: -1e4, y: -1e4 };
@@ -75,7 +65,7 @@ class Agent {
     this.shape = name;
     const pts = SHAPES[name](this.n);
     // Order points by angle so morphs travel around the form instead of crossing it.
-    return pts.map(p => ({ p, a: Math.atan2(p[1], p[0]) })).sort((a, b) => a.a - b.a).map(o => o.p);
+    return pts.map(p => ({ p, k: Math.round((p[1] + 1) * 6) * 10 + (Math.atan2(p[2], p[0]) + Math.PI) })).sort((a, b) => a.k - b.k).map(o => o.p);
   }
   morph(name) { if (name && name !== this.shape) this.target = this.build(name); }
   resize() {
@@ -128,13 +118,11 @@ class Agent {
       const p = this.pts[i], t = this.target[i];
       // Rotate target around Y, then tilt toward the viewer.
       let x = t[0] * cos + t[2] * sin, z = -t[0] * sin + t[2] * cos, y = t[1];
-      if (this.shape === 'ring' || this.shape === 'diamond' || this.shape === 'burst') { x = t[0] * Math.cos(this.spin * .4) - t[1] * Math.sin(this.spin * .4); y = t[0] * Math.sin(this.spin * .4) + t[1] * Math.cos(this.spin * .4); z = 0; }
       const y2 = y * ct - z * st, z2 = y * st + z * ct;
-      const wob = this.energy * .09 * Math.sin(now / 400 + p.seed * 3) + speakPulse;
+      const wob = this.energy * .06 * Math.sin(now / 420 + y * 3) + speakPulse;
       let tx = cx + x * R * this.scale * (1 + wob), ty = cy + y2 * R * this.scale * (1 + wob);
       // Drift.
-      tx += Math.sin(now / 1300 + p.seed) * R * .025;
-      ty += Math.cos(now / 1500 + p.seed * 1.3) * R * .025;
+      ty += Math.sin(now / 1600) * R * .02;
       // Spring toward target, with damping.
       const px = cx + p.x * R, py = cy + p.y * R;
       p.vx = (p.vx + (tx - px) * k * 6) * .72;

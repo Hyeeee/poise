@@ -597,8 +597,10 @@ if (Recognition) {
 }
 
 // ---------- Wiring ----------
+const ALWAYS_ONBOARD = true; // set to false after testing
 async function begin(withCamera) {
-  if (!store.state.onboarded) {
+  // Testing: always run the setup questions first, even on return visits.
+  if (ALWAYS_ONBOARD || !store.state.onboarded) {
     $('welcome').hidden = true;
     await runOnboarding();
   }
