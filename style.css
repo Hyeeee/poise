@@ -408,3 +408,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .tour-card .ghost { background: #ecebe4 !important; box-shadow: none; }
 .tour-card .text-btn { color: #45463f; }
 .icon-btn.glass.on { background: rgba(30, 31, 28, .78) !important; color: #fff; }
+/* Report sits on a dim overlay, so it needs a brighter glass to match the rest. */
+.report { background: rgba(28, 30, 26, .18); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.report-card { background: linear-gradient(150deg, rgba(255, 255, 252, .9), rgba(255, 255, 248, .74)) !important; }
+.report-card .report-chart, .report-card .report-tip { background: rgba(255, 255, 255, .45); }
