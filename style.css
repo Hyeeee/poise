@@ -510,3 +510,7 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .chip, .quick-chip, .min-
 .card, .summary-card, .voice-opt, .report-card, .sheet, .tour-card, .reel-error, .report-chart, .report-tip, .stepper { border-radius: var(--r-card) !important; }
 .tour-spot { --spot-r: var(--r-card); }
 .brand { font-family: var(--serif) !important; }
+/* Radius v2: small controls 12px; regular buttons, fields and cards 16px. */
+:root { --r-sm: 12px; --r-btn: 16px; --r-card: 16px; }
+button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #ask-form, .card, .summary-card, .voice-opt, .report-card, .sheet, .tour-card, .reel-error, .report-chart, .report-tip { border-radius: 16px !important; }
+.chip, .quick-chip, .suggest button, .segmented button, .field .segmented button, .min-arrows .step-btn, .reel-ctrl .icon-btn { border-radius: var(--r-sm) !important; }
