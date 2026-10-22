@@ -186,11 +186,19 @@ export function runOnboarding() {
       const wrap = document.createElement('div');
       wrap.className = 'min-picker';
       wrap.innerHTML = `
-        <div class="stepper">
-          <button type="button" class="step-btn" data-d="-1" aria-label="Less">−</button>
-          <label class="step-field"><input type="number" inputmode="numeric" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Minutes"><span>min</span></label>
-          <button type="button" class="step-btn" data-d="1" aria-label="More">+</button>
-        </div>
+        <label class="min-field">
+          <span class="min-label">Minutes</span>
+          <span class="min-box">
+            <input type="number" inputmode="numeric" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Focus minutes">
+            <span class="min-unit">min</span>
+            <span class="min-arrows">
+              <button type="button" class="step-btn" data-d="1" aria-label="More"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
+              <button type="button" class="step-btn" data-d="-1" aria-label="Less"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+            </span>
+          </span>
+          <span class="min-help">Type a number or use the arrows</span>
+        </label>
+
         <div class="quick">${q.quick.map(m => `<button type="button" class="quick-chip" data-m="${m}">${m >= 60 ? m / 60 + ' hour' : m + ' min'}</button>`).join('')}</div>`;
       const input = wrap.querySelector('input');
       const set = v => {

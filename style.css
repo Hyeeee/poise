@@ -452,19 +452,30 @@ button { transition: background-color .7s ease, background .7s ease, color .7s e
 .sensor-chip::before { background: var(--aligned); }
 #empty-camera #sensor-mode { margin-left: 8px; }
 
-/* Minutes picker */
-.min-picker { display: flex; flex-direction: column; gap: 14px; }
-.stepper { display: inline-flex; align-items: center; gap: 10px; padding: 8px; border-radius: 28px; align-self: flex-start;
-  background: linear-gradient(150deg, rgba(255,255,250,.66), rgba(255,255,248,.44)); -webkit-backdrop-filter: blur(26px) saturate(1.35); backdrop-filter: blur(26px) saturate(1.35);
-  box-shadow: inset 0 1px 1px rgba(255,255,255,.55), inset 0 0 0 .5px rgba(255,255,255,.22), 0 10px 30px -18px rgba(60,70,45,.28); }
-.step-btn { width: var(--btn-l); height: var(--btn-l); border-radius: 50%; font-size: var(--t-xl); line-height: 1; color: var(--ink); background: rgba(255,255,255,.4); transition: background .7s ease; }
-.step-btn:hover { background: rgba(255,255,255,.85); }
-.step-field { display: inline-flex; align-items: baseline; gap: 6px; padding: 0 8px; }
-.step-field input { width: 3.2ch; border: 0; background: transparent; font: inherit; font-size: var(--t-2xl); text-align: right; color: var(--ink); -moz-appearance: textfield; outline: none; }
-.step-field input::-webkit-outer-spin-button, .step-field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.step-field span { font-size: var(--t-m); color: var(--ink-2); }
+/* Minutes picker: a clear text field with arrows inside, plus quick chips. */
+.min-picker { display: flex; flex-direction: column; gap: 14px; margin-bottom: 10px; }
+.min-field { display: flex; flex-direction: column; gap: 6px; align-self: flex-start; cursor: text; }
+.min-label { font-size: var(--t-s); color: var(--ink-2); }
+.min-box { display: inline-flex; align-items: center; gap: 8px; padding: 6px 6px 6px 20px; min-width: 240px; border-radius: 18px;
+  background: rgba(255, 255, 255, .88); box-shadow: inset 0 0 0 1.5px rgba(30, 31, 28, .18), 0 10px 30px -18px rgba(60,70,45,.28);
+  transition: box-shadow .4s ease; }
+.min-box:hover { box-shadow: inset 0 0 0 1.5px rgba(30, 31, 28, .35), 0 10px 30px -18px rgba(60,70,45,.28); }
+.min-box:focus-within { box-shadow: inset 0 0 0 2px var(--ink), 0 0 0 4px rgba(255,255,255,.5), 0 10px 30px -18px rgba(60,70,45,.28); }
+.min-box input { width: 2.9ch; border: 0; background: transparent; font: inherit; font-size: var(--t-2xl); color: var(--ink); -moz-appearance: textfield; outline: none; caret-color: var(--ink); }
+.min-box input::-webkit-outer-spin-button, .min-box input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.min-unit { font-size: var(--t-m); color: var(--ink-2); margin-right: auto; }
+.min-arrows { display: flex; flex-direction: column; gap: 2px; }
+.min-arrows .step-btn { width: 40px; height: 26px; border-radius: 9px; display: grid; place-items: center; background: rgba(30, 31, 28, .06); color: var(--ink); transition: background .5s ease; }
+.min-arrows .step-btn:hover { background: rgba(30, 31, 28, .14); }
+.min-arrows svg { width: 16px; height: 16px; stroke-width: 2; }
+.min-help { font-size: var(--t-xs); color: var(--ink-2); }
 .quick { display: flex; gap: 8px; flex-wrap: wrap; }
 .quick-chip { min-height: var(--btn-s); padding: 0 14px; border-radius: var(--r-pill); font-size: var(--t-s); color: var(--ink); background: rgba(255,255,255,.35); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.4); transition: background .7s ease; }
 .quick-chip:hover { background: rgba(255,255,255,.7); }
 .quick-chip.on { background: rgba(255,255,255,.92); }
-.min-picker { margin-bottom: 10px; }
+
+/* Onboarding buttons that move you forward are dark, so the next step is obvious. */
+.setup .choice { background: rgba(30, 31, 28, .82) !important; color: #fbfaf6; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 12px 30px -16px rgba(20, 24, 16, .5) !important; text-shadow: none; }
+.setup .choice::after { background: rgba(0, 0, 0, .35); }
+.setup .choice.picked::after { background: rgba(0, 0, 0, .5); }
+.setup .choice.picked { color: #fff; }
