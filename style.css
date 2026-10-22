@@ -353,14 +353,12 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
     inset 0 -1px 1px rgba(255, 255, 255, .12),
     inset 0 0 0 .5px rgba(255, 255, 255, .22),
     0 10px 30px -18px rgba(60, 70, 45, .28);
-  transition: background .35s ease, box-shadow .35s ease, transform .35s cubic-bezier(.16,1,.3,1);
+  transition: background .7s ease, box-shadow .7s ease, transform .35s cubic-bezier(.16,1,.3,1);
 }
-.choice:hover, .ghost:hover, .glass:hover, .voice-opt:hover, .suggest button:hover, button.glass:hover {
-  background: linear-gradient(150deg, rgba(255, 255, 253, .9), rgba(255, 255, 250, .66)) !important;
-  transform: translateY(-2px);
-  box-shadow: inset 0 1px 1px rgba(255,255,255,.9), inset 0 0 0 1px rgba(255,255,255,.5), 0 0 0 3px rgba(255,255,255,.22), 0 16px 34px -18px rgba(60, 70, 45, .45);
+.choice:hover, .ghost:hover, .glass:hover, .voice-opt:hover, .suggest button:hover, button.glass:hover, .summary-card:hover {
+  background: linear-gradient(150deg, rgba(255, 255, 253, .92), rgba(255, 255, 250, .72)) !important;
 }
-.choice:active, .ghost:active, .glass:active, .voice-opt:active { transform: translateY(0) scale(.98); }
+.choice:active, .ghost:active, .glass:active, .voice-opt:active { transform: scale(.99); }
 .icon-btn:hover { background: rgba(255,255,255,.4); }
 .choice.picked {
   background: linear-gradient(150deg, rgba(255, 255, 252, .82), rgba(255, 255, 248, .5)) !important;
@@ -384,7 +382,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .voice-opt b { font-weight: 500; font-size: 17px; }
 .voice-opt small { font-size: 13px; color: var(--ink-2); }
 .voice-opt .vo-dot { grid-row: 1 / 3; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, rgba(190,200,170,.6)); box-shadow: inset 0 0 0 1px rgba(60,70,45,.15); transition: transform .4s cubic-bezier(.16,1,.3,1); }
-.voice-opt:hover { background: linear-gradient(150deg, rgba(255,255,252,.74), rgba(255,255,250,.48)); }
+
 .voice-opt.on { background: linear-gradient(150deg, rgba(255,255,252,.9), rgba(255,255,248,.62)); box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 0 0 3px rgba(255,255,255,.35), 0 12px 30px -16px rgba(60,70,45,.35); }
 .voice-opt.on .vo-dot { background: radial-gradient(circle at 35% 35%, #fff, #8fa275); transform: scale(1.08); }
 
@@ -400,7 +398,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .summary-card { text-align: left; cursor: pointer; color: var(--ink); }
 .summary-card em { font-style: normal; float: right; opacity: 0; transition: opacity .3s; color: var(--ink-2); }
 .summary-card:hover em, .summary-card:focus-visible em { opacity: 1; }
-.summary-card:hover { background: linear-gradient(150deg, rgba(255,255,253,.9), rgba(255,255,250,.66)) !important; transform: translateY(-2px); }
+
 
 /* Guide card: solid and bright so it reads clearly over the dimmed studio. */
 .tour-card { background: #fbfaf6 !important; color: var(--ink); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0;
