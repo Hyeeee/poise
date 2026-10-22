@@ -51,10 +51,20 @@ const QUESTIONS = [
 ];
 
 let voice;
+// Pick the most natural English voice the browser has. Neural "Natural" (Edge),
+// "Premium"/"Enhanced" (macOS downloads) and Google voices sound far less robotic.
 function pickVoice() {
-  const voices = speechSynthesis.getVoices();
-  const prefer = ['Samantha', 'Ava', 'Google US English', 'Microsoft Aria', 'Microsoft Jenny', 'Karen', 'Serena'];
-  voice = prefer.map(n => voices.find(v => v.name.includes(n))).find(Boolean) || voices.find(v => v.lang?.startsWith('en')) || null;
+  const voices = speechSynthesis.getVoices().filter(v => v.lang?.startsWith('en'));
+  const score = v => {
+    const n = v.name;
+    if (/Natural|Neural/i.test(n)) return 100;
+    if (/Premium/i.test(n)) return 90;
+    if (/Enhanced/i.test(n)) return 80;
+    if (/Google US English|Google UK English Female/i.test(n)) return 70;
+    if (/Ava|Samantha|Zoe|Allison|Serena|Aria|Jenny/i.test(n)) return 50;
+    return v.localService ? 10 : 20;
+  };
+  voice = voices.sort((a, b) => score(b) - score(a))[0] || null;
 }
 if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 
@@ -67,7 +77,7 @@ export function speak(text, orb, lang = 'en') {
     const ko = speechSynthesis.getVoices().find(v => v.lang?.startsWith('ko'));
     if (ko) u.voice = ko;
   } else if (voice) u.voice = voice;
-  u.rate = 1.02; u.pitch = 1.05;
+  u.rate = 0.98; u.pitch = 1;
   u.onstart = () => orb?.classList.add('speaking');
   u.onend = u.onerror = () => orb?.classList.remove('speaking');
   speechSynthesis.speak(u);
