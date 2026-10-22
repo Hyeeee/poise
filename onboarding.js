@@ -9,11 +9,7 @@ const QUESTIONS = [
   {
     key: 'focus',
     say: 'When you sit down to work, how long do you usually stay focused?',
-    options: [
-      { label: 'About 15 minutes', value: 15 },
-      { label: 'About 30 minutes', value: 30 },
-      { label: 'About 50 minutes', value: 50 },
-    ],
+    input: 'minutes', min: 5, max: 120, step: 5, start: 30, quick: [10, 30, 60],
   },
   {
     key: 'nudge',
@@ -183,6 +179,35 @@ export function runOnboarding() {
       choices.querySelector('button')?.focus({ preventScroll: true });
     }
 
+    // Minutes picker: type a number, nudge it with − / +, or tap a quick chip.
+    function minutesPicker(q) {
+      let value = answers[q.key] ?? q.start;
+      const clampV = v => Math.max(q.min, Math.min(q.max, Math.round(v) || q.start));
+      const wrap = document.createElement('div');
+      wrap.className = 'min-picker';
+      wrap.innerHTML = `
+        <div class="stepper">
+          <button type="button" class="step-btn" data-d="-1" aria-label="Less">−</button>
+          <label class="step-field"><input type="number" inputmode="numeric" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Minutes"><span>min</span></label>
+          <button type="button" class="step-btn" data-d="1" aria-label="More">+</button>
+        </div>
+        <div class="quick">${q.quick.map(m => `<button type="button" class="quick-chip" data-m="${m}">${m >= 60 ? m / 60 + ' hour' : m + ' min'}</button>`).join('')}</div>`;
+      const input = wrap.querySelector('input');
+      const set = v => {
+        value = clampV(v); input.value = value;
+        wrap.querySelectorAll('.quick-chip').forEach(c => c.classList.toggle('on', +c.dataset.m === value));
+      };
+      wrap.querySelectorAll('.step-btn').forEach(b => b.onclick = () => set(value + q.step * +b.dataset.d));
+      wrap.querySelectorAll('.quick-chip').forEach(c => c.onclick = () => set(+c.dataset.m));
+      input.onchange = () => set(+input.value);
+      input.onkeydown = e => { if (e.key === 'Enter') { set(+input.value); go.click(); } };
+      const go = document.createElement('button');
+      go.className = 'choice'; go.textContent = 'Continue';
+      go.onclick = () => { set(+input.value); answers[q.key] = value; go.classList.add('picked'); setTimeout(next, 220); };
+      choices.append(wrap, go);
+      set(value);
+    }
+
     let editUntil = null; // when editing from the summary, return there after this question index
     function next() {
       if (editUntil !== null && index >= editUntil) { editUntil = null; index = QUESTIONS.length - 1; }
@@ -191,6 +216,7 @@ export function runOnboarding() {
       if (index >= QUESTIONS.length) return summary();
       const q = QUESTIONS[index];
       show(q.say, () => {
+        if (q.input === 'minutes') return minutesPicker(q);
         q.options.forEach(opt => {
           const b = document.createElement('button');
           b.className = 'choice';
