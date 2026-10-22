@@ -47,9 +47,11 @@ const SHAPES = {
   hourglass(n) { return grid(n, rowsFor(n), (v, u, r) => { const a = u * TAU + r * .3, rad = .22 + .52 * Math.abs(v * 2 - 1); return [Math.cos(a) * rad, -.8 + v * 1.6, Math.sin(a) * rad]; }); },
   // A ring that ripples up and down: balance.
   wave(n) {
+    // Three rings stacked like a ribbon, all following the same slow ripple.
+    const rows = 3, per = Math.ceil(n / rows);
     return Array.from({ length: n }, (_, i) => {
-      const a = i / n * TAU;
-      return [Math.cos(a) * .8, .28 * Math.sin(a * 3), Math.sin(a) * .8];
+      const r = Math.floor(i / per), a = (i % per) / per * TAU + r * .12;
+      return [Math.cos(a) * .8, .24 * Math.sin(a * 3) + (r - 1) * .22, Math.sin(a) * .8];
     });
   },
   // A double helix, two strands wound together: health, life.
