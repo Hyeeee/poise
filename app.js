@@ -141,11 +141,11 @@ function draw(p) {
   const scale = Math.max(w / camera.videoWidth, h / camera.videoHeight), vw = camera.videoWidth * scale, vh = camera.videoHeight * scale, ox = (w - vw) / 2, oy = (h - vh) / 2;
   const xy = a => [a.x * vw + ox, a.y * vh + oy];
   ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.fillStyle = '#fff'; ctx.lineWidth = 1.5; ctx.shadowBlur = 12; ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--signal');
-  for (const [a, b] of [[0, 7], [0, 8], [11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [24, 26]]) {
+  for (const [a, b] of [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [24, 26]]) {
     if (!visible(p, [a, b])) continue;
     ctx.beginPath(); ctx.moveTo(...xy(p[a])); ctx.lineTo(...xy(p[b])); ctx.stroke();
   }
-  for (const i of [0, 7, 8, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26]) if (visible(p, [i])) { ctx.beginPath(); ctx.arc(...xy(p[i]), 3.5, 0, Math.PI * 2); ctx.fill(); }
+  for (const i of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26]) if (visible(p, [i])) { ctx.beginPath(); ctx.arc(...xy(p[i]), 3.5, 0, Math.PI * 2); ctx.fill(); }
 }
 
 const STATE_COPY = {
