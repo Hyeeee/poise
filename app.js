@@ -4,6 +4,8 @@ import { runOnboarding, speak } from './onboarding.js';
 import { respond } from './assistant.js';
 import { mountAgents } from './agent.js';
 import { ambient } from './ambient.js';
+import { mountPainting } from './painting.js';
+mountPainting();
 import { startTour } from './tour.js';
 import { session as posture, showReport } from './report.js';
 

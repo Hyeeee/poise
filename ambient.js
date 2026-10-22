@@ -4,7 +4,7 @@
 // first interaction, it begins at the first click, tap or key press.
 
 let waiting = false, wanted = false;
-let ctx, master, duckGain, reverb, playing = false, timer = null, bellTimer = null, step = 0;
+let ctx, analyser, levelBuf, master, duckGain, reverb, playing = false, timer = null, bellTimer = null, step = 0;
 
 // Slow progression in D major: Dmaj9 → Bm11 → Gmaj9 → Aadd9 (frequencies in Hz).
 const CHORDS = [
@@ -36,6 +36,8 @@ function setup() {
   tone.connect(dry).connect(duckGain);
   tone.connect(reverb).connect(wet).connect(duckGain);
   duckGain.connect(master).connect(ctx.destination);
+  analyser = ctx.createAnalyser(); analyser.fftSize = 256; levelBuf = new Uint8Array(analyser.frequencyBinCount);
+  master.connect(analyser);
   setup.input = tone;
 }
 
@@ -118,6 +120,13 @@ export const ambient = {
     master.gain.cancelScheduledValues(ctx.currentTime);
     master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
     master.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.5);
+  },
+  // 0..1 loudness for visuals: [low, mid, high].
+  level() {
+    if (!analyser || !playing) return [0, 0, 0];
+    analyser.getByteFrequencyData(levelBuf);
+    const band = (a, b) => { let t = 0; for (let i = a; i < b; i++) t += levelBuf[i]; return t / (b - a) / 255; };
+    return [band(1, 6), band(6, 24), band(24, 64)];
   },
   toggle() { if (playing || wanted) { this.stop(); return false; } this.start(); return true; },
   // Lower the music while Poise is speaking.
