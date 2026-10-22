@@ -163,7 +163,7 @@ export function runOnboarding() {
       if (my.cancelled) return;
       renderChoices();
       requestAnimationFrame(() => choices.classList.add('in'));
-      setTimeout(() => { if (!my.cancelled) $('setup-back').hidden = index < 0; }, reducedMotion() ? 0 : 450);
+      setTimeout(() => { if (!my.cancelled) $('setup-back').hidden = index < 0; }, reducedMotion() ? 0 : 1100);
       choices.querySelector('button')?.focus({ preventScroll: true });
     }
 
