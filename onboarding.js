@@ -65,10 +65,8 @@ if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged 
 // Voices to choose from. Ava lives in voice/, the others in voice/<id>/.
 export const VOICES = [
   { id: 'ava', name: 'Ava', vibe: 'Warm and clear' },
-  { id: 'emma', name: 'Emma', vibe: 'Bright and friendly' },
   { id: 'sonia', name: 'Sonia', vibe: 'Calm, British' },
   { id: 'andrew', name: 'Andrew', vibe: 'Soft and steady' },
-  { id: 'brian', name: 'Brian', vibe: 'Easygoing' },
 ];
 export function voiceFile(text, id = store.state.voiceId || 'ava') {
   let h = 5381;
@@ -250,7 +248,7 @@ export function runOnboarding() {
           const o = document.createElement('button');
           o.type = 'button'; o.className = 'voice-opt' + (v.id === current ? ' on' : '');
           o.setAttribute('role', 'radio'); o.setAttribute('aria-checked', v.id === current);
-          o.innerHTML = `<span class="vo-dot" aria-hidden="true"></span><b>${v.name}</b><small>${v.vibe}</small>`;
+          o.innerHTML = `<b>${v.name}</b><small>${v.vibe}</small>`;
           o.onclick = () => {
             store.update(s => { s.voiceId = v.id; s.voice = true; });
             pick.querySelectorAll('.voice-opt').forEach(x => { x.classList.toggle('on', x === o); x.setAttribute('aria-checked', x === o); });

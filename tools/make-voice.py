@@ -14,8 +14,8 @@ import edge_tts
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 # id -> neural voice. Ava is written to voice/, the rest to voice/<id>/.
-VOICES = {"ava": "en-US-AvaNeural", "emma": "en-US-EmmaNeural", "sonia": "en-GB-SoniaNeural",
-          "andrew": "en-US-AndrewNeural", "brian": "en-US-BrianNeural"}
+VOICES = {"ava": "en-US-AvaNeural", "sonia": "en-GB-SoniaNeural",
+          "andrew": "en-US-AndrewNeural"}
 ONLY = sys.argv[1:]
 
 def file_for(text, vid="ava"):
