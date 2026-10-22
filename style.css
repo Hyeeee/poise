@@ -514,3 +514,16 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .chip, .quick-chip, .min-
 :root { --r-sm: 12px; --r-btn: 16px; --r-card: 16px; }
 button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #ask-form, .card, .summary-card, .voice-opt, .report-card, .sheet, .tour-card, .reel-error, .report-chart, .report-tip { border-radius: 16px !important; }
 .chip, .quick-chip, .suggest button, .segmented button, .field .segmented button, .min-arrows .step-btn, .reel-ctrl .icon-btn { border-radius: var(--r-sm) !important; }
+/* Minutes field, line style: just the value on an underline, arrows on the right. */
+.min-box { background: transparent !important; box-shadow: none !important; border-radius: 0 !important; padding: 4px 0 10px !important; min-width: 280px;
+  border-bottom: 2px solid rgba(30, 31, 28, .22); transition: border-color .4s ease; gap: 6px; }
+.min-box:hover { border-bottom-color: rgba(30, 31, 28, .4); }
+.min-box:focus-within { border-bottom-color: var(--ink); }
+.min-box input { font-size: var(--t-3xl); width: 2.4ch; }
+.min-unit { font-size: var(--t-l); align-self: flex-end; padding-bottom: 6px; }
+.min-arrows { flex-direction: row; gap: 4px; }
+.min-arrows .step-btn { width: 36px; height: 36px; background: transparent !important; color: var(--ink-2); border-radius: var(--r-sm) !important; }
+.min-arrows .step-btn:hover { background: rgba(30, 31, 28, .07) !important; color: var(--ink); }
+.min-arrows svg { width: 22px; height: 22px; }
+.min-label { font-size: var(--t-s); }
+.min-picker { gap: 18px; }

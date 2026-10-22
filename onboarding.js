@@ -196,7 +196,6 @@ export function runOnboarding() {
               <button type="button" class="step-btn" data-d="-1" aria-label="Less"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
             </span>
           </span>
-          <span class="min-help">Type a number or use the arrows</span>
         </label>
 
         <div class="quick">${q.quick.map(m => `<button type="button" class="quick-chip" data-m="${m}">${m >= 60 ? m / 60 + ' hour' : m + ' min'}</button>`).join('')}</div>`;
