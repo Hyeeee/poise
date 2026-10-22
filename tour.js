@@ -1,7 +1,7 @@
 // Guided tour: highlights one part of the studio at a time and dims the rest.
 const $ = id => document.getElementById(id);
 
-const STEPS = [
+const WORK_STEPS = [
   { sel: '.state', title: 'Your posture', text: 'Sit the way you want to stay, then press Set reference. This card tells you when you drift from it.' },
   { sel: '#calibrate', title: 'Set reference', text: 'Saves your current position as “good”. Press it again any time to reset.' },
   { sel: '#state-agent', title: 'Poise, at a glance', text: 'These dots react to you: calm when you’re aligned, restless when you drift.' },
@@ -16,6 +16,20 @@ const STEPS = [
   { sel: '#ask-form', title: 'Ask Poise', text: 'Type or speak to change anything — “focus 40 minutes”, “less sensitive”, “take a break”.' },
 ];
 
+const BREAK_STEPS = {
+  stretch: [
+    { sel: '#reel-player', title: 'Follow the figure', text: 'Watch the sketch, then copy the stretch in front of your camera.' },
+    { sel: '.match', title: 'Match score', text: 'How close you are to the figure. Get near it for half a second and the next stretch begins.' },
+    { sel: '#reel-progress', title: 'Your stretches', text: 'Each dot is one stretch. Skip any you can’t do.' },
+    { sel: '#end-break', title: 'End break', text: 'Finish any time to see how long you rested and how much you followed.' },
+  ],
+  breathe: [
+    { sel: '#breath-orb', title: 'Breathe with it', text: 'Breathe in as the dots grow, out as they shrink.' },
+    { sel: '#breath-bar', title: 'Time left', text: 'Your rest runs until the line fills.' },
+    { sel: '#breath-end', title: 'End break', text: 'Finish any time to see your rest summary.' },
+  ],
+};
+let STEPS = WORK_STEPS;
 let i = 0, onDone = null;
 
 function el(sel) {
@@ -71,7 +85,8 @@ function keys(e) {
   else if (e.key === 'ArrowLeft') go(-1);
 }
 
-export function startTour(done) {
+export function startTour(done, kind) {
+  STEPS = kind ? BREAK_STEPS[kind] : WORK_STEPS;
   onDone = done; i = 0;
   $('tour').hidden = false;
   $('studio').classList.add('touring');

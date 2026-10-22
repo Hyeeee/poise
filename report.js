@@ -108,3 +108,75 @@ export function showReport(r, speak) {
     $('report-done').onclick = () => done('done');
   });
 }
+
+// ---------- Break analysis ----------
+let b = null;
+export const breakLog = {
+  start(kind) { b = { kind, start: performance.now(), poses: [], cycles: 0 }; },
+  pose(name) { if (b) b.poses.push({ name, best: 0, matched: false, skipped: false, began: performance.now(), took: 0 }); },
+  score(v) { const p = b?.poses.at(-1); if (p) p.best = Math.max(p.best, v); },
+  matched() { const p = b?.poses.at(-1); if (p) { p.matched = true; p.took = performance.now() - p.began; } },
+  skipped() { const p = b?.poses.at(-1); if (p && !p.matched) p.skipped = true; },
+  breath() { if (b) b.cycles++; },
+  summary() {
+    if (!b) return null;
+    const r = { ...b, ms: performance.now() - b.start, poses: b.poses.slice() };
+    b = null; return r;
+  },
+};
+
+function bars(poses) {
+  const W = 560, H = 120, pad = 6, n = poses.length || 1, gap = 14, bw = (W - pad * 2 - gap * (n - 1)) / n;
+  return `<svg viewBox="0 0 ${W} ${H}" class="tl" role="img" aria-label="Best match for each stretch">
+    <line x1="${pad}" x2="${W - pad}" y1="${H - 12 - (45 / 100) * (H - 24)}" y2="${H - 12 - (45 / 100) * (H - 24)}" class="tl-mid"/>
+    ${poses.map((p, i) => { const h = Math.max(3, (p.best / 100) * (H - 24)); return `<rect x="${pad + i * (bw + gap)}" y="${H - 12 - h}" width="${bw}" height="${h}" rx="6" fill="${p.matched ? 'var(--aligned)' : p.best > 30 ? 'var(--drift)' : 'var(--reset)'}"/>`; }).join('')}</svg>`;
+}
+
+/** Break report. Resolves 'again' | 'focus' | 'done'. */
+export function showBreakReport(r, speak) {
+  return new Promise(resolve => {
+    const mins = r.ms / 60000, len = mins < 1 ? `${Math.max(1, Math.round(r.ms / 1000))} sec` : `${Math.round(mins)} min`;
+    const set = (id, v) => { $(id).textContent = v; };
+    const labels = { 'rep-aligned-l': '', 'rep-recover-l': '', 'rep-drift-note': '', 'rep-causes-h': '', 'report-new': '', 'report-break': '' };
+    for (const k in labels) labels[k] = $(k).textContent;
+    const legend = $('report-legend'); const legendWas = legend.hidden;
+    let title, line;
+    if (r.kind === 'breathe') {
+      title = mins >= 2 ? 'Good rest.' : 'Short rest.';
+      line = `You rested ${len} and took ${r.cycles} slow breath${r.cycles === 1 ? '' : 's'}.`;
+      $('report-chart').innerHTML = ''; $('report-chart').hidden = true; legend.hidden = true;
+      set('rep-aligned', len); set('rep-aligned-l', 'rested');
+      set('rep-recover', r.cycles); set('rep-recover-l', 'slow breaths');
+      set('rep-drifts', mins >= 2 ? '✓' : '—'); set('rep-drift-note', mins >= 2 ? 'full reset' : 'try two minutes or more');
+      $('rep-causes-h').hidden = true; $('rep-causes').innerHTML = '';
+      $('rep-tip').innerHTML = '<b>Next time:</b> <span>Look at something far away while you breathe out — it rests your eyes too.</span>';
+    } else {
+      const done = r.poses.filter(p => p.matched), total = r.poses.length;
+      const avg = total ? Math.round(r.poses.reduce((a, p) => a + p.best, 0) / total) : 0;
+      title = !total ? 'Break ended.' : done.length === total ? 'Great stretch.' : done.length >= total / 2 ? 'Nice stretch.' : 'A light stretch.';
+      line = total ? `You rested ${len} and followed ${done.length} of ${total} stretches.` : `You rested ${len}.`;
+      $('report-chart').hidden = false; $('report-chart').innerHTML = bars(r.poses); legend.hidden = true;
+      set('rep-aligned', len); set('rep-aligned-l', 'rested');
+      set('rep-recover', `${done.length}/${total}`); set('rep-recover-l', 'stretches followed');
+      set('rep-drifts', total ? avg + '%' : '—'); set('rep-drift-note', 'average best match');
+      $('rep-causes-h').hidden = !total; $('rep-causes-h').textContent = 'Each stretch';
+      $('rep-causes').innerHTML = r.poses.map(p => `<div class="cause"><span>${p.name}</span><i style="--w:${Math.round(p.best)}%"></i><b>${p.matched ? '✓' : p.skipped ? 'skip' : Math.round(p.best) + '%'}</b></div>`).join('');
+      const miss = r.poses.find(p => !p.matched);
+      $('rep-tip').innerHTML = miss ? `<b>Try again later: ${miss.name}.</b> <span>Keep your arms in view and mirror the figure slowly.</span>` : '<b>Nicely done.</b> <span>Your shoulders and neck should feel looser now.</span>';
+    }
+    set('report-title', title); set('report-line', line); set('report-len', `${len} break`);
+    set('report-new', 'Stretch again'); set('report-break', 'Back to focus');
+    $('report').hidden = false; $('report-break').focus({ preventScroll: true });
+    speak?.(`${title} ${line}`);
+    const finish = choice => {
+      $('report').hidden = true;
+      for (const k in labels) $(k).textContent = labels[k];
+      $('rep-causes-h').hidden = false; $('report-chart').hidden = false; legend.hidden = legendWas;
+      ['report-break', 'report-new', 'report-done'].forEach(id => { $(id).onclick = null; });
+      resolve(choice);
+    };
+    $('report-break').onclick = () => finish('focus');
+    $('report-new').onclick = () => finish('again');
+    $('report-done').onclick = () => finish('done');
+  });
+}

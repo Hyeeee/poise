@@ -7,7 +7,7 @@ import { ambient } from './ambient.js';
 import { mountPainting } from './painting.js';
 mountPainting();
 import { startTour } from './tour.js';
-import { session as posture, showReport } from './report.js';
+import { session as posture, showReport, breakLog, showBreakReport } from './report.js';
 
 const $ = id => document.getElementById(id);
 const text = (id, value) => { $(id).textContent = value; };
@@ -177,7 +177,7 @@ function updateWork(p, now) {
     driftSince = 0;
     // Just corrected: green for 3 seconds, then back to neutral white.
     if (lastState === 'amber' || lastState === 'red') recoverAt = now;
-    state = recoverAt && now - recoverAt < 3000 ? 'green' : 'white';
+    state = recoverAt && now - recoverAt < 1200 ? 'green' : 'white';
   }
   if (state === 'red' && lastState !== 'red' && store.work().chime) chime();
   lastState = state;
@@ -235,7 +235,7 @@ function loop(now) {
 
 // Before a reference exists: the side panel is hidden and the main screen asks for one.
 function syncRef() {
-  $('studio').classList.toggle('no-ref', !reference);
+  $('studio').classList.toggle('no-ref', !reference && screen === 'work');
   $('end-session').hidden = !reference;
   $('ref-prompt').hidden = !!reference || !active || screen !== 'work';
 }
@@ -269,6 +269,7 @@ function newGame() {
   const picked = new Set([...poses.keys()].sort(() => Math.random() - .5).slice(0, count));
   queue = poses.filter((_, i) => picked.has(i));
   round = 0; points = 0; perfect = 0; gameDone = false; betweenUntil = 0;
+  breakLog.start('stretch');
   showPose();
 }
 function showPose() {
@@ -278,6 +279,7 @@ function showPose() {
   $('reel-complete').hidden = !!p; $('pose-actions').hidden = !p;
   if (!p) {
     gameDone = true; reel.stop();
+    setTimeout(() => endBreak(), 900);
     text('pose-name', 'Break complete'); text('pose-instruction', `${perfect} of ${queue.length} stretches matched.`);
     text('round', `${queue.length} / ${queue.length}`); text('hold-label', ''); text('match-score', '—');
     $('hold-bar').style.width = '100%';
@@ -287,10 +289,12 @@ function showPose() {
   text('match-score', '—'); $('hold-bar').style.width = '0';
   text('hold-label', active ? 'Watch the figure, then follow along.' : 'Turn on your camera to get a match score.');
   text('points', `${points} points`);
+  breakLog.pose(p.name);
   reel.load(p);
 }
 function advance(passed = false) {
   if (gameDone) return;
+  if (passed) breakLog.matched(); else breakLog.skipped();
   if (passed) { points += 100; perfect++; toast('Perfect  +100'); light('green'); }
   round++; betweenUntil = performance.now() + 1500; showPose(); text('points', `${points} points`);
 }
@@ -334,6 +338,7 @@ function updateGame(p, now) {
   }
   missingSince = 0;
   const score = Math.round(value);
+  breakLog.score(score);
   text('match-score', score); light(score >= PASS ? 'green' : score >= PASS - 15 ? 'amber' : 'red');
   if (score >= PASS) {
     if (!holdStart) holdStart = now;
@@ -350,6 +355,7 @@ let breathTimer = null;
 function startBreathe() {
   stopBreathe();
   const total = store.brk().minutes * 60 * 1000, began = performance.now();
+  breakLog.start('breathe');
   const orb = $('breath-orb');
   let inhale = true, phaseEnd = 0;
   const tick = () => {
@@ -358,10 +364,12 @@ function startBreathe() {
     text('breath-left', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')} left`);
     if (!left) {
       stopBreathe(); orb.classList.remove('in'); text('breath-cue', 'Break complete'); text('breath-tip', 'Nice. Ready when you are.'); light('green');
+      endBreak();
       return;
     }
     if (now >= phaseEnd) {
       inhale = !inhale || phaseEnd === 0;
+      if (inhale && phaseEnd) breakLog.breath();
       const ms = inhale ? 4000 : 6000;
       orb.classList.toggle('in', inhale);
       text('breath-cue', inhale ? 'Breathe in' : 'Breathe out');
@@ -375,6 +383,7 @@ function startBreathe() {
 function stopBreathe() { clearInterval(breathTimer); breathTimer = null; }
 
 // ---------- Screens ----------
+let breakToured = null;
 function setScreen(next) {
   screen = next;
   queueMicrotask(syncRef);
@@ -389,6 +398,12 @@ function setScreen(next) {
   reel.stop(); stopBreathe();
   if (next === 'break') {
     timerRunning = false; renderPause();
+    if (breakToured === null) breakToured = !ALWAYS_ONBOARD && !!store.state.breakToured;
+    if (!breakToured) {
+      breakToured = true; store.update(st => { st.breakToured = true; });
+      setTimeout(() => startTour(() => { if (screen === 'break') { if (brk.style === 'stretch') newGame(); else startBreathe(); } }, brk.style === 'breathe' ? 'breathe' : 'stretch'), 400);
+      return;
+    }
     if (brk.style === 'stretch') newGame(); else startBreathe();
   } else {
     remaining = store.work().focus * 60; renderTimer();
@@ -673,7 +688,20 @@ $('skip').onclick = () => advance();
 $('replay').onclick = () => { holdStart = 0; poseStarted = performance.now(); reel.replay(); };
 $('restart-break').onclick = newGame;
 $('return-work').onclick = () => setScreen('work');
-$('breath-end').onclick = () => setScreen('work');
+$('breath-end').onclick = () => endBreak();
+$('end-break').onclick = () => endBreak();
+let endingBreak = false;
+async function endBreak() {
+  if (endingBreak || screen !== 'break') return;
+  endingBreak = true;
+  reel.stop(); stopBreathe(); light('idle');
+  const r = breakLog.summary();
+  const choice = r ? await showBreakReport(r, line => speak(line, $('ask-orb'))) : 'focus';
+  endingBreak = false;
+  if (choice === 'again') setScreen('break');
+  else if (choice === 'focus') setScreen('work');
+  else { stop(); closeThread(); $('studio').hidden = true; $('welcome').hidden = false; }
+}
 $('calibrate').onclick = calibrate;
 $('ref-set').onclick = calibrate;
 $('work-mode-name').onclick = () => openModes('work');

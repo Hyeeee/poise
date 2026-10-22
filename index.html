@@ -76,7 +76,7 @@
   <div id="lightbar" aria-hidden="true"></div>
 
   <header class="topbar">
-    <button id="home" class="brand" aria-label="Back to start"><span class="agent mini" data-shape="sphere" aria-hidden="true"></span>poise</button>
+    <button id="home" class="brand" aria-label="Back to start"><span class="agent mini" data-shape="sphere" data-dots="44" data-dot="0.75" aria-hidden="true"></span>poise</button>
     <nav class="segmented glass" aria-label="Mode">
       <button id="work" class="active">Focus</button>
       <button id="break">Break</button>
@@ -138,7 +138,7 @@
     <div id="break-panel" class="card" hidden>
       <div class="reel-head">
         <div class="reel-progress" id="reel-progress" aria-label="Stretch progress"></div>
-        <span id="round" class="sub">1 / 5</span>
+        <span id="round" class="sub">1 / 5</span><button id="end-break" class="ghost end-btn">End</button>
       </div>
       <div class="reel-video">
         <div id="reel-player"></div>
@@ -171,7 +171,7 @@
       <div class="meter thin"><div id="breath-bar"></div></div>
       <div class="state-foot">
         <span class="sub" id="breath-left"></span>
-        <button id="breath-end" class="primary">Back to focus</button>
+        <button id="breath-end" class="ghost">End</button>
       </div>
     </div>
   </aside>
@@ -228,13 +228,13 @@
     </div>
     <p class="say report-say"><b id="report-title"></b> <span id="report-line"></span></p>
     <div id="report-chart" class="report-chart"></div>
-    <div class="report-legend"><span><i style="background:var(--aligned)"></i>Aligned</span><span><i style="background:var(--drift)"></i>Drifting</span><span><i style="background:var(--reset)"></i>Reset</span><span class="sub">line = how far you moved from your reference</span></div>
+    <div class="report-legend" id="report-legend"><span><i style="background:var(--aligned)"></i>Aligned</span><span><i style="background:var(--drift)"></i>Drifting</span><span><i style="background:var(--reset)"></i>Reset</span><span class="sub">line = how far you moved from your reference</span></div>
     <div class="report-stats">
-      <div><b id="rep-aligned">—</b><small>in good posture</small></div>
-      <div><b id="rep-recover">—</b><small>average time to correct</small></div>
+      <div><b id="rep-aligned">—</b><small id="rep-aligned-l">in good posture</small></div>
+      <div><b id="rep-recover">—</b><small id="rep-recover-l">average time to correct</small></div>
       <div><b id="rep-drifts">0</b><small id="rep-drift-note">drifts</small></div>
     </div>
-    <h3 class="report-h">What pulled you out of position</h3>
+    <h3 class="report-h" id="rep-causes-h">What pulled you out of position</h3>
     <div id="rep-causes" class="causes"></div>
     <p id="rep-tip" class="say report-tip"></p>
     <div class="report-actions">
