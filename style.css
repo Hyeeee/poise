@@ -266,3 +266,9 @@ input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
 }
+
+/* Music toggle */
+.music-btn .i-off { display: none; }
+.music-btn.off .i-on { display: none; }
+.music-btn.off .i-off { display: block; }
+.welcome-music { position: fixed; top: 20px; right: 20px; z-index: 5; }

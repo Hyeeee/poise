@@ -1,6 +1,7 @@
 // Voice-guided setup that turns a few answers into a personal focus mode and break mode.
 import { store, describeWork, describeBreak } from './settings.js';
 import { mountAgents } from './agent.js';
+import { ambient } from './ambient.js';
 
 const $ = id => document.getElementById(id);
 
@@ -78,8 +79,8 @@ export function speak(text, orb, lang = 'en') {
     if (ko) u.voice = ko;
   } else if (voice) u.voice = voice;
   u.rate = 0.98; u.pitch = 1;
-  u.onstart = () => orb?.classList.add('speaking');
-  u.onend = u.onerror = () => orb?.classList.remove('speaking');
+  u.onstart = () => { orb?.classList.add('speaking'); ambient.duck(true); };
+  u.onend = u.onerror = () => { orb?.classList.remove('speaking'); ambient.duck(false); };
   speechSynthesis.speak(u);
 }
 

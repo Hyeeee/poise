@@ -22,6 +22,7 @@ The bar at the bottom accepts English or Korean, typed or spoken (Chrome speech 
 - `onboarding.js` — voice-guided setup (Web Speech synthesis)
 - `assistant.js` — intent parser for Ask Poise
 - `guide.js` — animated ink-sketch seated figure that demonstrates each stretch
+- `ambient.js` — calm generative background music (Web Audio, no audio files)
 - `hardware/poise-lightbar.ino` — NeoPixel sketch
 
 ## Light bar

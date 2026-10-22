@@ -36,6 +36,7 @@
 
 <!-- Welcome -->
 <section id="welcome" class="welcome">
+  <button class="icon-btn music-btn welcome-music" aria-label="Background music" aria-pressed="true"><svg class="i-on" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><svg class="i-off" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/><path d="M4 4l16 16"/></svg></button>
   <main class="welcome-main">
     <div class="agent hero" aria-hidden="true"></div>
         <p class="lede"><b>Poise.</b> <span>Sit well without thinking about it.</span></p>
@@ -79,6 +80,7 @@
       <button id="break">Break</button>
     </nav>
     <div class="tools">
+      <button class="icon-btn glass music-btn" aria-label="Background music" aria-pressed="true" title="Music"><svg class="i-on" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><svg class="i-off" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/><path d="M4 4l16 16"/></svg></button>
       <button id="connect" class="icon-btn glass" aria-label="Connect light bar" title="Connect light bar">
         <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="4" rx="2"/><path d="M8 15h8M12 11v8"/></svg>
       </button>
@@ -204,6 +206,7 @@
   <div class="editor" id="editor"></div>
   <footer class="prefs">
     <label class="toggle"><input type="checkbox" id="pref-voice"><span>Voice</span></label>
+    <label class="toggle"><input type="checkbox" id="pref-music"><span>Music</span></label>
     <label class="toggle"><input type="checkbox" id="pref-joints"><span>Show joints</span></label>
     <button class="text-btn" id="pref-setup">Run setup again</button>
   </footer>

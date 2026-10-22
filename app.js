@@ -3,6 +3,7 @@ import { store, SENSITIVITY, SENS_ORDER, createMode, deleteMode, patchMode, desc
 import { runOnboarding, speak } from './onboarding.js';
 import { respond } from './assistant.js';
 import { mountAgents } from './agent.js';
+import { ambient } from './ambient.js';
 
 const $ = id => document.getElementById(id);
 const text = (id, value) => { $(id).textContent = value; };
@@ -433,7 +434,7 @@ let tab = 'work';
 function openModes(kind = tab) { tab = kind; renderModes(); if (!$('modes').open) $('modes').showModal(); }
 function renderModes() {
   document.querySelectorAll('#modes-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  $('pref-voice').checked = store.state.voice; $('pref-joints').checked = store.state.joints;
+  $('pref-voice').checked = store.state.voice; $('pref-music').checked = store.state.music; $('pref-joints').checked = store.state.joints;
   renderModeList(); renderEditor();
 }
 function renderModeList() {
@@ -596,9 +597,30 @@ if (Recognition) {
   };
 }
 
+// ---------- Background music ----------
+function syncMusic() {
+  const on = store.state.music;
+  document.querySelectorAll('.music-btn').forEach(b => { b.classList.toggle('off', !on); b.setAttribute('aria-pressed', String(on)); });
+  if ($('pref-music')) $('pref-music').checked = store.state.music;
+}
+document.querySelectorAll('.music-btn').forEach(b => b.onclick = () => {
+  const on = ambient.toggle();
+  store.update(s => { s.music = on; });
+  syncMusic();
+});
+$('pref-music').onchange = e => { store.update(s => { s.music = e.target.checked; }); e.target.checked ? ambient.start() : ambient.stop(); syncMusic(); };
+// Browsers only allow sound after the first click anywhere on the page.
+document.addEventListener('pointerdown', function first(e) {
+  if (e.target.closest('.music-btn')) return;
+  document.removeEventListener('pointerdown', first);
+  if (store.state.music && !ambient.playing) { ambient.start(); syncMusic(); }
+});
+syncMusic();
+
 // ---------- Wiring ----------
 const ALWAYS_ONBOARD = true; // set to false after testing
 async function begin(withCamera) {
+  if (store.state.music) { ambient.start(); syncMusic(); }
   // Testing: always run the setup questions first, even on return visits.
   if (ALWAYS_ONBOARD || !store.state.onboarded) {
     $('welcome').hidden = true;

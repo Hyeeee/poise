@@ -23,6 +23,7 @@ function defaults() {
   return {
     onboarded: false,
     voice: true,
+    music: true,
     joints: true,
     works: structuredClone(DEFAULT_WORK),
     breaks: structuredClone(DEFAULT_BREAK),
