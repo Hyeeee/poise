@@ -30,6 +30,7 @@ def lines():
     src = (ROOT / "onboarding.js").read_text(encoding="utf-8")
     found = re.findall(r"say: '((?:[^'\\]|\\.)*)'", src)
     found += re.findall(r"(?:show|speak)\('((?:[^'\\]|\\.)*)'", src)
+    found += re.findall(r"const hello = '((?:[^'\\]|\\.)*)'", src)
     return [t.replace("\\'", "'") for t in dict.fromkeys(found)]
 
 async def main():
@@ -38,7 +39,15 @@ async def main():
             continue
         for text in lines():
             out = file_for(text, vid)
-            await edge_tts.Communicate(text, name, rate="-4%").save(str(out))
+            if out.exists() and out.stat().st_size > 1000:
+                continue  # already made; lets you re-run after a network hiccup
+            for attempt in range(4):
+                try:
+                    await edge_tts.Communicate(text, name, rate="-4%").save(str(out))
+                    break
+                except Exception as e:
+                    print("retrying", vid, "-", e)
+                    await asyncio.sleep(2 + attempt * 2)
             print("saved", vid, out.name, "-", text)
 
 asyncio.run(main())
