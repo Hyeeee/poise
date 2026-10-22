@@ -148,7 +148,7 @@ export function runOnboarding() {
     async function show(text, renderChoices) {
       if (step) step.cancelled = true;
       const my = step = { get cancelled() { return this._c || token.cancelled; }, set cancelled(v) { this._c = v; } };
-      $('setup-back').hidden = index < 0;
+      $('setup-back').hidden = true;
       choices.classList.remove('in');
       choices.innerHTML = '';
       orb.classList.add('thinking');
@@ -160,6 +160,7 @@ export function runOnboarding() {
       if (my.cancelled) return;
       renderChoices();
       requestAnimationFrame(() => choices.classList.add('in'));
+      setTimeout(() => { if (!my.cancelled) $('setup-back').hidden = index < 0; }, reducedMotion() ? 0 : 450);
       choices.querySelector('button')?.focus({ preventScroll: true });
     }
 
