@@ -9,43 +9,43 @@ const QUESTIONS = [
     key: 'focus',
     say: 'When you sit down to work, how long do you usually stay focused?',
     options: [
-      { label: 'Long, deep sessions', value: 50 },
+      { label: 'About 50 minutes', value: 50 },
       { label: 'About 25 minutes', value: 25 },
-      { label: 'Short bursts', value: 15 },
+      { label: 'About 15 minutes', value: 15 },
     ],
   },
   {
     key: 'nudge',
     say: 'When your posture starts to drift, how should I let you know?',
     options: [
-      { label: 'Barely. A soft glow', value: { sensitivity: 'gentle', delay: 10 } },
-      { label: 'Clearly, after a few seconds', value: { sensitivity: 'balanced', delay: 5 } },
-      { label: 'Right away, with a sound', value: { sensitivity: 'firm', delay: 3, chime: true } },
+      { label: 'Gently, after 10 seconds', value: { sensitivity: 'gentle', delay: 10 } },
+      { label: 'Clearly, after 5 seconds', value: { sensitivity: 'balanced', delay: 5 } },
+      { label: 'Right away, with a chime', value: { sensitivity: 'firm', delay: 3, chime: true } },
     ],
   },
   {
     key: 'eyes',
     say: 'Should I look after your eyes too? I can count blinks and notice when you lean in close.',
     options: [
-      { label: 'Yes, watch my eyes', value: true },
-      { label: 'Just my posture', value: false },
+      { label: 'Posture and eyes', value: true },
+      { label: 'Posture only', value: false },
     ],
   },
   {
     key: 'rest',
     say: 'And when it is time to rest, what helps you reset?',
     options: [
-      { label: 'Stretching along with a guide', value: { style: 'stretch', count: 5 } },
-      { label: 'A little movement', value: { style: 'stretch', count: 3 } },
-      { label: 'Breathing and resting my eyes', value: { style: 'breathe', minutes: 3 } },
+      { label: 'Five guided stretches', value: { style: 'stretch', count: 5 } },
+      { label: 'Three quick stretches', value: { style: 'stretch', count: 3 } },
+      { label: 'Breathing and eye rest', value: { style: 'breathe', minutes: 3 } },
     ],
   },
   {
     key: 'auto',
     say: 'Last one. When focus time ends, should I start your break for you?',
     options: [
-      { label: 'Yes, start it for me', value: true },
-      { label: 'Just let me know', value: false },
+      { label: 'Start it for me', value: true },
+      { label: 'Ask me first', value: false },
     ],
   },
 ];
@@ -188,7 +188,7 @@ export function runOnboarding() {
     show('Hi, I am Poise. A few quick questions, so your focus and breaks fit the way you work.', () => {
       const b = document.createElement('button');
       b.className = 'choice';
-      b.textContent = 'Sounds good';
+      b.textContent = "Let's start";
       b.onclick = next;
       choices.append(b);
     });
