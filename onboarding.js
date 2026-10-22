@@ -102,17 +102,19 @@ export function speak(text, orb, lang = 'en') {
 
 function reducedMotion() { return matchMedia('(prefers-reduced-motion: reduce)').matches; }
 
+// Words drift in one after another, softly, instead of typing letter by letter.
 function typeLine(el, text, token) {
   return new Promise(resolve => {
     if (reducedMotion()) { el.textContent = text; return resolve(); }
-    el.textContent = '';
-    let i = 0;
-    const step = () => {
-      if (token.cancelled) return resolve();
-      el.textContent = text.slice(0, ++i);
-      if (i < text.length) setTimeout(step, 18); else resolve();
-    };
-    step();
+    el.innerHTML = '';
+    const words = text.split(' ');
+    words.forEach((w, i) => {
+      const s = document.createElement('span');
+      s.className = 'word'; s.textContent = w + (i < words.length - 1 ? ' ' : '');
+      s.style.animationDelay = `${i * 70}ms`;
+      el.append(s);
+    });
+    setTimeout(() => resolve(), words.length * 70 + 350);
   });
 }
 

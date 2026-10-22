@@ -425,7 +425,7 @@ function syncUI() {
   text('work-mode-name', work.name);
   text('next-break', `Then ${brk.name.toLowerCase()}: ${describeBreak(brk)}`);
   $('eye-stat').hidden = !work.eyes; $('dist-stat').hidden = !work.eyes;
-  document.querySelector('.card.stats').hidden = !work.eyes;
+  document.querySelector('.card.stats').hidden = true;
   renderTimer(); renderPause();
   if (screen === 'break') {
     const wantStretch = brk.style === 'stretch';

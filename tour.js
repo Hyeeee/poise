@@ -8,7 +8,6 @@ const STEPS = [
   { sel: '.session', title: 'Focus timer', text: 'Starts when you set a reference. When it ends, your break begins.' },
   { sel: '#end-session', title: 'End session', text: 'Finish whenever you like to see how your posture went — what pulled you out of position and how fast you corrected.' },
   { sel: '#work-mode-name', title: 'Focus mode', text: 'Tap the name to switch modes or change length and sensitivity.' },
-  { sel: '.stats', title: 'Eye care', text: 'Blinks per minute and how close you sit to the screen.' },
   { sel: '.topbar .segmented', title: 'Focus and Break', text: 'Switch between working and resting yourself, whenever you like.' },
   { sel: '#connect', title: 'Light bar', text: 'Connect the light bar over USB so it glows with your posture.' },
   { sel: '#stop', title: 'Camera', text: 'Turn the camera on or off. Video stays on this device.' },
