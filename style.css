@@ -343,12 +343,23 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .card.stats { display: none !important; }
 .reel-head .end-btn { margin-left: auto; min-height: 30px; padding: 0 14px; font-size: 13px; }
 /* Glass: buttons and side panel let the painting show through. */
-:root { --glass-bg: rgba(250, 250, 244, .42); --glass-line: rgba(255, 255, 255, .55); --glass-blur: blur(22px) saturate(1.25); }
-.studio .card, .panel .card, .glass, .choice, .ghost, .suggest button, .msg.me, .tour-card, .ref-prompt, #ref-prompt {
-  background: var(--glass-bg) !important; -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-line); box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 18px 40px -24px rgba(50, 60, 40, .35);
+:root { --glass-blur: blur(26px) saturate(1.35); }
+.studio .card, .panel .card, .glass, .choice, .ghost, .suggest button, .msg.me, .tour-card, #ref-prompt {
+  background: linear-gradient(150deg, rgba(255, 255, 250, .5), rgba(255, 255, 248, .22)) !important;
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 0;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, .55),
+    inset 0 -1px 1px rgba(255, 255, 255, .12),
+    inset 0 0 0 .5px rgba(255, 255, 255, .22),
+    0 10px 30px -18px rgba(60, 70, 45, .28);
+  transition: background .35s ease, box-shadow .35s ease, transform .35s cubic-bezier(.16,1,.3,1);
 }
-.choice:hover, .ghost:hover, .glass:hover { background: rgba(255, 255, 252, .62) !important; }
-.choice.picked { background: rgba(30, 31, 28, .82) !important; color: var(--paper); }
-.primary { background: rgba(30, 31, 28, .78) !important; -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); border: 1px solid rgba(255,255,255,.12); }
-.panel .card .ghost { background: rgba(255, 255, 250, .35) !important; }
+.choice:hover, .ghost:hover, .glass:hover { background: linear-gradient(150deg, rgba(255, 255, 252, .66), rgba(255, 255, 250, .34)) !important; }
+.choice.picked {
+  background: linear-gradient(150deg, rgba(255, 255, 252, .82), rgba(255, 255, 248, .5)) !important;
+  color: var(--ink) !important; transform: scale(.985);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.8), inset 0 0 0 1px rgba(255,255,255,.45), 0 0 0 4px rgba(255,255,255,.18), 0 10px 30px -16px rgba(60,70,45,.35);
+}
+.primary { background: rgba(30, 31, 28, .78) !important; -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); border: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.14); }
+.panel .card .ghost { background: rgba(255, 255, 250, .3) !important; }
