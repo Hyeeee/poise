@@ -272,3 +272,18 @@ input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 
 .music-btn.off .i-on { display: none; }
 .music-btn.off .i-off { display: block; }
 .welcome-music { position: fixed; top: 20px; right: 20px; z-index: 5; }
+
+/* Guided tour */
+.tour { position: fixed; inset: 0; z-index: 40; }
+.tour-spot {
+  position: fixed; border-radius: 22px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(28, 30, 26, .55), 0 0 0 2px rgba(255, 255, 255, .9);
+  transition: left .45s var(--ease), top .45s var(--ease), width .45s var(--ease), height .45s var(--ease);
+}
+.tour-card { position: fixed; background: var(--paper); border-radius: 24px; padding: 18px 20px 16px; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .45); transition: left .45s var(--ease), top .45s var(--ease); }
+.tour-card .say { font-size: 21px; margin: 6px 0 16px; }
+.tour-head { display: flex; justify-content: space-between; align-items: center; }
+.tour-head .text-btn { font-size: 13px; padding: 2px 0; }
+.tour-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.tour-actions .primary { min-height: 40px; padding: 0 22px; }
+#tour-title::after { content: '.'; }

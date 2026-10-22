@@ -61,19 +61,42 @@ function pickVoice() {
 }
 if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 
+// File name for a pre-recorded line: voice/<hash>.mp3 (made by tools/make-voice.py).
+export function voiceFile(text) {
+  let h = 5381;
+  for (const ch of text) h = ((h * 33) ^ ch.codePointAt(0)) >>> 0;
+  return `voice/${h.toString(16)}.mp3`;
+}
+
+let currentAudio = null;
+// Speak a line. Uses a natural pre-recorded voice when one exists for this exact text,
+// otherwise falls back to the browser's built-in speech.
 export function speak(text, orb, lang = 'en') {
-  if (!store.state.voice || !('speechSynthesis' in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  if (lang === 'ko') {
-    u.lang = 'ko-KR';
-    const ko = speechSynthesis.getVoices().find(v => v.lang?.startsWith('ko'));
-    if (ko) u.voice = ko;
-  } else if (voice) u.voice = voice;
-  u.rate = 0.98; u.pitch = 1;
-  u.onstart = () => { orb?.classList.add('speaking'); ambient.duck(true); };
-  u.onend = u.onerror = () => { orb?.classList.remove('speaking'); ambient.duck(false); };
-  speechSynthesis.speak(u);
+  if (!store.state.voice) return;
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const begin = () => { orb?.classList.add('speaking'); ambient.duck(true); };
+  const end = () => { orb?.classList.remove('speaking'); ambient.duck(false); };
+  const fallback = () => {
+    if (!('speechSynthesis' in window)) return end();
+    const u = new SpeechSynthesisUtterance(text);
+    if (lang === 'ko') {
+      u.lang = 'ko-KR';
+      const ko = speechSynthesis.getVoices().find(v => v.lang?.startsWith('ko'));
+      if (ko) u.voice = ko;
+    } else if (voice) u.voice = voice;
+    u.rate = 0.98; u.pitch = 1;
+    u.onstart = begin;
+    u.onend = u.onerror = end;
+    speechSynthesis.speak(u);
+  };
+  if (lang !== 'en') return fallback();
+  const audio = new Audio(voiceFile(text));
+  currentAudio = audio;
+  audio.onplay = begin;
+  audio.onended = end;
+  audio.onerror = () => { if (currentAudio === audio) { currentAudio = null; fallback(); } };
+  audio.play().catch(() => { if (currentAudio === audio) { currentAudio = null; fallback(); } });
 }
 
 function reducedMotion() { return matchMedia('(prefers-reduced-motion: reduce)').matches; }
@@ -108,6 +131,7 @@ export function runOnboarding() {
       if ('speechSynthesis' in window) speechSynthesis.cancel();
       section.hidden = true;
       $('setup-skip').onclick = null;
+      $('setup-back').onclick = null;
       resolve(saved);
     };
     $('setup-skip').onclick = () => {
@@ -120,16 +144,20 @@ export function runOnboarding() {
       syncVoiceButton();
     };
 
+    let step = null; // token for the line currently on screen, so Back can interrupt it
     async function show(text, renderChoices) {
+      if (step) step.cancelled = true;
+      const my = step = { get cancelled() { return this._c || token.cancelled; }, set cancelled(v) { this._c = v; } };
+      $('setup-back').hidden = index < 0;
       choices.classList.remove('in');
       choices.innerHTML = '';
       orb.classList.add('thinking');
       await new Promise(r => setTimeout(r, reducedMotion() ? 0 : 650));
       orb.classList.remove('thinking');
-      if (token.cancelled) return;
+      if (my.cancelled) return;
       speak(text, orb);
-      await typeLine(line, text, token);
-      if (token.cancelled) return;
+      await typeLine(line, text, my);
+      if (my.cancelled) return;
       renderChoices();
       requestAnimationFrame(() => choices.classList.add('in'));
       choices.querySelector('button')?.focus({ preventScroll: true });
@@ -150,6 +178,13 @@ export function runOnboarding() {
         });
       });
     }
+
+    function back() {
+      if (index <= 0) { index = -1; bar.style.width = '0%'; return intro(); }
+      index -= 2;
+      next();
+    }
+    $('setup-back').onclick = back;
 
     function summary() {
       const work = {
@@ -188,13 +223,16 @@ export function runOnboarding() {
       });
     }
 
-    show('Hi, I am Poise. A few quick questions, so your focus and breaks fit the way you work.', () => {
-      const b = document.createElement('button');
-      b.className = 'choice';
-      b.textContent = "Let's start";
-      b.onclick = next;
-      choices.append(b);
-    });
+    function intro() {
+      show('Hi, I am Poise. A few quick questions, so your focus and breaks fit the way you work.', () => {
+        const b = document.createElement('button');
+        b.className = 'choice';
+        b.textContent = "Let's start";
+        b.onclick = next;
+        choices.append(b);
+      });
+    }
+    intro();
   });
 }
 

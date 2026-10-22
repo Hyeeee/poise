@@ -4,6 +4,7 @@ import { runOnboarding, speak } from './onboarding.js';
 import { respond } from './assistant.js';
 import { mountAgents } from './agent.js';
 import { ambient } from './ambient.js';
+import { startTour } from './tour.js';
 
 const $ = id => document.getElementById(id);
 const text = (id, value) => { $(id).textContent = value; };
@@ -498,6 +499,7 @@ document.querySelectorAll('#modes-tabs button').forEach(b => b.onclick = () => {
 $('pref-voice').onchange = e => store.update(s => { s.voice = e.target.checked; });
 $('pref-joints').onchange = e => setJoints(e.target.checked);
 $('pref-setup').onclick = () => { $('modes').close(); rerunSetup(); };
+$('pref-tour').onclick = () => { $('modes').close(); setScreen('work'); startTour(); };
 document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
 $('modes').addEventListener('click', e => { if (e.target === $('modes')) $('modes').close(); });
 
@@ -628,6 +630,11 @@ async function begin(withCamera) {
   }
   setScreen('work');
   enter();
+  if (ALWAYS_ONBOARD || !store.state.toured) {
+    await new Promise(r => setTimeout(r, 600));
+    await new Promise(r => startTour(r));
+    store.update(s => { s.toured = true; });
+  }
   if (withCamera) start();
 }
 $('start').onclick = () => begin(true);

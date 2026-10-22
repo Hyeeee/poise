@@ -52,6 +52,9 @@
 <!-- Voice-guided setup -->
 <section id="setup" class="setup" hidden>
   <div class="setup-top">
+    <button id="setup-back" class="icon-btn" aria-label="Previous question" hidden>
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
     <div class="setup-progress" aria-hidden="true"><i id="setup-bar"></i></div>
     <button id="setup-voice" class="icon-btn" aria-label="Mute voice" aria-pressed="true">
       <svg class="i-on" viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
@@ -208,9 +211,20 @@
     <label class="toggle"><input type="checkbox" id="pref-voice"><span>Voice</span></label>
     <label class="toggle"><input type="checkbox" id="pref-music"><span>Music</span></label>
     <label class="toggle"><input type="checkbox" id="pref-joints"><span>Show joints</span></label>
+    <button class="text-btn" id="pref-tour">Show tour</button>
     <button class="text-btn" id="pref-setup">Run setup again</button>
   </footer>
 </dialog>
+
+<!-- Guided tour -->
+<div id="tour" class="tour" hidden>
+  <div id="tour-spot" class="tour-spot"></div>
+  <div id="tour-card" class="tour-card" role="dialog" aria-live="polite" aria-labelledby="tour-title">
+    <div class="tour-head"><span id="tour-count" class="tiny"></span><button id="tour-skip" class="text-btn">Skip</button></div>
+    <p class="say"><b id="tour-title"></b> <span id="tour-text"></span></p>
+    <div class="tour-actions"><button id="tour-back" class="ghost">Back</button><button id="tour-next" class="primary">Next</button></div>
+  </div>
+</div>
 
 <script type="module" src="app.js"></script>
 </body>
