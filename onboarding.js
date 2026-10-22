@@ -9,9 +9,9 @@ const QUESTIONS = [
     key: 'focus',
     say: 'When you sit down to work, how long do you usually stay focused?',
     options: [
-      { label: 'About 50 minutes', value: 50 },
-      { label: 'About 25 minutes', value: 25 },
       { label: 'About 15 minutes', value: 15 },
+      { label: 'About 30 minutes', value: 30 },
+      { label: 'About 50 minutes', value: 50 },
     ],
   },
   {
@@ -161,7 +161,7 @@ export function runOnboarding() {
     function summary() {
       const work = {
         id: 'my-focus', name: 'My focus', preset: false,
-        focus: answers.focus ?? 25,
+        focus: answers.focus ?? 30,
         sensitivity: answers.nudge?.sensitivity ?? 'balanced',
         delay: answers.nudge?.delay ?? 5,
         chime: !!answers.nudge?.chime,
