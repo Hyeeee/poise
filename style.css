@@ -509,3 +509,4 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .chip, .quick-chip, .min-
 .min-arrows .step-btn { border-radius: var(--r-in) !important; }
 .card, .summary-card, .voice-opt, .report-card, .sheet, .tour-card, .reel-error, .report-chart, .report-tip, .stepper { border-radius: var(--r-card) !important; }
 .tour-spot { --spot-r: var(--r-card); }
+.brand { font-family: var(--serif) !important; }
