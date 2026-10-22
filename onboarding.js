@@ -25,14 +25,6 @@ const QUESTIONS = [
     ],
   },
   {
-    key: 'eyes',
-    say: 'Should I look after your eyes too? I can count blinks and notice when you lean in close.',
-    options: [
-      { label: 'Posture and eyes', value: true },
-      { label: 'Posture only', value: false },
-    ],
-  },
-  {
     key: 'rest',
     say: 'And when it is time to rest, what helps you reset?',
     options: [
@@ -166,7 +158,7 @@ export function runOnboarding() {
         sensitivity: answers.nudge?.sensitivity ?? 'balanced',
         delay: answers.nudge?.delay ?? 5,
         chime: !!answers.nudge?.chime,
-        eyes: answers.eyes ?? true,
+        eyes: false,
       };
       const rest = {
         id: 'my-reset', name: 'My reset', preset: false,
