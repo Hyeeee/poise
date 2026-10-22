@@ -41,28 +41,28 @@ const SHAPES = {
       return [Math.cos(a) * .58, -.82 + t * 1.64, Math.sin(a) * .58];
     });
   },
-  // A spine: stacked vertebra rings following a gentle S-curve.
-  spine(n) {
-    const rows = 9, per = Math.ceil(n / rows);
+  // A flattened pebble: the sphere after a long breath out.
+  pebble(n) { return SHAPES.sphere(n).map(([x, y, z]) => [x * 1.05, y * .5, z * 1.05]); },
+  // An hourglass: a slow breath, wide at the top and bottom, narrow at the waist.
+  hourglass(n) { return grid(n, rowsFor(n), (v, u, r) => { const a = u * TAU + r * .3, rad = .22 + .52 * Math.abs(v * 2 - 1); return [Math.cos(a) * rad, -.8 + v * 1.6, Math.sin(a) * rad]; }); },
+  // A ring that ripples up and down: balance.
+  wave(n) {
     return Array.from({ length: n }, (_, i) => {
-      const r = Math.floor(i / per), v = r / (rows - 1), a = (i % per) / per * TAU;
-      const y = -.86 + v * 1.72, bend = .16 * Math.sin(v * TAU * .9), rad = .2 + .14 * Math.sin(v * Math.PI);
-      return [Math.cos(a) * rad * 1.5, y, Math.sin(a) * rad + bend];
+      const a = i / n * TAU;
+      return [Math.cos(a) * .8, .28 * Math.sin(a * 3), Math.sin(a) * .8];
     });
   },
-  // A ribcage: rings that swell in the middle, like a breath held in the chest.
-  ribs(n) {
-    const rows = 6, per = Math.ceil(n / rows);
+  // A double helix, two strands wound together: health, life.
+  dna(n) {
     return Array.from({ length: n }, (_, i) => {
-      const r = Math.floor(i / per), v = r / (rows - 1), a = (i % per) / per * TAU;
-      const rad = .42 + .4 * Math.sin(.15 + v * (Math.PI - .3));
-      return [Math.cos(a) * rad, -.78 + v * 1.56, Math.sin(a) * rad * .7];
+      const s = i % 2, t = Math.floor(i / 2) / Math.ceil(n / 2), a = t * TAU * 1.6 + s * Math.PI;
+      return [Math.cos(a) * .5, -.86 + t * 1.72, Math.sin(a) * .5];
     });
   },
 };
-// The sphere is home: Poise returns to it between every other formation.
-const ORDER = ['sphere', 'spring', 'sphere', 'spine', 'sphere', 'ribs'];
-const MOOD_SHAPE = { green: 'sphere', amber: 'spring', red: 'spine' };
+// The sphere is home: Poise moves through five symbols, then returns to it and loops.
+const ORDER = ['sphere', 'spring', 'hourglass', 'wave', 'dna', 'pebble'];
+const MOOD_SHAPE = { green: 'sphere', amber: 'spring', red: 'hourglass' };
 
 const agents = new Set();
 let raf = 0, pointer = { x: -1e4, y: -1e4 };
@@ -118,7 +118,7 @@ class Agent {
     else if (now > this.next) {
       this.shapeIndex = (this.shapeIndex + 1) % ORDER.length;
       this.morph(ORDER[this.shapeIndex]);
-      this.next = now + (this.shape === 'sphere' ? 9000 : 6500);
+      this.next = now + (this.shape === 'sphere' ? 9000 : 7000);
     }
 
     const wantScale = (cl.contains('in') ? 1.32 : 1) * (listening ? 1.12 : 1) * (mood === 'red' ? .86 : 1);
