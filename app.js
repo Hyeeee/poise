@@ -6,6 +6,18 @@ import { mountAgents } from './agent.js';
 import { ambient } from './ambient.js';
 import { mountPainting } from './painting.js';
 mountPainting();
+// Welcome entrance: words drift in, then the buttons.
+(() => {
+  const lede = document.querySelector('.welcome-main .lede');
+  if (!lede || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let i = 0;
+  lede.querySelectorAll('b, span').forEach(part => {
+    const words = part.textContent.split(' ');
+    part.innerHTML = words.map(w => `<span class="word" style="animation-delay:${600 + (i++) * 90}ms">${w}</span>`).join(' ');
+  });
+  document.querySelector('.welcome-main').style.setProperty('--cta-delay', `${600 + i * 90 + 250}ms`);
+  document.body.classList.add('enter');
+})();
 import { startTour } from './tour.js';
 import { session as posture, showReport, breakLog, showBreakReport } from './report.js';
 

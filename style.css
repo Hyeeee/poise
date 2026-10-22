@@ -368,3 +368,25 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 #ask-input::placeholder { color: #5d5e57; }
 .studio .card, .glass, .choice, .ghost, .tour-card { text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }
 .end-wide { display: block; width: 100%; min-height: 46px; margin-top: 18px; font-size: 16px; }
+
+/* Voice picker */
+.voice-label { font-size: 14px; color: var(--ink-2); margin: 0 0 -2px 4px; }
+.voice-pick { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.voice-opt { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: center; text-align: left; padding: 12px 18px 12px 14px; border-radius: 20px; min-width: 150px;
+  background: linear-gradient(150deg, rgba(255,255,250,.6), rgba(255,255,248,.36)); -webkit-backdrop-filter: blur(26px) saturate(1.35); backdrop-filter: blur(26px) saturate(1.35);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.55), inset 0 0 0 .5px rgba(255,255,255,.22), 0 10px 30px -18px rgba(60,70,45,.28); transition: background .35s, box-shadow .35s, transform .35s cubic-bezier(.16,1,.3,1); }
+.voice-opt b { font-weight: 500; font-size: 17px; grid-column: 2; }
+.voice-opt small { grid-column: 2; font-size: 13px; color: var(--ink-2); }
+.voice-opt .vo-dot { grid-row: 1 / 3; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, rgba(190,200,170,.6)); box-shadow: inset 0 0 0 1px rgba(60,70,45,.15); transition: transform .4s cubic-bezier(.16,1,.3,1); }
+.voice-opt:hover { background: linear-gradient(150deg, rgba(255,255,252,.74), rgba(255,255,250,.48)); }
+.voice-opt.on { background: linear-gradient(150deg, rgba(255,255,252,.9), rgba(255,255,248,.62)); box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 0 0 3px rgba(255,255,255,.35), 0 12px 30px -16px rgba(60,70,45,.35); }
+.voice-opt.on .vo-dot { background: radial-gradient(circle at 35% 35%, #fff, #8fa275); transform: scale(1.08); }
+
+/* Welcome entrance */
+.enter .welcome-main .agent.hero { animation: heroIn 2s cubic-bezier(.16,1,.3,1) both; }
+.enter .welcome-main .lede .word { display: inline-block; opacity: 0; filter: blur(8px); transform: translateY(8px); animation: rise 1.3s cubic-bezier(.16,1,.3,1) forwards; }
+.enter .welcome-main .lede b .word { font-weight: inherit; }
+.enter .welcome-main .cta > * { opacity: 0; transform: translateY(10px) scale(.985); filter: blur(3px); animation: rise 1.4s cubic-bezier(.16,1,.3,1) var(--cta-delay, 1.4s) forwards; }
+.enter .welcome-main .cta > *:nth-child(2) { animation-delay: calc(var(--cta-delay, 1.4s) + .18s); }
+.enter .welcome .privacy { opacity: 0; animation: wordIn 1.6s ease calc(var(--cta-delay, 1.4s) + .5s) forwards; }
+@keyframes heroIn { from { opacity: 0; transform: scale(.88); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }

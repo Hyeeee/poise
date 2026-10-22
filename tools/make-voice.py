@@ -2,8 +2,8 @@
 
 Run once from the repo root (needs internet):
     pip install edge-tts
-    python3 tools/make-voice.py            # default voice: en-US-AvaNeural
-    python3 tools/make-voice.py en-US-AndrewNeural
+    python3 tools/make-voice.py              # all five voices
+    python3 tools/make-voice.py emma sonia   # only some
 
 It writes voice/<hash>.mp3 for every line Poise speaks during setup. The site plays
 these files automatically and falls back to the browser voice for anything missing.
@@ -13,13 +13,18 @@ import asyncio, pathlib, re, sys
 import edge_tts
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-VOICE = sys.argv[1] if len(sys.argv) > 1 else "en-US-AvaNeural"
+# id -> neural voice. Ava is written to voice/, the rest to voice/<id>/.
+VOICES = {"ava": "en-US-AvaNeural", "emma": "en-US-EmmaNeural", "sonia": "en-GB-SoniaNeural",
+          "andrew": "en-US-AndrewNeural", "brian": "en-US-BrianNeural"}
+ONLY = sys.argv[1:]
 
-def file_for(text):
+def file_for(text, vid="ava"):
     h = 5381
     for ch in text:
         h = ((h * 33) ^ ord(ch)) & 0xFFFFFFFF
-    return ROOT / "voice" / f"{h:x}.mp3"
+    folder = ROOT / "voice" if vid == "ava" else ROOT / "voice" / vid
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder / f"{h:x}.mp3"
 
 def lines():
     src = (ROOT / "onboarding.js").read_text(encoding="utf-8")
@@ -28,10 +33,12 @@ def lines():
     return [t.replace("\\'", "'") for t in dict.fromkeys(found)]
 
 async def main():
-    (ROOT / "voice").mkdir(exist_ok=True)
-    for text in lines():
-        out = file_for(text)
-        await edge_tts.Communicate(text, VOICE, rate="-4%").save(str(out))
-        print("saved", out.name, "-", text)
+    for vid, name in VOICES.items():
+        if ONLY and vid not in ONLY:
+            continue
+        for text in lines():
+            out = file_for(text, vid)
+            await edge_tts.Communicate(text, name, rate="-4%").save(str(out))
+            print("saved", vid, out.name, "-", text)
 
 asyncio.run(main())
