@@ -498,3 +498,14 @@ button:not(.summary-card):not(.voice-opt):not(.icon-btn):not(.round):not(.send):
 .summary-card span { font-family: var(--ui) !important; }
 .min-box input { font-family: var(--ui) !important; font-weight: 500; line-height: 1; }
 .chip { line-height: 1; }
+
+/* Corner radius: three values only, kept small.
+   --r-btn  12px  every button, field, chip and icon button
+   --r-in    8px  small controls inside a field (the ▲▼ arrows)
+   --r-card 18px  cards, panels, sheets, dialogs */
+:root { --r-btn: 12px; --r-in: 8px; --r-card: 18px; --r-pill: var(--r-btn); }
+button:not(.summary-card):not(.voice-opt):not(.brand), .chip, .quick-chip, .min-box, .segmented, .thread, #ask-form, .ask, input[type=text] { border-radius: var(--r-btn) !important; }
+.segmented button { border-radius: calc(var(--r-btn) - 3px) !important; }
+.min-arrows .step-btn { border-radius: var(--r-in) !important; }
+.card, .summary-card, .voice-opt, .report-card, .sheet, .tour-card, .reel-error, .report-chart, .report-tip, .stepper { border-radius: var(--r-card) !important; }
+.tour-spot { --spot-r: var(--r-card); }
