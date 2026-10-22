@@ -33,6 +33,10 @@ void main(){
  // bristle streaks and canvas grain
  c+=(h(gl_FragCoord.xy+fract(T*.37))-.5)*.012;
  c+=L.z*.04*bands;
+ // slow colour drift inside the green–yellow family, different across the canvas
+ float hue=.5+.5*sin(T*.09+uv.x*2.2+bands*2.);
+ vec3 warm=c*vec3(1.05,1.03,.86), cool=c*vec3(.93,1.03,.95);
+ c=mix(cool,warm,hue);
  c=mix(c,vec3(.98,.98,.94),.22);
  gl_FragColor=vec4(c,1.);
 }`;
