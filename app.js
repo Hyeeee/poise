@@ -6,6 +6,7 @@ import { mountAgents } from './agent.js';
 import { ambient } from './ambient.js';
 import { mountPainting } from './painting.js';
 import { MoveGame } from './game.js';
+import { sensor, readSensor, stopSensor } from './sensor.js';
 mountPainting();
 // Welcome entrance: words drift in, then the buttons.
 (() => {
@@ -132,7 +133,7 @@ async function start() {
 function stop() {
   session++; active = false;
   stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null;
-  landmarks = null; reference = null; timerRunning = false; holdStart = 0; driftSince = 0; nearSince = 0; blinkTimes = []; eyesClosed = false;
+  landmarks = null; reference = null; if (!sensorRef) timerRunning = false; holdStart = 0; driftSince = 0; nearSince = 0; blinkTimes = []; eyesClosed = false;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   $('empty-camera').hidden = false;
   syncRef();
@@ -176,7 +177,18 @@ const STATE_COPY = {
 function updateWork(p, now) {
   if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); return; }
   const c = cue(p);
-  const d = Math.min(100, Math.round((Math.abs(c.x - reference.x) + Math.abs(c.y - reference.y) + Math.abs(c.tilt - reference.tilt)) * 100));
+  let d = Math.min(100, Math.round((Math.abs(c.x - reference.x) + Math.abs(c.y - reference.y) + Math.abs(c.tilt - reference.tilt)) * 100));
+  // The distance sensor is more exact about leaning toward the screen than the camera.
+  let widthRatio = c.width / reference.width;
+  if (sensor.live && sensor.base) { widthRatio = Math.max(widthRatio, sensor.closeness); d = Math.max(d, sensorShift()); }
+  applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt }, widthRatio);
+}
+// How far you've leaned toward the screen, 0–100, from the sensor alone.
+function sensorShift() {
+  const k = sensor.closeness;
+  return k > 1.08 ? Math.min(100, Math.round((k - 1.08) * 260)) : 0;
+}
+function applyPosture(d, now, delta, widthRatio) {
   text('deviation', d); $('deviation-bar').style.width = d + '%';
   let state, rgb = null;
   if (d > threshold()) {
@@ -197,10 +209,10 @@ function updateWork(p, now) {
   light(state, rgb);
   text('posture-state', STATE_COPY[state][0]); text('posture-hint', STATE_COPY[state][1]);
   // Session analysis (only while the focus timer runs).
-  if (timerRunning) posture.record(now, d, state, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt }, c.width / reference.width);
+  if (timerRunning) posture.record(now, d, state, delta, widthRatio);
   else posture.pause();
   if (store.work().eyes) {
-    if (c.width / reference.width > 1.25) { if (!nearSince) nearSince = now; text('distance', now - nearSince > 3000 ? 'Too close' : 'Close'); }
+    if (widthRatio > 1.25) { if (!nearSince) nearSince = now; text('distance', now - nearSince > 3000 ? 'Too close' : 'Close'); }
     else { nearSince = 0; text('distance', 'Good'); }
   }
 }
@@ -248,14 +260,19 @@ function loop(now) {
 }
 
 // Before a reference exists: the side panel is hidden and the main screen asks for one.
+const hasRef = () => !!reference || sensorRef;
 function syncRef() {
-  $('studio').classList.toggle('no-ref', !reference && screen === 'work');
-  $('end-session').hidden = !reference;
+  $('studio').classList.toggle('no-ref', !hasRef() && screen === 'work');
+  $('end-session').hidden = !hasRef();
+  $('sensor-mode').hidden = !(sensor.live && !active);
   $('ref-prompt').hidden = !!reference || !active || screen !== 'work';
 }
 function calibrate() {
+  if (!active && sensor.live && sensor.cm > 0) return calibrateSensor();
   if (!active || !visible(landmarks, [0, 11, 12])) { toast('Keep your head and both shoulders in view'); return false; }
   reference = cue(landmarks); driftSince = 0; nearSince = 0;
+  sensorRef = false;
+  if (sensor.live && sensor.cm > 0) sensor.base = sensor.cm;
   syncRef();
   if (!posture.active) posture.reset();
   text('calibrate', 'Reset reference');
@@ -425,7 +442,7 @@ function setScreen(next) {
     startBreakStyle(brk);
   } else {
     remaining = store.work().focus * 60; renderTimer();
-    if (reference) { timerRunning = true; timerLast = performance.now(); renderPause(); }
+    if (hasRef()) { timerRunning = true; timerLast = performance.now(); renderPause(); }
   }
 }
 
@@ -440,7 +457,7 @@ function renderPause() {
 }
 setInterval(() => {
   const now = performance.now();
-  if (timerRunning && active && screen === 'work' && !document.hidden) {
+  if (timerRunning && (active || sensorRef) && !away && screen === 'work' && !document.hidden) {
     remaining = Math.max(0, remaining - (now - timerLast) / 1000);
     renderTimer();
     if (!remaining) {
@@ -651,7 +668,7 @@ async function endSession(reason) {
   if (choice === 'break') { setScreen('break'); if (!active) toast('Turn on your camera to follow the stretches'); }
   else if (choice === 'new') {
     setScreen('work');
-    if (reference) { posture.reset(); timerRunning = true; timerLast = performance.now(); renderPause(); }
+    if (hasRef()) { posture.reset(); timerRunning = true; timerLast = performance.now(); renderPause(); }
   } else {
     reel.stop(); stopBreathe(); stop(); closeThread();
     $('studio').hidden = true; $('welcome').hidden = false;
@@ -701,7 +718,7 @@ async function maybeTour() {
   await new Promise(r => setTimeout(r, 900));
   await new Promise(r => startTour(r));
   store.update(s => { s.toured = true; });
-  if (wasRunning && reference) { timerRunning = true; timerLast = performance.now(); renderPause(); }
+  if (wasRunning && hasRef()) { timerRunning = true; timerLast = performance.now(); renderPause(); }
 }
 $('start').onclick = () => begin(true);
 $('preview').onclick = () => begin(true, true);
@@ -757,6 +774,7 @@ async function endBreak() {
   if (endingBreak || screen !== 'break') return;
   endingBreak = true;
   reel.stop(); stopBreathe(); moveGame.stop(); light('idle');
+  breakLog.away(breakAwayMs); breakAwayMs = 0;
   const r = breakLog.summary();
   const choice = r ? await showBreakReport(r, line => speak(line, $('ask-orb'))) : 'focus';
   endingBreak = false;
@@ -769,13 +787,88 @@ $('ref-set').onclick = calibrate;
 $('work-mode-name').onclick = () => openModes('work');
 $('open-modes').onclick = () => openModes(screen === 'break' ? 'break' : 'work');
 $('pause').onclick = () => {
-  if (!active) return toast('Turn on your camera first');
+  if (!active && !sensorRef) return toast('Turn on your camera first');
   timerRunning = !timerRunning; timerLast = performance.now(); renderPause();
 };
+// ---------- Distance sensor (HC-SR04 on the light bar) ----------
+let sensorRef = false;        // posture reference taken from the sensor alone (camera off)
+let away = false, awaySince = 0, backSince = 0, pausedByAway = false, breakAwayMs = 0, lastSensorTick = 0;
+let tapStart = 0, tapFrom = 0, lastTap = 0;
+function calibrateSensor() {
+  sensor.base = sensor.cm; sensorRef = true; reference = null; driftSince = 0;
+  syncRef();
+  if (!posture.active) posture.reset();
+  text('calibrate', 'Reset reference');
+  toast(`Sensor reference saved · ${sensor.cm} cm`);
+  timerRunning = true; timerLast = performance.now(); renderPause();
+  $('empty-camera').hidden = true;
+  setChip(`Sensor mode · ${sensor.cm} cm`, true);
+  maybeTour();
+  return true;
+}
+$('sensor-mode').onclick = () => { if (screen !== 'work') setScreen('work'); calibrateSensor(); };
+sensor.on(() => {
+  const now = performance.now();
+  $('sensor-chip').hidden = false;
+  text('sensor-chip', sensor.cm > 0 ? `${sensor.cm} cm` : '— cm');
+  if (now - lastSensorTick > 180) { lastSensorTick = now; sensorTick(now); }
+  sensorTap(now);
+  if (!active) syncRef();
+});
+function sensorTick(now) {
+  if (!sensor.base) return;
+  // 1. Away from the desk: much farther than your reference, or nothing in range.
+  const isFar = sensor.cm < 0 || sensor.cm > sensor.base + 45 || sensor.cm > 220;
+  if (isFar) { backSince = 0; if (!awaySince) awaySince = now; }
+  else { awaySince = 0; if (!backSince) backSince = now; }
+  if (!away && awaySince && now - awaySince > 3000) {
+    away = true;
+    if (screen === 'work') {
+      pausedByAway = timerRunning; timerRunning = false; renderPause(); posture.pause(); light('idle');
+      text('posture-state', 'Away'); text('posture-hint', 'Paused until you sit back down.');
+      toast('You stepped away — paused');
+    }
+    setChip('Away from desk');
+  }
+  if (away) { if (screen === 'break') breakAwayMs += 180; }
+  if (away && backSince && now - backSince > 1500) {
+    away = false;
+    if (screen === 'work' && pausedByAway) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back'); }
+    pausedByAway = false;
+    setChip(active ? 'Tracking' : `Sensor mode · ${sensor.cm} cm`, true);
+  }
+  // 3. Camera off: posture from distance alone.
+  if (sensorRef && !active && !away && screen === 'work') {
+    const d = sensorShift();
+    applyPosture(d, now, { x: 0, y: Math.max(0, sensor.closeness - 1), tilt: 0 }, sensor.closeness);
+  }
+}
+// 5. Wave a hand close to the sensor (under 15 cm, briefly) to tap.
+function sensorTap(now) {
+  const v = sensor.raw;
+  if (v > 0 && v < 15) { if (!tapStart) { tapStart = now; tapFrom = sensor.cm; } return; }
+  if (tapStart) {
+    const held = now - tapStart; tapStart = 0;
+    if (held > 120 && held < 900 && now - lastTap > 1500) { lastTap = now; onSensorTap(); }
+  }
+}
+function onSensorTap() {
+  if (screen === 'break') {
+    const style = store.brk().style;
+    if (style === 'game' && !moveGame.running) $('game-start').click();
+    else if (style === 'stretch') advance();
+    else toast('Wave noticed');
+  } else if (hasRef()) {
+    timerRunning = !timerRunning; timerLast = performance.now(); renderPause();
+    toast(timerRunning ? 'Timer on (sensor tap)' : 'Timer paused (sensor tap)');
+  }
+}
+
 $('connect').onclick = async () => {
   if (!('serial' in navigator)) return toast('Use desktop Chrome or Edge to connect the light bar');
   try {
     if (writer) {
+      await stopSensor(); $('sensor-chip').hidden = true;
       await writer.close(); writer.releaseLock(); await port.close(); writer = null;
       $('connect').classList.remove('on'); $('connect').setAttribute('aria-label', 'Connect light bar');
       return;
@@ -785,6 +878,7 @@ $('connect').onclick = async () => {
     writer = port.writable.getWriter(); lastSerial = '';
     $('connect').classList.add('on'); $('connect').setAttribute('aria-label', 'Disconnect light bar');
     toast('Light bar connected'); light('idle');
+    readSensor(port);
   } catch (e) { if (e.name !== 'NotFoundError') toast('Check the USB connection. Another app may be using the port.'); }
 };
 document.addEventListener('visibilitychange', () => {

@@ -447,3 +447,7 @@ button { transition: background-color .7s ease, background .7s ease, color .7s e
 .break-switch button.active { background: var(--ink); color: var(--paper); }
 #game-panel h2 { margin-top: 4px; }
 #game-start { margin-top: 14px; }
+
+.sensor-chip { bottom: 66px; }
+.sensor-chip::before { background: var(--aligned); }
+#empty-camera #sensor-mode { margin-left: 8px; }

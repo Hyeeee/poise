@@ -137,6 +137,7 @@ export const breakLog = {
   skipped() { const p = b?.poses.at(-1); if (p && !p.matched) p.skipped = true; },
   breath() { if (b) b.cycles++; },
   game(r) { if (b) b.game = r; },
+  away(ms) { if (b) b.awayMs = ms; },
   summary() {
     if (!b) return null;
     const r = { ...b, ms: performance.now() - b.start, poses: b.poses.slice() };
@@ -198,6 +199,7 @@ export function showBreakReport(r, speak) {
       const miss = r.poses.find(p => !p.matched);
       $('rep-tip').innerHTML = miss ? `<b>Try again later: ${miss.name}.</b> <span>Keep your arms in view and mirror the figure slowly.</span>` : '<b>Nicely done.</b> <span>Your shoulders and neck should feel looser now.</span>';
     }
+    if (r.awayMs > 15000) line += ` You stepped away from your desk for ${r.awayMs < 60000 ? Math.round(r.awayMs / 1000) + ' seconds' : Math.round(r.awayMs / 60000) + ' min'}.`;
     set('report-title', title); set('report-line', line); set('report-len', `${len} break`);
     set('report-new', r.kind === 'game' ? 'Play again' : r.kind === 'breathe' ? 'Breathe again' : 'Stretch again'); set('report-break', 'Back to focus');
     $('report').hidden = false; $('report-break').focus({ preventScroll: true });

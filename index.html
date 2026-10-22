@@ -99,9 +99,11 @@
   <div id="empty-camera" class="empty card">
     <p class="say"><b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span></p>
     <button class="primary" id="enable">Turn on camera</button>
+    <button class="ghost" id="sensor-mode" hidden>Use the distance sensor instead</button>
   </div>
 
   <span id="tracking" class="chip glass">Camera off</span>
+  <span id="sensor-chip" class="chip glass sensor-chip" hidden>— cm</span>
 
   <div id="ref-prompt" class="empty card" hidden>
     <p class="say"><b>Set your reference.</b> <span>Sit the way you want to stay — back tall, shoulders soft — then save it. Poise compares everything to this.</span></p>

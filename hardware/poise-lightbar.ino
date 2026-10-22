@@ -8,7 +8,13 @@
 //    (far = soft white, close = amber, too close = red). Good for a first test.
 // 3. When the web app sends GREEN / AMBER / RED / IDLE (115200 baud, newline): follow it.
 //    Falls back to the sensor demo if messages stop for 4 seconds.
-// Always prints "DIST <cm>" a few times per second so you can watch it in the Serial Monitor.
+// Always prints "DIST <cm>" a few times per second. The web app reads these lines to:
+//   - pause the focus timer when you leave your desk, and resume when you sit back down
+//   - catch leaning toward the screen more precisely than the camera
+//   - track posture with the camera off ("Use the distance sensor instead")
+//   - log how long you actually stepped away during a break
+//   - treat a quick hand wave close to the sensor (<15 cm) as a tap
+// No change is needed here for those features: upload this sketch as before.
 
 #include <Adafruit_NeoPixel.h>
 
