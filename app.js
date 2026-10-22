@@ -188,24 +188,52 @@ function sensorShift() {
   const k = sensor.closeness;
   return k > 1.08 ? Math.min(100, Math.round((k - 1.08) * 260)) : 0;
 }
+// ---------- Posture → light color ----------
+// Small, short movements are ignored. The light only reacts when you STAY shifted:
+//  1. Grace: shifted for less than 5 s (or the mode's delay, if longer) → nothing changes.
+//  2. Fade to yellow: over the next 6 s the light blends slowly from white to yellow.
+//  3. Fade to red: if you're still shifted 20 s later (or the shift is large, 80%+),
+//     it blends from yellow to red over another 6 s.
+//  4. Back in position for 1 s → green for a moment, then white again.
+const GRACE_MS = () => Math.max(5000, strongDelay());
+const FADE_MS = 6000, RED_AFTER_MS = 20000, SETTLE_MS = 1000;
+const WHITE = [110, 110, 100], YELLOW = [255, 130, 0], RED = [255, 0, 0];
+const mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
+let alignedSince = 0, cueShown = false, lastRgb = null;
 function applyPosture(d, now, delta, widthRatio) {
+  // Camera distance: shoulders look wider when you lean in, narrower when you sit back.
+  // Counted as a shift too (20% closer or farther ≈ 45% shift).
+  if (widthRatio) d = Math.max(d, Math.min(100, Math.round(Math.abs(Math.log(widthRatio)) * 250)));
   text('deviation', d); $('deviation-bar').style.width = d + '%';
   let state, rgb = null;
   if (d > threshold()) {
-    // Off reference: yellow up to 50% shift, blending to full red at 100% (or after the strong-cue delay).
+    alignedSince = 0;
     if (!driftSince) driftSince = now;
-    const k = now - driftSince >= strongDelay() ? 1 : Math.max(0, Math.min(1, (d - 50) / 50));
-    state = k >= 1 ? 'red' : 'amber';
-    rgb = [255, Math.round(130 * (1 - k)), 0];
+    const held = now - driftSince, grace = GRACE_MS();
+    if (held < grace) {
+      state = cueShown ? lastState : 'white';          // still within grace: no change
+      if (cueShown) rgb = lastRgb;
+    } else {
+      cueShown = true;
+      const toYellow = Math.min(1, (held - grace) / FADE_MS);
+      const redStart = d >= 80 ? grace + FADE_MS : grace + RED_AFTER_MS;
+      const toRed = Math.max(0, Math.min(1, (held - redStart) / FADE_MS));
+      rgb = toRed > 0 ? mix(YELLOW, RED, toRed) : mix(WHITE, YELLOW, toYellow);
+      state = toRed >= 1 ? 'red' : toYellow > .5 ? 'amber' : 'white';
+    }
     recoverAt = 0;
   } else {
-    driftSince = 0;
-    // Just corrected: green for 3 seconds, then back to neutral white.
-    if (lastState === 'amber' || lastState === 'red') recoverAt = now;
-    state = recoverAt && now - recoverAt < 1200 ? 'green' : 'white';
+    if (!alignedSince) alignedSince = now;
+    if (now - alignedSince >= SETTLE_MS || !driftSince) {
+      // Settled back. Show green only if the light had actually changed.
+      if (driftSince && cueShown) recoverAt = now;
+      driftSince = 0; cueShown = false;
+    }
+    state = recoverAt && now - recoverAt < 1500 ? 'green' : driftSince ? lastState : 'white';
+    if (driftSince && state !== 'green') rgb = lastRgb;
   }
   if (state === 'red' && lastState !== 'red' && store.work().chime) chime();
-  lastState = state;
+  lastState = state; lastRgb = rgb;
   light(state, rgb);
   text('posture-state', STATE_COPY[state][0]); text('posture-hint', STATE_COPY[state][1]);
   // Session analysis (only while the focus timer runs).
