@@ -10,7 +10,7 @@ float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
 float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<6;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
 void main(){
  vec2 uv=gl_FragCoord.xy/R; vec2 p=uv*vec2(R.x/R.y,1.);
- float t=T*.055;
+ float t=T*.1;
  // brush direction: mostly horizontal, warped like loaded oil paint
  vec2 q=vec2(fbm(p*vec2(1.2,3.)+t),fbm(p*vec2(1.,2.6)-t+4.));
  vec2 w=p+(q-.5)*(.55+L.x*.5);
@@ -34,9 +34,11 @@ void main(){
  c+=(h(gl_FragCoord.xy+fract(T*.37))-.5)*.012;
  c+=L.z*.04*bands;
  // slow colour drift inside the green–yellow family, different across the canvas
- float hue=.5+.5*sin(T*.09+uv.x*2.2+bands*2.);
+ float hue=.5+.5*sin(T*.28+uv.x*2.2+bands*2.);
+ float pale=smoothstep(.55,1.,.5+.5*sin(T*.19-uv.y*2.6+clouds*3.));
  vec3 warm=c*vec3(1.05,1.03,.86), cool=c*vec3(.93,1.03,.95);
  c=mix(cool,warm,hue);
+ c=mix(c,vec3(.97,.97,.92),pale*.45);
  c=mix(c,vec3(.98,.98,.94),.22);
  gl_FragColor=vec4(c,1.);
 }`;
