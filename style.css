@@ -345,7 +345,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 /* Glass: buttons and side panel let the painting show through. */
 :root { --glass-blur: blur(26px) saturate(1.35); }
 .studio .card, .panel .card, .glass, .choice, .ghost, .suggest button, .msg.me, .tour-card, #ref-prompt {
-  background: linear-gradient(150deg, rgba(255, 255, 250, .5), rgba(255, 255, 248, .22)) !important;
+  background: linear-gradient(150deg, rgba(255, 255, 250, .66), rgba(255, 255, 248, .44)) !important;
   -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
   border: 0;
   box-shadow:
@@ -363,3 +363,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 }
 .primary { background: rgba(30, 31, 28, .78) !important; -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); border: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.14); }
 .panel .card .ghost { background: rgba(255, 255, 250, .3) !important; }
+/* Text on glass: darker so it reads over any background, including the camera. */
+:root { --ink-2: #4c4d47; --ink-3: #6a6b64; }
+#ask-input::placeholder { color: #5d5e57; }
+.studio .card, .glass, .choice, .ghost, .tour-card { text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }
+.end-wide { display: block; width: 100%; min-height: 46px; margin-top: 18px; font-size: 16px; }
