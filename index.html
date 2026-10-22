@@ -52,9 +52,6 @@
 <!-- Voice-guided setup -->
 <section id="setup" class="setup" hidden>
   <div class="setup-top">
-    <button id="setup-back" class="icon-btn" aria-label="Previous question" hidden>
-      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
-    </button>
     <div class="setup-progress" aria-hidden="true"><i id="setup-bar"></i></div>
     <button id="setup-voice" class="icon-btn" aria-label="Mute voice" aria-pressed="true">
       <svg class="i-on" viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
@@ -66,6 +63,7 @@
     <div class="agent" id="setup-orb" aria-hidden="true"></div>
     <p class="setup-line" id="setup-line" aria-live="polite"></p>
     <div class="setup-choices" id="setup-choices"></div>
+    <button id="setup-back" class="text-btn setup-back" hidden>← Back</button>
   </div>
 </section>
 

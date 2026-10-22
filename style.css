@@ -328,3 +328,4 @@ input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 
   .cause { grid-template-columns: 1fr 44px; }
   .cause i { grid-column: 1 / -1; grid-row: 2; }
 }
+.setup-back { align-self: flex-start; margin-top: 22px; }
