@@ -163,7 +163,7 @@ class Agent {
       const depth = (p.z + 1) / 2;
       ctx.globalAlpha = .35 + .65 * (1 - depth * .7);
       ctx.beginPath();
-      ctx.arc(nx, ny, this.dot * (.75 + (1 - depth) * .45), 0, TAU);
+      ctx.arc(nx, ny, this.dot * .78 * (.75 + (1 - depth) * .45), 0, TAU);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
