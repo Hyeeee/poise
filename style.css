@@ -409,3 +409,4 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .tour-card .primary { background: var(--ink) !important; color: #fff; }
 .tour-card .ghost { background: #ecebe4 !important; box-shadow: none; }
 .tour-card .text-btn { color: #45463f; }
+.icon-btn.glass.on { background: rgba(30, 31, 28, .78) !important; color: #fff; }
