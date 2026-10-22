@@ -10,7 +10,7 @@ float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
 float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<6;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
 void main(){
  vec2 uv=gl_FragCoord.xy/R; vec2 p=uv*vec2(R.x/R.y,1.);
- float t=T*.018;
+ float t=T*.055;
  // brush direction: mostly horizontal, warped like loaded oil paint
  vec2 q=vec2(fbm(p*vec2(1.2,3.)+t),fbm(p*vec2(1.,2.6)-t+4.));
  vec2 w=p+(q-.5)*(.55+L.x*.5);
@@ -28,12 +28,10 @@ void main(){
  c=mix(c,sky,smoothstep(.6,.95,y));
  c=mix(c,mist,smoothstep(.55,.9,clouds)*.35*(1.-uv.y));
  // soft glow that breathes with the music
- float g=exp(-6.*length((uv-vec2(.48,.42+.04*sin(T*.05)))*vec2(R.x/R.y,1.)));
+ float g=exp(-6.*length((uv-vec2(.48+.12*sin(T*.07),.42+.08*sin(T*.05)))*vec2(R.x/R.y,1.)));
  c+=vec3(.10,.09,.07)*g*(.6+L.y*1.6);
  // bristle streaks and canvas grain
- float streak=n(vec2(w.x*3.,w.y*40.));
- c*=.985+.025*streak;
- c+=(h(gl_FragCoord.xy+fract(T))-.5)*.035;
+ c+=(h(gl_FragCoord.xy+fract(T*.37))-.5)*.012;
  c+=L.z*.04*bands;
  c=mix(c,vec3(.98,.98,.94),.22);
  gl_FragColor=vec4(c,1.);
@@ -58,7 +56,7 @@ export function mountPainting() {
   const u = k => gl.getUniformLocation(pr, k);
   const uR = u('R'), uT = u('T'), uL = u('L'), uD = u('D');
   document.querySelector('svg.paint')?.remove();
-  const scale = .5; // painted texture doesn't need full resolution
+  const scale = .75; // painted texture doesn't need full resolution
   const resize = () => { cv.width = innerWidth * scale; cv.height = innerHeight * scale; gl.viewport(0, 0, cv.width, cv.height); };
   resize(); addEventListener('resize', resize);
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
