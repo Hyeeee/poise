@@ -679,10 +679,10 @@ syncMusic();
 
 // ---------- Wiring ----------
 const ALWAYS_ONBOARD = true; // set to false after testing
-async function begin(withCamera) {
+async function begin(withCamera, skipSetup = false) {
   if (store.state.music) { ambient.start(); syncMusic(); }
   // Testing: always run the setup questions first, even on return visits.
-  if (ALWAYS_ONBOARD || !store.state.onboarded) {
+  if (!skipSetup && (ALWAYS_ONBOARD || !store.state.onboarded)) {
     $('welcome').hidden = true;
     await runOnboarding();
   }
@@ -704,7 +704,7 @@ async function maybeTour() {
   if (wasRunning && reference) { timerRunning = true; timerLast = performance.now(); renderPause(); }
 }
 $('start').onclick = () => begin(true);
-$('preview').onclick = () => begin(false);
+$('preview').onclick = () => begin(true, true);
 $('enable').onclick = start;
 $('stop').onclick = () => (active ? stop() : start());
 $('home').onclick = () => { reel.stop(); stopBreathe(); stop(); closeThread(); $('studio').hidden = true; $('welcome').hidden = false; };
