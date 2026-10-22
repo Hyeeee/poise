@@ -85,10 +85,14 @@ async function models() {
   if (pose) return;
   const { FilesetResolver, PoseLandmarker, FaceLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs');
   const files = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm');
-  pose = await PoseLandmarker.createFromOptions(files, {
-    baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task' },
-    runningMode: 'VIDEO', numPoses: 1, minPoseDetectionConfidence: .55, minTrackingConfidence: .55,
+  // 1. The "full" model: more accurate than "lite", still real-time on a laptop.
+  //    Runs on the graphics card when it can, otherwise falls back to the CPU.
+  const poseOptions = delegate => ({
+    baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task', delegate },
+    runningMode: 'VIDEO', numPoses: 1, minPoseDetectionConfidence: .5, minPosePresenceConfidence: .5, minTrackingConfidence: .5,
   });
+  try { pose = await PoseLandmarker.createFromOptions(files, poseOptions('GPU')); }
+  catch { pose = await PoseLandmarker.createFromOptions(files, poseOptions('CPU')); }
   try {
     face = await FaceLandmarker.createFromOptions(files, {
       baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task' },
@@ -148,9 +152,60 @@ function stop() {
 function setChip(label, live = false) { text('tracking', label); $('tracking').classList.toggle('live', live); }
 
 const visible = (p, ids) => p && ids.every(i => p[i] && (p[i].visibility ?? 1) > .6);
+// ---------- Steadier tracking ----------
+// 2. Smoothing: each point eases toward its new position. Big moves follow quickly,
+//    tiny jitters are mostly ignored (a simple version of the "One Euro" filter).
+// 3. Low-confidence points: when MediaPipe isn't sure about a point, keep the last good
+//    position for up to half a second instead of letting it jump around.
+let smooth = null, smoothAt = [];
+function smoothPose(raw, now) {
+  if (!raw) { smooth = null; return null; }
+  if (!smooth) { smooth = raw.map(p => ({ ...p })); smoothAt = raw.map(() => now); return smooth; }
+  for (let i = 0; i < raw.length; i++) {
+    const r = raw[i], s0 = smooth[i];
+    if ((r.visibility ?? 1) > .5) {
+      const move = Math.hypot(r.x - s0.x, r.y - s0.y);
+      const k = Math.min(.85, .25 + move * 10);
+      s0.x += (r.x - s0.x) * k; s0.y += (r.y - s0.y) * k; s0.z += ((r.z ?? 0) - (s0.z ?? 0)) * k;
+      s0.visibility = r.visibility; smoothAt[i] = now;
+    } else if (now - smoothAt[i] > 500) {
+      s0.visibility = r.visibility;                 // gone too long: let it drop out
+    }
+  }
+  return smooth;
+}
+// 4. Scene check: too dark, or shoulders cut off at the edge of the frame.
+let lastLightCheck = 0, sceneIssue = '';
+const lightCanvas = document.createElement('canvas'); lightCanvas.width = 32; lightCanvas.height = 18;
+function checkScene(p) {
+  let issue = '';
+  try {
+    const g = lightCanvas.getContext('2d', { willReadFrequently: true });
+    g.drawImage(camera, 0, 0, 32, 18);
+    const px = g.getImageData(0, 0, 32, 18).data;
+    let sum = 0; for (let i = 0; i < px.length; i += 4) sum += px[i] * .3 + px[i + 1] * .59 + px[i + 2] * .11;
+    if (sum / (px.length / 4) < 55) issue = 'Too dark — add light in front of you';
+  } catch {}
+  if (!issue && p && [11, 12].some(i => p[i].x < .04 || p[i].x > .96 || p[i].y > .97)) issue = 'Move back so both shoulders are in view';
+  if (!issue && p && !visible(p, [7, 8]) && visible(p, [0, 11, 12])) issue = 'Face the camera so both ears show';
+  if (issue !== sceneIssue) { sceneIssue = issue; if (issue && !issue.startsWith('Face')) toast(issue); }
+  if (issue) setChip(issue);
+}
+
+// Posture cue, all measured in shoulder-widths so it works at any distance.
+//  x, y : where the head sits over the shoulders. Uses the ears when both are visible
+//         (ears move with the whole head, so looking down at the desk barely changes them);
+//         otherwise the nose.
+//  tilt : one shoulder lower than the other.
+//  roll : head tipped to one side (the line between the eyes).
+//  width: shoulder width in the image — bigger means closer to the screen.
 function cue(p) {
   const a = p[11], b = p[12], w = Math.hypot(a.x - b.x, a.y - b.y);
-  return { x: (p[0].x - (a.x + b.x) / 2) / w, y: (p[0].y - (a.y + b.y) / 2) / w, tilt: (a.y - b.y) / w, width: w };
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  const ears = visible(p, [7, 8]);
+  const hx = ears ? (p[7].x + p[8].x) / 2 : p[0].x, hy = ears ? (p[7].y + p[8].y) / 2 : p[0].y;
+  const roll = visible(p, [2, 5]) ? (p[2].y - p[5].y) / w : 0;
+  return { x: (hx - mx) / w, y: (hy - my) / w, tilt: (a.y - b.y) / w, roll, width: w, ears };
 }
 
 function draw(p) {
@@ -177,7 +232,10 @@ const STATE_COPY = {
 function updateWork(p, now) {
   if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); return; }
   const c = cue(p);
-  let d = Math.min(100, Math.round((Math.abs(c.x - reference.x) + Math.abs(c.y - reference.y) + Math.abs(c.tilt - reference.tilt)) * 100));
+  // If the ears were visible when the reference was saved but aren't now (or the other way round),
+  // the head point moved source, so take a fresh baseline for the head.
+  if (c.ears !== reference.ears) { reference = { ...reference, x: c.x, y: c.y, ears: c.ears }; }
+  let d = Math.min(100, Math.round((Math.abs(c.x - reference.x) + Math.abs(c.y - reference.y) + Math.abs(c.tilt - reference.tilt) + Math.abs(c.roll - (reference.roll || 0)) * .6) * 100));
   // The distance sensor is more exact about leaning toward the screen than the camera.
   let widthRatio = c.width / reference.width;
   if (sensor.live && sensor.base) { widthRatio = Math.max(widthRatio, sensor.closeness); d = Math.max(d, sensorShift()); }
@@ -264,10 +322,11 @@ function loop(now) {
     if (camera.readyState >= 2 && camera.currentTime !== lastFrame && now - lastDetect > 65) {
       lastFrame = camera.currentTime; lastDetect = now;
       const r = pose.detectForVideo(camera, now);
-      landmarks = r.landmarks[0];
+      landmarks = smoothPose(r.landmarks[0], now);
+      if (now - lastLightCheck > 1000) { lastLightCheck = now; checkScene(landmarks); }
       if (visible(landmarks, [0, 11, 12])) {
         draw(landmarks);
-        setChip('Tracking', true);
+        if (!sceneIssue) setChip('Tracking', true);
         if (screen === 'work') updateWork(landmarks, now);
         else if (store.brk().style === 'stretch') updateGame(landmarks, now);
         else if (store.brk().style === 'game') moveGame.update(landmarks);
