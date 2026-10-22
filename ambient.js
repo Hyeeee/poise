@@ -1,7 +1,9 @@
 // Calm generative background music, made live with Web Audio (no audio files, no licensing).
 // Soft pad chords with a slow swell, a warm low drone, and an occasional bell, all through a
-// gentle reverb. Browsers only allow audio after a click, so call start() from a click handler.
+// gentle reverb. start() can be called on page load: if the browser blocks sound until the
+// first interaction, it begins at the first click, tap or key press.
 
+let waiting = false, wanted = false;
 let ctx, master, duckGain, reverb, playing = false, timer = null, bellTimer = null, step = 0;
 
 // Slow progression in D major: Dmaj9 → Bm11 → Gmaj9 → Aadd9 (frequencies in Hz).
@@ -78,11 +80,29 @@ function schedule() {
 }
 
 export const ambient = {
-  get playing() { return playing; },
+  get playing() { return playing || wanted; },
   start() {
     if (playing) return;
     if (!ctx) setup();
-    ctx.resume();
+    ctx.resume().catch(() => {});
+    // Browsers keep audio locked until the first interaction. If it's still locked,
+    // wait for it instead of piling up notes on a frozen clock.
+    if (ctx.state !== 'running') {
+      if (!waiting) {
+        waiting = true;
+        const unlock = e => {
+          if (e.target?.closest?.('.music-btn')) return; // the music button decides for itself
+          ctx.resume().then(() => {
+            ['pointerdown', 'keydown', 'touchstart'].forEach(e => removeEventListener(e, unlock, true));
+            waiting = false;
+            if (wanted) { wanted = false; this.start(); }
+          }).catch(() => {});
+        };
+        ['pointerdown', 'keydown', 'touchstart'].forEach(e => addEventListener(e, unlock, true));
+      }
+      wanted = true;
+      return;
+    }
     playing = true;
     master.gain.cancelScheduledValues(ctx.currentTime);
     master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
@@ -91,6 +111,7 @@ export const ambient = {
     bellTimer = setTimeout(bell, 3000);
   },
   stop() {
+    wanted = false;
     if (!playing) return;
     playing = false;
     clearTimeout(timer); clearTimeout(bellTimer);
@@ -98,7 +119,7 @@ export const ambient = {
     master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
     master.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.5);
   },
-  toggle() { playing ? this.stop() : this.start(); return playing; },
+  toggle() { if (playing || wanted) { this.stop(); return false; } this.start(); return true; },
   // Lower the music while Poise is speaking.
   duck(on) {
     if (!ctx) return;

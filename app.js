@@ -621,11 +621,9 @@ document.querySelectorAll('.music-btn').forEach(b => b.onclick = () => {
 });
 $('pref-music').onchange = e => { store.update(s => { s.music = e.target.checked; }); e.target.checked ? ambient.start() : ambient.stop(); syncMusic(); };
 // Browsers only allow sound after the first click anywhere on the page.
-document.addEventListener('pointerdown', function first(e) {
-  if (e.target.closest('.music-btn')) return;
-  document.removeEventListener('pointerdown', first);
-  if (store.state.music && !ambient.playing) { ambient.start(); syncMusic(); }
-});
+// Start the music as soon as the page opens. If the browser blocks sound until the
+// first click or key press, ambient.js starts it at that moment.
+if (store.state.music) ambient.start();
 syncMusic();
 
 // ---------- Wiring ----------
