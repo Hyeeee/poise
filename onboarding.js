@@ -175,7 +175,9 @@ export function runOnboarding() {
       choices.querySelector('button')?.focus({ preventScroll: true });
     }
 
+    let editUntil = null; // when editing from the summary, return there after this question index
     function next() {
+      if (editUntil !== null && index >= editUntil) { editUntil = null; index = QUESTIONS.length - 1; }
       index++;
       bar.style.width = `${Math.min(100, (index / QUESTIONS.length) * 100)}%`;
       if (index >= QUESTIONS.length) return summary();
@@ -217,10 +219,10 @@ export function runOnboarding() {
       show('Here is what I set up for you. You can change anything later, or just ask me.', () => {
         choices.innerHTML = `
           <div class="summary">
-            <div class="summary-card"><span>Focus</span><b>${work.name}</b><p>${describeWork(work)}</p></div>
-            <div class="summary-card"><span>Break</span><b>${rest.name}</b><p>${describeBreak(rest)}${rest.auto ? ', starts on its own' : ''}</p></div>
+            <button type="button" class="summary-card" id="edit-focus" aria-label="Change focus"><span>Focus <em>Edit</em></span><b>${work.name}</b><p>${describeWork(work)}</p></button>
+            <button type="button" class="summary-card" id="edit-break" aria-label="Change break"><span>Break <em>Edit</em></span><b>${rest.name}</b><p>${describeBreak(rest)}${rest.auto ? ', starts on its own' : ''}</p></button>
           </div>
-          <div class="summary-actions"><button class="primary" id="setup-save">Start</button><button class="text-btn" id="setup-again">Start over</button></div>`;
+          <div class="summary-actions"><button class="primary" id="setup-save">Start</button></div>`;
         $('setup-save').onclick = () => {
           store.update(s => {
             s.works = s.works.filter(m => m.id !== 'my-focus');
@@ -231,7 +233,9 @@ export function runOnboarding() {
           speak('All set.', orb);
           finish(true);
         };
-        $('setup-again').onclick = () => { index = -1; next(); };
+        const edit = (from, to) => { editUntil = to; index = from - 1; next(); };
+        $('edit-focus').onclick = () => edit(QUESTIONS.findIndex(q => q.key === 'focus'), QUESTIONS.findIndex(q => q.key === 'nudge'));
+        $('edit-break').onclick = () => edit(QUESTIONS.findIndex(q => q.key === 'rest'), QUESTIONS.findIndex(q => q.key === 'auto'));
       });
     }
 

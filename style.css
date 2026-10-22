@@ -396,3 +396,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .enter .welcome-main .cta > *:nth-child(2) { animation-delay: calc(var(--cta-delay, 1.4s) + .18s); }
 .enter .welcome .privacy { opacity: 0; animation: wordIn 1.6s ease calc(var(--cta-delay, 1.4s) + .5s) forwards; }
 @keyframes heroIn { from { opacity: 0; transform: scale(.88); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
+
+.summary-card { text-align: left; cursor: pointer; color: var(--ink); }
+.summary-card em { font-style: normal; float: right; opacity: 0; transition: opacity .3s; color: var(--ink-2); }
+.summary-card:hover em, .summary-card:focus-visible em { opacity: 1; }
+.summary-card:hover { background: linear-gradient(150deg, rgba(255,255,253,.9), rgba(255,255,250,.66)) !important; transform: translateY(-2px); }
