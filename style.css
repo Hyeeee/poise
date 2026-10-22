@@ -342,3 +342,13 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .42 0 0 0 0 .36 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 .card.stats { display: none !important; }
 .reel-head .end-btn { margin-left: auto; min-height: 30px; padding: 0 14px; font-size: 13px; }
+/* Glass: buttons and side panel let the painting show through. */
+:root { --glass-bg: rgba(250, 250, 244, .42); --glass-line: rgba(255, 255, 255, .55); --glass-blur: blur(22px) saturate(1.25); }
+.studio .card, .panel .card, .glass, .choice, .ghost, .suggest button, .msg.me, .tour-card, .ref-prompt, #ref-prompt {
+  background: var(--glass-bg) !important; -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-line); box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 18px 40px -24px rgba(50, 60, 40, .35);
+}
+.choice:hover, .ghost:hover, .glass:hover { background: rgba(255, 255, 252, .62) !important; }
+.choice.picked { background: rgba(30, 31, 28, .82) !important; color: var(--paper); }
+.primary { background: rgba(30, 31, 28, .78) !important; -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); border: 1px solid rgba(255,255,255,.12); }
+.panel .card .ghost { background: rgba(255, 255, 250, .35) !important; }
