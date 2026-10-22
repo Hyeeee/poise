@@ -287,3 +287,11 @@ input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 
 .tour-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .tour-actions .primary { min-height: 40px; padding: 0 22px; }
 #tour-title::after { content: '.'; }
+
+.tour-actions { align-items: center; }
+.tour-actions .text-btn { font-size: 14px; }
+.tour-gap { flex: 1; }
+.tour-spot { border-radius: var(--spot-r, 22px); }
+/* Side panel waits until a reference is saved (shown during the tour). */
+.studio.no-ref:not(.touring) .panel { display: none; }
+#ref-prompt .say { margin-bottom: 22px; }

@@ -30,6 +30,9 @@ function place() {
   target.scrollIntoView({ block: 'nearest' });
   const r = target.getBoundingClientRect(), pad = 8;
   Object.assign(spot.style, { left: r.left - pad + 'px', top: r.top - pad + 'px', width: r.width + pad * 2 + 'px', height: r.height + pad * 2 + 'px' });
+  // Match the highlight's corners to the element's own rounding (plus the padding around it).
+  const radius = parseFloat(getComputedStyle(target).borderTopLeftRadius) || 0;
+  spot.style.setProperty('--spot-r', (radius > 0 ? Math.min(radius, r.height / 2) + pad : 12) + 'px');
   $('tour-title').textContent = step.title;
   $('tour-text').textContent = step.text;
   $('tour-count').textContent = `${i + 1} / ${STEPS.length}`;
@@ -56,6 +59,7 @@ function go(delta, skipMissing) {
 
 function end() {
   $('tour').hidden = true;
+  $('studio').classList.remove('touring');
   removeEventListener('resize', place);
   document.removeEventListener('keydown', keys);
   onDone?.();
@@ -70,6 +74,7 @@ function keys(e) {
 export function startTour(done) {
   onDone = done; i = 0;
   $('tour').hidden = false;
+  $('studio').classList.add('touring');
   $('tour-next').onclick = () => go(1, true);
   $('tour-back').onclick = () => go(-1);
   $('tour-skip').onclick = end;

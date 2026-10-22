@@ -96,6 +96,7 @@ async function start() {
     if (run !== session) return;
     active = true; lastFrame = -1; faceStart = performance.now();
     $('empty-camera').hidden = true;
+    syncRef();
     $('stop').classList.add('on'); $('stop').setAttribute('aria-label', 'Turn camera off');
     text('start-status', '');
     setChip('Find your frame', false);
@@ -118,6 +119,7 @@ function stop() {
   landmarks = null; reference = null; timerRunning = false; holdStart = 0; driftSince = 0; nearSince = 0; blinkTimes = []; eyesClosed = false;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   $('empty-camera').hidden = false;
+  syncRef();
   $('stop').classList.remove('on'); $('stop').setAttribute('aria-label', 'Turn camera on');
   setChip('Camera off');
   text('deviation', '—'); text('blinks', '—'); text('distance', '—'); text('match-score', '—');
@@ -233,9 +235,15 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 
+// Before a reference exists: the side panel is hidden and the main screen asks for one.
+function syncRef() {
+  $('studio').classList.toggle('no-ref', !reference);
+  $('ref-prompt').hidden = !!reference || !active || screen !== 'work';
+}
 function calibrate() {
   if (!active || !visible(landmarks, [0, 11, 12])) { toast('Keep your head and both shoulders in view'); return false; }
   reference = cue(landmarks); driftSince = 0; nearSince = 0;
+  syncRef();
   stats = { green: 0, amber: 0, red: 0 }; lastStatTick = 0;
   text('calibrate', 'Reset reference');
   toast('Reference saved');
@@ -370,6 +378,7 @@ function stopBreathe() { clearInterval(breathTimer); breathTimer = null; }
 // ---------- Screens ----------
 function setScreen(next) {
   screen = next;
+  queueMicrotask(syncRef);
   const brk = store.brk();
   $('studio').classList.toggle('break-mode', next === 'break');
   $('studio').classList.toggle('breathing', next === 'break' && brk.style === 'breathe');
@@ -650,6 +659,7 @@ $('restart-break').onclick = newGame;
 $('return-work').onclick = () => setScreen('work');
 $('breath-end').onclick = () => setScreen('work');
 $('calibrate').onclick = calibrate;
+$('ref-set').onclick = calibrate;
 $('work-mode-name').onclick = () => openModes('work');
 $('open-modes').onclick = () => openModes(screen === 'break' ? 'break' : 'work');
 $('pause').onclick = () => {
@@ -681,3 +691,4 @@ window.addEventListener('pagehide', () => { reel.stop(); stream?.getTracks().for
 syncUI();
 renderPause();
 mountAgents();
+syncRef();

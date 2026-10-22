@@ -103,6 +103,11 @@
 
   <span id="tracking" class="chip glass">Camera off</span>
 
+  <div id="ref-prompt" class="empty card" hidden>
+    <p class="say"><b>Set your reference.</b> <span>Sit the way you want to stay — back tall, shoulders soft — then save it. Poise compares everything to this.</span></p>
+    <button class="primary" id="ref-set">Set reference</button>
+  </div>
+
   <aside class="panel" aria-label="Session">
     <!-- Focus -->
     <div id="work-panel" class="stack">
@@ -125,7 +130,7 @@
         <p class="sub" id="next-break"></p>
       </section>
       <section class="card stats">
-        <div><b id="aligned">—</b><small>aligned</small></div>
+        <div><b id="aligned">—</b><small>in good posture</small></div>
         <div id="eye-stat"><b id="blinks">—</b><small>blinks/min</small></div>
         <div id="dist-stat"><b id="distance">—</b><small>distance</small></div>
       </section>
@@ -220,9 +225,9 @@
 <div id="tour" class="tour" hidden>
   <div id="tour-spot" class="tour-spot"></div>
   <div id="tour-card" class="tour-card" role="dialog" aria-live="polite" aria-labelledby="tour-title">
-    <div class="tour-head"><span id="tour-count" class="tiny"></span><button id="tour-skip" class="text-btn">Skip</button></div>
+    <div class="tour-head"><span id="tour-count" class="tiny"></span></div>
     <p class="say"><b id="tour-title"></b> <span id="tour-text"></span></p>
-    <div class="tour-actions"><button id="tour-back" class="ghost">Back</button><button id="tour-next" class="primary">Next</button></div>
+    <div class="tour-actions"><button id="tour-skip" class="text-btn">Skip tour</button><span class="tour-gap"></span><button id="tour-back" class="ghost">Back</button><button id="tour-next" class="primary">Next</button></div>
   </div>
 </div>
 
