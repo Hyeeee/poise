@@ -355,9 +355,14 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
     0 10px 30px -18px rgba(60, 70, 45, .28);
   transition: background .7s ease, box-shadow .7s ease, transform .35s cubic-bezier(.16,1,.3,1);
 }
-.choice:hover, .ghost:hover, .glass:hover, .voice-opt:hover, .suggest button:hover, button.glass:hover, .summary-card:hover {
-  background: linear-gradient(150deg, rgba(255, 255, 253, .92), rgba(255, 255, 250, .72)) !important;
+/* Gradients can't fade, so hover brightens a white layer underneath the content instead. */
+.choice, .ghost, button.glass, .voice-opt, .summary-card, .suggest button { position: relative; isolation: isolate; }
+.choice::after, .ghost::after, button.glass::after, .voice-opt::after, .summary-card::after, .suggest button::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
+  background: rgba(255, 255, 253, .6); opacity: 0; transition: opacity .7s ease;
 }
+.choice:hover::after, .ghost:hover::after, button.glass:hover::after, .voice-opt:hover::after, .summary-card:hover::after, .suggest button:hover::after { opacity: 1; }
+.voice-opt.on::after { opacity: .7; }
 .choice:active, .ghost:active, .glass:active, .voice-opt:active { transform: scale(.99); }
 .icon-btn:hover { background: rgba(255,255,255,.4); }
 .choice.picked {
