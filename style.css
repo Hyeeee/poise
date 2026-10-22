@@ -344,7 +344,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .reel-head .end-btn { margin-left: auto; min-height: 30px; padding: 0 14px; font-size: 13px; }
 /* Glass: buttons and side panel let the painting show through. */
 :root { --glass-blur: blur(26px) saturate(1.35); }
-.studio .card, .panel .card, .glass, .choice, .ghost, .suggest button, .msg.me, .tour-card, #ref-prompt {
+.card, .studio .card, .panel .card, .glass, .choice, .ghost, .suggest button, .msg.me, .tour-card, #ref-prompt, .summary-card, .report-card, .sheet, .voice-opt {
   background: linear-gradient(150deg, rgba(255, 255, 250, .66), rgba(255, 255, 248, .44)) !important;
   -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
   border: 0;
@@ -355,7 +355,13 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
     0 10px 30px -18px rgba(60, 70, 45, .28);
   transition: background .35s ease, box-shadow .35s ease, transform .35s cubic-bezier(.16,1,.3,1);
 }
-.choice:hover, .ghost:hover, .glass:hover { background: linear-gradient(150deg, rgba(255, 255, 252, .66), rgba(255, 255, 250, .34)) !important; }
+.choice:hover, .ghost:hover, .glass:hover, .voice-opt:hover, .suggest button:hover, button.glass:hover {
+  background: linear-gradient(150deg, rgba(255, 255, 253, .9), rgba(255, 255, 250, .66)) !important;
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9), inset 0 0 0 1px rgba(255,255,255,.5), 0 0 0 3px rgba(255,255,255,.22), 0 16px 34px -18px rgba(60, 70, 45, .45);
+}
+.choice:active, .ghost:active, .glass:active, .voice-opt:active { transform: translateY(0) scale(.98); }
+.icon-btn:hover { background: rgba(255,255,255,.4); }
 .choice.picked {
   background: linear-gradient(150deg, rgba(255, 255, 252, .82), rgba(255, 255, 248, .5)) !important;
   color: var(--ink) !important; transform: scale(.985);
