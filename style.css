@@ -629,3 +629,4 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 #breathe-panel .state-foot { margin: 0; justify-content: flex-start; }
 #breathe-panel .breath-stage { align-self: center; }
 .card .end-wide { margin-top: 16px; }
+#game-panel > .tiny, #reel-status { display: none !important; }
