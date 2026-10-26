@@ -938,8 +938,6 @@ $('break-switch').addEventListener('click', e => {
   store.update(s => { s.breakId = pick.id; });
   setScreen('break');
 });
-  setScreen('break');
-});
 let endingBreak = false;
 async function endBreak() {
   if (endingBreak || screen !== 'break') return;
