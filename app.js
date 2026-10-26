@@ -928,11 +928,16 @@ function startBreakStyle(brk) {
   else { breakLog.start('game'); resetGamePanel(); }
 }
 // Switch break type on the spot.
-document.querySelectorAll('#break-switch button').forEach(b => b.onclick = () => {
-  const id = { stretch: 'stretch', breathe: 'breathe', game: 'game' }[b.dataset.style];
-  const own = store.state.breaks.find(m => m.style === b.dataset.style && !m.preset);
-  if (store.brk().style === b.dataset.style) return;
-  store.update(s => { s.breakId = own?.id || id; });
+// Delegated, so it keeps working after the switch moves between cards or re-renders.
+$('break-switch').addEventListener('click', e => {
+  const b = e.target.closest('button[data-style]'); if (!b) return;
+  const style = b.dataset.style;
+  const pick = store.state.breaks.find(m => m.style === style && !m.preset) || store.state.breaks.find(m => m.style === style);
+  if (!pick) { toast('That break type isn’t available'); return; }
+  if (moveGame.running) moveGame.stop();
+  store.update(s => { s.breakId = pick.id; });
+  setScreen('break');
+});
   setScreen('break');
 });
 let endingBreak = false;
