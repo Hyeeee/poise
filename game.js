@@ -72,7 +72,7 @@ export class MoveGame {
     const mx = r + .03, my = r * aspect + .04;            // keep the whole bubble on screen
     x = Math.min(1 - mx, Math.max(mx, x)); y = Math.min(1 - my, Math.max(my, y));
     const color = zone === 'head' ? GOLD : COLORS[Math.floor(Math.random() * COLORS.length)];
-    this.bubbles.push({ x, y, r, zone, color, born: now, life: zone === 'head' ? 4200 : 3600, seed: Math.random() * TAU });
+    this.bubbles.push({ x, y, r, zone, color, born: now, life: zone === 'head' ? 4600 : 4000, seed: Math.random() * TAU, size: .8 + Math.random() * .4 });
   }
   step(now) {
     const { cv, ctx } = this;
@@ -100,8 +100,8 @@ export class MoveGame {
           bub.dead = true; this.popped++; this.combo++; this.best = Math.max(this.best, this.combo);
           const pts = (bub.zone === 'head' ? 150 : 100) + Math.min(5, this.combo - 1) * 20;
           this.score += pts; this.zones[bub.zone]++;
-          this.pops.push({ x: bub.x, y: bub.y, r: bub.r, t: now, pts, color: bub.color, drops: Array.from({ length: 26 }, () => ({ a: -Math.PI * .75 + (Math.random() - .5) * 2.6, v: .6 + Math.random() * .9, s: .6 + Math.random() * 1.4 })) });
-          this.flash = { color: bub.color, until: now + 350 };
+          this.pops.push({ x: bub.x, y: bub.y, r: bub.r, size: bub.size || 1, seed: bub.seed, dx: Math.sin(now / 1300 + bub.seed) * 7, dy: Math.cos(now / 1100 + bub.seed) * 6 - Math.min(10, (now - bub.born) / 400), t: now, pts, color: bub.color, drops: Array.from({ length: 26 }, () => ({ a: -Math.PI * .75 + (Math.random() - .5) * 2.6, v: .6 + Math.random() * .9, s: .6 + Math.random() * 1.4 })) });
+          this.flash = { color: bub.color, until: now + 1500 };
         }
       }
     }
@@ -114,29 +114,22 @@ export class MoveGame {
     const canSee = this.video.readyState >= 2;
     const useGL = this.glr?.ok && canSee;
     if (useGL) {
+      // Bubbles float: a slow wander up and sideways, each on its own rhythm.
+      const drift = bub => [Math.sin(now / 1300 + bub.seed) * 7 + Math.sin(now / 2100 + bub.seed * 2) * 4, Math.cos(now / 1100 + bub.seed) * 6 - Math.min(10, (now - bub.born) / 400)];
       const list = this.bubbles.map(bub => {
-        const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 520), ease = 1 - Math.pow(1 - grow, 3);
-        return { x: X(bub.x), y: Y(bub.y) + Math.sin(now / 800 + bub.seed) * 3, r: bub.r * vw * (.6 + .4 * ease) * (1 + .015 * Math.sin(now / 320 + bub.seed)),
-          alpha: ease * (age > .82 ? 1 - (age - .82) / .18 * .6 : 1), color: bub.color, pop: 0 };
+        const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 650), ease = 1 - Math.pow(1 - grow, 3);
+        const [dx, dy] = drift(bub);
+        return { x: X(bub.x) + dx, y: Y(bub.y) + dy, r: bub.r * vw * (.5 + .5 * ease) * bub.size,
+          alpha: ease * (age > .85 ? 1 - (age - .85) / .15 : 1), color: bub.color, pop: 0, seed: bub.seed, wobble: .045 + .03 * Math.sin(now / 900 + bub.seed) };
       });
       for (const p of this.pops) {
-        const k = (now - p.t) / 260;
-        if (k < 1) list.push({ x: X(p.x), y: Y(p.y), r: p.r * vw, alpha: 1, color: p.color, pop: Math.max(.001, k) });
+        const k = (now - p.t) / 240;
+        if (k < 1) list.push({ x: X(p.x) + p.dx, y: Y(p.y) + p.dy, r: p.r * vw * p.size, alpha: 1, color: p.color, pop: Math.max(.001, k), seed: p.seed, wobble: .05 });
       }
       this.glr.render(list, this.video, { ox, oy, vw, vh }, now / 1000);
     }
     for (const bub of this.bubbles) {
-      if (useGL) {
-        // Just the countdown arc on top; the bubble itself is drawn by WebGL.
-        const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 520), ease = 1 - Math.pow(1 - grow, 3);
-        const r = bub.r * vw * (.6 + .4 * ease), x = X(bub.x), y = Y(bub.y) + Math.sin(now / 800 + bub.seed) * 3;
-        const [cr, cg, cb] = bub.color;
-        ctx.globalAlpha = ease; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = `rgba(${cr},${cg},${cb},.9)`;
-        ctx.shadowColor = `rgba(${cr},${cg},${cb},.6)`; ctx.shadowBlur = 8;
-        ctx.beginPath(); ctx.arc(x, y, r + 6, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - age)); ctx.stroke();
-        ctx.shadowBlur = 0; ctx.globalAlpha = 1;
-        continue;
-      }
+      if (useGL) continue;
       const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 520);
       const ease = 1 - Math.pow(1 - grow, 3);
       const r = bub.r * vw * (.6 + .4 * ease) * (1 + .02 * Math.sin(now / 320 + bub.seed));
@@ -196,7 +189,7 @@ export class MoveGame {
     // Pops: the film tears (WebGL) and a fine mist of droplets sprays out and falls.
     this.pops = this.pops.filter(p => now - p.t < 800);
     for (const p of this.pops) {
-      const k = (now - p.t) / 800, x = X(p.x), y = Y(p.y), r0 = p.r * vw, [cr, cg, cb] = p.color;
+      const k = (now - p.t) / 800, x = X(p.x) + (p.dx || 0), y = Y(p.y) + (p.dy || 0), r0 = p.r * vw * (p.size || 1), [cr, cg, cb] = p.color;
       if (!useGL && k < .4) {
         ctx.globalAlpha = 1 - k / .4; ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,.9)';
         ctx.beginPath(); ctx.arc(x, y, r0 * (1 + k * .6), 0, TAU); ctx.stroke();
@@ -215,7 +208,7 @@ export class MoveGame {
       ctx.restore(); ctx.globalAlpha = 1;
     }
     // Light bar: flash the popped color, otherwise show the oldest bubble on screen.
-    const target = this.flash && now < this.flash.until ? this.flash.color : this.bubbles[0]?.color;
+    const target = this.flash && now < this.flash.until ? this.flash.color : null;   // light up only when you pop one
     const key = target ? target.join(' ') : 'none';
     if (key !== this.lastColor) { this.lastColor = key; this.onColor?.(target || null); }
     this.onTick?.({ score: this.score, left: this.duration - elapsed, combo: this.combo, popped: this.popped, tracking: !!b });

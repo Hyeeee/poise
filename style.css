@@ -572,3 +572,18 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 .reel-video #reel-player { bottom: 54px !important; height: auto !important; } .reel-ctrl { bottom: 8px; }
 .bubble-gl { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; transform: scaleX(-1); }
 #game-canvas { z-index: 3; }
+
+/* Timer digits: sans-serif, like the other numbers in controls */
+#timer { font-family: var(--ui) !important; font-weight: 400; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+/* Reset reference: small button */
+#calibrate { min-height: var(--btn-s) !important; height: var(--btn-s) !important; padding: 0 12px !important; font-size: var(--t-xs) !important; border-radius: var(--r-sm) !important; }
+/* Pause/play: light glass, not a black block */
+#pause.round { background: rgba(255,255,255,.55) !important; color: var(--ink) !important; border-radius: var(--r-btn) !important; box-shadow: inset 0 1px 1px rgba(255,255,255,.7), inset 0 0 0 .5px rgba(30,31,28,.08) !important; transition: background .7s ease; }
+#pause.round:hover { background: rgba(255,255,255,.9) !important; }
+/* Modes sheet: mode chips use the small button size */
+.mode-chip { min-height: var(--btn-s) !important; height: var(--btn-s); padding: 0 14px !important; border-radius: var(--r-sm) !important; font-family: var(--ui) !important; font-size: var(--t-s) !important; font-weight: 500;
+  background: rgba(30,31,28,.06) !important; color: var(--ink) !important; box-shadow: none !important; transition: background .7s ease, color .45s ease; }
+.mode-chip:hover { background: rgba(30,31,28,.12) !important; }
+.mode-chip.active { background: var(--ink) !important; color: var(--paper) !important; }
+.mode-chip.add { background: transparent !important; box-shadow: inset 0 0 0 1px rgba(30,31,28,.22) !important; }
+.mode-list { gap: 8px; }
