@@ -8,7 +8,7 @@ export const sensor = {
   at: 0,           // when the last reading arrived
   base: null,      // distance when the reference was set
   hist: [],
-  get live() { return performance.now() - this.at < 1500; },
+  get live() { return this.at > 0 && performance.now() - this.at < 1500; },
   on(cb) { listeners.add(cb); return () => listeners.delete(cb); },
   // Ratio > 1 means closer to the screen than at the reference.
   get closeness() { return this.base && this.cm > 0 ? this.base / this.cm : 1; },

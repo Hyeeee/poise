@@ -487,7 +487,7 @@ button { transition: background-color .7s ease, background .7s ease, color .7s e
 button, input, select, textarea, .chip, .quick-chip, .min-label, .min-help, .min-unit, .voice-label, .segmented button, .field label {
   font-family: var(--ui) !important; letter-spacing: -.005em;
 }
-button:not(.summary-card):not(.voice-opt):not(.icon-btn):not(.round):not(.send):not(.brand) {
+button:not([hidden]):not(.summary-card):not(.voice-opt):not(.icon-btn):not(.round):not(.send):not(.brand) {
   display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding-top: 0; padding-bottom: 0;
 }
 .choice { justify-content: flex-start; font-size: var(--t-m) !important; font-weight: 500; }
