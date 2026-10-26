@@ -559,3 +559,13 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 /* End session / End break: dark */
 #end-session, #end-break, #game-end, #breath-end { background: rgba(30, 31, 28, .86) !important; color: #fbfaf6 !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 10px 26px -16px rgba(20,24,16,.5) !important; text-shadow: none; }
 #end-session::after, #end-break::after, #game-end::after, #breath-end::after { background: rgba(0,0,0,.35); }
+
+/* Stretch video controls: one small glass bar inside the video, like a player. */
+.reel-ctrl { left: 50%; right: auto; bottom: 10px; transform: translateX(-50%); gap: 2px; padding: 4px; border-radius: 14px;
+  background: rgba(255,255,255,.6); -webkit-backdrop-filter: blur(16px) saturate(1.3); backdrop-filter: blur(16px) saturate(1.3);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.7), 0 8px 20px -12px rgba(20,24,16,.4); }
+.reel-ctrl .icon-btn { width: 36px; height: 36px; background: transparent !important; box-shadow: none !important; color: var(--ink); }
+.reel-ctrl .icon-btn:hover { background: rgba(30,31,28,.08) !important; }
+.reel-ctrl svg { width: 18px; height: 18px; }
+#pose-actions { display: none !important; }
+[hidden] { display: none !important; }

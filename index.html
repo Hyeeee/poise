@@ -162,7 +162,9 @@
       <div class="reel-video">
         <div id="reel-player"></div>
         <div class="reel-ctrl">
-          <button id="reel-play" class="icon-btn glass" aria-label="Pause guide"></button>
+          <button id="replay" class="icon-btn" aria-label="Replay" title="Replay"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg></button>
+          <button id="reel-play" class="icon-btn" aria-label="Pause guide"></button>
+          <button id="skip" class="icon-btn" aria-label="Skip to next stretch" title="Skip"><svg viewBox="0 0 24 24"><path d="M6 6l8 6-8 6z" fill="currentColor" stroke="none"/><path d="M17 6v12"/></svg></button>
           <button id="reel-sound" class="icon-btn glass" aria-label="Turn guide sound on"></button>
         </div>
       </div>
@@ -173,8 +175,6 @@
       <div class="meter"><div id="hold-bar"></div></div>
       <p id="hold-label" class="sub"></p>
       <div class="row" id="pose-actions">
-        <button id="replay" class="ghost">Replay</button>
-        <button id="skip" class="ghost">Skip</button>
       </div>
       <div class="row" id="reel-complete" hidden>
         <button id="restart-break" class="ghost">Again</button>
