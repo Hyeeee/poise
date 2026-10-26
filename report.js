@@ -139,6 +139,7 @@ export const breakLog = {
   breath() { if (b) b.cycles++; },
   game(r) { if (b) b.game = r; },
   away(ms) { if (b) b.awayMs = ms; },
+  unlog(n) { if (b) b.poses.splice(-n, n); },
   summary() {
     if (!b) return null;
     const r = { ...b, ms: performance.now() - b.start, poses: b.poses.slice() };

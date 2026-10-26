@@ -845,6 +845,11 @@ $('home').onclick = () => { reel.stop(); stopBreathe(); stop(); closeThread(); $
 $('work').onclick = () => setScreen('work');
 $('break').onclick = () => setScreen('break');
 $('skip').onclick = () => advance();
+// Go back one stretch (the current one and the one you return to are logged fresh).
+$('prev-pose').onclick = () => {
+  if (gameDone || round === 0) { holdStart = 0; poseStarted = performance.now(); reel.replay(); return; }
+  breakLog.unlog(2); round--; betweenUntil = 0; showPose();
+};
 $('replay').onclick = () => { holdStart = 0; poseStarted = performance.now(); reel.replay(); };
 $('restart-break').onclick = newGame;
 $('return-work').onclick = () => setScreen('work');
