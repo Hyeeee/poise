@@ -475,10 +475,10 @@ button { transition: background-color .7s ease, background .7s ease, color .7s e
 .quick-chip.on { background: rgba(255,255,255,.92); }
 
 /* Onboarding buttons that move you forward are dark, so the next step is obvious. */
-.setup .choice { background: rgba(30, 31, 28, .82) !important; color: #fbfaf6; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 12px 30px -16px rgba(20, 24, 16, .5) !important; text-shadow: none; }
-.setup .choice::after { background: rgba(0, 0, 0, .35); }
-.setup .choice.picked::after { background: rgba(0, 0, 0, .5); }
-.setup .choice.picked { color: #fff; }
+.setup .choice.next { background: rgba(30, 31, 28, .82) !important; color: #fbfaf6; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 12px 30px -16px rgba(20, 24, 16, .5) !important; text-shadow: none; }
+.setup .choice.next::after { background: rgba(0, 0, 0, .35); }
+.setup .choice.next.picked::after { background: rgba(0, 0, 0, .5); }
+.setup .choice.next.picked { color: #fff; }
 
 /* Components (buttons, fields, chips) use a sans-serif; running text stays serif.
    Geist sits evenly on its line, and line-height 1 + flex centering keeps the space
@@ -491,7 +491,7 @@ button:not(.summary-card):not(.voice-opt):not(.icon-btn):not(.round):not(.send):
   display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding-top: 0; padding-bottom: 0;
 }
 .choice { justify-content: flex-start; font-size: var(--t-m) !important; font-weight: 500; }
-.setup .choice { min-width: 150px; justify-content: center; }
+.setup .choice.next { min-width: 150px; justify-content: center; }
 .voice-opt { line-height: 1.25; }
 .voice-opt b { font-weight: 500; }
 .summary-card, .summary-card * { font-family: var(--serif) !important; }

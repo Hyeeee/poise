@@ -209,7 +209,7 @@ export function runOnboarding() {
       input.onchange = () => set(+input.value);
       input.onkeydown = e => { if (e.key === 'Enter') { set(+input.value); go.click(); } };
       const go = document.createElement('button');
-      go.className = 'choice'; go.textContent = 'Continue';
+      go.className = 'choice next'; go.textContent = 'Continue';
       go.onclick = () => { set(+input.value); answers[q.key] = value; go.classList.add('picked'); setTimeout(next, 220); };
       choices.append(wrap, go);
       set(value);
@@ -302,7 +302,7 @@ export function runOnboarding() {
         const label = document.createElement('p');
         label.className = 'voice-label'; label.textContent = 'Choose a voice';
         const b = document.createElement('button');
-        b.className = 'choice';
+        b.className = 'choice next';
         b.textContent = "Let's start";
         b.onclick = next;
         choices.append(label, pick, b);
