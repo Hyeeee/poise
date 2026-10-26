@@ -20,7 +20,7 @@ const BREAK_STEPS = {
   game: [
     { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, breathing and a movement game any time.' },
     { sel: '#game-panel h2', title: 'Pop the bubbles', text: 'Bubbles appear around you. Reach up, out and down to pop them with your hands. Gold ones need a head lean.' },
-    { sel: '#game-start', title: 'Start when ready', text: 'Step back so your arms fit in the frame, then press Start.' },
+    { sel: '#game-label', title: 'It starts right away', text: 'Step back so your arms fit in the frame — the bubbles start as soon as the camera sees you.' },
     { sel: '#game-end', title: 'End break', text: 'Finish any time to see your score and how you moved.' },
   ],
   stretch: [

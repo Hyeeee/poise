@@ -117,6 +117,7 @@ async function start() {
     await models();
     if (run !== session) return;
     active = true; lastFrame = -1; faceStart = performance.now();
+    setTimeout(maybeStartGame, 300);
     $('empty-camera').hidden = true;
     syncRef();
     $('stop').classList.add('on'); $('stop').setAttribute('aria-label', 'Turn camera off');
@@ -866,13 +867,13 @@ function resetGamePanel() {
   moveGame.stop();
   text('game-score', 0); text('game-left', fmtClock(store.brk().minutes * 60000)); $('game-bar').style.width = '0';
   text('game-label', active ? 'Step back so your arms fit in the frame.' : 'Turn on your camera to play.');
-  $('game-start').hidden = false;
+  maybeStartGame();
 }
-$('game-start').onclick = () => {
-  if (!active) { toast('Turn on your camera to play'); return; }
-  $('game-start').hidden = true;
+// The game starts on its own as soon as you're in Game mode with the camera on.
+function maybeStartGame() {
+  if (screen !== 'break' || store.brk().style !== 'game' || moveGame.running || endingBreak || !active) return;
   moveGame.start(store.brk().minutes * 60);
-};
+}
 $('game-end').onclick = () => { if (moveGame.running) breakLog.game(moveGame.result()); endBreak(); };
 function startBreakStyle(brk) {
   if (brk.style === 'stretch') newGame();
@@ -973,7 +974,7 @@ function sensorTap(now) {
 function onSensorTap() {
   if (screen === 'break') {
     const style = store.brk().style;
-    if (style === 'game' && !moveGame.running) $('game-start').click();
+    if (style === 'game' && !moveGame.running) maybeStartGame();
     else if (style === 'stretch') advance();
     else toast('Wave noticed');
   } else if (hasRef()) {
