@@ -30,7 +30,7 @@ void main() {
     // differently for every bubble.
     float sd = uS[i].x, wa = uS[i].y;
     float ang = atan(v.y, v.x);
-    float wob = 1. + wa * (.55 * sin(2. * ang + uT * 1.3 + sd) + .3 * sin(3. * ang - uT * 1.7 + sd * 2.3) + .15 * sin(5. * ang + uT * 2.1 + sd * 4.1));
+    float wob = 1. + wa * (.6 * sin(2. * ang + uT * .9 + sd) + .35 * sin(3. * ang - uT * 1.2 + sd * 2.3) + .12 * sin(5. * ang + uT * 1.6 + sd * 4.1));
     float d = L / (r * wob);
     if (d > 1.0) continue;
 
@@ -44,34 +44,36 @@ void main() {
       a *= 1. - pk * .5;
     }
 
-    float z = sqrt(max(0., 1. - d * d));
     vec2 dir = v / max(L, 1e-3);
-    // Gentle lens: a slight magnification in the middle and a soft squeeze at the edge.
-    vec2 sp = c + v * mix(.88, 1.0, d * d) - dir * r * smoothstep(.82, 1., d) * .06;
-    vec2 uv = (sp - uVR.xy) / uVR.zw;
-    vec3 scene = texture2D(uTex, clamp(uv, .001, .999)).rgb;
+    // Inside: perfectly clear. Toward the rim the film bends light, squeezing the picture
+    // inward with a hint of colour fringing (like the glass blobs in the references).
+    float e = smoothstep(.7, 1., d);
+    float squeeze = 1. - e * e * .38;
+    vec2 base = (c + v * squeeze - uVR.xy) / uVR.zw;
+    vec2 cfr = dir * e * e * 2.5 / uVR.zw;              // tiny chromatic shift at the edge
+    vec3 col = vec3(texture2D(uTex, clamp(base + cfr, .001, .999)).r,
+                    texture2D(uTex, clamp(base, .001, .999)).g,
+                    texture2D(uTex, clamp(base - cfr, .001, .999)).b);
 
-    float fres = pow(1. - z, 3.);
-    // Clear like real soap film: the picture behind stays sharp; only colour is added.
-    vec3 col = scene;
-    // The bubble's own tone: a light wash over the whole bubble, deeper toward the rim.
-    vec3 tone = mix(vec3(1.), tint, .55);
-    col *= mix(vec3(1.), tone, .22 + fres * .5);
-    // A faint thin-film shimmer, only at the very edge.
-    float th = d * 1.6 + .3 * sin(ang * 2. + uT * .6 + sd) + uT * .04;
-    col += (film(th) - .5) * fres * .12;
-    // Crisp edge: a fine dark line just inside a bright one, the way a real bubble outline reads.
-    float edge = smoothstep(.955, .985, d);
-    col = mix(col, col * .72, smoothstep(.92, .965, d) * (1. - edge) * .6);
-    col = mix(col, vec3(1.), edge * .55);
-    // Sharp window reflection and a tiny glint.
-    vec2 q = v / r;
-    float hl = smoothstep(.2, .14, length((q - vec2(-.36, -.42)) * vec2(1., 1.9)));
-    float hl2 = smoothstep(.06, .03, length(q - vec2(.42, .48)));
-    col = mix(col, vec3(1.), hl * .7 + hl2 * .6);
+    // Light lives in the rim: a luminous edge that fades softly inward, brighter where
+    // it faces the light (top-left) and its bounce (bottom-right).
+    float facing = pow(.5 + .5 * cos(ang + 2.25), 3.) + .55 * pow(.5 + .5 * cos(ang - .9), 4.);
+    vec3 rimCol = mix(vec3(1.), tint, .42);
+    float glow = pow(d, 9.) * (.55 + 1.1 * facing) + smoothstep(.8, 1., d) * .1;
+    col = mix(col, rimCol, clamp(glow, 0., .85));
+    // A whisper of the bubble's tone over the whole body.
+    col = mix(col, rimCol, .05);
+    // Long specular streak hugging the upper-left rim, and a short one lower-right.
+    float band = smoothstep(.83, .9, d) * smoothstep(.97, .92, d);
+    float s1 = band * smoothstep(.55, .0, abs(ang + 2.25)) ;
+    float s2 = band * smoothstep(.3, .0, abs(ang - .95)) * .6;
+    col = mix(col, vec3(1.), clamp((s1 + s2) * 1.1, 0., .95));
+    // Faint thin-film rainbow only along the lower rim.
+    float th = d * 1.4 + .25 * sin(ang * 2. + uT * .5 + sd) + uT * .03;
+    col += (film(th) - .5) * pow(d, 10.) * .35 * (.4 + .6 * pow(.5 + .5 * cos(ang - 1.6), 2.));
     col += tear * .5;
 
-    float alpha = a * smoothstep(1., .992, d);
+    float alpha = a * smoothstep(1., .985, d);
     outc = vec4(col, max(outc.a, alpha));   // straight (not premultiplied) colour
   }
   gl_FragColor = vec4(outc.rgb, outc.a);

@@ -121,7 +121,7 @@ export class MoveGame {
         const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 650), ease = 1 - Math.pow(1 - grow, 3);
         const [dx, dy] = drift(bub);
         return { x: X(bub.x) + dx, y: Y(bub.y) + dy, r: bub.r * vw * (.5 + .5 * ease) * bub.size,
-          alpha: ease * (age > .85 ? 1 - (age - .85) / .15 : 1), color: bub.color, pop: 0, seed: bub.seed, wobble: .045 + .03 * Math.sin(now / 900 + bub.seed) };
+          alpha: ease * (age > .85 ? 1 - (age - .85) / .15 : 1), color: bub.color, pop: 0, seed: bub.seed, wobble: .08 + .04 * Math.sin(now / 1100 + bub.seed) };
       });
       for (const p of this.pops) {
         const k = (now - p.t) / 240;
