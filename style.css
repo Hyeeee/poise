@@ -587,3 +587,13 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 .mode-chip.active { background: var(--ink) !important; color: var(--paper) !important; }
 .mode-chip.add { background: transparent !important; box-shadow: inset 0 0 0 1px rgba(30,31,28,.22) !important; }
 .mode-list { gap: 8px; }
+
+/* Modes sheet: fixed height (same for Focus and Break), no inner scrolling. */
+.sheet { height: min(94vh, 780px); max-height: none !important; overflow: auto; padding: 22px 24px; }
+.sheet[open] { gap: 12px; }
+.sheet .editor { overflow: visible; flex: 1 0 auto; padding: 0 2px; }
+.sheet .field { padding: 9px 0; }
+.sheet .field input[type=text] { padding: 0 14px; height: var(--btn-m); font-size: var(--t-m); font-family: var(--ui) !important; }
+.sheet .prefs { padding-top: 12px; gap: 14px; row-gap: 6px; }
+.sheet .prefs .text-btn { margin-left: 0; min-height: var(--btn-s); }
+.sheet .prefs #pref-tour { margin-left: auto; }
