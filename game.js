@@ -3,6 +3,8 @@
 // Touch them with your hands to pop them. Gold bubbles are for your head: lean to reach them.
 // Coordinates are MediaPipe's normalized video space, drawn on a canvas mirrored like the camera.
 
+import { BubbleGL } from './bubblegl.js';
+
 const TAU = Math.PI * 2;
 // Bubble colors. The light bar shows the same color as the bubble you should go for next.
 const COLORS = [
@@ -22,6 +24,11 @@ export class MoveGame {
     this.cv = canvas; this.ctx = canvas.getContext('2d'); this.video = video;
     this.onTick = onTick; this.onEnd = onEnd; this.onColor = onColor; this.lastColor = '';
     this.running = false; this.raf = 0;
+    // A WebGL layer under the 2D canvas draws the bubbles themselves (lens + thin film).
+    this.glCv = document.createElement('canvas');
+    this.glCv.className = 'bubble-gl'; this.glCv.hidden = true;
+    canvas.parentNode?.insertBefore(this.glCv, canvas);
+    this.glr = new BubbleGL(this.glCv);
   }
   start(seconds = 60) {
     this.stop();
@@ -29,13 +36,14 @@ export class MoveGame {
     this.bubbles = []; this.pops = []; this.score = 0; this.popped = 0; this.missed = 0; this.combo = 0; this.best = 0;
     this.zones = { high: 0, side: 0, low: 0, head: 0 };
     this.nextSpawn = this.began + 900; this.body = null;
-    this.running = true; this.cv.hidden = false;
+    this.running = true; this.cv.hidden = false; this.glCv.hidden = false;
     const frame = now => { if (!this.running) return; this.step(now); this.raf = requestAnimationFrame(frame); };
     this.raf = requestAnimationFrame(frame);
   }
   stop() {
     this.running = false; cancelAnimationFrame(this.raf);
     this.ctx.clearRect(0, 0, this.cv.width, this.cv.height); this.cv.hidden = true;
+    this.glr?.clear(); if (this.glCv) this.glCv.hidden = true;
   }
   get left() { return Math.max(0, this.duration - (performance.now() - this.began)); }
   result() {
@@ -92,7 +100,7 @@ export class MoveGame {
           bub.dead = true; this.popped++; this.combo++; this.best = Math.max(this.best, this.combo);
           const pts = (bub.zone === 'head' ? 150 : 100) + Math.min(5, this.combo - 1) * 20;
           this.score += pts; this.zones[bub.zone]++;
-          this.pops.push({ x: bub.x, y: bub.y, r: bub.r, t: now, pts, color: bub.color, drops: Array.from({ length: 10 }, (_, i) => ({ a: i / 10 * TAU + Math.random() * .4, v: .7 + Math.random() * .6 })) });
+          this.pops.push({ x: bub.x, y: bub.y, r: bub.r, t: now, pts, color: bub.color, drops: Array.from({ length: 26 }, () => ({ a: -Math.PI * .75 + (Math.random() - .5) * 2.6, v: .6 + Math.random() * .9, s: .6 + Math.random() * 1.4 })) });
           this.flash = { color: bub.color, until: now + 350 };
         }
       }
@@ -104,7 +112,31 @@ export class MoveGame {
     // magnified and frosted, with a faint tint of its color, a thin light-catching edge,
     // a soft inner shadow, and a curved highlight — like Apple's glass material.
     const canSee = this.video.readyState >= 2;
+    const useGL = this.glr?.ok && canSee;
+    if (useGL) {
+      const list = this.bubbles.map(bub => {
+        const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 520), ease = 1 - Math.pow(1 - grow, 3);
+        return { x: X(bub.x), y: Y(bub.y) + Math.sin(now / 800 + bub.seed) * 3, r: bub.r * vw * (.6 + .4 * ease) * (1 + .015 * Math.sin(now / 320 + bub.seed)),
+          alpha: ease * (age > .82 ? 1 - (age - .82) / .18 * .6 : 1), color: bub.color, pop: 0 };
+      });
+      for (const p of this.pops) {
+        const k = (now - p.t) / 260;
+        if (k < 1) list.push({ x: X(p.x), y: Y(p.y), r: p.r * vw, alpha: 1, color: p.color, pop: Math.max(.001, k) });
+      }
+      this.glr.render(list, this.video, { ox, oy, vw, vh }, now / 1000);
+    }
     for (const bub of this.bubbles) {
+      if (useGL) {
+        // Just the countdown arc on top; the bubble itself is drawn by WebGL.
+        const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 520), ease = 1 - Math.pow(1 - grow, 3);
+        const r = bub.r * vw * (.6 + .4 * ease), x = X(bub.x), y = Y(bub.y) + Math.sin(now / 800 + bub.seed) * 3;
+        const [cr, cg, cb] = bub.color;
+        ctx.globalAlpha = ease; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = `rgba(${cr},${cg},${cb},.9)`;
+        ctx.shadowColor = `rgba(${cr},${cg},${cb},.6)`; ctx.shadowBlur = 8;
+        ctx.beginPath(); ctx.arc(x, y, r + 6, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - age)); ctx.stroke();
+        ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+        continue;
+      }
       const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 520);
       const ease = 1 - Math.pow(1 - grow, 3);
       const r = bub.r * vw * (.6 + .4 * ease) * (1 + .02 * Math.sin(now / 320 + bub.seed));
@@ -161,21 +193,25 @@ export class MoveGame {
       ctx.shadowBlur = 0;
       ctx.globalAlpha = 1;
     }
-    // Pops: colored droplets fly out, a ring expands, and the points float up (un-mirrored).
-    this.pops = this.pops.filter(p => now - p.t < 750);
+    // Pops: the film tears (WebGL) and a fine mist of droplets sprays out and falls.
+    this.pops = this.pops.filter(p => now - p.t < 800);
     for (const p of this.pops) {
-      const k = (now - p.t) / 750, x = X(p.x), y = Y(p.y), r0 = p.r * vw, [cr, cg, cb] = p.color;
-      ctx.globalAlpha = 1 - k;
-      ctx.lineWidth = 2; ctx.strokeStyle = `rgba(${cr},${cg},${cb},.9)`;
-      ctx.beginPath(); ctx.arc(x, y, r0 * (1 + k * .8), 0, TAU); ctx.stroke();
-      ctx.fillStyle = `rgb(${cr},${cg},${cb})`;
+      const k = (now - p.t) / 800, x = X(p.x), y = Y(p.y), r0 = p.r * vw, [cr, cg, cb] = p.color;
+      if (!useGL && k < .4) {
+        ctx.globalAlpha = 1 - k / .4; ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,.9)';
+        ctx.beginPath(); ctx.arc(x, y, r0 * (1 + k * .6), 0, TAU); ctx.stroke();
+      }
       for (const d of p.drops) {
-        const dist = r0 * (1 + k * 1.6 * d.v);
-        ctx.beginPath(); ctx.arc(x + Math.cos(d.a) * dist, y + Math.sin(d.a) * dist + k * k * 20, Math.max(1, 4 * (1 - k)), 0, TAU); ctx.fill();
+        const dist = r0 * (.9 + k * 1.4 * d.v);
+        const dx = x + Math.cos(d.a) * dist, dy = y + Math.sin(d.a) * dist + k * k * r0 * 1.6;
+        ctx.globalAlpha = (1 - k) * .9;
+        ctx.fillStyle = `rgba(${Math.round(230 + cr * .1)},${Math.round(235 + cg * .08)},${Math.round(240 + cb * .06)},1)`;
+        ctx.beginPath(); ctx.arc(dx, dy, d.s * (1 - k * .6), 0, TAU); ctx.fill();
       }
       ctx.save(); ctx.translate(x, y - r0 * .2 - k * 34); ctx.scale(-1, 1);
-      ctx.fillStyle = '#fff'; ctx.font = '500 22px Newsreader, serif'; ctx.textAlign = 'center';
-      ctx.shadowColor = `rgba(${cr},${cg},${cb},.9)`; ctx.shadowBlur = 10; ctx.fillText(`+${p.pts}`, 0, 0);
+      ctx.globalAlpha = 1 - k;
+      ctx.fillStyle = '#fff'; ctx.font = '500 20px Geist, -apple-system, sans-serif'; ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 8; ctx.fillText(`+${p.pts}`, 0, 0);
       ctx.restore(); ctx.globalAlpha = 1;
     }
     // Light bar: flash the popped color, otherwise show the oldest bubble on screen.

@@ -570,3 +570,5 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 #pose-actions { display: none !important; }
 [hidden] { display: none !important; }
 .reel-video #reel-player { bottom: 54px !important; height: auto !important; } .reel-ctrl { bottom: 8px; }
+.bubble-gl { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; transform: scaleX(-1); }
+#game-canvas { z-index: 3; }
