@@ -606,3 +606,26 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 .reel-ctrl #reel-play { color: var(--ink); background: rgba(255,255,255,.6) !important; }
 .breath-metric { font-family: var(--ui); font-size: var(--t-s); font-weight: 500; color: var(--ink); min-height: 1.4em; margin: 8px 0 2px; text-align: center; }
 #timer { font-weight: 300 !important; letter-spacing: -.04em; }
+
+/* ===== Break cards: one shared system =====
+   eyebrow   ui 13 / 400 / ink-2        (Reach & Pop, Follow the figure)
+   title     serif 26 / 400              (pose name, Breathe in, Pop the bubbles)
+   body      serif 17 / 400 / ink-2      (instructions)
+   stat      ui 34 / 300 + unit ui 15    (score, match, time left)
+   status    ui 13 / 400 / ink-2         (live hints)
+   all left-aligned, 4px thin meter, End break full-width at the bottom */
+#break-panel, #breathe-panel, #game-panel { display: flex; flex-direction: column; text-align: left; }
+#break-panel[hidden], #breathe-panel[hidden], #game-panel[hidden] { display: none !important; }
+#game-panel .tiny, #reel-status { order: 0; font-family: var(--ui); font-size: var(--t-xs); font-weight: 400; color: var(--ink-2); margin: 0 0 4px; min-height: 0; }
+#pose-name, #breath-cue, #game-title { font-family: var(--serif); font-size: var(--t-xl); font-weight: 400; letter-spacing: -.01em; line-height: 1.15; margin: 4px 0 6px; text-align: left; }
+#pose-instruction, #breath-tip, #game-tip { font-family: var(--serif); font-size: var(--t-m); line-height: 1.4; color: var(--ink-2); margin: 0 0 18px; text-align: left; }
+.card .match { display: flex; align-items: baseline; justify-content: space-between; font-family: var(--ui); font-size: var(--t-s); color: var(--ink-2); margin: 0; }
+.card .match span { font-family: var(--ui); }
+.card .match b, #breath-left-big { font-family: var(--ui) !important; font-size: var(--t-2xl) !important; font-weight: 300 !important; color: var(--ink); letter-spacing: -.03em; margin-right: 4px; font-variant-numeric: tabular-nums; }
+#game-left, #points { font-family: var(--ui); font-size: var(--t-s); color: var(--ink-2); }
+.card .meter, .card .meter.thin { height: 4px; margin: 12px 0 10px; border-radius: 4px; }
+#hold-label, #game-label, #breath-left, .breath-metric { font-family: var(--ui); font-size: var(--t-xs); font-weight: 400; color: var(--ink-2); text-align: left; margin: 0; min-height: 1.3em; }
+.breath-metric { margin: 0 0 4px; }
+#breathe-panel .state-foot { margin: 0; justify-content: flex-start; }
+#breathe-panel .breath-stage { align-self: center; }
+.card .end-wide { margin-top: 16px; }
