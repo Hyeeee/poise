@@ -18,21 +18,22 @@ const WORK_STEPS = [
 
 const BREAK_STEPS = {
   game: [
-    { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, breathing and a movement game any time.' },
+    { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, a calm reset and a movement game any time.' },
     { sel: '#game-panel h2', title: 'Pop the bubbles', text: 'Bubbles appear around you. Reach up, out and down to pop them with your hands. Gold ones need a head lean.' },
     { sel: '#game-label', title: 'It starts right away', text: 'Step back so your arms fit in the frame — the bubbles start as soon as the camera sees you.' },
     { sel: '#game-end', title: 'End break', text: 'Finish any time to see your score and how you moved.' },
   ],
   stretch: [
-    { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, breathing and a movement game any time.' },
+    { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, a calm reset and a movement game any time.' },
     { sel: '#reel-player', title: 'Follow the figure', text: 'Watch the sketch, then copy the stretch in front of your camera.' },
     { sel: '.match', title: 'Match score', text: 'How close you are to the figure. Get near it for half a second and the next stretch begins.' },
     { sel: '#reel-progress', title: 'Your stretches', text: 'Each dot is one stretch. Skip any you can’t do.' },
     { sel: '#end-break', title: 'End break', text: 'Finish any time to see how long you rested and how much you followed.' },
   ],
   breathe: [
-    { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, breathing and a movement game any time.' },
-    { sel: '#breath-orb', title: 'Breathe with it', text: 'Breathe in as the dots grow, out as they shrink.' },
+    { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, a calm reset and a movement game any time.' },
+    { sel: '#breath-orb', title: 'Breathe, then drop', text: 'Breathe in as the dots grow. On the out-breath, let your shoulders fall — the camera measures how far, and the light bar breathes with you.' },
+    { sel: '#breath-metric', title: 'Your shoulders', text: 'Shows how much lower your shoulders are than when you started. The last part of the reset rests your eyes.' },
     { sel: '#breath-bar', title: 'Time left', text: 'Your rest runs until the line fills.' },
     { sel: '#breath-end', title: 'End break', text: 'Finish any time to see your rest summary.' },
   ],

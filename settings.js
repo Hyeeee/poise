@@ -15,7 +15,7 @@ const DEFAULT_WORK = [
 ];
 const DEFAULT_BREAK = [
   { id: 'stretch', name: 'Stretch along', style: 'stretch', count: 5, minutes: 3, auto: true, preset: true },
-  { id: 'breathe', name: 'Breathe',       style: 'breathe', count: 3, minutes: 3, auto: true, preset: true },
+  { id: 'breathe', name: 'Reset',         style: 'breathe', count: 3, minutes: 2, auto: true, preset: true },
   { id: 'game',    name: 'Reach & pop',   style: 'game',    count: 5, minutes: 1, auto: true, preset: true },
 ];
 
@@ -43,6 +43,7 @@ function load() {
     if (!Array.isArray(state.breaks) || !state.breaks.length) state.breaks = base.breaks;
     // One stretch mode now (Light move merged in), plus the movement game.
     state.breaks = state.breaks.filter(m => m.id !== 'move');
+    const rb = state.breaks.find(m => m.id === 'breathe' && m.preset); if (rb && rb.name === 'Breathe') { rb.name = 'Reset'; rb.minutes = 2; }
     for (const m of base.breaks) if (!state.breaks.some(b => b.id === m.id)) state.breaks.push(m);
     if (!state.breaks.some(b => b.id === state.breakId)) state.breakId = state.breaks[0].id;
     return state;
@@ -100,7 +101,7 @@ export function describeWork(m) {
   return `${m.focus} min focus, ${SENSITIVITY[m.sensitivity].label.toLowerCase()} cues after ${m.delay}s${m.eyes ? ', eye care on' : ''}`;
 }
 export function describeBreak(m) {
-  if (m.style === 'breathe') return `${m.minutes} min breathing and eye rest`;
+  if (m.style === 'breathe') return `${m.minutes} min reset: shoulder-drop breathing + eye rest`;
   if (m.style === 'game') return `${m.minutes} min movement game`;
   return `${m.count} guided stretch${m.count > 1 ? 'es' : ''}`;
 }

@@ -359,6 +359,7 @@ function loop(now) {
         if (screen === 'work') updateWork(landmarks, now);
         else if (store.brk().style === 'stretch') updateGame(landmarks, now);
         else if (store.brk().style === 'game') moveGame.update(landmarks);
+        else if (store.brk().style === 'breathe') updateReset(landmarks);
       } else {
         landmarks = null; ctx.clearRect(0, 0, canvas.width, canvas.height);
         driftSince = 0; nearSince = 0; holdStart = 0; lastStatTick = 0; posture.pause();
@@ -497,36 +498,77 @@ function updateGame(p, now) {
   } else if (score < PASS - 10) { holdStart = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Mirror the figure as closely as you can.'); }
 }
 
-// ---------- Break: breathe ----------
-const TIPS = ['Rest your eyes on something far away.', 'Let your shoulders drop.', 'Blink slowly a few times.', 'Unclench your jaw.'];
-let breathTimer = null;
+// ---------- Break: Reset (shoulder-drop breathing, then eye rest) ----------
+// Part 1 (first two thirds): breathe in for 4 s, out for 6 s. On each out-breath, let your
+//   shoulders drop. The camera measures how far they come down (ear-to-shoulder distance),
+//   and the light bar slowly brightens and dims with your breath.
+// Part 2 (last third): eye rest. Look at something far away, then blink slowly.
+const SHOULDER_CM = 38;                          // average shoulder width, to turn ratios into cm
+let breathTimer = null, resetShoulder = { base: null, now: null, best: 0, samples: [] };
+// ear-to-shoulder gap in shoulder widths: bigger = shoulders lower / more relaxed
+function shoulderGap(p) {
+  if (!visible(p, [11, 12]) || !(visible(p, [7, 8]) || visible(p, [0]))) return null;
+  const w = Math.hypot(p[11].x - p[12].x, p[11].y - p[12].y);
+  const head = visible(p, [7, 8]) ? (p[7].y + p[8].y) / 2 : p[0].y;
+  return ((p[11].y + p[12].y) / 2 - head) / w;
+}
+function updateReset(p) {
+  const g = shoulderGap(p); if (g == null) return;
+  const s = resetShoulder;
+  s.samples.push(g); if (s.samples.length > 8) s.samples.shift();
+  const avg = s.samples.reduce((a, b) => a + b, 0) / s.samples.length;
+  if (s.base == null && s.samples.length >= 8) s.base = avg;
+  s.now = avg;
+  if (s.base != null) s.best = Math.max(s.best, (avg - s.base) * SHOULDER_CM);
+}
 function startBreathe() {
   stopBreathe();
-  const total = store.brk().minutes * 60 * 1000, began = performance.now();
+  const total = Math.max(1, store.brk().minutes) * 60 * 1000, began = performance.now(), eyesAt = total * 2 / 3;
   breakLog.start('breathe');
+  resetShoulder = { base: null, now: null, best: 0, samples: [] };
   const orb = $('breath-orb');
-  let inhale = true, phaseEnd = 0;
+  let inhale = true, phaseStart = 0, phaseEnd = 0, eyeStep = -1;
+  const EYES = [
+    ['Look far away', 'Find something at least 6 m (20 ft) away and rest your eyes on it.'],
+    ['Blink slowly', 'Close your eyes fully, then open. Do it slowly, a few times.'],
+    ['Look around', 'Look up, down, left and right without moving your head.'],
+  ];
   const tick = () => {
-    const now = performance.now(), left = Math.max(0, total - (now - began));
+    const now = performance.now(), t = now - began, left = Math.max(0, total - t);
     $('breath-bar').style.width = (100 - left / total * 100) + '%';
     text('breath-left', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')} left`);
     if (!left) {
-      stopBreathe(); orb.classList.remove('in'); text('breath-cue', 'Break complete'); text('breath-tip', 'Nice. Ready when you are.'); light('green');
+      stopBreathe(); orb.classList.remove('in'); text('breath-cue', 'Reset complete'); text('breath-tip', 'Nice. Ready when you are.'); light('green');
+      breakLog.resetResult({ shoulderCm: resetShoulder.best, eyesMs: total - eyesAt });
       endBreak();
       return;
     }
-    if (now >= phaseEnd) {
-      inhale = !inhale || phaseEnd === 0;
-      if (inhale && phaseEnd) breakLog.breath();
-      const ms = inhale ? 4000 : 6000;
-      orb.classList.toggle('in', inhale);
-      text('breath-cue', inhale ? 'Breathe in' : 'Breathe out');
-      light(inhale ? 'green' : 'idle');
-      phaseEnd = now + ms;
-      text('breath-tip', TIPS[Math.floor((now - began) / 20000) % TIPS.length]);
+    if (t < eyesAt) {
+      // Part 1: breathing with the light bar.
+      if (now >= phaseEnd) {
+        inhale = !inhale || phaseEnd === 0;
+        if (inhale && phaseEnd) breakLog.breath();
+        phaseStart = now; phaseEnd = now + (inhale ? 4000 : 6000);
+        orb.classList.toggle('in', inhale);
+        text('breath-cue', inhale ? 'Breathe in' : 'Breathe out');
+      }
+      const k = Math.min(1, (now - phaseStart) / (phaseEnd - phaseStart));
+      const level = inhale ? k : 1 - k;                      // 0 dim … 1 bright
+      const lv = .5 - .5 * Math.cos(level * Math.PI);        // ease in and out
+      light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)]);
+      const s = resetShoulder;
+      const drop = s.base != null && s.now != null ? Math.max(0, (s.now - s.base) * SHOULDER_CM) : 0;
+      text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Let it go — drop your shoulders away from your ears.');
+      text('breath-metric', !active ? 'Turn on the camera to measure your shoulders.' : s.base == null ? 'Measuring your shoulders…' : drop >= .3 ? `Shoulders ${drop.toFixed(1)} cm lower` : 'Shoulders: let them drop on the out-breath');
+    } else {
+      // Part 2: eye rest. Gentle steady glow on the bar.
+      const step = Math.min(EYES.length - 1, Math.floor((t - eyesAt) / ((total - eyesAt) / EYES.length)));
+      if (step !== eyeStep) { eyeStep = step; orb.classList.remove('in'); text('breath-cue', EYES[step][0]); text('breath-tip', EYES[step][1]); }
+      light('idle', [90, 100, 85]);
+      text('breath-metric', resetShoulder.best >= .3 ? `Best shoulder drop: ${resetShoulder.best.toFixed(1)} cm` : '');
     }
   };
-  tick(); breathTimer = setInterval(tick, 250);
+  tick(); breathTimer = setInterval(tick, 120);
 }
 function stopBreathe() { clearInterval(breathTimer); breathTimer = null; }
 
@@ -644,7 +686,7 @@ function renderEditor() {
     html += field('Eye care', toggle('eyes', m.eyes));
     html += field('Chime', toggle('chime', m.chime));
   } else {
-    html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
+    html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Reset'], ['game', 'Game']], m.style));
     html += m.style === 'stretch'
       ? field('Stretches', `<input type="range" data-k="count" min="1" max="5" step="1" value="${m.count}">`, `<output>${m.count}</output>`)
       : field('Length', `<input type="range" data-k="minutes" min="1" max="10" step="1" value="${m.minutes}">`, `<output>${m.minutes} min</output>`);
@@ -902,7 +944,8 @@ async function endBreak() {
   const r = breakLog.summary();
   const choice = r ? await showBreakReport(r, line => speak(line, $('ask-orb'))) : 'focus';
   endingBreak = false;
-  if (choice === 'again') setScreen('break');
+  if (choice === 'again' && r?.kind === 'breathe') { setScreen('work'); if (active && visible(landmarks, [0, 11, 12])) calibrate(); else toast('Turn on your camera to save a new reference'); }
+  else if (choice === 'again') setScreen('break');
   else if (choice === 'focus') setScreen('work');
   else { stop(); closeThread(); $('studio').hidden = true; $('welcome').hidden = false; }
 }

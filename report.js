@@ -139,6 +139,7 @@ export const breakLog = {
   breath() { if (b) b.cycles++; },
   game(r) { if (b) b.game = r; },
   away(ms) { if (b) b.awayMs = ms; },
+  resetResult(x) { if (b) b.reset = x; },
   unlog(n) { if (b) b.poses.splice(-n, n); },
   summary() {
     if (!b) return null;
@@ -179,14 +180,16 @@ export function showBreakReport(r, speak) {
       const weakest = zones.filter(([k]) => k !== 'head').sort((a, c) => g.zones[a[0]] - g.zones[c[0]])[0];
       $('rep-tip').innerHTML = zt ? `<b>Next round:</b> <span>Try more ${weakest[1].toLowerCase()} — it opens the parts you use least while sitting.</span>` : '<b>Tip:</b> <span>Step back from the screen so your whole upper body and arms are in view.</span>';
     } else if (r.kind === 'breathe') {
-      title = mins >= 2 ? 'Good rest.' : 'Short rest.';
-      line = `You rested ${len} and took ${r.cycles} slow breath${r.cycles === 1 ? '' : 's'}.`;
+      const rs = r.reset || { shoulderCm: 0, eyesMs: 0 };
+      const cm = rs.shoulderCm || 0;
+      title = mins >= 1.5 ? 'Good rest.' : 'Short rest.';
+      line = cm >= .3 ? `You took ${r.cycles} slow breath${r.cycles === 1 ? '' : 's'} and your shoulders came down ${cm.toFixed(1)} cm.` : `You took ${r.cycles} slow breath${r.cycles === 1 ? '' : 's'} and rested your eyes.`;
       $('report-chart').innerHTML = ''; $('report-chart').hidden = true; legend.hidden = true;
-      set('rep-aligned', len); set('rep-aligned-l', 'rested');
+      set('rep-aligned', cm >= .3 ? `${cm.toFixed(1)} cm` : '—'); set('rep-aligned-l', 'shoulders lowered');
       set('rep-recover', r.cycles); set('rep-recover-l', 'slow breaths');
-      set('rep-drifts', mins >= 2 ? '✓' : '—'); set('rep-drift-note', mins >= 2 ? 'full reset' : 'try two minutes or more');
+      set('rep-drifts', rs.eyesMs ? `${Math.round(rs.eyesMs / 1000)}s` : '—'); set('rep-drift-note', 'eye rest');
       $('rep-causes-h').hidden = true; $('rep-causes').innerHTML = '';
-      $('rep-tip').innerHTML = '<b>Next time:</b> <span>Look at something far away while you breathe out — it rests your eyes too.</span>';
+      $('rep-tip').innerHTML = cm >= .3 ? '<b>Keep this feeling.</b> <span>Save how you\'re sitting now as your new reference — relaxed shoulders become your baseline.</span>' : '<b>Next time:</b> <span>On every out-breath, let your shoulders fall away from your ears.</span>';
     } else {
       const done = r.poses.filter(p => p.matched), total = r.poses.length;
       const avg = total ? Math.round(r.poses.reduce((a, p) => a + p.best, 0) / total) : 0;
@@ -203,7 +206,7 @@ export function showBreakReport(r, speak) {
     }
     if (r.awayMs > 15000) line += ` You stepped away from your desk for ${r.awayMs < 60000 ? Math.round(r.awayMs / 1000) + ' seconds' : Math.round(r.awayMs / 60000) + ' min'}.`;
     set('report-title', title); set('report-line', line); set('report-len', `${len} break`);
-    set('report-new', r.kind === 'game' ? 'Play again' : r.kind === 'breathe' ? 'Breathe again' : 'Stretch again'); set('report-break', 'Back to focus');
+    set('report-new', r.kind === 'game' ? 'Play again' : r.kind === 'breathe' ? 'Save as reference' : 'Stretch again'); set('report-break', 'Back to focus');
     $('report').hidden = false; $('report-break').focus({ preventScroll: true });
     speak?.(SAY[title] || SAY.breakOther);
     const finish = choice => {

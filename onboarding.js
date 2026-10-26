@@ -25,7 +25,7 @@ const QUESTIONS = [
     say: 'And when it is time to rest, what helps you reset?',
     options: [
       { label: 'Guided stretches', value: { style: 'stretch', count: 5 } },
-      { label: 'Breathing and eye rest', value: { style: 'breathe', minutes: 3 } },
+      { label: 'A calm reset: breathing + eye rest', value: { style: 'breathe', minutes: 2 } },
       { label: 'A quick movement game', value: { style: 'game', minutes: 1 } },
     ],
   },
@@ -267,7 +267,7 @@ export function runOnboarding() {
               ${row('nudge', 'Posture cues', `${SENS_WORD[work.sensitivity]}, after ${work.delay}s${work.chime ? ' + chime' : ''}`)}
             </div>
             <div class="sum-card"><h3>Break</h3>
-              ${row('rest', 'Break type', rest.style === 'breathe' ? 'Breathing' : rest.style === 'game' ? 'Movement game' : `${rest.count} stretches`)}
+              ${row('rest', 'Break type', rest.style === 'breathe' ? 'Calm reset' : rest.style === 'game' ? 'Movement game' : `${rest.count} stretches`)}
               ${row('auto', 'Starts', rest.auto ? 'Automatically' : 'When I say')}
             </div>
           </div>
