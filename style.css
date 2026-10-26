@@ -569,3 +569,4 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 .reel-ctrl svg { width: 18px; height: 18px; }
 #pose-actions { display: none !important; }
 [hidden] { display: none !important; }
+.reel-video #reel-player { bottom: 54px !important; height: auto !important; } .reel-ctrl { bottom: 8px; }
