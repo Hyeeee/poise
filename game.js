@@ -60,7 +60,7 @@ export class MoveGame {
     else { zone = 'head'; a = -Math.PI / 2 + (Math.random() < .5 ? -.9 : .9); dist = 1.25; }
     const aspect = (this.video.videoWidth / this.video.videoHeight) || 16 / 9;
     let x = b.cx + Math.cos(a) * dist * b.w, y = b.cy + Math.sin(a) * dist * b.w * aspect * .7;
-    const r = Math.min(.07, b.w * (zone === 'head' ? .26 : .22));
+    const r = Math.min(.06, b.w * (zone === 'head' ? .26 : .22));
     const mx = r + .03, my = r * aspect + .04;            // keep the whole bubble on screen
     x = Math.min(1 - mx, Math.max(mx, x)); y = Math.min(1 - my, Math.max(my, y));
     const color = zone === 'head' ? GOLD : COLORS[Math.floor(Math.random() * COLORS.length)];
@@ -100,35 +100,65 @@ export class MoveGame {
     for (const bub of this.bubbles) if (!bub.dead && now - bub.born > bub.life) { bub.dead = true; this.missed++; this.combo = 0; }
     this.bubbles = this.bubbles.filter(x => !x.dead);
 
-    // Bubbles: soap-film spheres tinted with their color, a rim that catches light,
-    // a bright highlight, and a thin ring that runs down like a timer.
+    // Bubbles: clear glass lenses. Each one shows the camera image behind it, slightly
+    // magnified and frosted, with a faint tint of its color, a thin light-catching edge,
+    // a soft inner shadow, and a curved highlight — like Apple's glass material.
+    const canSee = this.video.readyState >= 2;
     for (const bub of this.bubbles) {
-      const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 420);
+      const age = (now - bub.born) / bub.life, grow = Math.min(1, (now - bub.born) / 520);
       const ease = 1 - Math.pow(1 - grow, 3);
-      const r = bub.r * vw * (.55 + .45 * ease) * (1 + .03 * Math.sin(now / 280 + bub.seed));
-      const x = X(bub.x), y = Y(bub.y) + Math.sin(now / 700 + bub.seed) * 4;
+      const r = bub.r * vw * (.6 + .4 * ease) * (1 + .02 * Math.sin(now / 320 + bub.seed));
+      const x = X(bub.x), y = Y(bub.y) + Math.sin(now / 800 + bub.seed) * 3;
       const [cr, cg, cb] = bub.color, c = a => `rgba(${cr},${cg},${cb},${a})`;
-      const fade = age > .8 ? 1 - (age - .8) / .2 * .5 : 1;
+      const fade = age > .82 ? 1 - (age - .82) / .18 * .6 : 1;
       ctx.globalAlpha = ease * fade;
-      // soft colored glow behind
-      ctx.shadowColor = c(.55); ctx.shadowBlur = r * .6;
-      const body = ctx.createRadialGradient(x, y, r * .2, x, y, r);
-      body.addColorStop(0, c(.10)); body.addColorStop(.72, c(.22)); body.addColorStop(1, c(.62));
-      ctx.fillStyle = body; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-      ctx.shadowBlur = 0;
-      // iridescent rim
+
+      // drop shadow under the glass
+      ctx.save();
+      ctx.shadowColor = 'rgba(10, 14, 8, .28)'; ctx.shadowBlur = r * .5; ctx.shadowOffsetY = r * .12;
+      ctx.fillStyle = 'rgba(255,255,255,.01)';
+      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.clip();
+      // the scene behind, magnified 15% and frosted
+      if (canSee) {
+        ctx.save();
+        ctx.translate(x, y); ctx.scale(1.15, 1.15); ctx.translate(-x, -y);
+        ctx.filter = 'blur(6px) saturate(1.35) brightness(1.12)';
+        ctx.drawImage(this.video, ox, oy, vw, vh);
+        ctx.restore();
+        ctx.filter = 'none';
+      }
+      // milky glass + a whisper of color, stronger toward the edge
+      const body = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r);
+      body.addColorStop(0, 'rgba(255,255,255,.16)');
+      body.addColorStop(.7, c(.14));
+      body.addColorStop(1, c(.32));
+      ctx.fillStyle = body; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+      // inner shadow along the lower edge gives the lens depth
+      const inner = ctx.createRadialGradient(x, y - r * .25, r * .55, x, y, r * 1.05);
+      inner.addColorStop(0, 'rgba(0,0,0,0)'); inner.addColorStop(1, 'rgba(0,0,0,.18)');
+      ctx.fillStyle = inner; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+      // curved specular highlight across the top
+      const spec = ctx.createLinearGradient(x, y - r, x, y - r * .2);
+      spec.addColorStop(0, 'rgba(255,255,255,.55)'); spec.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = spec;
+      ctx.beginPath(); ctx.ellipse(x, y - r * .52, r * .72, r * .4, 0, Math.PI, TAU); ctx.ellipse(x, y - r * .52, r * .72, r * .22, 0, 0, Math.PI); ctx.fill();
+      ctx.restore();
+
+      // hairline rim: bright at the top-left, fading around the bottom
       const rim = ctx.createLinearGradient(x - r, y - r, x + r, y + r);
-      rim.addColorStop(0, 'rgba(255,255,255,.9)'); rim.addColorStop(.5, c(.9)); rim.addColorStop(1, 'rgba(255,255,255,.5)');
-      ctx.lineWidth = Math.max(1.5, r * .06); ctx.strokeStyle = rim;
-      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
-      // highlights
-      ctx.fillStyle = 'rgba(255,255,255,.85)';
-      ctx.beginPath(); ctx.ellipse(x - r * .38, y - r * .42, r * .22, r * .12, -.7, 0, TAU); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,.45)';
-      ctx.beginPath(); ctx.arc(x + r * .42, y + r * .38, r * .07, 0, TAU); ctx.fill();
-      // countdown ring
-      ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = c(.95);
-      ctx.beginPath(); ctx.arc(x, y, r + 7, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - age)); ctx.stroke();
+      rim.addColorStop(0, 'rgba(255,255,255,.95)'); rim.addColorStop(.45, 'rgba(255,255,255,.25)'); rim.addColorStop(.75, c(.5)); rim.addColorStop(1, 'rgba(255,255,255,.6)');
+      ctx.lineWidth = Math.max(1, r * .03); ctx.strokeStyle = rim;
+      ctx.beginPath(); ctx.arc(x, y, r - ctx.lineWidth / 2, 0, TAU); ctx.stroke();
+
+      // countdown: a fine colored arc just outside the glass
+      ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = c(.9);
+      ctx.shadowColor = c(.6); ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.arc(x, y, r + 6, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - age)); ctx.stroke();
+      ctx.shadowBlur = 0;
       ctx.globalAlpha = 1;
     }
     // Pops: colored droplets fly out, a ring expands, and the points float up (un-mirrored).
