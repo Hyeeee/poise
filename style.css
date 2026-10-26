@@ -543,3 +543,19 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 .sum-row span { font-size: var(--t-s); color: var(--ink-2); }
 .sum-row b { font-size: var(--t-s); font-weight: 500; }
 .sum-row svg { width: 16px; height: 16px; color: var(--ink-2); }
+
+/* Sliding segmented thumb */
+.segmented { position: relative; isolation: isolate; }
+.segmented button, .segmented button.active { background: transparent !important; position: relative; z-index: 1; transition: color .45s ease !important; }
+.segmented button.active { color: var(--paper) !important; }
+.seg-thumb { position: absolute; top: 4px; bottom: 4px; left: 0; z-index: 0; border-radius: 12px; background: var(--ink); opacity: 0;
+  box-shadow: 0 6px 14px -8px rgba(20,24,16,.5);
+  transition: transform .55s cubic-bezier(.22,1,.36,1), width .55s cubic-bezier(.22,1,.36,1); }
+.segmented > .seg-thumb + button, .segmented { gap: 2px; }
+
+/* Break type switch now sits at the top of the break card */
+.card > .break-switch { margin: -6px -8px 18px; width: auto; box-shadow: none !important; background: rgba(30,31,28,.06) !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* End session / End break: dark */
+#end-session, #end-break, #game-end, #breath-end { background: rgba(30, 31, 28, .86) !important; color: #fbfaf6 !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 10px 26px -16px rgba(20,24,16,.5) !important; text-shadow: none; }
+#end-session::after, #end-break::after, #game-end::after, #breath-end::after { background: rgba(0,0,0,.35); }

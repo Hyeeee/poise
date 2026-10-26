@@ -6,6 +6,7 @@ import { mountAgents } from './agent.js';
 import { ambient } from './ambient.js';
 import { mountPainting } from './painting.js';
 import { MoveGame } from './game.js';
+import './seg.js';
 import { sensor, readSensor, stopSensor } from './sensor.js';
 mountPainting();
 // Welcome entrance: words drift in, then the buttons.
@@ -541,6 +542,7 @@ function setScreen(next) {
   $('breathe-panel').hidden = !(next === 'break' && brk.style === 'breathe');
   $('game-panel').hidden = !(next === 'break' && brk.style === 'game');
   $('break-switch').hidden = next !== 'break';
+  if (next === 'break') { const card = $(brk.style === 'stretch' ? 'break-panel' : brk.style === 'breathe' ? 'breathe-panel' : 'game-panel'); card.prepend($('break-switch')); }
   document.querySelectorAll('#break-switch button').forEach(b => b.classList.toggle('active', b.dataset.style === brk.style));
   $('work').classList.toggle('active', next === 'work'); $('break').classList.toggle('active', next === 'break');
   holdStart = 0; driftSince = 0; light('idle');
