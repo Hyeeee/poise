@@ -257,11 +257,19 @@ export function runOnboarding() {
         minutes: answers.rest?.minutes ?? 3,
         auto: answers.auto ?? true,
       };
+      const SENS_WORD = { gentle: 'Gentle', balanced: 'Clear', firm: 'Quick' };
+      const row = (q, label, value) => `<button type="button" class="sum-row" data-q="${q}"><span>${label}</span><b>${value}</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`;
       show('Here is what I set up for you. You can change anything later, or just ask me.', () => {
         choices.innerHTML = `
           <div class="summary">
-            <button type="button" class="summary-card" id="edit-focus" aria-label="Change focus"><span>Focus <em>Edit</em></span><b>${work.name}</b><p>${describeWork(work)}</p></button>
-            <button type="button" class="summary-card" id="edit-break" aria-label="Change break"><span>Break <em>Edit</em></span><b>${rest.name}</b><p>${describeBreak(rest)}${rest.auto ? ', starts on its own' : ''}</p></button>
+            <div class="sum-card"><h3>Focus</h3>
+              ${row('focus', 'Focus length', `${work.focus} min`)}
+              ${row('nudge', 'Posture cues', `${SENS_WORD[work.sensitivity]}, after ${work.delay}s${work.chime ? ' + chime' : ''}`)}
+            </div>
+            <div class="sum-card"><h3>Break</h3>
+              ${row('rest', 'Break type', rest.style === 'breathe' ? 'Breathing' : rest.style === 'game' ? 'Movement game' : `${rest.count} stretches`)}
+              ${row('auto', 'Starts', rest.auto ? 'Automatically' : 'When I say')}
+            </div>
           </div>
           <div class="summary-actions"><button class="primary" id="setup-save">Start</button></div>`;
         $('setup-save').onclick = () => {
@@ -274,9 +282,11 @@ export function runOnboarding() {
           speak('All set.', orb);
           finish(true);
         };
-        const edit = (from, to) => { editUntil = to; index = from - 1; next(); };
-        $('edit-focus').onclick = () => edit(QUESTIONS.findIndex(q => q.key === 'focus'), QUESTIONS.findIndex(q => q.key === 'nudge'));
-        $('edit-break').onclick = () => edit(QUESTIONS.findIndex(q => q.key === 'rest'), QUESTIONS.findIndex(q => q.key === 'auto'));
+        // Each row opens just its own question, then comes straight back here.
+        choices.querySelectorAll('.sum-row').forEach(r => r.onclick = () => {
+          const i = QUESTIONS.findIndex(q => q.key === r.dataset.q);
+          editUntil = i; index = i - 1; next();
+        });
       });
     }
 

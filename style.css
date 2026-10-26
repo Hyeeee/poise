@@ -528,3 +528,18 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 .min-label { font-size: var(--t-s); }
 .min-picker { gap: 18px; }
 .quick { gap: 12px; } .min-picker { margin-bottom: 22px; }
+
+/* Setup summary: one card per area, one row per setting. Tap a row to change just that. */
+.summary { align-items: start; }
+.sum-card { padding: 18px 10px 10px; border-radius: 16px; display: flex; flex-direction: column;
+  background: linear-gradient(150deg, rgba(255,255,250,.66), rgba(255,255,248,.44)); -webkit-backdrop-filter: blur(26px) saturate(1.35); backdrop-filter: blur(26px) saturate(1.35);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.55), inset 0 0 0 .5px rgba(255,255,255,.22), 0 10px 30px -18px rgba(60,70,45,.28); }
+.sum-card h3 { font-family: var(--serif); font-weight: 400; font-size: var(--t-xl); margin: 0 12px 10px; }
+.sum-row { display: grid !important; grid-template-columns: 1fr auto 18px; align-items: center !important; gap: 10px; width: 100%; min-height: 54px; padding: 0 12px !important;
+  border-radius: 12px !important; text-align: left; position: relative; isolation: isolate; color: var(--ink); }
+.sum-row + .sum-row::before { content: ""; position: absolute; left: 12px; right: 12px; top: 0; height: 1px; background: rgba(30,31,28,.08); }
+.sum-row::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; background: rgba(255,255,255,.7); opacity: 0; transition: opacity .7s ease; }
+.sum-row:hover::after { opacity: 1; }
+.sum-row span { font-size: var(--t-s); color: var(--ink-2); }
+.sum-row b { font-size: var(--t-s); font-weight: 500; }
+.sum-row svg { width: 16px; height: 16px; color: var(--ink-2); }
