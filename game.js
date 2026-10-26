@@ -76,8 +76,9 @@ export class MoveGame {
   }
   step(now) {
     const { cv, ctx } = this;
-    const w = cv.clientWidth, h = cv.clientHeight;
-    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    const w = cv.clientWidth, h = cv.clientHeight, dpr = Math.min(3, devicePixelRatio || 1);
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
     const vw0 = this.video.videoWidth || 16, vh0 = this.video.videoHeight || 9;
     const scale = Math.max(w / vw0, h / vh0), vw = vw0 * scale, vh = vh0 * scale, ox = (w - vw) / 2, oy = (h - vh) / 2;

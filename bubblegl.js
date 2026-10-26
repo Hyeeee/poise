@@ -52,23 +52,26 @@ void main() {
     vec3 scene = texture2D(uTex, clamp(uv, .001, .999)).rgb;
 
     float fres = pow(1. - z, 3.);
-    // A faint thin-film shimmer, only near the rim.
+    // Clear like real soap film: the picture behind stays sharp; only colour is added.
+    vec3 col = scene;
+    // The bubble's own tone: a light wash over the whole bubble, deeper toward the rim.
+    vec3 tone = mix(vec3(1.), tint, .55);
+    col *= mix(vec3(1.), tone, .22 + fres * .5);
+    // A faint thin-film shimmer, only at the very edge.
     float th = d * 1.6 + .3 * sin(ang * 2. + uT * .6 + sd) + uT * .04;
-    vec3 col = scene * 1.05;
-    col += (film(th) - .5) * fres * .22;
-    // The bubble's own colour lives in the rim, like tinted soap.
-    col = mix(col, tint, fres * .45);
-    col = mix(col, vec3(1.), fres * .18);
-    // Soft window reflection and a tiny glint.
+    col += (film(th) - .5) * fres * .12;
+    // Crisp edge: a fine dark line just inside a bright one, the way a real bubble outline reads.
+    float edge = smoothstep(.955, .985, d);
+    col = mix(col, col * .72, smoothstep(.92, .965, d) * (1. - edge) * .6);
+    col = mix(col, vec3(1.), edge * .55);
+    // Sharp window reflection and a tiny glint.
     vec2 q = v / r;
-    float hl = smoothstep(.26, .0, length((q - vec2(-.34, -.4)) * vec2(1., 1.8)));
-    float hl2 = smoothstep(.07, .0, length(q - vec2(.4, .46)));
-    col += hl * .45 + hl2 * .3;
-    col += smoothstep(.96, 1., d) * .25;
-    col += tear * .6;
+    float hl = smoothstep(.2, .14, length((q - vec2(-.36, -.42)) * vec2(1., 1.9)));
+    float hl2 = smoothstep(.06, .03, length(q - vec2(.42, .48)));
+    col = mix(col, vec3(1.), hl * .7 + hl2 * .6);
+    col += tear * .5;
 
-    // Mostly clear: the middle barely tints, the rim is where you see the bubble.
-    float alpha = a * (.25 + .75 * fres + hl * .5) * smoothstep(1., .97, d);
+    float alpha = a * smoothstep(1., .992, d);
     outc = vec4(col, max(outc.a, alpha));   // straight (not premultiplied) colour
   }
   gl_FragColor = vec4(outc.rgb, outc.a);
@@ -102,7 +105,9 @@ export class BubbleGL {
   // list: [{ x, y, r, alpha, color:[r,g,b], pop }] in canvas pixels
   render(list, video, rect, t) {
     const gl = this.gl; if (!gl) return;
-    const w = this.cv.clientWidth, h = this.cv.clientHeight;
+    // Full device resolution (retina), so edges and the picture inside stay sharp.
+    const dpr = Math.min(3, devicePixelRatio || 1);
+    const w = Math.round(this.cv.clientWidth * dpr), h = Math.round(this.cv.clientHeight * dpr);
     if (this.cv.width !== w || this.cv.height !== h) { this.cv.width = w; this.cv.height = h; }
     gl.viewport(0, 0, w, h);
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
@@ -111,12 +116,12 @@ export class BubbleGL {
     const n = Math.min(6, list.length), B = new Float32Array(24), C = new Float32Array(24), S = new Float32Array(24);
     for (let i = 0; i < n; i++) {
       const s = list[i];
-      B.set([s.x, s.y, s.r, s.alpha], i * 4);
+      B.set([s.x * dpr, s.y * dpr, s.r * dpr, s.alpha], i * 4);
       C.set([s.color[0] / 255, s.color[1] / 255, s.color[2] / 255, s.pop || 0], i * 4);
       S.set([s.seed || 0, s.wobble ?? .06, 0, 0], i * 4);
     }
     gl.uniform2f(this.u.res, w, h);
-    gl.uniform4f(this.u.vr, rect.ox, rect.oy, rect.vw, rect.vh);
+    gl.uniform4f(this.u.vr, rect.ox * dpr, rect.oy * dpr, rect.vw * dpr, rect.vh * dpr);
     gl.uniform1f(this.u.t, t);
     gl.uniform1i(this.u.n, n);
     gl.uniform4fv(this.u.b, B); gl.uniform4fv(this.u.c, C); gl.uniform4fv(this.u.s, S);
