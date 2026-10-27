@@ -440,6 +440,7 @@ function showPose() {
   text('points', `${points} points`);
   breakLog.pose(p.name);
   reel.load(p);
+  guidePlaying = reel.playing;   // load() keeps playing without re-announcing it
 }
 function advance(passed = false) {
   if (gameDone) return;
@@ -472,11 +473,11 @@ function poseScore(p, target) {
   return Math.max(0, 100 - Math.max(0, handGap - .4) * 50 - Math.abs(handsY - .55) * 45 - Math.abs(elbowL - elbowR) * .3);
 }
 // Lenient on purpose: get close for half a second and move on.
-const PASS = 45, PASS_MS = 500;
+const PASS = 40, PASS_MS = 1000;
 function updateGame(p, now) {
   if (gameDone || now < betweenUntil) return;
   if (!guidePlaying) { holdStart = 0; missingSince = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Play the guide to continue.'); return; }
-  if (now - poseStarted < 1200) { holdStart = 0; text('hold-label', 'Watch the figure, then follow along.'); return; }
+  if (now - poseStarted < 800) { holdStart = 0; text('hold-label', 'Watch the figure, then follow along.'); return; }
   const target = queue[round], value = poseScore(p, target);
   if (value === null) {
     holdStart = 0; $('hold-bar').style.width = '0'; text('match-score', '—'); light('idle');
