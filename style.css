@@ -637,3 +637,5 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 .primary:hover, .setup .choice.next:hover, #end-session:hover, #end-break:hover, #game-end:hover, #breath-end:hover, .icon-btn.glass.on:hover {
   background: rgba(30, 31, 28, .72) !important; opacity: 1; }
 .setup .choice.next::after, #end-session::after, #end-break::after, #game-end::after, #breath-end::after { display: none; }
+#breath-metric { font-size: var(--t-s) !important; min-height: 2.6em; margin-top: 2px !important; }
+#breathe-panel .state-foot { display: none; }

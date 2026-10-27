@@ -531,7 +531,8 @@ function startBreathe() {
   breakLog.start('breathe');
   resetShoulder = { base: null, now: null, best: 0, samples: [] };
   const orb = $('breath-orb');
-  let inhale = true, phaseStart = 0, phaseEnd = 0, eyeStep = -1;
+  let inhale = true, phaseStart = 0, phaseEnd = 0, eyeStep = -1, breaths = 0;
+  text('reset-cm', '—'); $('reset-bar').style.width = '0';
   const EYES = [
     ['Look far away', 'Find something at least 6 m (20 ft) away and rest your eyes on it.'],
     ['Blink slowly', 'Close your eyes fully, then open. Do it slowly, a few times.'],
@@ -551,7 +552,7 @@ function startBreathe() {
       // Part 1: breathing with the light bar.
       if (now >= phaseEnd) {
         inhale = !inhale || phaseEnd === 0;
-        if (inhale && phaseEnd) breakLog.breath();
+        if (inhale && phaseEnd) { breakLog.breath(); breaths++; }
         phaseStart = now; phaseEnd = now + (inhale ? 4000 : 6000);
         orb.classList.toggle('in', inhale);
         text('breath-cue', inhale ? 'Breathe in' : 'Breathe out');
@@ -562,14 +563,18 @@ function startBreathe() {
       light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)], 15);
       const s = resetShoulder;
       const drop = s.base != null && s.now != null ? Math.max(0, (s.now - s.base) * SHOULDER_CM) : 0;
-      text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Let it go — drop your shoulders away from your ears.');
-      text('breath-metric', !active ? 'Turn on the camera to measure your shoulders.' : s.base == null ? 'Measuring your shoulders…' : drop >= .3 ? `Shoulders ${drop.toFixed(1)} cm lower` : 'Shoulders: let them drop on the out-breath');
+      text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Breathe out and let your shoulders sink down, away from your ears.');
+      // Same layout as stretching: big number = how far your shoulders have relaxed, bar = toward a 2 cm goal.
+      text('reset-cm', s.base == null ? '—' : drop.toFixed(1));
+      text('reset-count', `Breath ${breaths + 1} · ${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')} left`);
+      $('reset-bar').style.width = Math.min(100, drop / 2 * 100) + '%';
+      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : drop >= 2 ? 'Lovely — your shoulders are fully relaxed.' : drop >= .5 ? 'Your shoulders are dropping. Keep going.' : 'Shoulders relaxed so far. Let them sink on each out-breath.');
     } else {
       // Part 2: eye rest. Gentle steady glow on the bar.
       const step = Math.min(EYES.length - 1, Math.floor((t - eyesAt) / ((total - eyesAt) / EYES.length)));
       if (step !== eyeStep) { eyeStep = step; orb.classList.remove('in'); text('breath-cue', EYES[step][0]); text('breath-tip', EYES[step][1]); }
       light('idle', [90, 100, 85]);
-      text('breath-metric', resetShoulder.best >= .3 ? `Best shoulder drop: ${resetShoulder.best.toFixed(1)} cm` : '');
+      text('reset-count', 'Eye rest'); text('breath-metric', `${Math.ceil(left / 1000)}s left`);
     }
   };
   tick(); breathTimer = setInterval(tick, 120);
