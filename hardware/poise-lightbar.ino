@@ -99,7 +99,7 @@ void handleMessage(String msg) {
 //     then flashes green once to say "ready".
 //  2. Live feedback: the closer you lean in, the warmer the light gets, instantly
 //     (white -> pale yellow as you come in).
-//  3. Lean in 10%+ closer for 3 s  -> full yellow.  Still there 15 s later -> red.
+//  3. Lean in 10%+ closer for 5 s  -> yellow.  Still leaning at 10 s -> red.
 //     Sit back                      -> green for a moment, then white.
 //  4. Nothing in front for 3 s     -> away: the strip dims. Sit down again and it relearns.
 // It can't tell left/right tilt: one sensor only measures straight ahead.
@@ -142,11 +142,11 @@ void sensorDemo() {
     if (!closeSince) closeSince = now;
     unsigned long held = now - closeSince;
     fade = 0.05;
-    if (held < 3000)       mixTarget(110, 110, 100, 255, 190, 60, closer / 0.25);   // instant warm hint
-    else if (held < 18000) setTarget(255, 130, 0);                                  // yellow
+    if (held < 5000)       mixTarget(110, 110, 100, 255, 190, 60, closer / 0.25);   // instant warm hint
+    else if (held < 10000) setTarget(255, 130, 0);                                  // yellow
     else                   setTarget(255, 0, 0);                                    // red
   } else {
-    if (closeSince && now - closeSince >= 3000) okUntil = now + 1200;               // corrected
+    if (closeSince && now - closeSince >= 5000) okUntil = now + 1200;               // corrected
     closeSince = 0;
     fade = 0.12;
     mixTarget(110, 110, 100, 255, 190, 60, max(0.0f, closer) / 0.25);               // live hint
