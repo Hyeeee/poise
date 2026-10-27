@@ -667,3 +667,15 @@ input[type=range].min-range::-webkit-slider-thumb { width: 22px; height: 22px; m
 input[type=range].min-range::-moz-range-thumb { width: 22px; height: 22px; background: #fff; box-shadow: 0 0 0 1px rgba(30,31,28,.15), 0 4px 10px -3px rgba(20,24,16,.35); }
 .min-scale { display: flex; justify-content: space-between; font-family: var(--ui); font-size: var(--t-xs); color: var(--ink-2); margin-top: -4px; }
 .min-picker { width: min(440px, 100%); } .min-box input { width: 2.2ch !important; } .min-unit { margin-left: 2px; }
+
+/* Minutes number: rolling digits, "min" follows the number */
+.min-box { position: relative; display: inline-flex !important; align-items: baseline !important; gap: 8px !important; }
+.min-box .roll { display: inline-flex; font-family: var(--ui); font-size: var(--t-3xl); font-weight: 500; line-height: 1; height: 1em; overflow: hidden; font-variant-numeric: tabular-nums; color: var(--ink); pointer-events: none; }
+.roll-col { display: flex; flex-direction: column; transition: transform .55s cubic-bezier(.22,1,.36,1); }
+.roll-col span { height: 1em; line-height: 1; width: 1ch; text-align: center; }
+.min-box input { position: absolute; left: 0; bottom: 0; height: 1em; line-height: 1; color: transparent !important; caret-color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 500; padding: 0; width: auto; }
+.min-box:focus-within .roll { visibility: hidden; }
+.min-box:focus-within input { color: var(--ink) !important; }
+.min-box .min-unit { align-self: auto; padding: 0; }
+.min-picker .min-field { gap: 6px !important; }
+.roll-col { flex: none; height: 10em; align-self: flex-start; } .roll-col span { flex: none; display: block; }
