@@ -13,6 +13,7 @@
 //
 // The HC-SR04 distance sensor is OPTIONAL (an exercise, not needed for Poise).
 //   USE_SENSOR = false : sensor ignored, nothing needs to be wired on D7/D8.
+//   Sensor-only mode (no camera): see sensorDemo() below. It runs whenever the app isn't sending colors.
 //   USE_SENSOR = true  : prints "DIST <cm>" ~6x a second (the web app can use it), and when the
 //                        app isn't connected the color follows distance as a demo.
 
@@ -22,7 +23,7 @@ constexpr uint8_t LED_PIN   = 6;
 constexpr uint16_t LED_COUNT = 30;   // <- change to your strip's LED count
 constexpr uint8_t TRIG_PIN  = 7;
 constexpr uint8_t ECHO_PIN  = 8;
-constexpr bool    USE_SENSOR = false; // <- set true if the HC-SR04 is wired and you want to use it
+constexpr bool    USE_SENSOR = true;  // <- false if the HC-SR04 isn't wired
 constexpr uint8_t BRIGHTNESS = 90;   // brighter, saturated colors; white is kept dim to stay within USB power
 
 // How fast the strip moves toward a new color each frame (every 20 ms).
@@ -92,11 +93,47 @@ void handleMessage(String msg) {
   else                     setTarget(40, 45, 50);   // IDLE or anything else
 }
 
+// ---- Sensor-only mode (no camera, no app needed) ----
+// For people who'd rather not be on camera. The board works on its own:
+//  1. When you sit down, it learns your normal distance (average of the first 3 s).
+//  2. Lean in 15% closer than that for 5 s  -> fades to yellow.
+//     Still leaning 20 s later                -> fades to red.
+//     Back to normal                          -> green for a moment, then soft white.
+//  3. Nothing in front of the sensor for 3 s -> you're away: the strip dims.
+//     When you sit back down it learns your distance again.
+// It can't tell left/right tilt: one sensor only measures straight ahead.
+int baseCm = -1;                       // your normal distance
+unsigned long seenSince = 0, goneSince = 0, closeSince = 0, okSince = 0;
+long baseSum = 0; int baseN = 0;
+
 void sensorDemo() {
-  if (distanceCm < 0)              setTarget(20, 25, 35);     // nobody there
-  else if (distanceCm < TOO_CLOSE) setTarget(255, 0, 0);      // red
-  else if (distanceCm < CLOSE)     setTarget(255, 130, 0);    // amber
-  else                             setTarget(110, 110, 100);  // soft white (dim: white draws the most current)
+  unsigned long now = millis();
+  bool here = distanceCm > 0 && distanceCm < 150;
+  if (!here) {
+    if (!goneSince) goneSince = now;
+    if (now - goneSince > 3000) { baseCm = -1; baseSum = 0; baseN = 0; seenSince = 0; closeSince = 0; setTarget(10, 12, 16); }  // away
+    return;
+  }
+  goneSince = 0;
+  if (baseCm < 0) {                                   // learning your normal distance
+    if (!seenSince) seenSince = now;
+    baseSum += distanceCm; baseN++;
+    setTarget(60, 65, 70);
+    if (now - seenSince > 3000 && baseN > 0) baseCm = baseSum / baseN;
+    return;
+  }
+  if (distanceCm < baseCm * 0.85) {                  // leaning in
+    okSince = 0;
+    if (!closeSince) closeSince = now;
+    unsigned long held = now - closeSince;
+    if (held < 5000) return;                          // grace: ignore short leans
+    fade = 0.02;
+    if (held < 25000) setTarget(255, 130, 0); else setTarget(255, 0, 0);
+  } else {
+    if (closeSince && now - closeSince >= 5000) okSince = now;   // just corrected
+    closeSince = 0;
+    if (okSince && now - okSince < 1500) setTarget(0, 255, 30); else setTarget(110, 110, 100);
+  }
 }
 
 void setup() {

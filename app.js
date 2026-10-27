@@ -178,6 +178,7 @@ function smoothPose(raw, now) {
 }
 // 4. Scene check: too dark, or shoulders cut off at the edge of the frame.
 let lastLightCheck = 0, sceneIssue = '';
+let camGoneSince = 0, camAway = false, camPaused = false;
 const lightCanvas = document.createElement('canvas'); lightCanvas.width = 32; lightCanvas.height = 18;
 function checkScene(p) {
   let issue = '';
@@ -356,6 +357,8 @@ function loop(now) {
       if (visible(landmarks, [0, 11, 12])) {
         draw(landmarks);
         if (!sceneIssue) setChip('Tracking', true);
+        camGoneSince = 0;
+        if (camAway) { camAway = false; if (camPaused) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back'); } camPaused = false; }
         if (screen === 'work') updateWork(landmarks, now);
         else if (store.brk().style === 'stretch') updateGame(landmarks, now);
         else if (store.brk().style === 'game') moveGame.update(landmarks);
@@ -364,7 +367,13 @@ function loop(now) {
         landmarks = null; ctx.clearRect(0, 0, canvas.width, canvas.height);
         driftSince = 0; nearSince = 0; holdStart = 0; lastStatTick = 0; posture.pause();
         setChip('Keep your head and shoulders in view');
-        if (screen === 'work') { text('posture-state', 'Paused'); text('posture-hint', 'Move back into the frame to continue.'); text('deviation', '—'); }
+        // Nobody in view for 3 s: you're away. Pause the focus timer until you're back.
+        if (!camGoneSince) camGoneSince = now;
+        if (!camAway && now - camGoneSince > 3000 && screen === 'work') {
+          camAway = true; camPaused = timerRunning; timerRunning = false; renderPause(); light('idle');
+          setChip('Away from desk');
+        }
+        if (screen === 'work') { text('posture-state', camAway ? 'Away' : 'Paused'); text('posture-hint', camAway ? 'Paused until you sit back down.' : 'Move back into the frame to continue.'); text('deviation', '—'); }
         text('match-score', '—'); $('hold-bar').style.width = '0';
         if (!(screen === 'break' && store.brk().style === 'breathe')) light('idle');
       }
