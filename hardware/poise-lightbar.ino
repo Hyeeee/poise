@@ -94,45 +94,62 @@ void handleMessage(String msg) {
 }
 
 // ---- Sensor-only mode (no camera, no app needed) ----
-// For people who'd rather not be on camera. The board works on its own:
-//  1. When you sit down, it learns your normal distance (average of the first 3 s).
-//  2. Lean in 15% closer than that for 5 s  -> fades to yellow.
-//     Still leaning 20 s later                -> fades to red.
-//     Back to normal                          -> green for a moment, then soft white.
-//  3. Nothing in front of the sensor for 3 s -> you're away: the strip dims.
-//     When you sit back down it learns your distance again.
+// For people who'd rather not be on camera. The board works on its own, and it answers right away:
+//  1. Sit down: the strip pulses blue for 3 s while it learns your normal distance,
+//     then flashes green once to say "ready".
+//  2. Live feedback: the closer you lean in, the warmer the light gets, instantly
+//     (white -> pale yellow as you come in).
+//  3. Lean in 10%+ closer for 3 s  -> full yellow.  Still there 15 s later -> red.
+//     Sit back                      -> green for a moment, then white.
+//  4. Nothing in front for 3 s     -> away: the strip dims. Sit down again and it relearns.
 // It can't tell left/right tilt: one sensor only measures straight ahead.
-int baseCm = -1;                       // your normal distance
-unsigned long seenSince = 0, goneSince = 0, closeSince = 0, okSince = 0;
+int baseCm = -1;                     // your normal distance
+float smoothCm = -1;                 // distance with jitter smoothed out
+unsigned long seenSince = 0, goneSince = 0, closeSince = 0, okUntil = 0;
 long baseSum = 0; int baseN = 0;
+
+void mixTarget(uint8_t r1, uint8_t g1, uint8_t b1, uint8_t r2, uint8_t g2, uint8_t b2, float k) {
+  k = constrain(k, 0, 1);
+  setTarget(r1 + (r2 - r1) * k, g1 + (g2 - g1) * k, b1 + (b2 - b1) * k);
+}
 
 void sensorDemo() {
   unsigned long now = millis();
-  bool here = distanceCm > 0 && distanceCm < 150;
+  bool here = distanceCm > 0 && distanceCm < 200;
   if (!here) {
     if (!goneSince) goneSince = now;
-    if (now - goneSince > 3000) { baseCm = -1; baseSum = 0; baseN = 0; seenSince = 0; closeSince = 0; setTarget(10, 12, 16); }  // away
+    if (now - goneSince > 3000) {                     // away
+      baseCm = -1; baseSum = 0; baseN = 0; seenSince = 0; closeSince = 0; smoothCm = -1;
+      fade = 0.03; setTarget(6, 8, 10);
+    }
     return;
   }
   goneSince = 0;
-  if (baseCm < 0) {                                   // learning your normal distance
+  smoothCm = smoothCm < 0 ? distanceCm : smoothCm + (distanceCm - smoothCm) * 0.35;
+
+  if (baseCm < 0) {                                   // learning: soft blue pulse
     if (!seenSince) seenSince = now;
     baseSum += distanceCm; baseN++;
-    setTarget(60, 65, 70);
-    if (now - seenSince > 3000 && baseN > 0) baseCm = baseSum / baseN;
+    float pulse = 0.5 + 0.5 * sin(now / 250.0);
+    fade = 0.2; setTarget(20, 60 + 60 * pulse, 120 + 120 * pulse);
+    if (now - seenSince > 3000) { baseCm = baseSum / baseN; okUntil = now + 900; }   // ready: green flash
     return;
   }
-  if (distanceCm < baseCm * 0.85) {                  // leaning in
-    okSince = 0;
+  if (now < okUntil) { fade = 0.25; setTarget(0, 255, 30); return; }
+
+  float closer = (baseCm - smoothCm) / baseCm;       // 0 = normal, 0.10 = 10% closer
+  if (closer > 0.10) {
     if (!closeSince) closeSince = now;
     unsigned long held = now - closeSince;
-    if (held < 5000) return;                          // grace: ignore short leans
-    fade = 0.02;
-    if (held < 25000) setTarget(255, 130, 0); else setTarget(255, 0, 0);
+    fade = 0.05;
+    if (held < 3000)       mixTarget(110, 110, 100, 255, 190, 60, closer / 0.25);   // instant warm hint
+    else if (held < 18000) setTarget(255, 130, 0);                                  // yellow
+    else                   setTarget(255, 0, 0);                                    // red
   } else {
-    if (closeSince && now - closeSince >= 5000) okSince = now;   // just corrected
+    if (closeSince && now - closeSince >= 3000) okUntil = now + 1200;               // corrected
     closeSince = 0;
-    if (okSince && now - okSince < 1500) setTarget(0, 255, 30); else setTarget(110, 110, 100);
+    fade = 0.12;
+    mixTarget(110, 110, 100, 255, 190, 60, max(0.0f, closer) / 0.25);               // live hint
   }
 }
 
