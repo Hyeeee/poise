@@ -47,10 +47,10 @@ const strongDelay = () => store.work().delay * 1000;
 
 // ---------- Output: light bar, toast, chime ----------
 // state: green | amber | red | idle | white. rgb (optional) sends an exact blended color to the bar.
-function light(state, rgb) {
+function light(state, rgb, fast) {
   document.documentElement.style.setProperty('--signal', rgb ? `rgb(${rgb.join(',')})` : colors[state]);
   $('state-agent').dataset.mood = state === 'white' ? 'green' : state;
-  const msg = rgb ? `RGB ${rgb.join(' ')}` : state.toUpperCase();
+  const msg = rgb ? `RGB ${rgb.join(' ')}${fast ? ' ' + fast : ''}` : state.toUpperCase();
   if (writer && (lastSerial !== msg || performance.now() - lastSerialTime > 1000) && !serialBusy) {
     serialBusy = true;
     writer.write(new TextEncoder().encode(msg + '\n'))
@@ -555,7 +555,7 @@ function startBreathe() {
       const k = Math.min(1, (now - phaseStart) / (phaseEnd - phaseStart));
       const level = inhale ? k : 1 - k;                      // 0 dim … 1 bright
       const lv = .5 - .5 * Math.cos(level * Math.PI);        // ease in and out
-      light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)]);
+      light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)], 15);
       const s = resetShoulder;
       const drop = s.base != null && s.now != null ? Math.max(0, (s.now - s.base) * SHOULDER_CM) : 0;
       text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Let it go — drop your shoulders away from your ears.');
@@ -902,7 +902,7 @@ const fmtClock = ms => { const t = Math.ceil(ms / 1000); return `${Math.floor(t 
 let gameRgb = null;
 const moveGame = new MoveGame($('game-canvas'), camera, {
   onTick({ score, left, combo, tracking }) {
-    gameRgb ? light('idle', gameRgb) : light('idle');
+    gameRgb ? light('idle', gameRgb, 20) : light('idle');
     text('game-score', score); text('game-left', fmtClock(left));
     $('game-bar').style.width = (100 - left / (store.brk().minutes * 60000) * 100) + '%';
     text('game-label', !tracking ? 'Step back so your arms fit in the frame.' : combo > 2 ? `${combo} in a row` : 'Reach for the bubbles.');

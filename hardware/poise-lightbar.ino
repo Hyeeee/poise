@@ -8,6 +8,7 @@
 //      "RGB r g b"  exact color, e.g. "RGB 255 130 0"
 //      WHITE / GREEN / AMBER / RED / IDLE  preset colors
 //    The strip fades slowly to each new color (about 1.5 s), so changes feel calm.
+//    "RGB r g b f" adds a fade speed (1-100) for quick effects: game pops, the breathing light.
 // 3. If the app stops sending for 4 seconds, the strip dims to a soft idle glow.
 //
 // The HC-SR04 distance sensor is OPTIONAL (an exercise, not needed for Poise).
@@ -27,6 +28,7 @@ constexpr uint8_t BRIGHTNESS = 90;   // brighter, saturated colors; white is kep
 // How fast the strip moves toward a new color each frame (every 20 ms).
 // 0.07 ≈ 0.6 s (snappy) · 0.03 ≈ 1.5 s (calm) · 0.015 ≈ 3 s (very slow)
 constexpr float FADE = 0.03;
+float fade = FADE;                 // current fade speed; a message can ask for a faster one
 
 // Sensor demo distance thresholds in cm (only used when USE_SENSOR is true).
 constexpr int TOO_CLOSE = 40;
@@ -72,10 +74,16 @@ void handleMessage(String msg) {
   msg.trim();
   lastMessage = millis();
   appConnected = true;
-  if (msg.startsWith("RGB ")) {             // exact color from the web app: "RGB r g b"
-    int r1 = msg.indexOf(' '), r2 = msg.indexOf(' ', r1 + 1), r3 = msg.indexOf(' ', r2 + 1);
-    if (r1 > 0 && r2 > 0 && r3 > 0)
-      setTarget(msg.substring(r1 + 1, r2).toInt(), msg.substring(r2 + 1, r3).toInt(), msg.substring(r3 + 1).toInt());
+  fade = FADE;                              // default: calm fade
+  if (msg.startsWith("RGB ")) {
+    // "RGB r g b"       exact color, calm fade (posture)
+    // "RGB r g b 15"    same, with fade speed 15 = 0.15 (fast: game pops, breathing light)
+    int r1 = msg.indexOf(' '), r2 = msg.indexOf(' ', r1 + 1), r3 = msg.indexOf(' ', r2 + 1), r4 = msg.indexOf(' ', r3 + 1);
+    if (r1 > 0 && r2 > 0 && r3 > 0) {
+      int blue = (r4 > 0 ? msg.substring(r3 + 1, r4) : msg.substring(r3 + 1)).toInt();
+      setTarget(msg.substring(r1 + 1, r2).toInt(), msg.substring(r2 + 1, r3).toInt(), blue);
+      if (r4 > 0) fade = constrain(msg.substring(r4 + 1).toInt(), 1, 100) / 100.0;
+    }
   }
   else if (msg == "WHITE")  setTarget(110, 110, 100);
   else if (msg == "GREEN")  setTarget(0, 255, 30);
@@ -130,7 +138,7 @@ void loop() {
   // 3. Smooth fade toward the target color.
   if (millis() - lastFrame > 20) {
     lastFrame = millis();
-    r += (tr - r) * FADE; g += (tg - g) * FADE; b += (tb - b) * FADE;
+    r += (tr - r) * fade; g += (tg - g) * fade; b += (tb - b) * fade;
     showAll(r, g, b);
   }
 }
