@@ -94,19 +94,19 @@ void handleMessage(String msg) {
 }
 
 // ---- Sensor-only mode (no camera, no app needed) ----
-// For people who'd rather not be on camera. The board works on its own, and it answers right away:
-//  1. Sit down: the strip pulses blue for 3 s while it learns your normal distance,
-//     then flashes green once to say "ready".
-//  2. Live feedback: the closer you lean in, the warmer the light gets, instantly
-//     (white -> pale yellow as you come in).
-//  3. Lean in 10%+ closer for 5 s  -> yellow.  Still leaning at 10 s -> red.
-//     Sit back                      -> green for a moment, then white.
-//  4. Nothing in front for 3 s     -> away: the strip dims. Sit down again and it relearns.
+// For people who'd rather not be on camera. The board works on its own:
+//   GOOD_MIN..GOOD_MAX cm  = good posture (soft white)
+//   closer than GOOD_MIN   = leaning in;  farther than GOOD_MAX = leaning back
+//  Outside the good range: the light warms right away (the farther out, the warmer),
+//  turns yellow after 5 s and red after 10 s. Back in range -> green for a moment, then white.
+//  Nothing in front for 3 s -> away: the strip dims. Sitting down again flashes green once.
 // It can't tell left/right tilt: one sensor only measures straight ahead.
-int baseCm = -1;                     // your normal distance
+constexpr int GOOD_MIN = 60;         // <- tune to your desk
+constexpr int GOOD_MAX = 70;
+constexpr int AWAY_CM  = 150;        // farther than this (or no echo) counts as nobody there
 float smoothCm = -1;                 // distance with jitter smoothed out
-unsigned long seenSince = 0, goneSince = 0, closeSince = 0, okUntil = 0;
-long baseSum = 0; int baseN = 0;
+unsigned long goneSince = 0, outSince = 0, okUntil = 0;
+bool away = true;
 
 void mixTarget(uint8_t r1, uint8_t g1, uint8_t b1, uint8_t r2, uint8_t g2, uint8_t b2, float k) {
   k = constrain(k, 0, 1);
@@ -115,41 +115,31 @@ void mixTarget(uint8_t r1, uint8_t g1, uint8_t b1, uint8_t r2, uint8_t g2, uint8
 
 void sensorDemo() {
   unsigned long now = millis();
-  bool here = distanceCm > 0 && distanceCm < 200;
+  bool here = distanceCm > 0 && distanceCm < AWAY_CM;
   if (!here) {
     if (!goneSince) goneSince = now;
-    if (now - goneSince > 3000) {                     // away
-      baseCm = -1; baseSum = 0; baseN = 0; seenSince = 0; closeSince = 0; smoothCm = -1;
-      fade = 0.03; setTarget(6, 8, 10);
-    }
+    if (now - goneSince > 3000) { away = true; outSince = 0; smoothCm = -1; fade = 0.03; setTarget(6, 8, 10); }
     return;
   }
   goneSince = 0;
+  if (away) { away = false; okUntil = now + 900; }    // you sat down: green flash
   smoothCm = smoothCm < 0 ? distanceCm : smoothCm + (distanceCm - smoothCm) * 0.35;
-
-  if (baseCm < 0) {                                   // learning: soft blue pulse
-    if (!seenSince) seenSince = now;
-    baseSum += distanceCm; baseN++;
-    float pulse = 0.5 + 0.5 * sin(now / 250.0);
-    fade = 0.2; setTarget(20, 60 + 60 * pulse, 120 + 120 * pulse);
-    if (now - seenSince > 3000) { baseCm = baseSum / baseN; okUntil = now + 900; }   // ready: green flash
-    return;
-  }
   if (now < okUntil) { fade = 0.25; setTarget(0, 255, 30); return; }
 
-  float closer = (baseCm - smoothCm) / baseCm;       // 0 = normal, 0.10 = 10% closer
-  if (closer > 0.10) {
-    if (!closeSince) closeSince = now;
-    unsigned long held = now - closeSince;
+  // How far outside the good range, in cm (0 = inside).
+  float off = smoothCm < GOOD_MIN ? GOOD_MIN - smoothCm : smoothCm > GOOD_MAX ? smoothCm - GOOD_MAX : 0;
+  if (off > 0) {
+    if (!outSince) outSince = now;
+    unsigned long held = now - outSince;
     fade = 0.05;
-    if (held < 5000)       mixTarget(110, 110, 100, 255, 190, 60, closer / 0.25);   // instant warm hint
-    else if (held < 10000) setTarget(255, 130, 0);                                  // yellow
-    else                   setTarget(255, 0, 0);                                    // red
+    if (held < 5000)       mixTarget(110, 110, 100, 255, 190, 60, off / 15.0);   // instant warm hint
+    else if (held < 10000) setTarget(255, 130, 0);                              // yellow
+    else                   setTarget(255, 0, 0);                                // red
   } else {
-    if (closeSince && now - closeSince >= 5000) okUntil = now + 1200;               // corrected
-    closeSince = 0;
+    if (outSince && now - outSince >= 5000) okUntil = now + 1200;               // corrected
+    outSince = 0;
     fade = 0.12;
-    mixTarget(110, 110, 100, 255, 190, 60, max(0.0f, closer) / 0.25);               // live hint
+    setTarget(110, 110, 100);                                                   // good: soft white
   }
 }
 
