@@ -640,3 +640,15 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 #breath-metric { font-size: var(--t-s) !important; min-height: 2.6em; margin-top: 2px !important; }
 #breathe-panel .state-foot { display: none; }
 .toast { font-family: var(--ui) !important; font-size: var(--t-s); font-weight: 500; line-height: 1; padding: 0 16px; height: 40px; display: inline-flex; align-items: center; border-radius: var(--r-sm); }
+/* Settings: no divider lines, spacing only */
+.sheet .field { border-bottom: 0 !important; padding: 12px 0; }
+.sheet .prefs, .sheet .editor-foot { border-top: 0 !important; }
+.sheet .prefs { margin-top: 8px; }
+/* Segmented buttons: unselected ones darken softly on hover */
+.segmented button:not(.active) { transition: color .5s ease, background-color .5s ease !important; border-radius: calc(var(--r-btn) - 4px); }
+.segmented button:not(.active):hover { color: var(--ink) !important; background: rgba(30,31,28,.07) !important; }
+.field .segmented button:not(.active):hover { border-radius: var(--r-sm) !important; }
+/* Text buttons: ink deepens and a soft underline eases in */
+.text-btn, .danger { transition: color .5s ease, text-decoration-color .5s ease; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.text-btn:hover { color: var(--ink) !important; text-decoration-color: currentColor; }
+.danger:hover { color: #8a3a31; text-decoration-color: currentColor; }
