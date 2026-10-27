@@ -186,27 +186,22 @@ export function runOnboarding() {
       const wrap = document.createElement('div');
       wrap.className = 'min-picker';
       wrap.innerHTML = `
-        <label class="min-field">
-          <span class="min-label">Minutes</span>
-          <span class="min-box">
-            <input type="number" inputmode="numeric" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Focus minutes">
-            <span class="min-unit">min</span>
-            <span class="min-arrows">
-              <button type="button" class="step-btn" data-d="1" aria-label="More"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
-              <button type="button" class="step-btn" data-d="-1" aria-label="Less"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
-            </span>
-          </span>
-        </label>
-
+        <div class="min-field">
+          <label class="min-box"><input type="number" inputmode="numeric" min="${q.min}" max="${q.max}" step="1" value="${value}" aria-label="Focus minutes"><span class="min-unit">min</span></label>
+          <input type="range" class="min-range" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Focus minutes slider">
+          <div class="min-scale"><span>${q.min} min</span><span>${q.max / 60} hours</span></div>
+        </div>
         <div class="quick">${q.quick.map(m => `<button type="button" class="quick-chip" data-m="${m}">${m >= 60 ? m / 60 + ' hour' : m + ' min'}</button>`).join('')}</div>`;
-      const input = wrap.querySelector('input');
+      const input = wrap.querySelector('input[type=number]'); let range;
       const set = v => {
-        value = clampV(v); input.value = value;
+        value = clampV(v); input.value = value; if (range) { range.value = value; range.style.setProperty('--p', ((value - q.min) / (q.max - q.min) * 100) + '%'); }
         wrap.querySelectorAll('.quick-chip').forEach(c => c.classList.toggle('on', +c.dataset.m === value));
       };
-      wrap.querySelectorAll('.step-btn').forEach(b => b.onclick = () => set(value + q.step * +b.dataset.d));
+      range = wrap.querySelector('.min-range');
+      range.oninput = () => set(+range.value);
       wrap.querySelectorAll('.quick-chip').forEach(c => c.onclick = () => set(+c.dataset.m));
       input.onchange = () => set(+input.value);
+      input.oninput = () => { const v = +input.value; if (v >= q.min && v <= q.max) { range.value = v; range.style.setProperty('--p', ((v - q.min) / (q.max - q.min) * 100) + '%'); } };
       input.onkeydown = e => { if (e.key === 'Enter') { set(+input.value); go.click(); } };
       const go = document.createElement('button');
       go.className = 'choice next'; go.textContent = 'Continue';
