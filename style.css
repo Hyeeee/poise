@@ -639,3 +639,4 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 .setup .choice.next::after, #end-session::after, #end-break::after, #game-end::after, #breath-end::after { display: none; }
 #breath-metric { font-size: var(--t-s) !important; min-height: 2.6em; margin-top: 2px !important; }
 #breathe-panel .state-foot { display: none; }
+.toast { font-family: var(--ui) !important; font-size: var(--t-s); font-weight: 500; line-height: 1; padding: 0 16px; height: 40px; display: inline-flex; align-items: center; border-radius: var(--r-sm); }
