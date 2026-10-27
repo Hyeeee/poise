@@ -1,4 +1,4 @@
-// Animated ink-sketch guide: a seated figure that performs each stretch on a loop.
+// Animated ink-sketch guide: a standing figure that performs each stretch on a loop.
 // Same interface the app used for the video player: load / replay / stop / suspend / resume.
 // Screen directions match what the user sees in their mirrored camera.
 
@@ -10,22 +10,23 @@ const ICON = {
 
 // Figure space: pelvis at (0,0), up is negative y. Units ≈ px at scale 1.
 const REST = {
-  lean: 0, head: 0, drop: 0, shrug: 0,
+  lean: 0, bend: 0, head: 0, drop: 0, shrug: 0,
   eL: [-60, -66], wL: [-46, -8],   // screen-left arm (user's left in the mirror)
   eR: [60, -66], wR: [46, -8],
 };
 // Each move: target pose (partial) + how long to hold.
 const MOVES = {
-  cross: side => {
-    const s = side === 'left' ? 1 : -1; // 1 = screen-left arm crosses to the right
-    const k = s === 1 ? ['eL', 'wL', 'eR', 'wR'] : ['eR', 'wR', 'eL', 'wL'];
-    return { [k[0]]: [-6 * s, -96], [k[1]]: [58 * s, -108], [k[2]]: [52 * s, -74], [k[3]]: [6 * s, -94], head: -.12 * s };
+  // Both arms overhead, upper body bends toward one side of the screen.
+  side: side => {
+    const s = side === 'left' ? -1 : 1;
+    return { bend: .26 * s, head: .12 * s, eL: [-30, -196], wL: [-10, -262], eR: [30, -196], wR: [10, -262] };
   },
   neck: target => {
     const s = Math.sign(target); // + tilts toward screen-right
     return { head: .42 * s, drop: 4, shrug: -4, ...(s > 0 ? { eL: [-58, -62], wL: [-44, -4] } : { eR: [58, -62], wR: [44, -4] }) };
   },
-  hug: () => ({ lean: .16, drop: 10, head: 0, eL: [-30, -78], wL: [40, -100], eR: [30, -84], wR: [-38, -106] }),
+  // Goalpost arms: elbows out at shoulder height, hands up, chest open.
+  wings: () => ({ head: -.04, shrug: 2, eL: [-96, -112], wL: [-100, -176], eR: [96, -112], wR: [100, -176] }),
 };
 
 const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -69,7 +70,7 @@ export class GuidePlayer {
   status(s) { $('reel-status').textContent = s; }
   load(clip) {
     this.clip = clip;
-    this.target = clip.type === 'cross' ? MOVES.cross(clip.side) : clip.type === 'neck' ? MOVES.neck(clip.target) : MOVES.hug();
+    this.target = clip.type === 'side' ? MOVES.side(clip.side) : clip.type === 'neck' ? MOVES.neck(clip.target) : MOVES.wings();
     this.t = 0; this.userPaused = false;
     this.play();
   }
@@ -113,30 +114,29 @@ export class GuidePlayer {
     if (!w) return;
     ctx.clearRect(0, 0, w, h);
     const P = this.pose();
-    const s = Math.min(w / 300, h / 330);
+    const s = Math.min(w / 340, h / 520);
     ctx.save();
-    ctx.translate(w / 2, h * .74);
+    ctx.translate(w / 2, h * .62);
     ctx.scale(s, s);
     const INK = '#141412', PAPER = '#fbfaf6';
     let n = 0;
     const jp = p => [p[0] + this.j(n++), p[1] + this.j(n++)];
 
-    // Chair: a few loose strokes.
-    ctx.strokeStyle = 'rgba(20,20,18,.35)'; ctx.lineWidth = 2; ctx.lineCap = 'round';
-    this.line([[-78, 8], [78, 8]], jp); this.line([[-70, 10], [-74, 78]], jp); this.line([[70, 10], [74, 78]], jp);
-
+    ctx.strokeStyle = INK; ctx.lineCap = 'round';
     // Upper body pose transforms.
     const lean = P.lean, drop = P.drop + P.breath;
     const sh = (x, y) => [x + lean * (y + 120) * -0, y + drop + lean * 30];
     const SL = sh(-40, -116 - P.shrug), SR = sh(40, -116 - P.shrug), NECK = sh(0, -124);
 
-    // Legs: black trousers, seated front view (knees toward the viewer).
+    // Legs: black trousers, standing, feet hip-width apart.
     ctx.fillStyle = INK;
-    this.poly([[-48, -10], [-4, -10], [-8, 18], [-12, 72], [-40, 74], [-46, 20]], jp);
-    this.poly([[48, -10], [4, -10], [8, 18], [12, 72], [40, 74], [46, 20]], jp);
+    this.poly([[-36, -10], [-3, -10], [-6, 60], [-10, 160], [-34, 160], [-38, 60]], jp);
+    this.poly([[36, -10], [3, -10], [6, 60], [10, 160], [34, 160], [38, 60]], jp);
     ctx.fillStyle = PAPER; ctx.strokeStyle = INK; ctx.lineWidth = 2.4;
-    this.poly([[-40, 72], [-12, 72], [-8, 84], [-46, 84]], jp, true);
-    this.poly([[40, 72], [12, 72], [8, 84], [46, 84]], jp, true);
+    this.poly([[-34, 158], [-10, 158], [-6, 170], [-42, 170]], jp, true);
+    this.poly([[34, 158], [10, 158], [6, 170], [42, 170]], jp, true);
+    // Everything above the waist bends sideways around the waist.
+    ctx.save(); ctx.translate(0, -10); ctx.rotate(P.bend); ctx.translate(0, 10);
 
     // Torso: narrow bare waist under a black crop top.
     const top = -60 + drop * .6, lx = lean * 40;
@@ -166,13 +166,14 @@ export class GuidePlayer {
 
     // Arms last so crossing arms sit in front of the body. Draw the arm that crosses on top.
     const L = [SL, sh(...P.eL), sh(...P.wL)], R = [SR, sh(...P.eR), sh(...P.wR)];
-    const order = this.clip?.type === 'cross' && this.clip.side === 'right' ? [L, R] : [R, L];
+    const order = [R, L];
     for (const [s0, e, wr] of order) {
       this.limb(s0, e, 11, INK, PAPER, jp);
       this.limb(e, wr, 9, INK, PAPER, jp);
       ctx.fillStyle = PAPER; ctx.strokeStyle = INK; ctx.lineWidth = 2.4;
       ctx.beginPath(); ctx.ellipse(wr[0] + this.j(n++, .6), wr[1] + this.j(n++, .6), 5.5, 7.5, Math.atan2(wr[1] - e[1], wr[0] - e[0]) - Math.PI / 2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     }
+    ctx.restore();   // bend
     ctx.restore();
   }
   poly(pts, jp, stroke) {

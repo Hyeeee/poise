@@ -631,3 +631,9 @@ button:not(.summary-card):not(.voice-opt):not(.brand), .min-box, .segmented, #as
 .card .end-wide { margin-top: 16px; }
 #game-panel > .tiny, #reel-status { display: none !important; }
 .break-switch { position: relative; z-index: 5; pointer-events: auto; }
+/* Dark buttons: rest at the deep tone; hover eases to a softer grey. */
+.primary, .setup .choice.next, #end-session, #end-break, #game-end, #breath-end, .icon-btn.glass.on {
+  background: rgba(30, 31, 28, .95) !important; transition: background .6s ease, box-shadow .6s ease !important; }
+.primary:hover, .setup .choice.next:hover, #end-session:hover, #end-break:hover, #game-end:hover, #breath-end:hover, .icon-btn.glass.on:hover {
+  background: rgba(30, 31, 28, .72) !important; opacity: 1; }
+.setup .choice.next::after, #end-session::after, #end-break::after, #game-end::after, #breath-end::after { display: none; }

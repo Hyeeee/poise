@@ -170,7 +170,7 @@ function smoothPose(raw, now) {
       const k = Math.min(.85, .25 + move * 10);
       s0.x += (r.x - s0.x) * k; s0.y += (r.y - s0.y) * k; s0.z += ((r.z ?? 0) - (s0.z ?? 0)) * k;
       s0.visibility = r.visibility; smoothAt[i] = now;
-    } else if (now - smoothAt[i] > 500) {
+    } else if (now - smoothAt[i] > 1000) {
       s0.visibility = r.visibility;                 // gone too long: let it drop out
     }
   }
@@ -402,12 +402,14 @@ function calibrate() {
 // ---------- Break: stretch game ----------
 // Each target matches the visible direction and movement in its video segment.
 const poses = [
-  { name: 'Shoulder release, left', tip: 'Bring the arm on the left of your mirror across your chest. Support it with your other hand.', type: 'cross', side: 'left', video: 'GcPujVayIbI', start: 8, end: 21 },
-  { name: 'Shoulder release, right', tip: 'Switch sides. Bring the arm on the right of your mirror across your chest.', type: 'cross', side: 'right', video: 'GcPujVayIbI', start: 23, end: 36 },
-  { name: 'Neck release, right', tip: 'Soften your shoulders. Tip your head right and slightly forward.', type: 'neck', target: 18, video: 'Q14tE13GNrs', start: 65, end: 79 },
-  { name: 'Neck release, left', tip: 'Now to the left. Stay within a comfortable range.', type: 'neck', target: -18, video: 'Q14tE13GNrs', start: 81, end: 90 },
-  { name: 'Upper-back release', tip: 'Wrap your arms around an imaginary cushion and let your shoulders round forward.', type: 'hug', video: 'GcPujVayIbI', start: 38, end: 56 },
+  // Standing stretches, chosen so the arms never cover each other: the camera sees every joint.
+  { name: 'Side reach, left', tip: 'Stand tall. Raise both arms overhead and lean gently to the left of your mirror.', type: 'side', side: 'left' },
+  { name: 'Side reach, right', tip: 'Now the other way. Arms overhead, lean to the right of your mirror.', type: 'side', side: 'right' },
+  { name: 'Neck release, right', tip: 'Soften your shoulders. Tip your head right and slightly forward.', type: 'neck', target: 18 },
+  { name: 'Neck release, left', tip: 'Now to the left. Stay within a comfortable range.', type: 'neck', target: -18 },
+  { name: 'Chest opener', tip: 'Elbows out at shoulder height, hands up like a goalpost. Squeeze your shoulder blades together.', type: 'wings' },
 ];
+let holdAcc = 0, holdLast = 0;
 let queue = [], round = 0, points = 0, perfect = 0, holdStart = 0, missingSince = 0, betweenUntil = 0, gameDone = false, guidePlaying = false, poseStarted = 0;
 const reel = new GuidePlayer({ onPlaying(playing) { guidePlaying = playing; if (!playing) holdStart = 0; } });
 const angle = (a, b, c) => { const u = [a.x - b.x, a.y - b.y], v = [c.x - b.x, c.y - b.y]; return Math.acos(Math.max(-1, Math.min(1, (u[0] * v[0] + u[1] * v[1]) / (Math.hypot(...u) * Math.hypot(...v) || 1)))) * 180 / Math.PI; };
@@ -422,7 +424,7 @@ function newGame() {
   showPose();
 }
 function showPose() {
-  holdStart = 0; missingSince = 0; poseStarted = performance.now(); guidePlaying = false;
+  holdStart = 0; holdAcc = 0; holdLast = 0; missingSince = 0; poseStarted = performance.now(); guidePlaying = false;
   const p = queue[round];
   $('reel-progress').innerHTML = queue.map((_, i) => `<span class="${i < round ? 'done' : i === round ? 'current' : ''}"></span>`).join('');
   $('reel-complete').hidden = !!p; $('pose-actions').hidden = !p;
@@ -449,28 +451,30 @@ function advance(passed = false) {
   round++; betweenUntil = performance.now() + 1500; showPose(); text('points', `${points} points`);
 }
 // Position-based estimates, normalized by shoulder width. No video is uploaded.
+// Scores use points the camera can always see in these poses: shoulders, elbows, wrists, nose, ears.
+// Everything is measured in shoulder-widths, so it works at any distance.
 function poseScore(p, target) {
-  const required = target.type === 'neck' ? [7, 8, 11, 12] : [11, 12, 13, 14, 15, 16];
-  if (!p || !required.every(i => p[i] && (p[i].visibility ?? 1) > .3)) return null;
+  const vis = i => p && p[i] && (p[i].visibility ?? 1) > .3;
+  const need = target.type === 'neck' ? [7, 8, 11, 12] : [11, 12, 15, 16];
+  if (!need.every(vis)) return null;
   if (target.type === 'neck') { const tilt = Math.atan2(p[8].y - p[7].y, Math.abs(p[7].x - p[8].x)) * 180 / Math.PI; return Math.max(0, 100 - Math.abs(tilt - target.target) * 4); }
   const w = Math.hypot(p[11].x - p[12].x, p[11].y - p[12].y); if (w < .04) return null;
   const mid = { x: (p[11].x + p[12].x) / 2, y: (p[11].y + p[12].y) / 2 };
-  if (target.type === 'cross') {
-    const left = target.side === 'left', shoulder = p[left ? 11 : 12], elbow = p[left ? 13 : 14], wrist = p[left ? 15 : 16], support = p[left ? 16 : 15];
-    // Anatomical left is screen-left after the camera mirror transform.
-    const across = (left ? mid.x - wrist.x : wrist.x - mid.x) / w;
-    if (across < .08) return 0;
-    const heightError = Math.abs((wrist.y - mid.y) / w - .12);
-    const supportGap = Math.hypot(support.x - elbow.x, support.y - elbow.y) / w;
-    const elbowAngle = angle(shoulder, elbow, wrist);
-    return Math.max(0, 100 - heightError * 65 - Math.max(0, supportGap - .45) * 50 - Math.max(0, 120 - elbowAngle) * .35);
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  if (target.type === 'side') {
+    // Both hands overhead (half the score) + hands shifted toward the chosen side (the other half).
+    const handsY = (p[15].y + p[16].y) / 2, handsX = (p[15].x + p[16].x) / 2;
+    const up = clamp01((mid.y - handsY) / w / 1.1);                   // ~1.1 shoulder-widths above the shoulders = full
+    // The view is mirrored: a larger raw x shows on the screen's left.
+    const shift = (target.side === 'left' ? handsX - mid.x : mid.x - handsX) / w;
+    return Math.round(up * 50 + clamp01(shift / .45) * 50);
   }
-  // Upper-back hug: both elbows bent and hands together in front of the torso.
-  const handGap = Math.hypot(p[15].x - p[16].x, p[15].y - p[16].y) / w;
-  const handsY = ((p[15].y + p[16].y) / 2 - mid.y) / w;
-  const elbowL = angle(p[11], p[13], p[15]), elbowR = angle(p[12], p[14], p[16]);
-  if (handsY > 1.05 || handsY < .12 || elbowL > 145 || elbowR > 145) return 0;
-  return Math.max(0, 100 - Math.max(0, handGap - .4) * 50 - Math.abs(handsY - .55) * 45 - Math.abs(elbowL - elbowR) * .3);
+  // Chest opener: wrists above the shoulders, elbows near shoulder height and spread wide.
+  const wristsUp = clamp01(((mid.y - p[15].y) + (mid.y - p[16].y)) / 2 / w / .5);
+  const elbows = vis(13) && vis(14);
+  const level = elbows ? clamp01(1 - (Math.abs(p[13].y - p[11].y) + Math.abs(p[14].y - p[12].y)) / 2 / w / .6) : .6;
+  const spread = clamp01((Math.abs(p[15].x - p[16].x) / w - .9) / .7);
+  return Math.round(wristsUp * 40 + level * 30 + spread * 30);
 }
 // Lenient on purpose: get close for half a second and move on.
 const PASS = 40, PASS_MS = 1000;
@@ -482,21 +486,20 @@ function updateGame(p, now) {
   if (value === null) {
     holdStart = 0; $('hold-bar').style.width = '0'; text('match-score', '—'); light('idle');
     if (!missingSince) missingSince = now;
-    text('hold-label', target.type === 'neck' ? 'Keep your face and shoulders in view.' : 'Keep both arms in view. Skipping in a few seconds.');
-    if (target.type !== 'neck' && now - missingSince > 4000) { toast('Arms out of view. Skipped.'); advance(); }
+    text('hold-label', target.type === 'neck' ? 'Keep your face and shoulders in view.' : 'Step back so your arms fit in the frame.');
+    if (target.type !== 'neck' && now - missingSince > 6000) { toast('Arms out of view. Skipped.'); advance(); }
     return;
   }
   missingSince = 0;
   const score = Math.round(value);
   breakLog.score(score);
   text('match-score', score); light(score >= PASS ? 'green' : score >= PASS - 15 ? 'amber' : 'red');
-  if (score >= PASS) {
-    if (!holdStart) holdStart = now;
-    const elapsed = now - holdStart;
-    $('hold-bar').style.width = Math.min(100, elapsed / PASS_MS * 100) + '%';
-    text('hold-label', 'Nice, that\'s it.');
-    if (elapsed >= PASS_MS) advance(true);
-  } else if (score < PASS - 10) { holdStart = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Mirror the figure as closely as you can.'); }
+  // Forgiving hold: time near the pose adds up; brief slips only drain it slowly.
+  const dt = holdLast ? Math.min(200, now - holdLast) : 0; holdLast = now;
+  holdAcc = score >= PASS ? holdAcc + dt : Math.max(0, holdAcc - dt * .5);
+  $('hold-bar').style.width = Math.min(100, holdAcc / PASS_MS * 100) + '%';
+  text('hold-label', score >= PASS ? 'Nice, hold it.' : holdAcc > 0 ? 'Almost — stay with it.' : 'Mirror the figure as closely as you can.');
+  if (holdAcc >= PASS_MS) { holdAcc = 0; advance(true); }
 }
 
 // ---------- Break: Reset (shoulder-drop breathing, then eye rest) ----------
@@ -934,9 +937,16 @@ $('break-switch').addEventListener('click', e => {
   const b = e.target.closest('button[data-style]'); if (!b) return;
   const style = b.dataset.style;
   const pick = store.state.breaks.find(m => m.style === style && !m.preset) || store.state.breaks.find(m => m.style === style);
-  if (!pick) { toast('That break type isn’t available'); return; }
   if (moveGame.running) moveGame.stop();
-  store.update(s => { s.breakId = pick.id; });
+  store.update(s => {
+    let m = pick;
+    if (!m) {   // older saved settings may be missing this type: add it
+      const defs = { stretch: { name: 'Stretch along', count: 5, minutes: 3 }, breathe: { name: 'Reset', count: 3, minutes: 2 }, game: { name: 'Reach & pop', count: 5, minutes: 1 } };
+      m = { id: style === 'breathe' ? 'breathe' : style, style, auto: true, preset: true, ...defs[style] };
+      s.breaks = s.breaks.filter(x => x.id !== m.id); s.breaks.push(m);
+    }
+    s.breakId = m.id;
+  });
   setScreen('break');
 });
 let endingBreak = false;
