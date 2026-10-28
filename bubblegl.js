@@ -74,7 +74,7 @@ void main() {
     col += (film(th) - .5) * pow(d, 10.) * .35 * (.4 + .6 * pow(.5 + .5 * cos(ang - 1.6), 2.));
 
     // Soft edge (no hard rim line): fade out over the last 4% of the radius.
-    float alpha = a * smoothstep(1., .96, d);
+    float alpha = a * smoothstep(1., .993, d);   // crisp edge, ~1px anti-alias
     if (alpha > outc.a) outc = vec4(col, alpha);       // straight colour; premultiplied once at the end
   }
   gl_FragColor = vec4(outc.rgb * outc.a, outc.a);   // premultiplied: no dark fringes
