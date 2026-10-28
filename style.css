@@ -680,3 +680,8 @@ input[type=range].min-range::-moz-range-thumb { width: 22px; height: 22px; backg
 .min-picker .min-field { gap: 6px !important; }
 .roll-col { flex: none; height: 10em; align-self: flex-start; } .roll-col span { flex: none; display: block; }
 .text-btn, .text-btn:hover, .danger, .danger:hover { text-decoration: none !important; }
+/* Reports: headline stays serif; numbers, labels and rows use the UI sans. No tip box. */
+.report-card .report-say { font-family: var(--serif); }
+.report-card #report-len, .report-card .report-stats, .report-card .report-stats *, .report-card .report-h, .report-card .causes, .report-card .causes *, .report-card .report-legend, .report-card .report-legend * { font-family: var(--ui) !important; }
+.report-card .report-stats b { font-weight: 300; letter-spacing: -.03em; }
+.report-card #rep-tip { display: none !important; }
