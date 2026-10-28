@@ -712,3 +712,8 @@ input[type=range].min-range::-moz-range-thumb { width: 22px; height: 22px; backg
 .tour-actions { margin-top: 20px; }
 body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%) fixed; }
 #breathe-panel .breath-stage { height: auto !important; aspect-ratio: 1 / 1 !important; min-height: 0 !important; padding: 0 !important; }
+
+.game-chips { display: flex; gap: 6px; justify-content: center; margin: -6px 0 16px; }
+.game-chips button { min-height: var(--btn-s); padding: 0 12px; border-radius: var(--r-sm) !important; font-size: var(--t-s); color: var(--ink-2); background: transparent; transition: background .5s ease, color .5s ease; }
+.game-chips button:hover { background: rgba(30,31,28,.07); color: var(--ink); }
+.game-chips button.on { background: var(--ink) !important; color: var(--paper); }

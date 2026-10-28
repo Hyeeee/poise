@@ -6,6 +6,7 @@ import { mountAgents } from './agent.js';
 import { ambient } from './ambient.js';
 import { mountPainting } from './painting.js';
 import { MoveGame } from './game.js';
+import { MiniGame, GAMES } from './minigames.js';
 import './seg.js';
 import { sensor, readSensor, stopSensor } from './sensor.js';
 mountPainting();
@@ -361,7 +362,7 @@ function loop(now) {
         if (camAway) { camAway = false; if (camPaused) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back'); } camPaused = false; }
         if (screen === 'work') updateWork(landmarks, now);
         else if (store.brk().style === 'stretch') updateGame(landmarks, now);
-        else if (store.brk().style === 'game') moveGame.update(landmarks);
+        else if (store.brk().style === 'game') { moveGame.update(landmarks); mini.update(landmarks); }
         else if (store.brk().style === 'breathe') updateReset(landmarks);
       } else {
         landmarks = null; ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -633,7 +634,7 @@ function setScreen(next) {
   document.querySelectorAll('#break-switch button').forEach(b => b.classList.toggle('active', b.dataset.style === brk.style));
   $('work').classList.toggle('active', next === 'work'); $('break').classList.toggle('active', next === 'break');
   holdStart = 0; driftSince = 0; light('idle');
-  reel.stop(); stopBreathe(); moveGame.stop();
+  reel.stop(); stopBreathe(); stopGames();
   if (next === 'break') {
     timerRunning = false; renderPause();
     if (breakToured === null) breakToured = !ALWAYS_ONBOARD && !!store.state.breakToured;
@@ -988,19 +989,46 @@ const moveGame = new MoveGame($('game-canvas'), camera, {
   onFrame(g) { drawGameMap(g); },
   onEnd(r) { breakLog.game(r); endBreak(); },
 });
+// Which game: Bubbles (camera overlay) or one of the seated games drawn in the stage box.
+const gameKind = () => GAMES[store.state.gameKind] ? store.state.gameKind : 'bubbles';
+const mini = new MiniGame($('game-map'), {
+  onTick({ score, left, label }) {
+    gameRgb ? light('idle', gameRgb, 20) : light('idle');
+    text('game-score', score); text('game-left', fmtClock(left));
+    $('game-bar').style.width = (100 - left / (store.brk().minutes * 60000) * 100) + '%';
+    text('game-label', label);
+  },
+  onColor(rgb) { gameRgb = rgb; },
+  onEnd(r) { breakLog.game(r); endBreak(); },
+});
+const gameRunning = () => moveGame.running || mini.running;
+function stopGames() { moveGame.stop(); mini.stop(); gameRgb = null; }
+function renderGameChips() {
+  const k = gameKind();
+  document.querySelectorAll('#game-chips button').forEach(b => b.classList.toggle('on', b.dataset.g === k));
+  text('game-title', GAMES[k].title); text('game-tip', GAMES[k].tip);
+  text('game-unit', k === 'stones' ? 'stones' : k === 'boat' ? 'drops' : k === 'seeds' ? 'seeds' : 'points');
+}
+$('game-chips').addEventListener('click', e => {
+  const b = e.target.closest('button[data-g]'); if (!b) return;
+  store.update(s => { s.gameKind = b.dataset.g; });
+  stopGames(); breakLog.start('game'); resetGamePanel();
+});
 function resetGamePanel() {
-  moveGame.stop();
+  stopGames(); renderGameChips();
+  const c = $('game-map'); c.getContext('2d').clearRect(0, 0, c.width, c.height);
   text('game-score', 0); text('game-left', fmtClock(store.brk().minutes * 60000)); $('game-bar').style.width = '0';
   text('game-label', active ? 'Step back so your arms fit in the frame.' : 'Turn on your camera to play.');
-  requestAnimationFrame(() => drawGameMap({ body: null, bubbles: [], pops: [] }));
+  if (gameKind() === 'bubbles') requestAnimationFrame(() => drawGameMap({ body: null, bubbles: [], pops: [] }));
   maybeStartGame();
 }
 // The game starts on its own as soon as you're in Game mode with the camera on.
 function maybeStartGame() {
-  if (screen !== 'break' || store.brk().style !== 'game' || moveGame.running || endingBreak || !active) return;
-  moveGame.start(store.brk().minutes * 60);
+  if (screen !== 'break' || store.brk().style !== 'game' || gameRunning() || endingBreak || !active) return;
+  const k = gameKind();
+  if (k === 'bubbles') moveGame.start(store.brk().minutes * 60); else mini.start(k, store.brk().minutes * 60);
 }
-$('game-end').onclick = () => { if (moveGame.running) breakLog.game(moveGame.result()); endBreak(); };
+$('game-end').onclick = () => { if (moveGame.running) breakLog.game(moveGame.result()); else if (mini.running) breakLog.game(mini.result()); endBreak(); };
 function startBreakStyle(brk) {
   if (brk.style === 'stretch') newGame();
   else if (brk.style === 'breathe') startBreathe();
@@ -1012,7 +1040,7 @@ $('break-switch').addEventListener('click', e => {
   const b = e.target.closest('button[data-style]'); if (!b) return;
   const style = b.dataset.style;
   const pick = store.state.breaks.find(m => m.style === style && !m.preset) || store.state.breaks.find(m => m.style === style);
-  if (moveGame.running) moveGame.stop();
+  stopGames();
   store.update(s => {
     let m = pick;
     if (!m) {   // older saved settings may be missing this type: add it
@@ -1028,7 +1056,7 @@ let endingBreak = false;
 async function endBreak() {
   if (endingBreak || screen !== 'break') return;
   endingBreak = true;
-  reel.stop(); stopBreathe(); moveGame.stop(); light('idle');
+  reel.stop(); stopBreathe(); stopGames(); light('idle');
   breakLog.away(breakAwayMs); breakAwayMs = 0;
   const r = breakLog.summary();
   const choice = r ? await showBreakReport(r, line => speak(line, $('ask-orb'))) : 'focus';
@@ -1111,7 +1139,7 @@ function sensorTap(now) {
 function onSensorTap() {
   if (screen === 'break') {
     const style = store.brk().style;
-    if (style === 'game' && !moveGame.running) maybeStartGame();
+    if (style === 'game' && !gameRunning()) maybeStartGame();
     else if (style === 'stretch') advance();
     else toast('Wave noticed');
   } else if (hasRef()) {

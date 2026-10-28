@@ -164,7 +164,16 @@ export function showBreakReport(r, speak) {
     for (const k in labels) labels[k] = $(k).textContent;
     const legend = $('report-legend'); const legendWas = legend.hidden;
     let title, line;
-    if (r.kind === 'game') {
+    if (r.kind === 'game' && r.game && r.game.kind && r.game.kind !== 'bubbles') {
+      const g = r.game, names = { boat: 'Sail the stream', stones: 'Balance the stones', seeds: 'Follow the seeds' };
+      title = g.score >= 8 ? 'Great moves.' : g.score >= 3 ? 'Nice moves.' : 'A quick move.';
+      line = `${names[g.kind]}: ${g.stats.map(([v, l]) => `${v} ${l}`).join(', ')}.`;
+      $('report-chart').hidden = true; legend.hidden = true;
+      set('rep-aligned', g.stats[0][0]); set('rep-aligned-l', g.stats[0][1]);
+      set('rep-recover', g.stats[1][0]); set('rep-recover-l', g.stats[1][1]);
+      set('rep-drifts', g.stats[2][0]); set('rep-drift-note', g.stats[2][1]);
+      $('rep-causes-h').hidden = true; $('rep-causes').innerHTML = '';
+    } else if (r.kind === 'game') {
       const g = r.game || { score: 0, popped: 0, missed: 0, best: 0, zones: { high: 0, side: 0, low: 0, head: 0 } };
       const tries = g.popped + g.missed, rate = tries ? Math.round(g.popped / tries * 100) : 0;
       title = g.popped >= 20 ? 'Great moves.' : g.popped >= 8 ? 'Nice moves.' : 'A quick move.';

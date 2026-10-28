@@ -124,11 +124,11 @@
 
     <!-- Break: movement game -->
     <div id="game-panel" class="card" hidden>
-      <p class="tiny">Reach &amp; Pop</p>
       <div class="stage-box"><canvas id="game-map"></canvas></div>
+      <div class="game-chips" id="game-chips"><button data-g="bubbles">Bubbles</button><button data-g="boat">Boat</button><button data-g="stones">Stones</button><button data-g="seeds">Seeds</button></div>
       <h2 id="game-title">Pop the bubbles</h2>
       <p class="sub" id="game-tip">Reach up, out and down to pop them with your hands. Gold ones are for your head — lean to touch them.</p>
-      <div class="match"><span><b id="game-score">0</b> points</span><span id="game-left" class="sub">1:00</span></div>
+      <div class="match"><span><b id="game-score">0</b> <span id="game-unit">points</span></span><span id="game-left" class="sub">1:00</span></div>
       <div class="meter"><div id="game-bar"></div></div>
       <p id="game-label" class="sub">Step back so your arms fit in the frame.</p>
       <button id="game-end" class="ghost end-wide">End break</button>
