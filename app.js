@@ -209,7 +209,7 @@ function cue(p) {
   const ears = visible(p, [7, 8]);
   const hx = ears ? (p[7].x + p[8].x) / 2 : p[0].x, hy = ears ? (p[7].y + p[8].y) / 2 : p[0].y;
   const roll = visible(p, [2, 5]) ? (p[2].y - p[5].y) / w : 0;
-  return { x: (hx - mx) / w, y: (hy - my) / w, tilt: (a.y - b.y) / w, roll, width: w, ears };
+  return { x: (hx - mx) / w, y: (hy - my) / w, tilt: (a.y - b.y) / w, roll, width: w, ears, sy: my };
 }
 
 function draw(p) {
@@ -235,6 +235,7 @@ function shiftCause(delta, widthRatio = 1) {
     forward: Math.max(0, delta?.y || 0),
     side: Math.abs(delta?.x || 0) + Math.abs(delta?.roll || 0) * .6,
     shoulders: Math.abs(delta?.tilt || 0),
+    slouch: (delta?.sink || 0) * 1.2,
   };
   const [key, size] = Object.entries(parts).sort((a, b) => b[1] - a[1])[0];
   if (size < .05) return null;
@@ -244,6 +245,7 @@ function shiftCause(delta, widthRatio = 1) {
     forward: ['Leaning forward', 'Bring your head back over your shoulders.'],
     side: ['Tilting to one side', 'Center your head between your shoulders.'],
     shoulders: ['Uneven shoulders', 'Let both shoulders drop evenly.'],
+    slouch: ['Slouching back', 'Sit up — bring your shoulders back up to where they were.'],
   }[key];
 }
 
@@ -263,8 +265,11 @@ function updateWork(p, now) {
   let d = Math.min(100, Math.round((Math.abs(c.x - reference.x) + Math.abs(c.y - reference.y) + Math.abs(c.tilt - reference.tilt) + Math.abs(c.roll - (reference.roll || 0)) * .6) * 100));
   // The distance sensor is more exact about leaning toward the screen than the camera.
   let widthRatio = c.width / reference.width;
+  // Shoulders sinking in the frame = sliding down / leaning back in the chair.
+  const sink = reference.sy != null ? Math.max(0, (c.sy - reference.sy) / reference.width) : 0;
+  d = Math.min(100, d + Math.round(sink * 120));
   if (sensor.live && sensor.base) { widthRatio = Math.max(widthRatio, sensor.closeness); d = Math.max(d, sensorShift()); }
-  applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt, roll: c.roll - (reference.roll || 0) }, widthRatio);
+  applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt, roll: c.roll - (reference.roll || 0), sink }, widthRatio);
 }
 // How far you've leaned toward the screen, 0–100, from the sensor alone.
 function sensorShift() {
