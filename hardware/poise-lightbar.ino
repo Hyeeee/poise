@@ -1,5 +1,5 @@
 // Poise light bar — Arduino UNO (or Nano Every) + NeoPixel strip + HC-SR04
-// Wiring: D6 -> 330Ω -> strip DIN, D7 -> HC-SR04 Trig, D8 -> HC-SR04 Echo.
+// Wiring: D6 -> 330Ω -> strip DIN. Left sensor: D7 Trig, D8 Echo. Right sensor: D9 Trig, D10 Echo.
 // Prototype: strip and sensor powered from the board 5V pin over USB, all GNDs joined.
 //
 // What it does
@@ -21,8 +21,8 @@
 
 constexpr uint8_t LED_PIN   = 6;
 constexpr uint16_t LED_COUNT = 30;   // <- change to your strip's LED count
-constexpr uint8_t TRIG_PIN  = 7;
-constexpr uint8_t ECHO_PIN  = 8;
+constexpr uint8_t TRIG_L = 7, ECHO_L = 8;    // sensor on the screen's left
+constexpr uint8_t TRIG_R = 9, ECHO_R = 10;   // sensor on the screen's right
 constexpr bool    USE_SENSOR = true;  // <- false if the HC-SR04 isn't wired
 constexpr uint8_t BRIGHTNESS = 90;   // brighter, saturated colors; white is kept dim to stay within USB power
 
@@ -42,7 +42,8 @@ float r = 0, g = 0, b = 0;            // current color (faded)
 uint8_t tr = 40, tg = 45, tb = 50;    // target color
 unsigned long lastMessage = 0, lastFrame = 0, lastPing = 0;
 bool appConnected = false;
-int distanceCm = -1;
+int distanceCm = -1;                 // average of both sensors (front/back)
+int leftCm = -1, rightCm = -1;       // each sensor on its own (left/right tilt)
 
 void setTarget(uint8_t R, uint8_t G, uint8_t B) { tr = R; tg = G; tb = B; }
 
@@ -51,20 +52,21 @@ void showAll(uint8_t R, uint8_t G, uint8_t B) {
   strip.show();
 }
 
-int readDistanceCm() {
-  digitalWrite(TRIG_PIN, LOW);  delayMicroseconds(2);
-  digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
-  digitalWrite(TRIG_PIN, LOW);
-  unsigned long us = pulseIn(ECHO_PIN, HIGH, 25000UL);  // ~4 m max, then give up
+int readDistanceCm(uint8_t trig, uint8_t echo) {
+  digitalWrite(trig, LOW);  delayMicroseconds(2);
+  digitalWrite(trig, HIGH); delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+  unsigned long us = pulseIn(echo, HIGH, 25000UL);  // ~4 m max, then give up
   if (us == 0) return -1;                                // nothing in range
   return us / 58;                                        // µs -> cm
 }
 
 // Median of 3 readings removes most of the HC-SR04's random spikes.
-int readDistanceSmooth() {
-  int a = readDistanceCm(); delay(8);
-  int c = readDistanceCm(); delay(8);
-  int d = readDistanceCm();
+// The two sensors take turns (never at the same moment) so one doesn't hear the other's echo.
+int readDistanceSmooth(uint8_t trig, uint8_t echo) {
+  int a = readDistanceCm(trig, echo); delay(8);
+  int c = readDistanceCm(trig, echo); delay(8);
+  int d = readDistanceCm(trig, echo);
   if (a > c) { int t = a; a = c; c = t; }
   if (c > d) { int t = c; c = d; d = t; }
   if (a > c) { int t = a; a = c; c = t; }
@@ -100,11 +102,13 @@ void handleMessage(String msg) {
 //  Outside the good range: the light warms right away (the farther out, the warmer),
 //  turns yellow after 5 s and red after 10 s. Back in range -> green for a moment, then white.
 //  Nothing in front for 3 s -> away: the strip dims. Sitting down again flashes green once.
-// It can't tell left/right tilt: one sensor only measures straight ahead.
+//  Two sensors (left + right): if one side gets more than TILT_CM closer than the other,
+//  you're tilting to that side - same yellow/red rule.
 constexpr int GOOD_MIN = 60;         // <- tune to your desk
 constexpr int GOOD_MAX = 70;
-constexpr int AWAY_CM  = 150;        // farther than this (or no echo) counts as nobody there
-float smoothCm = -1;                 // distance with jitter smoothed out
+constexpr int AWAY_CM  = 150;
+constexpr int TILT_CM  = 8;          // left/right difference above this = tilting to one side        // farther than this (or no echo) counts as nobody there
+float smoothCm = -1, smoothTilt = 0;  // tilt = left minus right (cm)                 // distance with jitter smoothed out
 unsigned long goneSince = 0, outSince = 0, okUntil = 0;
 bool away = true;
 
@@ -118,7 +122,7 @@ void sensorDemo() {
   bool here = distanceCm > 0 && distanceCm < AWAY_CM;
   if (!here) {
     if (!goneSince) goneSince = now;
-    if (now - goneSince > 3000) { away = true; outSince = 0; smoothCm = -1; fade = 0.03; setTarget(6, 8, 10); }
+    if (now - goneSince > 3000) { away = true; outSince = 0; smoothCm = -1; smoothTilt = 0; fade = 0.03; setTarget(6, 8, 10); }
     return;
   }
   goneSince = 0;
@@ -126,8 +130,12 @@ void sensorDemo() {
   smoothCm = smoothCm < 0 ? distanceCm : smoothCm + (distanceCm - smoothCm) * 0.35;
   if (now < okUntil) { fade = 0.25; setTarget(0, 255, 30); return; }
 
-  // How far outside the good range, in cm (0 = inside).
-  float off = smoothCm < GOOD_MIN ? GOOD_MIN - smoothCm : smoothCm > GOOD_MAX ? smoothCm - GOOD_MAX : 0;
+  // Tilt: leaning toward one side brings that side's sensor closer.
+  if (leftCm > 0 && rightCm > 0) smoothTilt += ((leftCm - rightCm) - smoothTilt) * 0.35;
+  // How far off, in cm (0 = good): outside the front/back range, or tilted more than TILT_CM.
+  float offFB = smoothCm < GOOD_MIN ? GOOD_MIN - smoothCm : smoothCm > GOOD_MAX ? smoothCm - GOOD_MAX : 0;
+  float offTilt = max(0.0f, abs(smoothTilt) - TILT_CM);
+  float off = max(offFB, offTilt);
   if (off > 0) {
     if (!outSince) outSince = now;
     unsigned long held = now - outSince;
@@ -146,8 +154,8 @@ void sensorDemo() {
 void setup() {
   Serial.begin(115200);
   if (USE_SENSOR) {
-    pinMode(TRIG_PIN, OUTPUT);
-    pinMode(ECHO_PIN, INPUT);
+    pinMode(TRIG_L, OUTPUT); pinMode(ECHO_L, INPUT);
+    pinMode(TRIG_R, OUTPUT); pinMode(ECHO_R, INPUT);
   }
   strip.begin();
   strip.setBrightness(BRIGHTNESS);
@@ -173,9 +181,14 @@ void loop() {
   // 2. Distance (optional), ~6 times a second.
   if (USE_SENSOR && millis() - lastPing > 150) {
     lastPing = millis();
-    distanceCm = readDistanceSmooth();
-    Serial.print("DIST ");
-    Serial.println(distanceCm);
+    leftCm = readDistanceSmooth(TRIG_L, ECHO_L);
+    delay(10);                                      // let the first echo die out
+    rightCm = readDistanceSmooth(TRIG_R, ECHO_R);
+    // Average for front/back; if one sensor misses, use the other.
+    if (leftCm > 0 && rightCm > 0) distanceCm = (leftCm + rightCm) / 2;
+    else distanceCm = leftCm > 0 ? leftCm : rightCm;
+    Serial.print("DIST "); Serial.println(distanceCm);              // the web app reads this line
+    Serial.print("LR "); Serial.print(leftCm); Serial.print(' '); Serial.println(rightCm);
     if (!appConnected) sensorDemo();
   }
 
