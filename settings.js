@@ -14,7 +14,7 @@ const DEFAULT_WORK = [
   { id: 'sprint', name: 'Quick sprint', focus: 15, sensitivity: 'firm',     delay: 3,  eyes: false, chime: true,  preset: true },
 ];
 const DEFAULT_BREAK = [
-  { id: 'stretch', name: 'Stretch along', style: 'stretch', count: 5, minutes: 3, auto: true, preset: true },
+  { id: 'stretch', name: 'Stretch along', style: 'stretch', count: 10, minutes: 4, auto: true, preset: true },
   { id: 'breathe', name: 'Reset',         style: 'breathe', count: 3, minutes: 2, auto: true, preset: true },
   { id: 'game',    name: 'Reach & pop',   style: 'game',    count: 5, minutes: 1, auto: true, preset: true },
 ];
@@ -43,6 +43,7 @@ function load() {
     if (!Array.isArray(state.breaks) || !state.breaks.length) state.breaks = base.breaks;
     // One stretch mode now (Light move merged in), plus the movement game.
     state.breaks = state.breaks.filter(m => m.id !== 'move');
+    state.breaks.forEach(m => { if (m.style === 'stretch' && m.count === 5) m.count = 10; });
     const rb = state.breaks.find(m => m.id === 'breathe' && m.preset); if (rb && rb.name === 'Breathe') { rb.name = 'Reset'; rb.minutes = 2; }
     for (const m of base.breaks) if (!state.breaks.some(b => b.id === m.id)) state.breaks.push(m);
     if (!state.breaks.some(b => b.id === state.breakId)) state.breakId = state.breaks[0].id;

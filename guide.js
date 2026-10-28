@@ -10,7 +10,7 @@ const ICON = {
 
 // Figure space: pelvis at (0,0), up is negative y. Units ≈ px at scale 1.
 const REST = {
-  lean: 0, bend: 0, head: 0, drop: 0, shrug: 0,
+  lean: 0, bend: 0, look: 0, head: 0, drop: 0, shrug: 0,
   eL: [-60, -66], wL: [-46, -8],   // screen-left arm (user's left in the mirror)
   eR: [60, -66], wR: [46, -8],
 };
@@ -25,6 +25,10 @@ const MOVES = {
     const s = Math.sign(target); // + tilts toward screen-right
     return { head: .42 * s, drop: 4, shrug: -4, ...(s > 0 ? { eL: [-58, -62], wL: [-44, -4] } : { eR: [58, -62], wR: [44, -4] }) };
   },
+  reach: () => ({ head: -.04, shrug: 3, eL: [-34, -196], wL: [-22, -266], eR: [34, -196], wR: [22, -266] }),
+  tee: () => ({ eL: [-100, -118], wL: [-164, -120], eR: [100, -118], wR: [164, -120] }),
+  shrug: () => ({ shrug: 16, head: 0 }),
+  turn: side => ({ look: side === 'left' ? -1 : 1 }),
   // Goalpost arms: elbows out at shoulder height, hands up, chest open.
   wings: () => ({ head: -.04, shrug: 2, eL: [-96, -112], wL: [-100, -176], eR: [96, -112], wR: [100, -176] }),
 };
@@ -70,7 +74,7 @@ export class GuidePlayer {
   status(s) { $('reel-status').textContent = s; }
   load(clip) {
     this.clip = clip;
-    this.target = clip.type === 'side' ? MOVES.side(clip.side) : clip.type === 'neck' ? MOVES.neck(clip.target) : MOVES.wings();
+    this.target = clip.type === 'side' ? MOVES.side(clip.side) : clip.type === 'neck' ? MOVES.neck(clip.target) : clip.type === 'turn' ? MOVES.turn(clip.side) : MOVES[clip.type] ? MOVES[clip.type]() : MOVES.wings();
     this.t = 0; this.userPaused = false;
     this.play();
   }
@@ -146,7 +150,7 @@ export class GuidePlayer {
     this.poly([[SL[0] + 2, SL[1] + 2], [NECK[0] - 10, NECK[1] + 8], [NECK[0] + 10, NECK[1] + 8], [SR[0] - 2, SR[1] + 2], [36 + lx * .3, top - 2], [33 + lx * .3, top + 6], [-33 + lx * .3, top + 6], [-36 + lx * .3, top - 2]], jp);
 
     // Head on the neck, tilted.
-    const tilt = P.head, hx = NECK[0] + Math.sin(tilt) * 38, hy = NECK[1] - Math.cos(tilt) * 38;
+    const tilt = P.head, hx = NECK[0] + Math.sin(tilt) * 38 + P.look * 7, hy = NECK[1] - Math.cos(tilt) * 38;
     this.limb(NECK, [NECK[0] + Math.sin(tilt) * 16, NECK[1] - Math.cos(tilt) * 16], 13, INK, PAPER, jp);
     ctx.save();
     ctx.translate(hx, hy); ctx.rotate(tilt);
@@ -159,9 +163,10 @@ export class GuidePlayer {
     ctx.beginPath(); ctx.arc(this.j(n++, .4) - 2, -30, 9, 0, Math.PI * 2); ctx.fill();
     // Closed eyes and a small nose line.
     ctx.lineWidth = 1.8; ctx.beginPath();
-    ctx.moveTo(-11, 1); ctx.quadraticCurveTo(-7, 4, -3, 1);
-    ctx.moveTo(4, 1); ctx.quadraticCurveTo(8, 4, 12, 1);
-    ctx.moveTo(1, 5); ctx.lineTo(0, 10); ctx.stroke();
+    const lk = P.look * 7;
+    ctx.moveTo(-11 + lk, 1); ctx.quadraticCurveTo(-7 + lk, 4, -3 + lk, 1);
+    ctx.moveTo(4 + lk, 1); ctx.quadraticCurveTo(8 + lk, 4, 12 + lk, 1);
+    ctx.moveTo(1 + lk * 1.3, 5); ctx.lineTo(lk * 1.3, 10); ctx.stroke();
     ctx.restore();
 
     // Arms last so crossing arms sit in front of the body. Draw the arm that crosses on top.

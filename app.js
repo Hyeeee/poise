@@ -416,6 +416,11 @@ const poses = [
   { name: 'Side reach, right', tip: 'Now the other way. Arms overhead, lean to the right of your mirror.', type: 'side', side: 'right' },
   { name: 'Neck release, right', tip: 'Soften your shoulders. Tip your head right and slightly forward.', type: 'neck', target: 18 },
   { name: 'Neck release, left', tip: 'Now to the left. Stay within a comfortable range.', type: 'neck', target: -18 },
+  { name: 'Overhead reach', tip: 'Stand tall and reach both arms straight up. Grow taller through your fingertips.', type: 'reach' },
+  { name: 'T-arms', tip: 'Open both arms straight out to the sides at shoulder height. Keep your shoulders low.', type: 'tee' },
+  { name: 'Shoulder shrug', tip: 'Lift both shoulders up toward your ears, hold, then let them drop.', type: 'shrug' },
+  { name: 'Look left', tip: 'Keep your shoulders still and turn your head slowly to the left of your mirror.', type: 'turn', side: 'left' },
+  { name: 'Look right', tip: 'Now turn your head slowly to the right of your mirror.', type: 'turn', side: 'right' },
   { name: 'Chest opener', tip: 'Elbows out at shoulder height, hands up like a goalpost. Squeeze your shoulder blades together.', type: 'wings' },
 ];
 let holdAcc = 0, holdLast = 0;
@@ -424,7 +429,7 @@ const reel = new GuidePlayer({ onPlaying(playing) { guidePlaying = playing; if (
 const angle = (a, b, c) => { const u = [a.x - b.x, a.y - b.y], v = [c.x - b.x, c.y - b.y]; return Math.acos(Math.max(-1, Math.min(1, (u[0] * v[0] + u[1] * v[1]) / (Math.hypot(...u) * Math.hypot(...v) || 1)))) * 180 / Math.PI; };
 
 function newGame() {
-  const count = clamp(store.brk().count || 5, 1, poses.length);
+  const count = clamp(store.brk().count || 10, 1, poses.length);
   // Random subset, kept in the guide's original order so paired sides stay together.
   const picked = new Set([...poses.keys()].sort(() => Math.random() - .5).slice(0, count));
   queue = poses.filter((_, i) => picked.has(i));
@@ -464,9 +469,9 @@ function advance(passed = false) {
 // Everything is measured in shoulder-widths, so it works at any distance.
 function poseScore(p, target) {
   const vis = i => p && p[i] && (p[i].visibility ?? 1) > .3;
-  const need = target.type === 'neck' ? [7, 8, 11, 12] : [11, 12, 15, 16];
+  const need = ['neck', 'shrug', 'turn'].includes(target.type) ? [11, 12] : [11, 12, 15, 16];
   if (!need.every(vis)) return null;
-  if (target.type === 'neck') { const tilt = Math.atan2(p[8].y - p[7].y, Math.abs(p[7].x - p[8].x)) * 180 / Math.PI; return Math.max(0, 100 - Math.abs(tilt - target.target) * 4); }
+  if (target.type === 'neck') { if (!vis(7) || !vis(8)) return null; const tilt = Math.atan2(p[8].y - p[7].y, Math.abs(p[7].x - p[8].x)) * 180 / Math.PI; return Math.max(0, 100 - Math.abs(tilt - target.target) * 4); }
   const w = Math.hypot(p[11].x - p[12].x, p[11].y - p[12].y); if (w < .04) return null;
   const mid = { x: (p[11].x + p[12].x) / 2, y: (p[11].y + p[12].y) / 2 };
   const clamp01 = v => Math.max(0, Math.min(1, v));
@@ -477,6 +482,27 @@ function poseScore(p, target) {
     // The view is mirrored: a larger raw x shows on the screen's left.
     const shift = (target.side === 'left' ? handsX - mid.x : mid.x - handsX) / w;
     return Math.round(up * 50 + clamp01(shift / .45) * 50);
+  }
+  if (target.type === 'reach') {
+    const up = Math.min(mid.y - p[15].y, mid.y - p[16].y) / w;            // both hands well above the shoulders
+    const centred = 1 - clamp01(Math.max(Math.abs(p[15].x - mid.x), Math.abs(p[16].x - mid.x)) / w - .6);
+    return Math.round(clamp01(up / 1.3) * 75 + centred * 25);
+  }
+  if (target.type === 'tee') {
+    const level = clamp01(1 - (Math.abs(p[15].y - p[11].y) + Math.abs(p[16].y - p[12].y)) / 2 / w / .5);
+    const spread = clamp01((Math.abs(p[15].x - p[16].x) / w - 1.4) / 1.2);
+    return Math.round(level * 50 + spread * 50);
+  }
+  if (target.type === 'shrug') {
+    if (!vis(7) || !vis(8)) return null;
+    const gap = (mid.y - (p[7].y + p[8].y) / 2) / w;                      // ear-to-shoulder height, smaller when shrugging
+    return Math.round(clamp01((.62 - gap) / .22) * 100);
+  }
+  if (target.type === 'turn') {
+    if (!vis(0) || !vis(7) || !vis(8)) return null;
+    const ears = (p[7].x + p[8].x) / 2, span = Math.abs(p[7].x - p[8].x) || .01;
+    const off = (target.side === 'left' ? p[0].x - ears : ears - p[0].x) / span;   // mirrored view: larger x = screen left
+    return Math.round(clamp01(off / .35) * 100);
   }
   // Chest opener: wrists above the shoulders, elbows near shoulder height and spread wide.
   const wristsUp = clamp01(((mid.y - p[15].y) + (mid.y - p[16].y)) / 2 / w / .5);
@@ -495,8 +521,8 @@ function updateGame(p, now) {
   if (value === null) {
     holdStart = 0; $('hold-bar').style.width = '0'; text('match-score', '—'); light('idle');
     if (!missingSince) missingSince = now;
-    text('hold-label', target.type === 'neck' ? 'Keep your face and shoulders in view.' : 'Step back so your arms fit in the frame.');
-    if (target.type !== 'neck' && now - missingSince > 6000) { toast('Arms out of view. Skipped.'); advance(); }
+    text('hold-label', ['neck', 'shrug', 'turn'].includes(target.type) ? 'Keep your face and shoulders in view.' : 'Step back so your arms fit in the frame.');
+    if (now - missingSince > 6000) { toast('Arms out of view. Skipped.'); advance(); }
     return;
   }
   missingSince = 0;
@@ -706,7 +732,7 @@ function renderEditor() {
   } else {
     html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Reset'], ['game', 'Game']], m.style));
     html += m.style === 'stretch'
-      ? field('Stretches', `<input type="range" data-k="count" min="1" max="5" step="1" value="${m.count}">`, `<output>${m.count}</output>`)
+      ? field('Stretches', `<input type="range" data-k="count" min="1" max="10" step="1" value="${m.count}">`, `<output>${m.count}</output>`)
       : field('Length', `<input type="range" data-k="minutes" min="1" max="10" step="1" value="${m.minutes}">`, `<output>${m.minutes} min</output>`);
     html += field('Start automatically', toggle('auto', m.auto));
   }
@@ -955,7 +981,7 @@ $('break-switch').addEventListener('click', e => {
   store.update(s => {
     let m = pick;
     if (!m) {   // older saved settings may be missing this type: add it
-      const defs = { stretch: { name: 'Stretch along', count: 5, minutes: 3 }, breathe: { name: 'Reset', count: 3, minutes: 2 }, game: { name: 'Reach & pop', count: 5, minutes: 1 } };
+      const defs = { stretch: { name: 'Stretch along', count: 10, minutes: 4 }, breathe: { name: 'Reset', count: 3, minutes: 2 }, game: { name: 'Reach & pop', count: 5, minutes: 1 } };
       m = { id: style === 'breathe' ? 'breathe' : style, style, auto: true, preset: true, ...defs[style] };
       s.breaks = s.breaks.filter(x => x.id !== m.id); s.breaks.push(m);
     }

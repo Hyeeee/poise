@@ -24,7 +24,7 @@ const QUESTIONS = [
     key: 'rest',
     say: 'And when it is time to rest, what helps you reset?',
     options: [
-      { label: 'Guided stretches', value: { style: 'stretch', count: 5 } },
+      { label: 'Guided stretches', value: { style: 'stretch', count: 10 } },
       { label: 'A calm reset: breathing + eye rest', value: { style: 'breathe', minutes: 2 } },
       { label: 'A quick movement game', value: { style: 'game', minutes: 1 } },
     ],
@@ -261,7 +261,7 @@ export function runOnboarding() {
       const rest = {
         id: 'my-reset', name: 'My reset', preset: false,
         style: answers.rest?.style ?? 'stretch',
-        count: answers.rest?.count ?? 5,
+        count: answers.rest?.count ?? 10,
         minutes: answers.rest?.minutes ?? 3,
         auto: answers.auto ?? true,
       };
