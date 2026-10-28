@@ -56,6 +56,7 @@ function place() {
   // Match the highlight's corners to the element's own rounding (plus the padding around it).
   const radius = parseFloat(getComputedStyle(target).borderTopLeftRadius) || 0;
   spot.style.setProperty('--spot-r', (radius > 0 ? Math.min(radius, r.height / 2) + pad : 12) + 'px');
+  card.classList.remove('swap'); void card.offsetWidth; card.classList.add('swap');
   $('tour-title').textContent = step.title;
   $('tour-text').textContent = step.text;
   $('tour-count').textContent = `${i + 1} / ${STEPS.length}`;

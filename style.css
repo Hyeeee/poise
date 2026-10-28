@@ -685,3 +685,16 @@ input[type=range].min-range::-moz-range-thumb { width: 22px; height: 22px; backg
 .report-card #report-len, .report-card .report-stats, .report-card .report-stats *, .report-card .report-h, .report-card .causes, .report-card .causes *, .report-card .report-legend, .report-card .report-legend * { font-family: var(--ui) !important; }
 .report-card .report-stats b { font-weight: 300; letter-spacing: -.03em; }
 .report-card #rep-tip { display: none !important; }
+/* Tour: soft-edged spotlight (feathered dim, no hard white ring) and gentle motion. */
+.tour-spot {
+  box-shadow: 0 0 0 9999px rgba(28, 30, 26, .5), 0 0 40px 18px rgba(28, 30, 26, .5), inset 0 0 0 1px rgba(255,255,255,.25) !important;
+  transition: left .7s cubic-bezier(.22,1,.36,1), top .7s cubic-bezier(.22,1,.36,1), width .7s cubic-bezier(.22,1,.36,1), height .7s cubic-bezier(.22,1,.36,1), border-radius .7s ease !important;
+}
+.tour:not([hidden]) .tour-spot { animation: spotIn .8s ease both; }
+@keyframes spotIn { from { box-shadow: 0 0 0 9999px rgba(28,30,26,0), 0 0 40px 18px rgba(28,30,26,0); } }
+.tour-card { border-radius: 16px !important; transition: left .7s cubic-bezier(.22,1,.36,1), top .7s cubic-bezier(.22,1,.36,1) !important;
+  box-shadow: 0 24px 60px -24px rgba(20, 24, 16, .45), 0 2px 8px -4px rgba(20,24,16,.2) !important; }
+.tour-card.swap #tour-title, .tour-card.swap #tour-text, .tour-card.swap #tour-count { animation: tourText .55s cubic-bezier(.22,1,.36,1) both; }
+@keyframes tourText { from { opacity: 0; transform: translateY(6px); filter: blur(3px); } }
+.tour:not([hidden]) .tour-card { animation: tourCardIn .6s cubic-bezier(.22,1,.36,1) .15s both; }
+@keyframes tourCardIn { from { opacity: 0; transform: translateY(10px) scale(.98); } }
