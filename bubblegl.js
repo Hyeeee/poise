@@ -32,25 +32,26 @@ void main() {
     float ang = atan(v.y, v.x);
     float wob = 1. + wa * (.6 * sin(2. * ang + uT * .9 + sd) + .35 * sin(3. * ang - uT * 1.2 + sd * 2.3) + .12 * sin(5. * ang + uT * 1.6 + sd * 4.1));
     float d = L / (r * wob);
-    if (d > 1.0) continue;
+    if (d > 1.0 && uC[i].a <= 0.) continue;
+    if (d > 1.6) continue;
 
-    // Bursting: a hole opens from the upper side and sweeps across.
-    float tear = 0.;
+    // Bursting: a quick bright white flash that expands into a thin ring and vanishes.
     if (pk > 0.) {
-      vec2 hc = c + vec2(-.45, -.55) * r;
-      float hr = pk * 2.4 * r, hd = length(p - hc);
-      if (hd < hr) continue;
-      tear = smoothstep(hr + r * .1, hr, hd);
-      a *= 1. - pk * .5;
+      float R = 1. + pk * .35;                       // ring grows a little
+      float ring = smoothstep(.06, 0., abs(d - R * .9)) * (1. - pk);
+      float flash = (1. - smoothstep(0., .35, pk)) * smoothstep(1., .2, d) * .85;
+      float w = clamp(ring + flash, 0., 1.) * a;
+      if (w > outc.a) outc = vec4(vec3(1.), w);
+      continue;
     }
 
     vec2 dir = v / max(L, 1e-3);
     // Inside: perfectly clear. Toward the rim the film bends light, squeezing the picture
     // inward with a hint of colour fringing (like the glass blobs in the references).
     float e = smoothstep(.7, 1., d);
-    float squeeze = 1. - e * e * .38;
+    float squeeze = 1. - e * e * .14;
     vec2 base = (c + v * squeeze - uVR.xy) / uVR.zw;
-    vec2 cfr = dir * e * e * 2.5 / uVR.zw;              // tiny chromatic shift at the edge
+    vec2 cfr = dir * e * e * 1.2 / uVR.zw;              // tiny chromatic shift at the edge
     vec3 col = vec3(texture2D(uTex, clamp(base + cfr, .001, .999)).r,
                     texture2D(uTex, clamp(base, .001, .999)).g,
                     texture2D(uTex, clamp(base - cfr, .001, .999)).b);
@@ -71,18 +72,18 @@ void main() {
     // Faint thin-film rainbow only along the lower rim.
     float th = d * 1.4 + .25 * sin(ang * 2. + uT * .5 + sd) + uT * .03;
     col += (film(th) - .5) * pow(d, 10.) * .35 * (.4 + .6 * pow(.5 + .5 * cos(ang - 1.6), 2.));
-    col += tear * .5;
 
-    float alpha = a * smoothstep(1., .985, d);
-    outc = vec4(col, max(outc.a, alpha));   // straight (not premultiplied) colour
+    // Soft edge (no hard rim line): fade out over the last 4% of the radius.
+    float alpha = a * smoothstep(1., .96, d);
+    if (alpha > outc.a) outc = vec4(col, alpha);       // straight colour; premultiplied once at the end
   }
-  gl_FragColor = vec4(outc.rgb, outc.a);
+  gl_FragColor = vec4(outc.rgb * outc.a, outc.a);   // premultiplied: no dark fringes
 }`;
 
 export class BubbleGL {
   constructor(canvas) {
     this.cv = canvas;
-    const gl = this.gl = canvas.getContext('webgl', { premultipliedAlpha: false, alpha: true });
+    const gl = this.gl = canvas.getContext('webgl', { premultipliedAlpha: true, alpha: true });
     if (!gl) return;
     const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; };
     const pr = gl.createProgram();
@@ -99,7 +100,7 @@ export class BubbleGL {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.disable(gl.BLEND);
     const u = n => gl.getUniformLocation(pr, n);
     this.u = { res: u('uRes'), vr: u('uVR'), t: u('uT'), n: u('uN'), b: u('uB'), c: u('uC'), s: u('uS') };
   }
