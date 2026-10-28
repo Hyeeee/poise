@@ -20,9 +20,9 @@ const COLORS = [
 const GOLD = [255, 190, 40];
 
 export class MoveGame {
-  constructor(canvas, video, { onTick, onEnd, onColor } = {}) {
+  constructor(canvas, video, { onTick, onEnd, onColor, onFrame } = {}) {
     this.cv = canvas; this.ctx = canvas.getContext('2d'); this.video = video;
-    this.onTick = onTick; this.onEnd = onEnd; this.onColor = onColor; this.lastColor = '';
+    this.onTick = onTick; this.onEnd = onEnd; this.onColor = onColor; this.onFrame = onFrame; this.lastColor = '';
     this.running = false; this.raf = 0;
     // A WebGL layer under the 2D canvas draws the bubbles themselves (lens + thin film).
     this.glCv = document.createElement('canvas');
@@ -212,6 +212,7 @@ export class MoveGame {
     const target = this.flash && now < this.flash.until ? this.flash.color : null;   // light up only when you pop one
     const key = target ? target.join(' ') : 'none';
     if (key !== this.lastColor) { this.lastColor = key; this.onColor?.(target || null); }
+    this.onFrame?.(this);
     this.onTick?.({ score: this.score, left: this.duration - elapsed, combo: this.combo, popped: this.popped, tracking: !!b });
   }
 }

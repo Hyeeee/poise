@@ -145,6 +145,7 @@
     <!-- Break: movement game -->
     <div id="game-panel" class="card" hidden>
       <p class="tiny">Reach &amp; Pop</p>
+      <div class="stage-box"><canvas id="game-map"></canvas></div>
       <h2 id="game-title">Pop the bubbles</h2>
       <p class="sub" id="game-tip">Reach up, out and down to pop them with your hands. Gold ones are for your head — lean to touch them.</p>
       <div class="match"><span><b id="game-score">0</b> points</span><span id="game-left" class="sub">1:00</span></div>
@@ -186,7 +187,7 @@
 
     <!-- Break: breathe -->
     <div id="breathe-panel" class="card" hidden>
-      <div class="breath-stage"><div class="agent breath" id="breath-orb" data-shape="sphere" aria-hidden="true"></div></div>
+      <div class="breath-stage"><div class="agent breath" id="breath-orb" data-shape="sphere" data-dots="90" data-dot="2.2" aria-hidden="true"></div></div>
       <h2 id="breath-cue">Breathe in</h2>
       <p class="sub" id="breath-tip">Breathe in slowly through your nose.</p>
       <div class="match"><span><b id="reset-cm">0.0</b> cm</span><span id="reset-count" class="sub">Breath 1</span></div>

@@ -944,6 +944,39 @@ $('end-break').onclick = () => endBreak();
 // ---------- Break: movement game ----------
 const fmtClock = ms => { const t = Math.ceil(ms / 1000); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
 let gameRgb = null;
+// Game card stage: a small map of you (a simple figure) and where the bubbles are around you,
+// so you can find them even without looking at the camera view. Popped bubbles ripple out.
+function drawGameMap(g) {
+  const cv = $('game-map'); if (!cv || !cv.offsetWidth) return;
+  const dpr = Math.min(2, devicePixelRatio || 1), W = cv.offsetWidth, H = cv.offsetHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
+  const cx = W / 2, cy = H * .5, u = W * .11;               // u = one shoulder-width on the map
+  // figure
+  c.strokeStyle = '#141412'; c.lineWidth = 3; c.lineCap = 'round'; c.fillStyle = '#141412';
+  c.beginPath(); c.arc(cx, cy - u * 1.05, u * .32, 0, Math.PI * 2); c.stroke();
+  c.beginPath(); c.moveTo(cx - u * .5, cy - u * .5); c.lineTo(cx + u * .5, cy - u * .5); c.lineTo(cx + u * .38, cy + u * .55); c.lineTo(cx - u * .38, cy + u * .55); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(cx - u * .25, cy + u * .55); c.lineTo(cx - u * .3, cy + u * 1.9); c.moveTo(cx + u * .25, cy + u * .55); c.lineTo(cx + u * .3, cy + u * 1.9); c.stroke();
+  const b = g.body;
+  if (!b) { c.fillStyle = '#6a6b64'; c.font = '500 13px Geist, sans-serif'; c.textAlign = 'center'; c.fillText(active ? 'Step back so your arms fit in view' : 'Bubbles will appear around you', cx, H - 22); return; }
+  const aspect = (camera.videoWidth / camera.videoHeight) || 16 / 9;
+  const map = (x, y) => [cx - (x - b.cx) / b.w * u, cy - u * .5 + (y - b.cy) / b.w / aspect * u];   // mirrored like the camera
+  // hands
+  for (const i of [15, 16]) if (b.ok(i)) { const [x, y] = map(b.p[i].x, b.p[i].y); c.fillStyle = '#141412'; c.beginPath(); c.arc(x, y, 4, 0, Math.PI * 2); c.fill(); }
+  const now = performance.now();
+  for (const bub of g.bubbles) {
+    const [x, y] = map(bub.x, bub.y), [r, gg, bl] = bub.color, age = (now - bub.born) / bub.life;
+    c.fillStyle = `rgba(${r},${gg},${bl},.22)`; c.strokeStyle = `rgba(${r},${gg},${bl},.9)`; c.lineWidth = 2;
+    c.beginPath(); c.arc(x, y, u * .38, 0, Math.PI * 2); c.fill(); c.stroke();
+    c.beginPath(); c.arc(x, y, u * .38 + 5, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - age)); c.stroke();
+  }
+  for (const p of g.pops) {
+    const k = (now - p.t) / 800; if (k > 1) continue;
+    const [x, y] = map(p.x, p.y), [r, gg, bl] = p.color;
+    c.strokeStyle = `rgba(${r},${gg},${bl},${1 - k})`; c.lineWidth = 2;
+    c.beginPath(); c.arc(x, y, u * (.38 + k * .5), 0, Math.PI * 2); c.stroke();
+  }
+}
 const moveGame = new MoveGame($('game-canvas'), camera, {
   onTick({ score, left, combo, tracking }) {
     gameRgb ? light('idle', gameRgb, 20) : light('idle');
@@ -952,12 +985,14 @@ const moveGame = new MoveGame($('game-canvas'), camera, {
     text('game-label', !tracking ? 'Step back so your arms fit in the frame.' : combo > 2 ? `${combo} in a row` : 'Reach for the bubbles.');
   },
   onColor(rgb) { gameRgb = rgb; },
+  onFrame(g) { drawGameMap(g); },
   onEnd(r) { breakLog.game(r); endBreak(); },
 });
 function resetGamePanel() {
   moveGame.stop();
   text('game-score', 0); text('game-left', fmtClock(store.brk().minutes * 60000)); $('game-bar').style.width = '0';
   text('game-label', active ? 'Step back so your arms fit in the frame.' : 'Turn on your camera to play.');
+  requestAnimationFrame(() => drawGameMap({ body: null, bubbles: [], pops: [] }));
   maybeStartGame();
 }
 // The game starts on its own as soon as you're in Game mode with the camera on.
