@@ -12,27 +12,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<svg class="paint" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 1600 1000">
-  <defs>
-    <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#cfd4d8"/><stop offset=".28" stop-color="#d9dcd9"/><stop offset=".5" stop-color="#e3e2da"/>
-      <stop offset=".66" stop-color="#c9c9b0"/><stop offset=".8" stop-color="#a9ac86"/><stop offset="1" stop-color="#cfcfbe"/>
-    </linearGradient>
-    <radialGradient id="pb" cx=".22" cy=".18" r=".5"><stop offset="0" stop-color="#b9c5d3" stop-opacity=".9"/><stop offset="1" stop-color="#b9c5d3" stop-opacity="0"/></radialGradient>
-    <radialGradient id="ps" cx=".7" cy=".82" r=".45"><stop offset="0" stop-color="#8f9670" stop-opacity=".7"/><stop offset="1" stop-color="#8f9670" stop-opacity="0"/></radialGradient>
-    <filter id="brush" x="-10%" y="-10%" width="120%" height="120%">
-      <feTurbulence type="fractalNoise" baseFrequency=".0016 .011" numOctaves="5" seed="7"/>
-      <feDisplacementMap in="SourceGraphic" scale="110" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-    <filter id="strokes"><feTurbulence type="fractalNoise" baseFrequency=".006 .045" numOctaves="4" seed="3"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 -.32"/></filter>
-  </defs>
-  <g filter="url(#brush)">
-    <rect x="-80" y="-80" width="1760" height="1160" fill="url(#pg)"/>
-    <rect x="-80" y="-80" width="1760" height="1160" fill="url(#pb)"/>
-    <rect x="-80" y="-80" width="1760" height="1160" fill="url(#ps)"/>
-  </g>
-  <rect width="1600" height="1000" filter="url(#strokes)" opacity=".22"/>
-</svg>
+
 <div class="grain" aria-hidden="true"></div>
 
 <!-- Welcome -->
