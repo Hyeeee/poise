@@ -575,9 +575,9 @@ function startBreathe() {
       text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Breathe out and let your shoulders sink down, away from your ears.');
       // Same layout as stretching: big number = how far your shoulders have relaxed, bar = toward a 2 cm goal.
       text('reset-cm', s.base == null ? '—' : drop.toFixed(1));
-      text('reset-count', `Breath ${breaths + 1} · ${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')} left`);
+      text('reset-count', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}`);
       $('reset-bar').style.width = Math.min(100, drop / 2 * 100) + '%';
-      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : drop >= 2 ? 'Lovely — your shoulders are fully relaxed.' : drop >= .5 ? 'Your shoulders are dropping. Keep going.' : 'Shoulders relaxed so far. Let them sink on each out-breath.');
+      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : drop >= 2 ? 'Lovely — your shoulders are fully relaxed.' : drop >= .5 ? 'Your shoulders are dropping. Keep going.' : 'How much your shoulders have relaxed. Let them sink on each out-breath.');
     } else {
       // Part 2: eye rest. Gentle steady glow on the bar.
       const step = Math.min(EYES.length - 1, Math.floor((t - eyesAt) / ((total - eyesAt) / EYES.length)));

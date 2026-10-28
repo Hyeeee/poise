@@ -698,3 +698,4 @@ input[type=range].min-range::-moz-range-thumb { width: 22px; height: 22px; backg
 @keyframes tourText { from { opacity: 0; transform: translateY(6px); filter: blur(3px); } }
 .tour:not([hidden]) .tour-card { animation: tourCardIn .6s cubic-bezier(.22,1,.36,1) .15s both; }
 @keyframes tourCardIn { from { opacity: 0; transform: translateY(10px) scale(.98); } }
+#breathe-panel .match { white-space: nowrap; }
