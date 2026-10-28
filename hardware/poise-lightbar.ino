@@ -104,8 +104,9 @@ void handleMessage(String msg) {
 //  Nothing in front for 3 s -> away: the strip dims. Sitting down again flashes green once.
 //  Two sensors (left + right): if one side gets more than TILT_CM closer than the other,
 //  you're tilting to that side - same yellow/red rule.
-constexpr int GOOD_MIN = 60;         // <- tune to your desk
-constexpr int GOOD_MAX = 70;
+constexpr int GOOD_MIN = 55;         // <- tune to your desk (your sweet spot ~60-70 plus some room)
+constexpr int GOOD_MAX = 80;
+constexpr int SLACK    = 3;          // small moves past the edge are ignored
 constexpr int AWAY_CM  = 150;
 constexpr int TILT_CM  = 8;          // left/right difference above this = tilting to one side        // farther than this (or no echo) counts as nobody there
 float smoothCm = -1, smoothTilt = 0;  // tilt = left minus right (cm)                 // distance with jitter smoothed out
@@ -135,12 +136,12 @@ void sensorDemo() {
   // How far off, in cm (0 = good): outside the front/back range, or tilted more than TILT_CM.
   float offFB = smoothCm < GOOD_MIN ? GOOD_MIN - smoothCm : smoothCm > GOOD_MAX ? smoothCm - GOOD_MAX : 0;
   float offTilt = max(0.0f, abs(smoothTilt) - TILT_CM);
-  float off = max(offFB, offTilt);
+  float off = max(offFB, offTilt) - SLACK;          // ignore the first few cm past the edge
   if (off > 0) {
     if (!outSince) outSince = now;
     unsigned long held = now - outSince;
     fade = 0.05;
-    if (held < 5000)       mixTarget(110, 110, 100, 255, 190, 60, off / 15.0);   // instant warm hint
+    if (held < 5000)       mixTarget(110, 110, 100, 255, 190, 60, off / 30.0);   // gentle warm hint (half-warm at 15 cm out)
     else if (held < 10000) setTarget(255, 130, 0);                              // yellow
     else                   setTarget(255, 0, 0);                                // red
   } else {
