@@ -714,7 +714,7 @@ let tab = 'work';
 function openModes(kind = tab) { tab = kind; renderModes(); if (!$('modes').open) $('modes').showModal(); }
 function renderModes() {
   document.querySelectorAll('#modes-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  $('pref-voice').checked = store.state.voice; $('pref-music').checked = store.state.music; $('pref-joints').checked = store.state.joints;
+  $('pref-voice').checked = store.state.voice; syncVoicePick(); $('pref-music').checked = store.state.music; $('pref-joints').checked = store.state.joints;
   renderModeList(); renderEditor();
 }
 function renderModeList() {
@@ -775,7 +775,21 @@ function renderEditor() {
   if (del) del.onclick = () => { deleteMode(tab, m.id); renderModes(); };
 }
 document.querySelectorAll('#modes-tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; renderModes(); });
-$('pref-voice').onchange = e => store.update(s => { s.voice = e.target.checked; });
+$('pref-voice').onchange = e => {
+  store.update(s => { s.voice = e.target.checked; });
+  if (!e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
+  syncVoicePick();
+};
+function syncVoicePick() {
+  $('pref-voice-pick').classList.toggle('dim', !store.state.voice);
+  document.querySelectorAll('#voice-seg button').forEach(b => b.classList.toggle('active', b.dataset.v === (store.state.voiceId || 'ava')));
+}
+$('voice-seg').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]'); if (!b) return;
+  store.update(s => { s.voiceId = b.dataset.v; s.voice = true; });
+  $('pref-voice').checked = true; syncVoicePick();
+  speak('All set.', $('ask-orb'));
+});
 $('pref-joints').onchange = e => setJoints(e.target.checked);
 $('pref-setup').onclick = () => { $('modes').close(); rerunSetup(); };
 $('pref-tour').onclick = () => { $('modes').close(); setScreen('work'); startTour(); };

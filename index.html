@@ -225,8 +225,11 @@
   <div class="mode-list" id="mode-list"></div>
   <div class="editor" id="editor"></div>
   <footer class="prefs">
-    <label class="toggle"><input type="checkbox" id="pref-voice"><span>Voice</span></label>
-    <label class="toggle"><input type="checkbox" id="pref-music"><span>Music</span></label>
+    <div class="pref-group">
+      <label class="pref-row"><span>Voice guidance<small>Spoken posture cues and summaries</small></span><span class="toggle"><input type="checkbox" id="pref-voice"></span></label>
+      <div class="pref-row" id="pref-voice-pick"><span>Voice</span><nav class="segmented" id="voice-seg"><button data-v="ava">Ava</button><button data-v="sonia">Sonia</button><button data-v="andrew">Andrew</button></nav></div>
+      <label class="pref-row"><span>Background music</span><span class="toggle"><input type="checkbox" id="pref-music"></span></label>
+    </div>
     <label class="toggle"><input type="checkbox" id="pref-joints"><span>Show joints</span></label>
     <button class="text-btn" id="pref-tour">Show tour</button>
     <button class="text-btn" id="pref-setup">Run setup again</button>
