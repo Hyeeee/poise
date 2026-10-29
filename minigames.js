@@ -80,6 +80,7 @@ export class MiniGame {
     if (!this.sa || now - this.saAt > 400) { this.sa = safeArea(cv); this.saAt = now; }   // layout reads are costly: refresh a few times a second
     const sa = this.sa;
     const k = Math.max(1, Math.min(sa.w, sa.h) / 360), gw = sa.w / k, gh = sa.h / k;
+    this.lw = 3 / k;   // one stroke weight for every game: 3 screen px, whatever the scale
     const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
     ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * sa.l, dpr * sa.t);
     const c = this.cues();
@@ -129,7 +130,7 @@ export class MiniGame {
       }
       if (it.done) continue;
       // flat illustration: soft colour fill + fine ink outline
-      ctx.strokeStyle = ink; ctx.lineWidth = 1.3; ctx.lineJoin = 'round';
+      ctx.strokeStyle = ink; ctx.lineWidth = this.lw; ctx.lineJoin = 'round';
       if (it.kind === 'drop') {
         ctx.fillStyle = '#8fb6e0'; ctx.beginPath(); ctx.moveTo(x, it.y - 10); ctx.bezierCurveTo(x + 2, it.y - 4, x + 7, it.y - 1, x + 7, it.y + 3); ctx.arc(x, it.y + 3, 7, 0, Math.PI); ctx.bezierCurveTo(x - 7, it.y - 1, x - 2, it.y - 4, x, it.y - 10); ctx.fill(); ctx.stroke();
       } else {
@@ -140,7 +141,7 @@ export class MiniGame {
     // boat (folded paper)
     ctx.save(); ctx.translate(bx, by); ctx.rotate(this.boatX * .25);
     // paper boat, flat: white hull, pale sail fold, fine ink outline
-    ctx.strokeStyle = ink; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+    ctx.strokeStyle = ink; ctx.lineWidth = this.lw; ctx.lineJoin = 'round';
     ctx.fillStyle = '#fbfaf6'; ctx.beginPath(); ctx.moveTo(-26, 0); ctx.lineTo(26, 0); ctx.lineTo(17, 11); ctx.lineTo(-17, 11); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#e9a25a'; ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(0, -24); ctx.lineTo(12, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.restore();
@@ -164,10 +165,10 @@ export class MiniGame {
     const cx = W / 2, top = 0, by = H * .2 - this.lift * H * .08;   // bell hangs high, off your face
     const rot = Math.sin(now / 110) * .45 * this.swing;
     // thin cord
-    ctx.strokeStyle = ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(cx, by); ctx.stroke();
+    ctx.strokeStyle = ink; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(cx, by); ctx.stroke();
     ctx.save(); ctx.translate(cx, by); ctx.rotate(rot);
     // flat bell in the stretch-illustration style: ochre fill, fine ink outline
-    ctx.strokeStyle = ink; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+    ctx.strokeStyle = ink; ctx.lineWidth = this.lw; ctx.lineJoin = 'round';
     ctx.beginPath(); ctx.arc(0, -3, 4, 0, TAU); ctx.stroke();
     const bell = new Path2D('M0 1 C-11 1 -15 10 -16 22 C-17 32 -19 38 -26 43 L26 43 C19 38 17 32 16 22 C15 10 11 1 0 1 Z');
     ctx.fillStyle = '#e8c95a'; ctx.fill(bell); ctx.stroke(bell);
@@ -176,10 +177,10 @@ export class MiniGame {
     ctx.restore();
     // sound rings expanding from the bell
     this.rings = this.rings.filter(t => now - t < 1400);
-    for (const t of this.rings) { const k = (now - t) / 1400; ctx.strokeStyle = `rgba(30,31,28,${.4 * (1 - k)})`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cx, by + 24, 40 + k * W * .35, 0, TAU); ctx.stroke(); }
+    for (const t of this.rings) { const k = (now - t) / 1400; ctx.strokeStyle = `rgba(30,31,28,${.4 * (1 - k)})`; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(cx, by + 24, 40 + k * W * .35, 0, TAU); ctx.stroke(); }
     // lift meter: two shoulder marks that rise
     const my = H * .82, mx = W * .3;
-    ctx.strokeStyle = 'rgba(20,20,18,.18)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(20,20,18,.18)'; ctx.lineWidth = this.lw; ctx.lineCap = 'round';
     for (const x of [cx - mx, cx + mx]) { ctx.beginPath(); ctx.moveTo(x, my); ctx.lineTo(x, my - H * .22); ctx.stroke(); }
     ctx.strokeStyle = this.up ? '#c99a1e' : ink;
     for (const x of [cx - mx, cx + mx]) { ctx.beginPath(); ctx.moveTo(x, my); ctx.lineTo(x, my - H * .22 * this.lift); ctx.stroke(); }
@@ -188,7 +189,7 @@ export class MiniGame {
     if (phase) {
       ctx.save();
       const bob = Math.sin(now / 260) * 6, dir = phase === 'drop' ? 1 : -1;
-      ctx.strokeStyle = phase === 'hold' ? '#c99a1e' : ink; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.strokeStyle = phase === 'hold' ? '#c99a1e' : ink; ctx.lineWidth = this.lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       for (const x of [cx - mx, cx + mx]) {
         if (phase === 'hold') { ctx.beginPath(); ctx.arc(x, my - H * .3, 12, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.upMs / 300)); ctx.stroke(); continue; }
         for (let i = 0; i < 2; i++) {
@@ -224,7 +225,7 @@ export class MiniGame {
       if (Math.abs(Math.cos(a)) > .6) this.s.a++; else this.s.b++;
     }
     // dandelion head in the middle
-    ctx.strokeStyle = 'rgba(20,20,18,.2)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(20,20,18,.2)'; ctx.lineWidth = this.lw;
     for (let i = 0; i < 24; i++) { const a = i / 24 * TAU; ctx.beginPath(); ctx.moveTo(W / 2, H / 2); ctx.lineTo(W / 2 + Math.cos(a) * 18, H / 2 + Math.sin(a) * 18); ctx.stroke(); }
     if (this.seed) {
       const s = this.seed;
@@ -232,16 +233,16 @@ export class MiniGame {
       s.ox ??= s.x; s.oy ??= s.y;
       s.x = s.ox + Math.sin(now / 1400 + s.ph) * 4; s.y = s.oy + Math.cos(now / 1700 + s.ph) * 3;
       // seed: a tiny stem with a fluffy top
-      ctx.strokeStyle = ink; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = ink; ctx.lineWidth = this.lw;
       ctx.beginPath(); ctx.moveTo(s.x, s.y + 4); ctx.lineTo(s.x, s.y + 14); ctx.stroke();
       for (let i = 0; i < 9; i++) { const a = -Math.PI + i / 8 * Math.PI; ctx.beginPath(); ctx.moveTo(s.x, s.y + 4); ctx.lineTo(s.x + Math.cos(a) * 9, s.y + 4 + Math.sin(a) * 9); ctx.stroke(); }
       const near = Math.hypot(this.cur[0] - s.x, this.cur[1] - s.y) < 34;
       this.holdMs = near ? this.holdMs + dt : Math.max(0, this.holdMs - dt);
       if (this.holdMs > 1200) { sfx.seed(); this.s.score++; this.seed = null; this.holdMs = 0; this.onColor?.([255, 220, 0]); setTimeout(() => this.onColor?.(null), 400); }
-      if (s && near) { ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(s.x, s.y + 6, 22, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke(); }
+      if (s && near) { ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(s.x, s.y + 6, 22, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke(); }
     }
     // head cursor
-    ctx.strokeStyle = ink; ctx.lineWidth = 2;
+    ctx.strokeStyle = ink; ctx.lineWidth = this.lw;
     ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 14, 0, TAU); ctx.stroke();
     ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 2.5, 0, TAU); ctx.fill();
     this.hint = c ? 'Turn and tilt your head to reach the seed.' : '';

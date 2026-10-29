@@ -155,7 +155,7 @@ export class MoveGame {
       ctx.globalAlpha = ease * fade;
       // Same simple look as the guide box: pale colour fill, a clear colour ring,
       // and a matching countdown arc just outside.
-      const a0 = ease * fade, lw = Math.max(3, r * .07);
+      const a0 = ease * fade, lw = 3;   // same 3px stroke as the other games
       ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.strokeStyle = bub.paint; ctx.fillStyle = bub.paint;
       ctx.globalAlpha = a0 * .28; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
       ctx.globalAlpha = a0; ctx.stroke();
@@ -167,7 +167,7 @@ export class MoveGame {
     for (const p of this.pops) {
       const k = (now - p.t) / 800, x = X(p.x) + (p.dx || 0), y = Y(p.y) + (p.dy || 0), r0 = p.r * vw * (p.size || 1), [cr, cg, cb] = p.color;
       if (k < .4) {
-        ctx.globalAlpha = 1 - k / .4; ctx.lineWidth = 1.5; ctx.strokeStyle = INK;
+        ctx.globalAlpha = 1 - k / .4; ctx.lineWidth = 3; ctx.strokeStyle = INK;
         ctx.beginPath(); ctx.arc(x, y, r0 * (1 + k * .6), 0, TAU); ctx.stroke();
       }
       for (const d of p.drops) {
