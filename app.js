@@ -119,6 +119,7 @@ async function start() {
     if (run !== session) return;
     active = true; lastFrame = -1; faceStart = performance.now();
     setTimeout(maybeStartGame, 300);
+    if (sensorRef) { sensorRef = false; showSensorCard(); }
     $('empty-camera').hidden = true;
     syncRef();
     $('stop').classList.add('on'); $('stop').setAttribute('aria-label', 'Turn camera off');
@@ -272,7 +273,13 @@ function updateWork(p, now) {
   applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt, roll: c.roll - (reference.roll || 0), sink }, widthRatio);
 }
 // How far you've leaned toward the screen, 0–100, from the sensor alone.
+// Sensor-only mode uses the same fixed range as the light bar: 55–80 cm is good.
+const SENSOR_GOOD = [55, 80];
 function sensorShift() {
+  if (sensorRef && sensor.cm > 0) {
+    const off = sensor.cm < SENSOR_GOOD[0] ? SENSOR_GOOD[0] - sensor.cm : sensor.cm > SENSOR_GOOD[1] ? sensor.cm - SENSOR_GOOD[1] : 0;
+    return Math.min(100, Math.round(Math.max(0, off - 3) * 4));
+  }
   const k = sensor.closeness;
   return k > 1.08 ? Math.min(100, Math.round((k - 1.08) * 260)) : 0;
 }
@@ -1088,12 +1095,22 @@ function calibrateSensor() {
   syncRef();
   if (!posture.active) posture.reset();
   text('calibrate', 'Reset reference');
-  toast(`Sensor reference saved · ${sensor.cm} cm`);
+  toast('Sensor mode: tracking with the distance sensor');
   timerRunning = true; timerLast = performance.now(); renderPause();
-  $('empty-camera').hidden = true;
+  showSensorCard();
   setChip(`Sensor mode · ${sensor.cm} cm`, true);
   maybeTour();
   return true;
+}
+// Camera off + sensor connected: say so on the card, and keep tracking with the sensor.
+function showSensorCard() {
+  const on = sensorRef && !active;
+  $('empty-camera').classList.toggle('sensor-on', on);
+  $('empty-camera').querySelector('.say').innerHTML = on
+    ? `<b>Sensor mode.</b> <span>Camera's off — the distance sensor is watching how far you sit. <em id="sensor-live">${sensor.cm > 0 ? sensor.cm + ' cm' : '—'}</em></span>`
+    : '<b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span>';
+  $('enable').textContent = on ? 'Use the camera instead' : 'Turn on camera';
+  $('enable').classList.toggle('primary', !on); $('enable').classList.toggle('ghost', on);
 }
 $('sensor-mode').onclick = () => { if (screen !== 'work') setScreen('work'); calibrateSensor(); };
 sensor.on(() => {
@@ -1102,7 +1119,9 @@ sensor.on(() => {
   text('sensor-chip', sensor.cm > 0 ? `${sensor.cm} cm` : '— cm');
   if (now - lastSensorTick > 180) { lastSensorTick = now; sensorTick(now); }
   sensorTap(now);
-  if (!active) syncRef();
+  // Camera off: switch to sensor mode on its own, so the bar and the session keep working.
+  if (!active && !sensorRef && sensor.cm > 0 && !$('studio').hidden && screen === 'work') calibrateSensor();
+  if (!active) { syncRef(); const el = $('sensor-live'); if (el) el.textContent = sensor.cm > 0 ? `${sensor.cm} cm · good range ${SENSOR_GOOD[0]}–${SENSOR_GOOD[1]}` : '—'; }
 });
 function sensorTick(now) {
   if (!sensor.base) return;

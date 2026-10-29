@@ -717,3 +717,5 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 .game-chips button { min-height: var(--btn-s); padding: 0 12px; border-radius: var(--r-sm) !important; font-size: var(--t-s); color: var(--ink-2); background: transparent; transition: background .5s ease, color .5s ease; }
 .game-chips button:hover { background: rgba(30,31,28,.07); color: var(--ink); }
 .game-chips button.on { background: var(--ink) !important; color: var(--paper); }
+#empty-camera.sensor-on em { display: block; font-style: normal; font-family: var(--ui); font-size: var(--t-s); color: var(--ink-2); margin-top: 10px; }
+#empty-camera.sensor-on #sensor-mode { display: none !important; }
