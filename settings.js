@@ -46,7 +46,9 @@ function load() {
     state.breaks.forEach(m => { if (m.style === 'stretch' && m.count === 5) m.count = 10; });
     const rb = state.breaks.find(m => m.id === 'breathe' && m.preset); if (rb && rb.name === 'Breathe') { rb.name = 'Reset'; rb.minutes = 2; }
     for (const m of base.breaks) if (!state.breaks.some(b => b.id === m.id)) state.breaks.push(m);
-    if (!state.breaks.some(b => b.id === state.breakId)) state.breakId = state.breaks[0].id;
+    // Every new visit starts fresh: breaks open on Stretch, and the game list starts on Bubbles.
+    state.breakId = (state.breaks.find(b => b.style === 'stretch') || state.breaks[0]).id;
+    state.gameKind = 'bubbles';
     return state;
   } catch { return defaults(); }
 }
