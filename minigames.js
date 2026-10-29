@@ -237,7 +237,10 @@ export class MiniGame {
     ctx.strokeStyle = 'rgba(20,20,18,.2)'; ctx.lineWidth = 1;
     for (let i = 0; i < 24; i++) { const a = i / 24 * TAU; ctx.beginPath(); ctx.moveTo(W / 2, H / 2); ctx.lineTo(W / 2 + Math.cos(a) * 18, H / 2 + Math.sin(a) * 18); ctx.stroke(); }
     if (this.seed) {
-      const s = this.seed; s.x += Math.sin(now / 900 + s.ph) * .25; s.y += Math.cos(now / 1100 + s.ph) * .2;
+      const s = this.seed;
+      // gentle sway around where it landed (a few px), not a drift away, so you can hold your neck still
+      s.ox ??= s.x; s.oy ??= s.y;
+      s.x = s.ox + Math.sin(now / 1400 + s.ph) * 4; s.y = s.oy + Math.cos(now / 1700 + s.ph) * 3;
       // seed: a tiny stem with a fluffy top
       ctx.strokeStyle = ink; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(s.x, s.y + 4); ctx.lineTo(s.x, s.y + 14); ctx.stroke();
