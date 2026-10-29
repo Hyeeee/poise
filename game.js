@@ -20,6 +20,10 @@ const COLORS = [
   [255, 60, 200],  // pink
 ];
 const GOLD = [255, 190, 40];
+// Muted, refined paint colours for drawing; same order as COLORS (the LED still gets COLORS).
+const PAINT = ['#e8806f', '#e9a25a', '#e8c95a', '#8fbf8a', '#7cc0c4', '#7b9fd6', '#a88fd6', '#e08fb7'];
+const PAINT_GOLD = '#d9a93a';
+const INK = '#1e1f1c';
 
 export class MoveGame {
   constructor(canvas, video, { onTick, onEnd, onColor, onFrame } = {}) {
@@ -30,7 +34,7 @@ export class MoveGame {
     this.glCv = document.createElement('canvas');
     this.glCv.className = 'bubble-gl'; this.glCv.hidden = true;
     canvas.parentNode?.insertBefore(this.glCv, canvas);
-    this.glr = new BubbleGL(this.glCv);
+    this.glr = null;   // flat illustrated bubbles now; the WebGL lens is no longer used
   }
   start(seconds = 60) {
     this.stop();
@@ -83,8 +87,8 @@ export class MoveGame {
     const loX = Math.min(xMin, xMax), hiX = Math.max(xMin, xMax);
     const loY = ny(sa.t + rp), hiY = ny(sa.b - rp);
     x = Math.min(Math.max(loX, hiX - .001), Math.max(loX, x)); y = Math.min(Math.max(loY, hiY - .001), Math.max(loY, y));
-    const color = zone === 'head' ? GOLD : COLORS[Math.floor(Math.random() * COLORS.length)];
-    this.bubbles.push({ x, y, r, zone, color, born: now, life: zone === 'head' ? 4600 : 4000, seed: Math.random() * TAU, size: .8 + Math.random() * .4 });
+    const ci = Math.floor(Math.random() * COLORS.length), color = zone === 'head' ? GOLD : COLORS[ci], paint = zone === 'head' ? PAINT_GOLD : PAINT[ci];
+    this.bubbles.push({ x, y, r, zone, color, paint, born: now, life: zone === 'head' ? 4600 : 4000, seed: Math.random() * TAU, size: .8 + Math.random() * .4 });
   }
   step(now) {
     const { cv, ctx } = this;
@@ -113,7 +117,7 @@ export class MoveGame {
           bub.dead = true; sfx.pop(); this.popped++; this.combo++; this.best = Math.max(this.best, this.combo);
           const pts = (bub.zone === 'head' ? 150 : 100) + Math.min(5, this.combo - 1) * 20;
           this.score += pts; this.zones[bub.zone]++;
-          this.pops.push({ x: bub.x, y: bub.y, r: bub.r, size: bub.size || 1, seed: bub.seed, dx: Math.sin(now / 1300 + bub.seed) * 7, dy: Math.cos(now / 1100 + bub.seed) * 6 - Math.min(10, (now - bub.born) / 400), t: now, pts, color: bub.color, drops: Array.from({ length: 26 }, () => ({ a: -Math.PI * .75 + (Math.random() - .5) * 2.6, v: .6 + Math.random() * .9, s: .6 + Math.random() * 1.4 })) });
+          this.pops.push({ x: bub.x, y: bub.y, r: bub.r, size: bub.size || 1, seed: bub.seed, dx: Math.sin(now / 1300 + bub.seed) * 7, dy: Math.cos(now / 1100 + bub.seed) * 6 - Math.min(10, (now - bub.born) / 400), t: now, pts, color: bub.color, paint: bub.paint, drops: Array.from({ length: 8 }, () => ({ a: -Math.PI * .75 + (Math.random() - .5) * 2.6, v: .6 + Math.random() * .9, s: .6 + Math.random() * 1.4 })) });
           this.flash = { color: bub.color, until: now + 1500 };
         }
       }
@@ -147,77 +151,40 @@ export class MoveGame {
       const ease = 1 - Math.pow(1 - grow, 3);
       const r = bub.r * vw * (.6 + .4 * ease) * (1 + .02 * Math.sin(now / 320 + bub.seed));
       const x = X(bub.x), y = Y(bub.y) + Math.sin(now / 800 + bub.seed) * 3;
-      const [cr, cg, cb] = bub.color, c = a => `rgba(${cr},${cg},${cb},${a})`;
       const fade = age > .82 ? 1 - (age - .82) / .18 * .6 : 1;
       ctx.globalAlpha = ease * fade;
-
-      // drop shadow under the glass
-      ctx.save();
-      ctx.shadowColor = 'rgba(10, 14, 8, .28)'; ctx.shadowBlur = r * .5; ctx.shadowOffsetY = r * .12;
-      ctx.fillStyle = 'rgba(255,255,255,.01)';
+      // Flat illustration, like the stretch figure: soft colour fill, fine ink outline,
+      // one small white highlight, and a thin ink arc counting down.
+      ctx.fillStyle = bub.paint; ctx.globalAlpha = ease * fade * .55;
       ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-      ctx.restore();
-
-      ctx.save();
-      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.clip();
-      // the scene behind, magnified 15% and frosted
-      if (canSee) {
-        ctx.save();
-        ctx.translate(x, y); ctx.scale(1.15, 1.15); ctx.translate(-x, -y);
-        ctx.filter = 'blur(6px) saturate(1.35) brightness(1.12)';
-        ctx.drawImage(this.video, ox, oy, vw, vh);
-        ctx.restore();
-        ctx.filter = 'none';
-      }
-      // milky glass + a whisper of color, stronger toward the edge
-      const body = ctx.createRadialGradient(x, y - r * .2, r * .1, x, y, r);
-      body.addColorStop(0, 'rgba(255,255,255,.16)');
-      body.addColorStop(.7, c(.14));
-      body.addColorStop(1, c(.32));
-      ctx.fillStyle = body; ctx.fillRect(x - r, y - r, r * 2, r * 2);
-      // inner shadow along the lower edge gives the lens depth
-      const inner = ctx.createRadialGradient(x, y - r * .25, r * .55, x, y, r * 1.05);
-      inner.addColorStop(0, 'rgba(0,0,0,0)'); inner.addColorStop(1, 'rgba(0,0,0,.18)');
-      ctx.fillStyle = inner; ctx.fillRect(x - r, y - r, r * 2, r * 2);
-      // curved specular highlight across the top
-      const spec = ctx.createLinearGradient(x, y - r, x, y - r * .2);
-      spec.addColorStop(0, 'rgba(255,255,255,.55)'); spec.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = spec;
-      ctx.beginPath(); ctx.ellipse(x, y - r * .52, r * .72, r * .4, 0, Math.PI, TAU); ctx.ellipse(x, y - r * .52, r * .72, r * .22, 0, 0, Math.PI); ctx.fill();
-      ctx.restore();
-
-      // hairline rim: bright at the top-left, fading around the bottom
-      const rim = ctx.createLinearGradient(x - r, y - r, x + r, y + r);
-      rim.addColorStop(0, 'rgba(255,255,255,.95)'); rim.addColorStop(.45, 'rgba(255,255,255,.25)'); rim.addColorStop(.75, c(.5)); rim.addColorStop(1, 'rgba(255,255,255,.6)');
-      ctx.lineWidth = Math.max(1, r * .03); ctx.strokeStyle = rim;
-      ctx.beginPath(); ctx.arc(x, y, r - ctx.lineWidth / 2, 0, TAU); ctx.stroke();
-
-      // countdown: a fine colored arc just outside the glass
-      ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = c(.9);
-      ctx.shadowColor = c(.6); ctx.shadowBlur = 8;
-      ctx.beginPath(); ctx.arc(x, y, r + 6, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - age)); ctx.stroke();
-      ctx.shadowBlur = 0;
+      ctx.globalAlpha = ease * fade;
+      ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(2, r * .06); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.arc(x, y, r * .7, Math.PI * 1.1, Math.PI * 1.4); ctx.stroke();
+      ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, y, r + 7, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - age)); ctx.stroke();
       ctx.globalAlpha = 1;
     }
     // Pops: the film tears (WebGL) and a fine mist of droplets sprays out and falls.
     this.pops = this.pops.filter(p => now - p.t < 800);
     for (const p of this.pops) {
       const k = (now - p.t) / 800, x = X(p.x) + (p.dx || 0), y = Y(p.y) + (p.dy || 0), r0 = p.r * vw * (p.size || 1), [cr, cg, cb] = p.color;
-      if (!useGL && k < .4) {
-        ctx.globalAlpha = 1 - k / .4; ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,.9)';
+      if (k < .4) {
+        ctx.globalAlpha = 1 - k / .4; ctx.lineWidth = 1.5; ctx.strokeStyle = INK;
         ctx.beginPath(); ctx.arc(x, y, r0 * (1 + k * .6), 0, TAU); ctx.stroke();
       }
       for (const d of p.drops) {
         const dist = r0 * (.9 + k * 1.4 * d.v);
         const dx = x + Math.cos(d.a) * dist, dy = y + Math.sin(d.a) * dist + k * k * r0 * 1.6;
         ctx.globalAlpha = (1 - k) * .9;
-        ctx.fillStyle = `rgba(${Math.round(230 + cr * .1)},${Math.round(235 + cg * .08)},${Math.round(240 + cb * .06)},1)`;
-        ctx.beginPath(); ctx.arc(dx, dy, d.s * (1 - k * .6), 0, TAU); ctx.fill();
+        ctx.fillStyle = p.paint || INK;
+        ctx.beginPath(); ctx.arc(dx, dy, (d.s + 1.5) * (1 - k * .6), 0, TAU); ctx.fill();
       }
       ctx.save(); ctx.translate(x, y - r0 * .2 - k * 34); ctx.scale(-1, 1);
       ctx.globalAlpha = 1 - k;
-      ctx.fillStyle = '#fff'; ctx.font = '500 20px Geist, -apple-system, sans-serif'; ctx.textAlign = 'center';
-      ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 8; ctx.fillText(`+${p.pts}`, 0, 0);
+      ctx.fillStyle = INK; ctx.font = '500 20px Geist, -apple-system, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(`+${p.pts}`, 0, 0);
       ctx.restore(); ctx.globalAlpha = 1;
     }
     // Light bar: flash the popped color, otherwise show the oldest bubble on screen.
