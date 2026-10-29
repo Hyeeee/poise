@@ -1,7 +1,7 @@
 // Seated movement games played inside the white stage box on the Game card.
 // Each game reads the pose (MediaPipe landmarks) and draws into a small canvas.
 //   boat   — Paper Boat: lean left/right to steer a boat down a stream (side bends)
-//   stones — Stone Stack: hold good posture to stack stones; slumping topples them
+//   bells  — Shoulder Bells: shrug both shoulders up, then drop them, to ring a bell
 //   seeds  — Dandelion: turn and tilt your head to follow drifting seeds (neck)
 // Interface: start(seconds), stop(), update(landmarks), running, result()
 // Callbacks: onTick({score,left,label}), onEnd(result), onColor([r,g,b]|null)
@@ -13,7 +13,7 @@ const ink = '#141412', paper = '#fbfaf6';
 export const GAMES = {
   bubbles: { chip: 'Bubbles', title: 'Pop the bubbles', tip: 'Reach up, out and down to pop them with your hands. Gold ones are for your head, so lean over to touch them.' },
   boat: { chip: 'Boat', title: 'Sail the stream', tip: 'Lean your upper body left and right to steer the paper boat. Miss the stones, catch the drops.' },
-  stones: { chip: 'Stones', title: 'Balance the stones', tip: 'Sit tall and still. Every few seconds a stone is added. Slump or lean and the stack starts to wobble.' },
+  bells: { chip: 'Bells', title: 'Ring the bells', tip: 'Lift both shoulders up toward your ears, hold for a beat, then let them drop. Each full lift rings a bell.' },
   seeds: { chip: 'Seeds', title: 'Follow the seeds', tip: 'Turn and tilt your head to bring the circle onto a drifting seed, then hold it there.' },
 };
 
@@ -28,7 +28,7 @@ export class MiniGame {
     this.running = true; this.base = null; this.baseSamples = []; this.pose = null;
     this.s = { score: 0, a: 0, b: 0 };   // per-game counters
     if (kind === 'boat') Object.assign(this, { boatX: 0, items: [], nextItem: this.began + 800, scroll: 0 });
-    if (kind === 'stones') Object.assign(this, { stack: 0, best: 0, goodMs: 0, badMs: 0, wobble: 0, falls: 0, falling: null });
+    if (kind === 'bells') Object.assign(this, { up: false, upMs: 0, lift: 0, rings: [], swing: 0 });
     if (kind === 'seeds') Object.assign(this, { cur: [0, 0], seed: null, holdMs: 0, trail: [] });
     const loop = now => { if (!this.running) return; this.step(now); this.raf = requestAnimationFrame(loop); };
     this.last = performance.now(); this.raf = requestAnimationFrame(loop);
@@ -38,7 +38,7 @@ export class MiniGame {
   result() {
     const ms = performance.now() - this.began, s = this.s;
     if (this.kind === 'boat') return { kind: 'boat', score: s.score, ms, stats: [[s.score, 'drops caught'], [s.b, 'stones hit'], [Math.round(s.a), 'side leans']] };
-    if (this.kind === 'stones') return { kind: 'stones', score: this.best, ms, stats: [[this.best, 'tallest stack'], [Math.round(this.goodTotal / 1000 || 0) + 's', 'sitting tall'], [this.falls, 'topples']] };
+    if (this.kind === 'bells') return { kind: 'bells', score: s.score, ms, stats: [[s.score, 'bells rung'], [Math.round(s.a / 1000) + 's', 'shoulders lifted'], [s.b, 'half lifts']] };
     return { kind: 'seeds', score: s.score, ms, stats: [[s.score, 'seeds followed'], [Math.round(s.a), 'head turns'], [Math.round(s.b), 'head tilts']] };
   }
 
@@ -76,7 +76,7 @@ export class MiniGame {
     let label = !this.pose ? 'Sit so your head and shoulders are in view.' : !this.base ? 'Sit still for a moment…' : '';
     this[this.kind](ctx, W, H, dt, now, c);
     if (this.hint && !label) label = this.hint;
-    this.onTick?.({ score: this.kind === 'stones' ? this.stack : this.s.score, left: Math.max(0, left), label });
+    this.onTick?.({ score: this.s.score, left: Math.max(0, left), label });
     if (left <= 0) { this.stop(); this.onEnd?.(this.result()); }
   }
 
@@ -121,37 +121,38 @@ export class MiniGame {
     this.hint = c ? (Math.abs(this.boatX) < .2 ? 'Lean left or right to steer.' : 'Nice, keep leaning.') : '';
   }
 
-  // ---------- Stone Stack ----------
-  stones(ctx, W, H, dt, now, c) {
-    const ground = H * .86;
-    ctx.fillStyle = '#efe9dc'; ctx.fillRect(0, ground, W, H - ground);
-    let off = 0;
-    if (c) off = Math.abs(c.lean) * 1.2 + Math.max(0, c.headY) * 2 + Math.abs(c.tilt) * 2;
-    const good = c && off < .18;
-    if (good) { this.goodMs += dt; this.goodTotal = (this.goodTotal || 0) + dt; this.badMs = 0; this.wobble *= .9; }
-    else if (c) { this.badMs += dt; this.wobble = Math.min(1, this.wobble + dt / 1500); }
-    if (this.goodMs > 2500 && !this.falling) { this.goodMs = 0; this.stack++; this.best = Math.max(this.best, this.stack); this.onColor?.([0, 255, 30]); setTimeout(() => this.onColor?.(null), 400); }
-    if (this.badMs > 2500 && this.stack > 0 && !this.falling) { this.falling = { at: now, n: this.stack }; this.stack = 0; this.falls++; this.goodMs = 0; this.onColor?.([255, 0, 0]); setTimeout(() => this.onColor?.(null), 700); }
-    // draw stack
-    const n = this.falling ? this.falling.n : this.stack;
-    let y = ground;
-    for (let i = 0; i < n; i++) {
-      const w = 64 - i * 3.2, h = 15, sway = this.wobble * Math.sin(now / 120 + i) * (i + 1) * 1.4;
-      let x = W / 2 + sway, yy = y - h / 2, rot = this.wobble * .06 * Math.sin(now / 150 + i);
-      if (this.falling) { const k = (now - this.falling.at) / 900; x += (i + 1) * 14 * k * (i % 2 ? 1 : -1); yy += k * k * (i + 1) * 20; rot += k * (i % 2 ? 1 : -1); ctx.globalAlpha = Math.max(0, 1 - k); }
-      ctx.save(); ctx.translate(x, yy); ctx.rotate(rot);
-      ctx.fillStyle = ['#9a968b', '#b6b1a5', '#8e897d', '#c3beb2'][i % 4];
-      ctx.beginPath(); ctx.ellipse(0, 0, w / 2, h / 2, 0, 0, TAU); ctx.fill(); ctx.restore(); ctx.globalAlpha = 1;
-      y -= h - 2;
+  // ---------- Shoulder Bells ----------
+  // Shrugging moves the shoulders up toward the nose, so headY (nose minus shoulder height,
+  // relative to sitting normally) goes up. Lift past 0.12, hold half a second, drop back = one ring.
+  bells(ctx, W, H, dt, now, c) {
+    const lift = c ? Math.max(0, Math.min(1, c.headY / .18)) : 0;
+    this.lift += (lift - this.lift) * Math.min(1, dt / 120);
+    if (this.lift > .65) { this.upMs += dt; this.s.a += dt; if (!this.up && this.upMs > 500) this.up = true; }
+    else if (this.lift < .25) {
+      if (this.up) { this.s.score++; this.rings.push(now); this.swing = 1; this.onColor?.([255, 200, 60]); setTimeout(() => this.onColor?.(null), 450); }
+      else if (this.upMs > 120) this.s.b++;
+      this.up = false; this.upMs = 0;
     }
-    if (this.falling && now - this.falling.at > 900) this.falling = null;
-    // next stone progress
-    if (!this.falling && good) {
-      const k = Math.min(1, this.goodMs / 2500);
-      ctx.strokeStyle = 'rgba(20,20,18,.25)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.arc(W / 2, y - 24, 10, -Math.PI / 2, -Math.PI / 2 + TAU * k); ctx.stroke();
-    }
-    this.hint = !c ? '' : good ? 'Sitting tall. The next stone is on its way.' : this.wobble > .4 ? 'It’s wobbling. Sit back up.' : 'Sit tall and still.';
+    this.swing *= Math.pow(.997, dt);
+    // rope from the top, bell hangs from it; the rope is pulled up as you lift
+    const cx = W / 2, top = H * .1, by = H * .42 - this.lift * H * .14;
+    const rot = Math.sin(now / 110) * .45 * this.swing;
+    ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(cx, by); ctx.stroke();
+    ctx.save(); ctx.translate(cx, by); ctx.rotate(rot);
+    ctx.fillStyle = paper; ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(-8, 0); ctx.quadraticCurveTo(-12, 10, -16, 34); ctx.quadraticCurveTo(-26, 44, -30, 48); ctx.lineTo(30, 48); ctx.quadraticCurveTo(26, 44, 16, 34); ctx.quadraticCurveTo(12, 10, 8, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(rot * -20, 54, 5, 0, TAU); ctx.fill();
+    ctx.restore();
+    // sound rings expanding from the bell
+    this.rings = this.rings.filter(t => now - t < 1400);
+    for (const t of this.rings) { const k = (now - t) / 1400; ctx.strokeStyle = `rgba(20,20,18,${.35 * (1 - k)})`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cx, by + 30, 40 + k * W * .35, 0, TAU); ctx.stroke(); }
+    // lift meter: two shoulder marks that rise
+    const my = H * .82, mx = W * .3;
+    ctx.strokeStyle = 'rgba(20,20,18,.18)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    for (const x of [cx - mx, cx + mx]) { ctx.beginPath(); ctx.moveTo(x, my); ctx.lineTo(x, my - H * .22); ctx.stroke(); }
+    ctx.strokeStyle = this.up ? '#c99a1e' : ink;
+    for (const x of [cx - mx, cx + mx]) { ctx.beginPath(); ctx.moveTo(x, my); ctx.lineTo(x, my - H * .22 * this.lift); ctx.stroke(); }
+    this.hint = !c ? '' : this.up ? 'Now let your shoulders drop.' : this.lift > .65 ? 'Hold it up there…' : 'Lift both shoulders up to your ears.';
   }
 
   // ---------- Dandelion seeds ----------
@@ -165,7 +166,7 @@ export class MiniGame {
     } else if (!this.cur[0]) this.cur = [W / 2, H / 2];
     if (!this.seed && this.base) {
       const a = Math.random() * TAU, r = .55 + Math.random() * .3;
-      this.seed = { x: W / 2 + Math.cos(a) * W * .4 * r, y: H / 2 + Math.sin(a) * H * .38 * r, born: now, ph: Math.random() * TAU };
+      const dy = Math.sin(a) * H * .38 * r; this.seed = { x: W / 2 + Math.cos(a) * W * .4 * r, y: H / 2 + (dy > 0 ? dy * .3 : dy), born: now, ph: Math.random() * TAU };
       if (Math.abs(Math.cos(a)) > .6) this.s.a++; else this.s.b++;
     }
     // dandelion head in the middle

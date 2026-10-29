@@ -1046,7 +1046,7 @@ function renderGameChips() {
   const k = gameKind();
   document.querySelectorAll('#game-chips button').forEach(b => b.classList.toggle('on', b.dataset.g === k));
   text('game-title', GAMES[k].title); text('game-tip', GAMES[k].tip);
-  text('game-unit', k === 'stones' ? 'stones' : k === 'boat' ? 'drops' : k === 'seeds' ? 'seeds' : 'points');
+  text('game-unit', k === 'bells' ? 'bells' : k === 'boat' ? 'drops' : k === 'seeds' ? 'seeds' : 'points');
 }
 $('game-chips').addEventListener('click', e => {
   const b = e.target.closest('button[data-g]'); if (!b) return;
@@ -1232,3 +1232,11 @@ syncUI();
 renderPause();
 mountAgents();
 syncRef();
+
+// Full screen for games: the whole game card fills the screen (stage, score, End button).
+// The browser's Fullscreen API handles it; Esc or the same button exits.
+$('game-fs').onclick = () => {
+  const el = $('game-panel');
+  if (document.fullscreenElement) document.exitFullscreen();
+  else (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+};

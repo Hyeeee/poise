@@ -174,7 +174,7 @@ export function showBreakReport(r, speak) {
     const legend = $('report-legend'); const legendWas = legend.hidden;
     let title, line;
     if (r.kind === 'game' && r.game && r.game.kind && r.game.kind !== 'bubbles') {
-      const g = r.game, names = { boat: 'Sail the stream', stones: 'Balance the stones', seeds: 'Follow the seeds' };
+      const g = r.game, names = { boat: 'Sail the stream', bells: 'Ring the bells', seeds: 'Follow the seeds' };
       title = g.score >= 8 ? 'Great moves.' : g.score >= 3 ? 'Nice moves.' : 'A quick move.';
       line = `${names[g.kind]}: ${g.stats.map(([v, l]) => `${v} ${l}`).join(', ')}.`;
       $('report-chart').hidden = true; legend.hidden = true;
