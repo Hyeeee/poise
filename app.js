@@ -151,6 +151,7 @@ function stop() {
   text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); text('calibrate', 'Set reference');
   $('hold-bar').style.width = '0'; $('deviation-bar').style.width = '0';
   renderPause(); light('idle');
+  if (sensor.live && !sensorRef) calibrateSensor(); else showSensorCard();   // camera off + sensor: straight to sensor mode
 }
 
 function setChip(label, live = false) { text('tracking', label); $('tracking').classList.toggle('live', live); }
@@ -404,7 +405,7 @@ const hasRef = () => !!reference || sensorRef;
 function syncRef() {
   $('studio').classList.toggle('no-ref', !hasRef() && screen === 'work');
   $('end-session').hidden = !hasRef();
-  $('sensor-mode').hidden = !(sensor.live && !active);
+  $('sensor-mode').hidden = true;
   const needBar = !writer && !barSkipped && ('serial' in navigator);
   $('bar-prompt').hidden = !!reference || !active || screen !== 'work' || !needBar;
   $('ref-prompt').hidden = !!reference || !active || screen !== 'work' || needBar;
@@ -1094,7 +1095,7 @@ let sensorRef = false;        // posture reference taken from the sensor alone (
 let away = false, awaySince = 0, backSince = 0, pausedByAway = false, breakAwayMs = 0, lastSensorTick = 0;
 let tapStart = 0, tapFrom = 0, lastTap = 0;
 function calibrateSensor() {
-  sensor.base = sensor.cm; sensorRef = true; reference = null; driftSince = 0;
+  sensor.base = sensor.cm > 0 ? sensor.cm : 65; sensorRef = true; reference = null; driftSince = 0;
   syncRef();
   if (!posture.active) posture.reset();
   text('calibrate', 'Reset reference');
@@ -1123,7 +1124,7 @@ sensor.on(() => {
   if (now - lastSensorTick > 180) { lastSensorTick = now; sensorTick(now); }
   sensorTap(now);
   // Camera off: switch to sensor mode on its own, so the bar and the session keep working.
-  if (!active && !sensorRef && sensor.cm > 0 && !$('studio').hidden && screen === 'work') calibrateSensor();
+  if (!active && !sensorRef && sensor.live && !$('studio').hidden) calibrateSensor();
   if (!active) { syncRef(); const el = $('sensor-live'); if (el) el.textContent = sensor.cm > 0 ? `${sensor.cm} cm · good range ${SENSOR_GOOD[0]}–${SENSOR_GOOD[1]}` : '—'; }
 });
 function sensorTick(now) {
