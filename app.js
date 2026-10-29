@@ -1185,7 +1185,8 @@ sensor.on(() => {
   // Camera off: switch to sensor mode on its own, so the bar and the session keep working.
   if (!active && !sensorRef && sensor.live && !$('studio').hidden) calibrateSensor();
   if (!active) syncRef();
-  $('sensor-row').hidden = false; text('sensor-dist', sensor.cm > 0 ? sensor.cm : '—');
+  $('sensor-row').hidden = active;   // cm only in sensor mode (camera off)
+   text('sensor-dist', sensor.cm > 0 ? sensor.cm : '—');
   $('sensor-dist').classList.toggle('off', sensor.cm > 0 && (sensor.cm < SENSOR_GOOD[0] || sensor.cm > SENSOR_GOOD[1]));
 });
 function sensorTick(now) {
