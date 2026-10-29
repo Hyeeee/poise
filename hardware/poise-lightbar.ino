@@ -24,7 +24,7 @@ constexpr uint16_t LED_COUNT = 30;   // <- change to your strip's LED count
 constexpr uint8_t TRIG_L = 7, ECHO_L = 8;    // sensor on the screen's left
 constexpr uint8_t TRIG_R = 9, ECHO_R = 10;   // sensor on the screen's right
 constexpr bool    USE_SENSOR = true;  // <- false if the HC-SR04 isn't wired
-constexpr uint8_t BRIGHTNESS = 140;  // brighter, saturated colors; white is kept dim to stay within USB power
+constexpr uint8_t BRIGHTNESS = 120;  // brighter, saturated colors; white is kept dim to stay within USB power
 
 // How fast the strip moves toward a new color each frame (every 20 ms).
 // 0.07 ≈ 0.6 s (snappy) · 0.03 ≈ 1.5 s (calm) · 0.015 ≈ 3 s (very slow)
@@ -88,7 +88,7 @@ void handleMessage(String msg) {
       if (r4 > 0) fade = constrain(msg.substring(r4 + 1).toInt(), 1, 100) / 100.0;
     }
   }
-  else if (msg == "WHITE")  setTarget(150, 150, 140);
+  else if (msg == "WHITE")  setTarget(140, 140, 130);
   else if (msg == "GREEN")  setTarget(0, 255, 30);
   else if (msg == "AMBER") setTarget(255, 130, 0);
   else if (msg == "RED")   setTarget(255, 0, 0);
@@ -141,14 +141,14 @@ void sensorDemo() {
     if (!outSince) outSince = now;
     unsigned long held = now - outSince;
     fade = 0.05;
-    if (held < 5000)       mixTarget(150, 150, 140, 255, 190, 60, off / 30.0);   // gentle warm hint (half-warm at 15 cm out)
+    if (held < 5000)       mixTarget(140, 140, 130, 255, 190, 60, off / 30.0);   // gentle warm hint (half-warm at 15 cm out)
     else if (held < 10000) setTarget(255, 130, 0);                              // yellow
     else                   setTarget(255, 0, 0);                                // red
   } else {
     if (outSince && now - outSince >= 5000) okUntil = now + 1200;               // corrected
     outSince = 0;
     fade = 0.12;
-    setTarget(150, 150, 140);                                                   // good: soft white
+    setTarget(140, 140, 130);                                                   // good: soft white
   }
 }
 
