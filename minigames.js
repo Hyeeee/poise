@@ -52,17 +52,18 @@ export class MiniGame {
       headY: (p[0].y - my) / w,
       tilt: (p[11].y - p[12].y) / w,
       yaw: vis(p, 7) && vis(p, 8) ? (((p[7].x + p[8].x) / 2) - p[0].x) / (Math.abs(p[7].x - p[8].x) || .05) : 0,
+      nx: (mx - p[0].x) / w,                                        // nose left/right of the shoulder middle (+ = screen right)
       pitch: vis(p, 7) && vis(p, 8) ? (p[0].y - (p[7].y + p[8].y) / 2) / w : 0,
     };
     if (!this.base) {
       this.baseSamples.push(c);
       if (this.baseSamples.length >= 15) {
         const avg = k => this.baseSamples.reduce((a, b) => a + b[k], 0) / this.baseSamples.length;
-        this.base = { lean: avg('lean'), headY: avg('headY'), tilt: avg('tilt'), yaw: avg('yaw'), pitch: avg('pitch') };
+        this.base = { nx: avg('nx'), lean: avg('lean'), headY: avg('headY'), tilt: avg('tilt'), yaw: avg('yaw'), pitch: avg('pitch') };
       }
       return null;
     }
-    return { lean: c.lean - this.base.lean, headY: c.headY - this.base.headY, tilt: c.tilt - this.base.tilt, yaw: c.yaw - this.base.yaw, pitch: c.pitch - this.base.pitch };
+    return { nx: c.nx - this.base.nx, lean: c.lean - this.base.lean, headY: c.headY - this.base.headY, tilt: c.tilt - this.base.tilt, yaw: c.yaw - this.base.yaw, pitch: c.pitch - this.base.pitch };
   }
 
   step(now) {
@@ -174,10 +175,14 @@ export class MiniGame {
   // ---------- Dandelion seeds ----------
   seeds(ctx, W, H, dt, now, c) {
     if (c) {
-      const tx = W / 2 + Math.max(-1, Math.min(1, c.yaw / .5)) * W * .4;
-      const ty = H / 2 + Math.max(-1, Math.min(1, (c.pitch + c.tilt * .5) / .25)) * H * .38;
-      this.cur[0] += (tx - this.cur[0] || 0) * Math.min(1, dt / 140);
-      this.cur[1] += (ty - this.cur[1] || 0) * Math.min(1, dt / 140);
+      // Follow where the nose moves relative to the shoulders: steadier than reading head
+      // rotation from the ears, which jumps when an ear leaves the frame.
+      const dz = (v, d) => Math.abs(v) < d ? 0 : v - Math.sign(v) * d;          // ignore tiny jitter
+      const tx = W / 2 + Math.max(-1, Math.min(1, dz(c.nx, .03) / .28)) * W * .42;
+      const ty = H / 2 + Math.max(-1, Math.min(1, dz(c.headY, .03) / .22)) * H * .4;
+      const ease = Math.min(1, dt / 260);                                        // slower, calmer follow
+      this.cur[0] += (tx - this.cur[0] || 0) * ease;
+      this.cur[1] += (ty - this.cur[1] || 0) * ease;
       if (!this.cur[0]) this.cur = [W / 2, H / 2];
     } else if (!this.cur[0]) this.cur = [W / 2, H / 2];
     if (!this.seed && this.base) {
@@ -194,7 +199,7 @@ export class MiniGame {
       ctx.strokeStyle = ink; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(s.x, s.y + 4); ctx.lineTo(s.x, s.y + 14); ctx.stroke();
       for (let i = 0; i < 9; i++) { const a = -Math.PI + i / 8 * Math.PI; ctx.beginPath(); ctx.moveTo(s.x, s.y + 4); ctx.lineTo(s.x + Math.cos(a) * 9, s.y + 4 + Math.sin(a) * 9); ctx.stroke(); }
-      const near = Math.hypot(this.cur[0] - s.x, this.cur[1] - s.y) < 26;
+      const near = Math.hypot(this.cur[0] - s.x, this.cur[1] - s.y) < 34;
       this.holdMs = near ? this.holdMs + dt : Math.max(0, this.holdMs - dt);
       if (this.holdMs > 1200) { this.s.score++; this.seed = null; this.holdMs = 0; this.onColor?.([255, 220, 0]); setTimeout(() => this.onColor?.(null), 400); }
       if (s && near) { ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(s.x, s.y + 6, 22, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke(); }
