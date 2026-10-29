@@ -91,8 +91,12 @@ export class MiniGame {
       const hw = hp.offsetWidth, hh = hp.offsetHeight;
       if (hp.width !== Math.round(hw * dpr)) { hp.width = Math.round(hw * dpr); hp.height = Math.round(hh * dpr); }
       const h = hp.getContext('2d'); h.setTransform(1, 0, 0, 1, 0, 0); h.clearRect(0, 0, hp.width, hp.height);
-      const f = Math.min(hp.width / cv.width, hp.height / cv.height);
-      h.drawImage(cv, (hp.width - cv.width * f) / 2, (hp.height - cv.height * f) / 2, cv.width * f, cv.height * f);
+      // Copy only the game area (the uncovered part), cropped to the box's shape around its centre,
+      // so the pieces fill the helper box and sit centred instead of tiny in a corner.
+      const sx = sa.l * dpr, sy = sa.t * dpr, sw = sa.w * dpr, sh = sa.h * dpr;
+      const ar = hp.width / hp.height; let cw = sw, ch = sw / ar;
+      if (ch > sh) { ch = sh; cw = sh * ar; }
+      h.drawImage(cv, sx + (sw - cw) / 2, sy + (sh - ch) / 2, cw, ch, 0, 0, hp.width, hp.height);
     }
     if (this.hint && !label) label = this.hint;
     this.onTick?.({ score: this.s.score, left: Math.max(0, left), label });
