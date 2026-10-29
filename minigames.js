@@ -156,7 +156,7 @@ export class MiniGame {
     }
     this.swing *= Math.pow(.997, dt);
     // rope from the top, bell hangs from it; the rope is pulled up as you lift
-    const cx = W / 2, top = H * .1, by = H * .42 - this.lift * H * .14;
+    const cx = W / 2, top = 0, by = H * .2 - this.lift * H * .08;   // bell hangs high, off your face
     const rot = Math.sin(now / 110) * .45 * this.swing;
     ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(cx, by); ctx.stroke();
     ctx.save(); ctx.translate(cx, by); ctx.rotate(rot);
@@ -173,6 +173,25 @@ export class MiniGame {
     for (const x of [cx - mx, cx + mx]) { ctx.beginPath(); ctx.moveTo(x, my); ctx.lineTo(x, my - H * .22); ctx.stroke(); }
     ctx.strokeStyle = this.up ? '#c99a1e' : ink;
     for (const x of [cx - mx, cx + mx]) { ctx.beginPath(); ctx.moveTo(x, my); ctx.lineTo(x, my - H * .22 * this.lift); ctx.stroke(); }
+    // On-screen cue next to each shoulder bar: animated arrows + one word, readable at a glance.
+    const phase = !c ? null : this.up ? 'drop' : this.lift > .65 ? 'hold' : 'lift';
+    if (phase) {
+      ctx.save(); ctx.shadowBlur = 8;
+      const bob = Math.sin(now / 260) * 6, dir = phase === 'drop' ? 1 : -1;
+      ctx.strokeStyle = phase === 'hold' ? '#c99a1e' : ink; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      for (const x of [cx - mx, cx + mx]) {
+        if (phase === 'hold') { ctx.beginPath(); ctx.arc(x, my - H * .3, 12, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.upMs / 500)); ctx.stroke(); continue; }
+        for (let i = 0; i < 2; i++) {
+          const y = my - H * .3 + bob * dir + i * 14 * -dir;
+          ctx.globalAlpha = 1 - i * .45;
+          ctx.beginPath(); ctx.moveTo(x - 14, y - 7 * dir); ctx.lineTo(x, y + 7 * dir); ctx.lineTo(x + 14, y - 7 * dir); ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+      }
+      ctx.fillStyle = ink; ctx.font = '600 22px Geist, system-ui, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(phase === 'drop' ? 'DROP' : phase === 'hold' ? 'HOLD' : 'LIFT', cx, my - H * .02);
+      ctx.restore();
+    }
     this.hint = !c ? '' : this.up ? 'Now let your shoulders drop.' : this.lift > .65 ? 'Hold it up there…' : 'Lift both shoulders up to your ears.';
   }
 
