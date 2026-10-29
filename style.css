@@ -745,8 +745,10 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 
 /* Posture card: no moving logo, footer wraps instead of clipping */
 #state-agent { display: none !important; }
-.state .card-foot { flex-wrap: wrap; row-gap: 10px; }
-.state .card-foot #calibrate { margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+.state .card-foot { flex-wrap: nowrap; gap: 12px; min-width: 0; }
+.state .card-foot .stat { min-width: 0; white-space: nowrap; }
+.state .card-foot #sensor-row { padding-left: 12px; }
+.state .card-foot #calibrate { margin-left: auto; white-space: nowrap; flex-shrink: 0; padding-left: 12px; padding-right: 12px; }
 /* More air between the timer and its progress bar */
 .session .timer { margin-bottom: 14px; }
 .session .meter.thin { margin-bottom: 14px; }
