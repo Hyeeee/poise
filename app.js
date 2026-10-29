@@ -48,8 +48,13 @@ const strongDelay = () => store.work().delay * 1000;
 
 // ---------- Output: light bar, toast, chime ----------
 // state: green | amber | red | idle | white. rgb (optional) sends an exact blended color to the bar.
+// Light bar presets as RGB (same values the board uses), so brightness can scale them too.
+const PRESET_RGB = { white: [140, 140, 130], green: [0, 255, 30], amber: [255, 130, 0], red: [255, 0, 0], idle: [40, 45, 50] };
 function light(state, rgb, fast) {
   document.documentElement.style.setProperty('--signal', rgb ? `rgb(${rgb.join(',')})` : colors[state]);
+  // Brightness setting (25-100%): every colour is scaled down before it is sent to the board.
+  const bright = (store.state.brightness ?? 100) / 100;
+  if (bright < 1) rgb = (rgb || PRESET_RGB[state] || PRESET_RGB.idle).map(v => Math.round(v * bright));
   $('state-agent').dataset.mood = state === 'white' ? 'green' : state;
   const msg = rgb ? `RGB ${rgb.join(' ')}${fast ? ' ' + fast : ''}` : state.toUpperCase();
   if (writer && (lastSerial !== msg || performance.now() - lastSerialTime > 1000) && !serialBusy) {
@@ -805,6 +810,16 @@ $('voice-seg').addEventListener('click', e => {
   $('pref-voice').checked = true; syncVoicePick();
   speak('All set.', $('ask-orb'));
 });
+// Light bar brightness: pick a level, the light updates on its next message (within a frame).
+function syncBright() {
+  document.querySelectorAll('#bright-seg button').forEach(b => b.classList.toggle('active', +b.dataset.b === (store.state.brightness ?? 100)));
+}
+$('bright-seg').addEventListener('click', e => {
+  const b = e.target.closest('button[data-b]'); if (!b) return;
+  store.update(s => { s.brightness = +b.dataset.b; }); syncBright();
+  lastSerial = null;                                   // force the new level to be sent right away
+});
+syncBright();
 $('pref-joints').onchange = e => setJoints(e.target.checked);
 $('pref-setup').onclick = () => { $('modes').close(); rerunSetup(); };
 $('pref-tour').onclick = () => { $('modes').close(); setScreen('work'); startTour(); };
