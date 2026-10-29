@@ -640,7 +640,7 @@ function startBreathe() {
       text('reset-cm', s.base == null ? '—' : drop.toFixed(1));
       text('reset-count', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}`);
       $('reset-bar').style.width = Math.min(100, drop / 1.5 * 100) + '%';
-      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : drop >= 1.5 ? 'Lovely, your shoulders are fully relaxed.' : drop >= .5 ? 'Your shoulders are dropping. Keep going.' : inhale ? 'Breathe in and let your shoulders rise a little.' : 'Breathe out and let your shoulders sink.');
+      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : inhale ? 'Breathing in: shoulders rise a little. This is the starting point.' : drop >= 1.5 ? 'Lovely. Your shoulders came down a long way from the top of your breath.' : 'Breathing out: let your shoulders sink. The number shows how far they come down.');
     } else {
       // Part 2: eye rest. Gentle steady glow on the bar.
       const step = Math.min(EYES.length - 1, Math.floor((t - eyesAt) / ((total - eyesAt) / EYES.length)));
