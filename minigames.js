@@ -105,8 +105,7 @@ export class MiniGame {
   boat(ctx, W, H, dt, now, c) {
     const lane = W / 2 - 40;                    // the stream spans the whole visible width
     // stream
-    ctx.fillStyle = 'rgba(225,238,245,.22)'; ctx.fillRect(0, 0, W, H);
-    this.scroll = (this.scroll + dt * .06) % 40;
+        this.scroll = (this.scroll + dt * .06) % 40;
     ctx.strokeStyle = 'rgba(120,150,165,.35)'; ctx.lineWidth = 1.5;
     for (let y = -40 + this.scroll; y < H; y += 40) for (const x of [-.75, -.25, .25, .75]) { ctx.beginPath(); ctx.moveTo(W / 2 + x * lane - 8, y); ctx.quadraticCurveTo(W / 2 + x * lane, y + 6, W / 2 + x * lane + 8, y); ctx.stroke(); }
     if (c) {
@@ -146,10 +145,10 @@ export class MiniGame {
   // Shrugging moves the shoulders up toward the nose, so headY (nose minus shoulder height,
   // relative to sitting normally) goes up. Lift past 0.12, hold half a second, drop back = one ring.
   bells(ctx, W, H, dt, now, c) {
-    const lift = c ? Math.max(0, Math.min(1, c.headY / .18)) : 0;
+    const lift = c ? Math.max(0, Math.min(1, c.headY / .1)) : 0;   // a modest shrug fills it
     this.lift += (lift - this.lift) * Math.min(1, dt / 120);
-    if (this.lift > .65) { this.upMs += dt; this.s.a += dt; if (!this.up && this.upMs > 500) this.up = true; }
-    else if (this.lift < .25) {
+    if (this.lift > .55) { this.upMs += dt; this.s.a += dt; if (!this.up && this.upMs > 300) this.up = true; }
+    else if (this.lift < .3) {
       if (this.up) { sfx.bell(); this.s.score++; this.rings.push(now); this.swing = 1; this.onColor?.([255, 200, 60]); setTimeout(() => this.onColor?.(null), 450); }
       else if (this.upMs > 120) this.s.b++;
       this.up = false; this.upMs = 0;
@@ -174,13 +173,13 @@ export class MiniGame {
     ctx.strokeStyle = this.up ? '#c99a1e' : ink;
     for (const x of [cx - mx, cx + mx]) { ctx.beginPath(); ctx.moveTo(x, my); ctx.lineTo(x, my - H * .22 * this.lift); ctx.stroke(); }
     // On-screen cue next to each shoulder bar: animated arrows + one word, readable at a glance.
-    const phase = !c ? null : this.up ? 'drop' : this.lift > .65 ? 'hold' : 'lift';
+    const phase = !c ? null : this.up ? 'drop' : this.lift > .55 ? 'hold' : 'lift';
     if (phase) {
       ctx.save(); ctx.shadowBlur = 8;
       const bob = Math.sin(now / 260) * 6, dir = phase === 'drop' ? 1 : -1;
       ctx.strokeStyle = phase === 'hold' ? '#c99a1e' : ink; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       for (const x of [cx - mx, cx + mx]) {
-        if (phase === 'hold') { ctx.beginPath(); ctx.arc(x, my - H * .3, 12, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.upMs / 500)); ctx.stroke(); continue; }
+        if (phase === 'hold') { ctx.beginPath(); ctx.arc(x, my - H * .3, 12, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.upMs / 300)); ctx.stroke(); continue; }
         for (let i = 0; i < 2; i++) {
           const y = my - H * .3 + bob * dir + i * 14 * -dir;
           ctx.globalAlpha = 1 - i * .45;
@@ -192,7 +191,7 @@ export class MiniGame {
       ctx.fillText(phase === 'drop' ? 'DROP' : phase === 'hold' ? 'HOLD' : 'LIFT', cx, my - H * .02);
       ctx.restore();
     }
-    this.hint = !c ? '' : this.up ? 'Now let your shoulders drop.' : this.lift > .65 ? 'Hold it up there…' : 'Lift both shoulders up to your ears.';
+    this.hint = !c ? '' : this.up ? 'Now let your shoulders drop.' : this.lift > .55 ? 'Hold it up there…' : 'Lift both shoulders up to your ears.';
   }
 
   // ---------- Dandelion seeds ----------
