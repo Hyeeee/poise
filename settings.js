@@ -2,9 +2,9 @@
 const KEY = 'poise.settings.v2';
 
 export const SENSITIVITY = {
-  gentle:   { label: 'Gentle',   threshold: 26 },
-  balanced: { label: 'Balanced', threshold: 18 },
-  firm:     { label: 'Firm',     threshold: 12 },
+  gentle:   { label: 'Gentle',   threshold: 40 },
+  balanced: { label: 'Balanced', threshold: 30 },
+  firm:     { label: 'Firm',     threshold: 20 },
 };
 export const SENS_ORDER = ['gentle', 'balanced', 'firm'];
 

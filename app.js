@@ -270,12 +270,14 @@ function updateWork(p, now) {
   // If the ears were visible when the reference was saved but aren't now (or the other way round),
   // the head point moved source, so take a fresh baseline for the head.
   if (c.ears !== reference.ears) { reference = { ...reference, x: c.x, y: c.y, ears: c.ears }; }
-  let d = Math.min(100, Math.round((Math.abs(c.x - reference.x) + Math.abs(c.y - reference.y) + Math.abs(c.tilt - reference.tilt) + Math.abs(c.roll - (reference.roll || 0)) * .6) * 100));
+  // Each part ignores a small natural wobble first (dz), so a slight nod or tilt counts as nothing.
+  const dz = v => Math.max(0, Math.abs(v) - .04);
+  let d = Math.min(100, Math.round((dz(c.x - reference.x) + dz(c.y - reference.y) + dz(c.tilt - reference.tilt) + dz(c.roll - (reference.roll || 0)) * .6) * 100));
   // The distance sensor is more exact about leaning toward the screen than the camera.
   let widthRatio = c.width / reference.width;
   // Shoulders sinking in the frame = sliding down / leaning back in the chair.
   const sink = reference.sy != null ? Math.max(0, (c.sy - reference.sy) / reference.width) : 0;
-  d = Math.min(100, d + Math.round(sink * 120));
+  d = Math.min(100, d + Math.round(Math.max(0, sink - .03) * 90));
   // Sensor (camera on): only counts when you're really close, under the good range (55 cm), not small moves.
   if (sensor.live && sensor.cm > 0 && sensor.cm < SENSOR_GOOD[0] - 3) { widthRatio = Math.max(widthRatio, (SENSOR_GOOD[0] - 3) / sensor.cm); }
   applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt, roll: c.roll - (reference.roll || 0), sink }, widthRatio);
