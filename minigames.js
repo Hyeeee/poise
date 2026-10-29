@@ -81,8 +81,6 @@ export class MiniGame {
     const k = Math.max(1, Math.min(sa.w, sa.h) / 360), gw = sa.w / k, gh = sa.h / k;
     const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
     ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * sa.l, dpr * sa.t);
-    // a soft white halo keeps dark lines readable on top of the camera
-    ctx.shadowColor = 'rgba(255,255,250,.9)'; ctx.shadowBlur = 6;
     const c = this.cues();
     let label = !this.pose ? 'Sit so your head and shoulders are in view.' : !this.base ? 'Sit still for a moment…' : '';
     this[this.kind](ctx, gw, gh, dt, now, c);
@@ -105,10 +103,7 @@ export class MiniGame {
   boat(ctx, W, H, dt, now, c) {
     const lane = W / 2 - 40;                    // the stream spans the whole visible width
     // stream
-        this.scroll = (this.scroll + dt * .06) % 40;
-    ctx.strokeStyle = 'rgba(120,150,165,.35)'; ctx.lineWidth = 1.5;
-    for (let y = -40 + this.scroll; y < H; y += 40) for (const x of [-.75, -.25, .25, .75]) { ctx.beginPath(); ctx.moveTo(W / 2 + x * lane - 8, y); ctx.quadraticCurveTo(W / 2 + x * lane, y + 6, W / 2 + x * lane + 8, y); ctx.stroke(); }
-    if (c) {
+        if (c) {
       const target = Math.max(-1, Math.min(1, c.lean / .35));
       if (Math.abs(target) > .6 && Math.abs(this.boatX) <= .6) this.s.a += .5;     // counts each lean out
       this.boatX += (target - this.boatX) * Math.min(1, dt / 160);
@@ -128,15 +123,29 @@ export class MiniGame {
         setTimeout(() => this.onColor?.(null), 500);
       }
       if (it.done) continue;
-      if (it.kind === 'drop') { ctx.fillStyle = '#5aa9d6'; ctx.beginPath(); ctx.moveTo(x, it.y - 9); ctx.quadraticCurveTo(x + 7, it.y + 2, x, it.y + 6); ctx.quadraticCurveTo(x - 7, it.y + 2, x, it.y - 9); ctx.fill(); }
-      else { ctx.fillStyle = '#8b8a82'; ctx.beginPath(); ctx.ellipse(x, it.y, 13, 9, .3, 0, TAU); ctx.fill(); }
+      if (it.kind === 'drop') {
+        // water drop: soft blue gradient with a small highlight
+        const g = ctx.createLinearGradient(x, it.y - 10, x, it.y + 7); g.addColorStop(0, '#9fd3f2'); g.addColorStop(1, '#3d8fc9');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x, it.y - 10); ctx.bezierCurveTo(x + 2, it.y - 4, x + 7, it.y - 1, x + 7, it.y + 3); ctx.arc(x, it.y + 3, 7, 0, Math.PI); ctx.bezierCurveTo(x - 7, it.y - 1, x - 2, it.y - 4, x, it.y - 10); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.beginPath(); ctx.ellipse(x - 2.5, it.y + 1, 1.6, 2.6, -.4, 0, TAU); ctx.fill();
+      } else {
+        // pebble: smooth warm grey with light from the top-left
+        const g = ctx.createRadialGradient(x - 4, it.y - 4, 1, x, it.y, 14); g.addColorStop(0, '#c9c4b8'); g.addColorStop(1, '#7d786d');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, it.y, 13, 9, .25, 0, TAU); ctx.fill();
+      }
     }
     this.items = this.items.filter(i => i.y < H + 20 && !i.done);
     // boat (folded paper)
     ctx.save(); ctx.translate(bx, by); ctx.rotate(this.boatX * .25);
-    ctx.fillStyle = paper; ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.lineJoin = 'round';
-    ctx.beginPath(); ctx.moveTo(-24, 0); ctx.lineTo(24, 0); ctx.lineTo(16, 10); ctx.lineTo(-16, 10); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(0, -22); ctx.lineTo(12, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // paper boat: white body, a slightly shaded sail fold, thin ink outline, soft shadow under it
+    ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 4;
+    ctx.fillStyle = '#fbfaf6'; ctx.beginPath(); ctx.moveTo(-26, 0); ctx.lineTo(26, 0); ctx.lineTo(17, 11); ctx.quadraticCurveTo(0, 13, -17, 11); ctx.closePath(); ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(-13, 0); ctx.lineTo(0, -24); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#e9e6dd'; ctx.beginPath(); ctx.moveTo(0, -24); ctx.lineTo(13, 0); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(30,31,28,.55)'; ctx.lineWidth = 1.2; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(-26, 0); ctx.lineTo(26, 0); ctx.lineTo(17, 11); ctx.quadraticCurveTo(0, 13, -17, 11); ctx.closePath(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-13, 0); ctx.lineTo(0, -24); ctx.lineTo(13, 0); ctx.moveTo(0, -24); ctx.lineTo(0, 0); ctx.stroke();
     ctx.restore();
     this.hint = c ? (Math.abs(this.boatX) < .2 ? 'Lean left or right to steer.' : 'Nice, keep leaning.') : '';
   }
@@ -175,7 +184,7 @@ export class MiniGame {
     // On-screen cue next to each shoulder bar: animated arrows + one word, readable at a glance.
     const phase = !c ? null : this.up ? 'drop' : this.lift > .55 ? 'hold' : 'lift';
     if (phase) {
-      ctx.save(); ctx.shadowBlur = 8;
+      ctx.save();
       const bob = Math.sin(now / 260) * 6, dir = phase === 'drop' ? 1 : -1;
       ctx.strokeStyle = phase === 'hold' ? '#c99a1e' : ink; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       for (const x of [cx - mx, cx + mx]) {
