@@ -580,11 +580,16 @@ function shoulderGap(p) {
 function updateReset(p) {
   const g = shoulderGap(p); if (g == null) return;
   const s = resetShoulder;
-  s.samples.push(g); if (s.samples.length > 8) s.samples.shift();
+  s.samples.push(g); if (s.samples.length > 5) s.samples.shift();
   const avg = s.samples.reduce((a, b) => a + b, 0) / s.samples.length;
-  if (s.base == null && s.samples.length >= 8) s.base = avg;
+  // Measure each breath, not against the start: remember where your shoulders were highest
+  // in the last ~8 s (the top of the in-breath), and how far they've come down from there.
+  const now = performance.now();
+  s.hist = (s.hist || []).filter(h => now - h.t < 8000); s.hist.push({ t: now, g: avg });
+  if (s.base == null && s.samples.length >= 5) s.base = avg;
+  s.top = Math.min(...s.hist.map(h => h.g));        // smallest gap = shoulders highest
   s.now = avg;
-  if (s.base != null) s.best = Math.max(s.best, (avg - s.base) * SHOULDER_CM);
+  if (s.base != null) s.best = Math.max(s.best, (avg - s.top) * SHOULDER_CM);
 }
 function startBreathe() {
   stopBreathe();
@@ -623,13 +628,13 @@ function startBreathe() {
       const lv = .5 - .5 * Math.cos(level * Math.PI);        // ease in and out
       light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)], 15);
       const s = resetShoulder;
-      const drop = s.base != null && s.now != null ? Math.max(0, (s.now - s.base) * SHOULDER_CM) : 0;
+      const drop = s.base != null && s.now != null ? Math.max(0, (s.now - s.top) * SHOULDER_CM) : 0;
       text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Breathe out and let your shoulders sink down, away from your ears.');
       // Same layout as stretching: big number = how far your shoulders have relaxed, bar = toward a 2 cm goal.
       text('reset-cm', s.base == null ? '—' : drop.toFixed(1));
       text('reset-count', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}`);
-      $('reset-bar').style.width = Math.min(100, drop / 2 * 100) + '%';
-      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : drop >= 2 ? 'Lovely, your shoulders are fully relaxed.' : drop >= .5 ? 'Your shoulders are dropping. Keep going.' : 'How much your shoulders have relaxed. Let them sink on each out-breath.');
+      $('reset-bar').style.width = Math.min(100, drop / 1.5 * 100) + '%';
+      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : drop >= 1.5 ? 'Lovely, your shoulders are fully relaxed.' : drop >= .5 ? 'Your shoulders are dropping. Keep going.' : inhale ? 'Breathe in and let your shoulders rise a little.' : 'Breathe out and let your shoulders sink.');
     } else {
       // Part 2: eye rest. Gentle steady glow on the bar.
       const step = Math.min(EYES.length - 1, Math.floor((t - eyesAt) / ((total - eyesAt) / EYES.length)));
