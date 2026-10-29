@@ -237,8 +237,8 @@ function draw(p) {
 // widthRatio > 1: shoulders look wider than at the reference = closer to the screen.
 function shiftCause(delta, widthRatio = 1) {
   const parts = {
-    close: widthRatio > 1 ? Math.log(widthRatio) * 2.5 : 0,
-    far: widthRatio < 1 ? -Math.log(widthRatio) * 2.5 : 0,
+    close: widthRatio > 1 ? Math.max(0, Math.log(widthRatio) - .12) * 2 : 0,
+    far: widthRatio < 1 ? Math.max(0, -Math.log(widthRatio) - .12) * 2 : 0,
     forward: Math.max(0, delta?.y || 0),
     side: Math.abs(delta?.x || 0) + Math.abs(delta?.roll || 0) * .6,
     shoulders: Math.abs(delta?.tilt || 0),
@@ -276,7 +276,8 @@ function updateWork(p, now) {
   // Shoulders sinking in the frame = sliding down / leaning back in the chair.
   const sink = reference.sy != null ? Math.max(0, (c.sy - reference.sy) / reference.width) : 0;
   d = Math.min(100, d + Math.round(sink * 120));
-  if (sensor.live && sensor.base) { widthRatio = Math.max(widthRatio, sensor.closeness); d = Math.max(d, sensorShift()); }
+  // Sensor (camera on): only counts when you're really close, under the good range (55 cm), not small moves.
+  if (sensor.live && sensor.cm > 0 && sensor.cm < SENSOR_GOOD[0] - 3) { widthRatio = Math.max(widthRatio, (SENSOR_GOOD[0] - 3) / sensor.cm); }
   applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt, roll: c.roll - (reference.roll || 0), sink }, widthRatio);
 }
 // How far you've leaned toward the screen, 0–100, from the sensor alone.
@@ -305,7 +306,8 @@ let alignedSince = 0, cueShown = false, lastRgb = null;
 function applyPosture(d, now, delta, widthRatio) {
   // Camera distance: shoulders look wider when you lean in, narrower when you sit back.
   // Counted as a shift too (20% closer or farther ≈ 45% shift).
-  if (widthRatio) d = Math.max(d, Math.min(100, Math.round(Math.abs(Math.log(widthRatio)) * 250)));
+  // Ignore the first ~12% of size change (normal shifting in the chair), then count it more gently.
+  if (widthRatio) d = Math.max(d, Math.min(100, Math.round(Math.max(0, Math.abs(Math.log(widthRatio)) - .12) * 200)));
   text('deviation', d); $('deviation-bar').style.width = d + '%';
   let state, rgb = null;
   if (d > threshold()) {
