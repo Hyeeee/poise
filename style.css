@@ -733,3 +733,11 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 .pref-row small { display: block; font-size: var(--t-xs); color: var(--ink-2); margin-top: 2px; }
 .pref-row.dim { opacity: .4; pointer-events: none; }
 .pref-row .segmented { background: rgba(30,31,28,.06) !important; }
+
+.card-foot .stat { display: inline-flex; align-items: baseline; gap: 3px; font-family: var(--ui); }
+.card-foot .stat b { font-family: var(--ui); font-size: var(--t-l); font-weight: 400; letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.card-foot .stat small { font-size: var(--t-xs); color: var(--ink-2); }
+.card-foot .stat + .stat { margin-left: 14px; padding-left: 14px; box-shadow: inset 1px 0 0 rgba(30,31,28,.12); }
+.card-foot .stat:last-of-type { margin-right: auto; }
+.card-foot .sub { margin-right: 0; }
+#sensor-dist.off { color: #b8741a; }

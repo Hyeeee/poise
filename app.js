@@ -338,6 +338,10 @@ function applyPosture(d, now, delta, widthRatio) {
   light(state, rgb);
   // Say WHAT moved, not just that something did: the biggest part of the shift wins.
   let [title, hint] = STATE_COPY[state];
+  // The % label names what moved most: forward, tilt, closer, back, slouch…
+  shiftCause.key = null; shiftCause(delta, widthRatio);
+  const DEV_LABEL = { close: '% closer', far: '% farther', forward: '% forward', side: '% tilted', shoulders: '% uneven', slouch: '% slouched' };
+  text('dev-label', d < 6 ? '% shift' : DEV_LABEL[shiftCause.key] || '% shift');
   if (state === 'amber' || state === 'red') {
     const c = shiftCause(delta, widthRatio);
     if (c) { title = c[0]; hint = state === 'red' ? `${c[1]} You've been like this for a while.` : c[1]; }
@@ -1145,7 +1149,7 @@ sensor.on(() => {
   // Camera off: switch to sensor mode on its own, so the bar and the session keep working.
   if (!active && !sensorRef && sensor.live && !$('studio').hidden) calibrateSensor();
   if (!active) syncRef();
-  $('sensor-row').hidden = false; text('sensor-dist', sensor.cm > 0 ? `${sensor.cm} cm` : '— cm');
+  $('sensor-row').hidden = false; text('sensor-dist', sensor.cm > 0 ? sensor.cm : '—');
   $('sensor-dist').classList.toggle('off', sensor.cm > 0 && (sensor.cm < SENSOR_GOOD[0] || sensor.cm > SENSOR_GOOD[1]));
 });
 function sensorTick(now) {
