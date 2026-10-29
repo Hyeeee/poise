@@ -721,3 +721,9 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 #empty-camera.sensor-on #sensor-mode { display: none !important; }
 #lightbar { display: none !important; }
 #bar-prompt .row { display: flex; gap: 12px; align-items: center; }
+
+#empty-camera.sensor-on #enable { width: 100%; }
+.sensor-row { display: flex; align-items: baseline; gap: 10px; margin-top: 14px; font-family: var(--ui); font-size: var(--t-s); color: var(--ink-2); }
+.sensor-row b { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; transition: color .5s; }
+.sensor-row b.off { color: #b8741a; }
+.sensor-row .sub { margin-left: auto; font-size: var(--t-xs); }

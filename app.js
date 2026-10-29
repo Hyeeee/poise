@@ -1111,10 +1111,10 @@ function showSensorCard() {
   const on = sensorRef && !active;
   $('empty-camera').classList.toggle('sensor-on', on);
   $('empty-camera').querySelector('.say').innerHTML = on
-    ? `<b>Sensor mode.</b> <span>Camera's off — the distance sensor is watching how far you sit. <em id="sensor-live">${sensor.cm > 0 ? sensor.cm + ' cm' : '—'}</em></span>`
+    ? `<b>Sensor mode.</b> <span>Camera's off — the distance sensor is watching how far you sit.</span>`
     : '<b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span>';
   $('enable').textContent = on ? 'Use the camera instead' : 'Turn on camera';
-  $('enable').classList.toggle('primary', !on); $('enable').classList.toggle('ghost', on);
+  $('enable').classList.add('primary'); $('enable').classList.remove('ghost'); $('enable').classList.toggle('end-wide', on);
 }
 $('sensor-mode').onclick = () => { if (screen !== 'work') setScreen('work'); calibrateSensor(); };
 sensor.on(() => {
@@ -1125,7 +1125,9 @@ sensor.on(() => {
   sensorTap(now);
   // Camera off: switch to sensor mode on its own, so the bar and the session keep working.
   if (!active && !sensorRef && sensor.live && !$('studio').hidden) calibrateSensor();
-  if (!active) { syncRef(); const el = $('sensor-live'); if (el) el.textContent = sensor.cm > 0 ? `${sensor.cm} cm · good range ${SENSOR_GOOD[0]}–${SENSOR_GOOD[1]}` : '—'; }
+  if (!active) syncRef();
+  $('sensor-row').hidden = false; text('sensor-dist', sensor.cm > 0 ? `${sensor.cm} cm` : '— cm');
+  $('sensor-dist').classList.toggle('off', sensor.cm > 0 && (sensor.cm < SENSOR_GOOD[0] || sensor.cm > SENSOR_GOOD[1]));
 });
 function sensorTick(now) {
   if (!sensor.base) return;
