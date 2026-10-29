@@ -11,7 +11,7 @@ const vis = (p, i) => p && p[i] && (p[i].visibility ?? 1) > .4;
 const ink = '#141412', paper = '#fbfaf6';
 
 export const GAMES = {
-  bubbles: { chip: 'Bubbles', title: 'Pop the bubbles', tip: 'Reach up, out and down to pop them with your hands. Gold ones are for your head — lean to touch them.' },
+  bubbles: { chip: 'Bubbles', title: 'Pop the bubbles', tip: 'Reach up, out and down to pop them with your hands. Gold ones are for your head, so lean over to touch them.' },
   boat: { chip: 'Boat', title: 'Sail the stream', tip: 'Lean your upper body left and right to steer the paper boat. Miss the stones, catch the drops.' },
   stones: { chip: 'Stones', title: 'Balance the stones', tip: 'Sit tall and still. Every few seconds a stone is added. Slump or lean and the stack starts to wobble.' },
   seeds: { chip: 'Seeds', title: 'Follow the seeds', tip: 'Turn and tilt your head to bring the circle onto a drifting seed, then hold it there.' },
@@ -118,7 +118,7 @@ export class MiniGame {
     ctx.beginPath(); ctx.moveTo(-24, 0); ctx.lineTo(24, 0); ctx.lineTo(16, 10); ctx.lineTo(-16, 10); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(0, -22); ctx.lineTo(12, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.restore();
-    this.hint = c ? (Math.abs(this.boatX) < .2 ? 'Lean left or right to steer.' : 'Nice — keep leaning.') : '';
+    this.hint = c ? (Math.abs(this.boatX) < .2 ? 'Lean left or right to steer.' : 'Nice, keep leaning.') : '';
   }
 
   // ---------- Stone Stack ----------
@@ -151,7 +151,7 @@ export class MiniGame {
       ctx.strokeStyle = 'rgba(20,20,18,.25)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
       ctx.beginPath(); ctx.arc(W / 2, y - 24, 10, -Math.PI / 2, -Math.PI / 2 + TAU * k); ctx.stroke();
     }
-    this.hint = !c ? '' : good ? 'Sitting tall — the next stone is coming.' : this.wobble > .4 ? 'It’s wobbling — sit back up.' : 'Sit tall and still.';
+    this.hint = !c ? '' : good ? 'Sitting tall. The next stone is on its way.' : this.wobble > .4 ? 'It’s wobbling. Sit back up.' : 'Sit tall and still.';
   }
 
   // ---------- Dandelion seeds ----------

@@ -6,21 +6,21 @@ const WORK_STEPS = [
   { sel: '#calibrate', title: 'Set reference', text: 'Saves your current position as “good”. Press it again any time to reset.' },
   { sel: '#state-agent', title: 'Poise, at a glance', text: 'These dots react to you: calm when you’re aligned, restless when you drift.' },
   { sel: '.session', title: 'Focus timer', text: 'Starts when you set a reference. When it ends, your break begins.' },
-  { sel: '#end-session', title: 'End session', text: 'Finish whenever you like to see how your posture went — what pulled you out of position and how fast you corrected.' },
+  { sel: '#end-session', title: 'End session', text: 'Finish whenever you like to see how your posture went, what pulled you out of position, and how fast you corrected.' },
   { sel: '#work-mode-name', title: 'Focus mode', text: 'Tap the name to switch modes or change length and sensitivity.' },
   { sel: '.topbar .segmented', title: 'Focus and Break', text: 'Switch between working and resting yourself, whenever you like.' },
   { sel: '#connect', title: 'Light bar', text: 'Connect the light bar over USB so it glows with your posture.' },
   { sel: '#stop', title: 'Camera', text: 'Turn the camera on or off. Video stays on this device.' },
   { sel: '.tools .music-btn', title: 'Music', text: 'Calm background sound. Tap to turn it on or off.' },
   { sel: '#open-modes', title: 'Modes and settings', text: 'Create your own focus and break modes, and set voice and music.' },
-  { sel: '#ask-form', title: 'Ask Poise', text: 'Type or speak to change anything — “focus 40 minutes”, “less sensitive”, “take a break”.' },
+  { sel: '#ask-form', title: 'Ask Poise', text: 'Type or speak to change anything. Try “focus 40 minutes”, “less sensitive” or “take a break”.' },
 ];
 
 const BREAK_STEPS = {
   game: [
     { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, a calm reset and a movement game any time.' },
     { sel: '#game-panel h2', title: 'Pop the bubbles', text: 'Bubbles appear around you. Reach up, out and down to pop them with your hands. Gold ones need a head lean.' },
-    { sel: '#game-label', title: 'It starts right away', text: 'Step back so your arms fit in the frame — the bubbles start as soon as the camera sees you.' },
+    { sel: '#game-label', title: 'It starts right away', text: 'Step back so your arms fit in the frame. The bubbles start as soon as the camera sees you.' },
     { sel: '#game-end', title: 'End break', text: 'Finish any time to see your score and how you moved.' },
   ],
   stretch: [
@@ -32,7 +32,7 @@ const BREAK_STEPS = {
   ],
   breathe: [
     { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, a calm reset and a movement game any time.' },
-    { sel: '#breath-orb', title: 'Breathe, then drop', text: 'Breathe in as the dots grow. On the out-breath, let your shoulders fall — the camera measures how far, and the light bar breathes with you.' },
+    { sel: '#breath-orb', title: 'Breathe, then drop', text: 'Breathe in as the dots grow. On the out-breath, let your shoulders fall. The camera measures how far, and the light bar breathes with you.' },
     { sel: '#breath-metric', title: 'Your shoulders', text: 'Shows how much lower your shoulders are than when you started. The last part of the reset rests your eyes.' },
     { sel: '#breath-bar', title: 'Time left', text: 'Your rest runs until the line fills.' },
     { sel: '#breath-end', title: 'End break', text: 'Finish any time to see your rest summary.' },

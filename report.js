@@ -126,7 +126,7 @@ export function showReport(r, speak) {
     $('rep-causes').innerHTML = r.causes.length
       ? r.causes.map(c => `<div class="cause"><span>${c.label}</span><i style="--w:${c.share}%"></i><b>${c.share}%</b></div>`).join('')
       : '<p class="sub">No drifts to analyze. Nicely done.</p>';
-    $('rep-tip').innerHTML = top ? `<b>Try: ${top.stretch}.</b> <span>${top.tip}</span>` : '<b>Keep it up.</b> <span>Take a short break anyway — moving helps.</span>';
+    $('rep-tip').innerHTML = top ? `<b>Try: ${top.stretch}.</b> <span>${top.tip}</span>` : '<b>Keep it up.</b> <span>Take a short break anyway, since moving helps.</span>';
     $('report').hidden = false;
     $('report-break').focus({ preventScroll: true });
     speak?.(SAY[h.title] || SAY.other);
@@ -196,7 +196,7 @@ export function showBreakReport(r, speak) {
       $('rep-causes-h').hidden = !zt; $('rep-causes-h').textContent = 'How you moved';
       $('rep-causes').innerHTML = zt ? zones.map(([k, l]) => `<div class="cause"><span>${l}</span><i style="--w:${Math.round(g.zones[k] / zt * 100)}%"></i><b>${g.zones[k]}</b></div>`).join('') : '';
       const weakest = zones.filter(([k]) => k !== 'head').sort((a, c) => g.zones[a[0]] - g.zones[c[0]])[0];
-      $('rep-tip').innerHTML = zt ? `<b>Next round:</b> <span>Try more ${weakest[1].toLowerCase()} — it opens the parts you use least while sitting.</span>` : '<b>Tip:</b> <span>Step back from the screen so your whole upper body and arms are in view.</span>';
+      $('rep-tip').innerHTML = zt ? `<b>Next round:</b> <span>Try more ${weakest[1].toLowerCase()}. It opens the parts you use least while sitting.</span>` : '<b>Tip:</b> <span>Step back from the screen so your whole upper body and arms are in view.</span>';
     } else if (r.kind === 'breathe') {
       const rs = r.reset || { shoulderCm: 0, eyesMs: 0 };
       const cm = rs.shoulderCm || 0;
@@ -207,7 +207,7 @@ export function showBreakReport(r, speak) {
       set('rep-recover', r.cycles); set('rep-recover-l', 'slow breaths');
       set('rep-drifts', rs.eyesMs ? `${Math.round(rs.eyesMs / 1000)}s` : '—'); set('rep-drift-note', 'eye rest');
       $('rep-causes-h').hidden = true; $('rep-causes').innerHTML = '';
-      $('rep-tip').innerHTML = cm >= .3 ? '<b>Keep this feeling.</b> <span>Save how you\'re sitting now as your new reference — relaxed shoulders become your baseline.</span>' : '<b>Next time:</b> <span>On every out-breath, let your shoulders fall away from your ears.</span>';
+      $('rep-tip').innerHTML = cm >= .3 ? '<b>Keep this feeling.</b> <span>Save how you\'re sitting now as your new reference, so relaxed shoulders become your baseline.</span>' : '<b>Next time:</b> <span>On every out-breath, let your shoulders fall away from your ears.</span>';
     } else {
       const done = r.poses.filter(p => p.matched), total = r.poses.length;
       const avg = total ? Math.round(r.poses.reduce((a, p) => a + p.best, 0) / total) : 0;

@@ -190,7 +190,7 @@ function checkScene(p) {
     g.drawImage(camera, 0, 0, 32, 18);
     const px = g.getImageData(0, 0, 32, 18).data;
     let sum = 0; for (let i = 0; i < px.length; i += 4) sum += px[i] * .3 + px[i + 1] * .59 + px[i + 2] * .11;
-    if (sum / (px.length / 4) < 55) issue = 'Too dark — add light in front of you';
+    if (sum / (px.length / 4) < 55) issue = 'It’s a bit dark. Add some light in front of you';
   } catch {}
   if (!issue && p && [11, 12].some(i => p[i].x < .04 || p[i].x > .96 || p[i].y > .97)) issue = 'Move back so both shoulders are in view';
   if (!issue && p && !visible(p, [7, 8]) && visible(p, [0, 11, 12])) issue = 'Face the camera so both ears show';
@@ -243,12 +243,12 @@ function shiftCause(delta, widthRatio = 1) {
   if (size < .05) return null;
   shiftCause.key = key;
   return {
-    close: ['Too close to the screen', 'Sit back a little — about an arm’s length away.'],
+    close: ['Too close to the screen', 'Sit back a little, about an arm’s length away.'],
     far: ['Too far from the screen', 'Move a little closer so you don’t lean in to read.'],
     forward: ['Leaning forward', 'Bring your head back over your shoulders.'],
     side: ['Tilting to one side', 'Center your head between your shoulders.'],
     shoulders: ['Uneven shoulders', 'Let both shoulders drop evenly.'],
-    slouch: ['Slouching back', 'Sit up — bring your shoulders back up to where they were.'],
+    slouch: ['Slouching back', 'Sit up and bring your shoulders back up to where they were.'],
   }[key];
 }
 
@@ -559,7 +559,7 @@ function updateGame(p, now) {
   const dt = holdLast ? Math.min(200, now - holdLast) : 0; holdLast = now;
   holdAcc = score >= PASS ? holdAcc + dt : Math.max(0, holdAcc - dt * .5);
   $('hold-bar').style.width = Math.min(100, holdAcc / PASS_MS * 100) + '%';
-  text('hold-label', score >= PASS ? 'Nice, hold it.' : holdAcc > 0 ? 'Almost — stay with it.' : 'Mirror the figure as closely as you can.');
+  text('hold-label', score >= PASS ? 'Nice, hold it.' : holdAcc > 0 ? 'Almost there, stay with it.' : 'Mirror the figure as closely as you can.');
   if (holdAcc >= PASS_MS) { holdAcc = 0; advance(true); }
 }
 
@@ -629,7 +629,7 @@ function startBreathe() {
       text('reset-cm', s.base == null ? '—' : drop.toFixed(1));
       text('reset-count', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}`);
       $('reset-bar').style.width = Math.min(100, drop / 2 * 100) + '%';
-      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : drop >= 2 ? 'Lovely — your shoulders are fully relaxed.' : drop >= .5 ? 'Your shoulders are dropping. Keep going.' : 'How much your shoulders have relaxed. Let them sink on each out-breath.');
+      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : drop >= 2 ? 'Lovely, your shoulders are fully relaxed.' : drop >= .5 ? 'Your shoulders are dropping. Keep going.' : 'How much your shoulders have relaxed. Let them sink on each out-breath.');
     } else {
       // Part 2: eye rest. Gentle steady glow on the bar.
       const step = Math.min(EYES.length - 1, Math.floor((t - eyesAt) / ((total - eyesAt) / EYES.length)));
@@ -1134,7 +1134,7 @@ function showSensorCard() {
   const on = sensorRef && !active;
   $('empty-camera').classList.toggle('sensor-on', on);
   $('empty-camera').querySelector('.say').innerHTML = on
-    ? `<b>Sensor mode.</b> <span>Camera's off — the distance sensor is watching how far you sit.</span>`
+    ? `<b>Sensor mode.</b> <span>The camera is off, so the distance sensor is keeping an eye on how far you sit.</span>`
     : '<b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span>';
   $('enable').textContent = on ? 'Use the camera instead' : 'Turn on camera';
   $('enable').classList.add('primary'); $('enable').classList.remove('ghost'); $('enable').classList.toggle('end-wide', on);
@@ -1163,7 +1163,7 @@ function sensorTick(now) {
     if (screen === 'work') {
       pausedByAway = timerRunning; timerRunning = false; renderPause(); posture.pause(); light('idle');
       text('posture-state', 'Away'); text('posture-hint', 'Paused until you sit back down.');
-      toast('You stepped away — paused');
+      toast('You stepped away, so I paused for you');
     }
     setChip('Away from desk');
   }
