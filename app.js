@@ -493,6 +493,7 @@ function advance(passed = false) {
 // Position-based estimates, normalized by shoulder width. No video is uploaded.
 // Scores use points the camera can always see in these poses: shoulders, elbows, wrists, nose, ears.
 // Everything is measured in shoulder-widths, so it works at any distance.
+let shrugRef = [];
 function poseScore(p, target) {
   const vis = i => p && p[i] && (p[i].visibility ?? 1) > .3;
   const need = ['neck', 'shrug', 'turn'].includes(target.type) ? [11, 12] : [11, 12, 15, 16];
@@ -520,9 +521,14 @@ function poseScore(p, target) {
     return Math.round(level * 50 + spread * 50);
   }
   if (target.type === 'shrug') {
-    if (!vis(7) || !vis(8)) return null;
-    const gap = (mid.y - (p[7].y + p[8].y) / 2) / w;                      // ear-to-shoulder height, smaller when shrugging
-    return Math.round(clamp01((.62 - gap) / .22) * 100);
+    // Compared with YOUR relaxed shoulders, not a fixed number (camera height and angle change
+    // the raw value a lot). shrugRef remembers the lowest-shoulder (largest gap) of the last ~10 s.
+    const head = vis(7) && vis(8) ? (p[7].y + p[8].y) / 2 : vis(0) ? p[0].y : null;
+    if (head == null) return null;
+    const gap = (mid.y - head) / w, now = performance.now();
+    shrugRef = shrugRef.filter(r => now - r.t < 10000); shrugRef.push({ t: now, g: gap });
+    const relaxed = Math.max(...shrugRef.map(r => r.g));
+    return Math.round(clamp01((relaxed - gap) / .1) * 100);              // ~0.1 shoulder-width lift = full
   }
   if (target.type === 'turn') {
     if (!vis(0) || !vis(7) || !vis(8)) return null;
