@@ -81,24 +81,34 @@ export class MiniGame {
     const sa = this.sa;
     const k = Math.max(1, Math.min(sa.w, sa.h) / 360), gw = sa.w / k, gh = sa.h / k;
     this.lw = 3 / k;   // one stroke weight for every game: 3 screen px, whatever the scale
-    const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-    ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * sa.l, dpr * sa.t);
+    // The game draws once into a recorder; the recording is then played onto the camera
+    // overlay and onto the side helper box, each at its own scale, always with a 3px line.
+    const rec = [], R = new Proxy({}, {
+      get: (_, key) => (...args) => rec.push([key, args]),
+      set: (_, key, v) => { rec.push(['=' + key, v]); return true; },
+    });
     const c = this.cues();
     let label = !this.pose ? 'Sit so your head and shoulders are in view.' : !this.base ? 'Sit still for a moment…' : '';
-    this[this.kind](ctx, gw, gh, dt, now, c);
-    ctx.shadowBlur = 0;
-    // side box: a small live copy of the game, as a helper
+    this.lw = 1;                      // games set lineWidth = this.lw; replay turns it into 3 screen px
+    this[this.kind](R, gw, gh, dt, now, c);
+    const play = (cx2, s, ox, oy) => {
+      cx2.save(); cx2.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
+      for (const [key, v] of rec) {
+        if (key[0] === '=') cx2[key.slice(1)] = key === '=lineWidth' ? 3 * v / s : v;
+        else cx2[key](...v);
+      }
+      cx2.restore();
+    };
+    const ctx = cv.getContext('2d'); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+    play(ctx, k, sa.l, sa.t);
+    // Side helper box: the whole game area fitted inside (nothing cut off), centred.
     const hp = this.helper;
-    if (hp && (this.hf = !this.hf) && hp.offsetWidth) {   // helper copy every other frame
+    if (hp && (this.hf = !this.hf) && hp.offsetWidth) {
       const hw = hp.offsetWidth, hh = hp.offsetHeight;
-      if (hp.width !== Math.round(hw * dpr)) { hp.width = Math.round(hw * dpr); hp.height = Math.round(hh * dpr); }
+      if (hp.width !== Math.round(hw * dpr) || hp.height !== Math.round(hh * dpr)) { hp.width = Math.round(hw * dpr); hp.height = Math.round(hh * dpr); }
       const h = hp.getContext('2d'); h.setTransform(1, 0, 0, 1, 0, 0); h.clearRect(0, 0, hp.width, hp.height);
-      // Copy only the game area (the uncovered part), cropped to the box's shape around its centre,
-      // so the pieces fill the helper box and sit centred instead of tiny in a corner.
-      const sx = sa.l * dpr, sy = sa.t * dpr, sw = sa.w * dpr, sh = sa.h * dpr;
-      const ar = hp.width / hp.height; let cw = sw, ch = sw / ar;
-      if (ch > sh) { ch = sh; cw = sh * ar; }
-      h.drawImage(cv, sx + (sw - cw) / 2, sy + (sh - ch) / 2, cw, ch, 0, 0, hp.width, hp.height);
+      const pad = 16, s = Math.min((hw - pad * 2) / gw, (hh - pad * 2) / gh);
+      play(h, s, (hw - gw * s) / 2, (hh - gh * s) / 2);
     }
     if (this.hint && !label) label = this.hint;
     this.onTick?.({ score: this.s.score, left: Math.max(0, left), label });
