@@ -1,3 +1,4 @@
+import { safeArea } from './safearea.js';
 import { sfx } from './sfx.js';
 // Reach & Pop: a short full-body movement game for breaks.
 // Soft bubbles appear around you — above your head, out to the sides, down by your hips.
@@ -70,8 +71,18 @@ export class MoveGame {
     const aspect = (this.video.videoWidth / this.video.videoHeight) || 16 / 9;
     let x = b.cx + Math.cos(a) * dist * b.w, y = b.cy + Math.sin(a) * dist * b.w * aspect * .7;
     const r = Math.min(.06, b.w * (zone === 'head' ? .26 : .22));
-    const mx = r + .03, my = r * aspect + .04;            // keep the whole bubble on screen
-    x = Math.min(1 - mx, Math.max(mx, x)); y = Math.min(1 - my, Math.max(my, y));
+    // Keep the whole bubble inside the part of the camera you can actually see
+    // (not under the side panel, top bar or ask bar). The canvas is mirrored, so a screen
+    // x maps to 1 - x in video coordinates.
+    const cv = this.canvas || this.cv, W = cv.clientWidth, H = cv.clientHeight;
+    const vw0 = this.video.videoWidth || 16, vh0 = this.video.videoHeight || 9;
+    const sc = Math.max(W / vw0, H / vh0), vw = vw0 * sc, vh = vh0 * sc, ox = (W - vw) / 2, oy = (H - vh) / 2;
+    const sa = safeArea(cv), rp = r * vw * 1.25;                       // bubble radius in px (+ grow room)
+    const nx = px => (px - ox) / vw, ny = py => (py - oy) / vh;
+    const xMin = nx(W - (sa.l + rp)), xMax = nx(W - (sa.r - rp));  // mirrored
+    const loX = Math.min(xMin, xMax), hiX = Math.max(xMin, xMax);
+    const loY = ny(sa.t + rp), hiY = ny(sa.b - rp);
+    x = Math.min(Math.max(loX, hiX - .001), Math.max(loX, x)); y = Math.min(Math.max(loY, hiY - .001), Math.max(loY, y));
     const color = zone === 'head' ? GOLD : COLORS[Math.floor(Math.random() * COLORS.length)];
     this.bubbles.push({ x, y, r, zone, color, born: now, life: zone === 'head' ? 4600 : 4000, seed: Math.random() * TAU, size: .8 + Math.random() * .4 });
   }

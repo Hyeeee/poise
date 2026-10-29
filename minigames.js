@@ -1,3 +1,4 @@
+import { safeArea } from './safearea.js';
 import { sfx } from './sfx.js';
 // Seated movement games played inside the white stage box on the Game card.
 // Each game reads the pose (MediaPipe landmarks) and draws into a small canvas.
@@ -75,9 +76,11 @@ export class MiniGame {
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     // The game is drawn over the camera picture. Shapes were designed for a ~360px box,
     // so everything is scaled up by k to fit the camera view.
-    const k = Math.max(1, Math.min(W, H) / 360), gw = W / k, gh = H / k;
+    // Only use the uncovered part of the camera view (not under the panel or bars).
+    const sa = safeArea(cv);
+    const k = Math.max(1, Math.min(sa.w, sa.h) / 360), gw = sa.w / k, gh = sa.h / k;
     const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-    ctx.setTransform(dpr * k, 0, 0, dpr * k, 0, 0);
+    ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * sa.l, dpr * sa.t);
     // a soft white halo keeps dark lines readable on top of the camera
     ctx.shadowColor = 'rgba(255,255,250,.9)'; ctx.shadowBlur = 6;
     const c = this.cues();
