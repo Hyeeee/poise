@@ -1030,7 +1030,8 @@ const moveGame = new MoveGame($('game-canvas'), camera, {
 });
 // Which game: Bubbles (camera overlay) or one of the seated games drawn in the stage box.
 const gameKind = () => GAMES[store.state.gameKind] ? store.state.gameKind : 'bubbles';
-const mini = new MiniGame($('game-map'), {
+const mini = new MiniGame($('mini-canvas'), {
+  helper: $('game-map'),
   onTick({ score, left, label }) {
     gameRgb ? light('idle', gameRgb, 20) : light('idle');
     text('game-score', score); text('game-left', fmtClock(left));
@@ -1041,7 +1042,7 @@ const mini = new MiniGame($('game-map'), {
   onEnd(r) { breakLog.game(r); endBreak(); },
 });
 const gameRunning = () => moveGame.running || mini.running;
-function stopGames() { moveGame.stop(); mini.stop(); gameRgb = null; }
+function stopGames() { moveGame.stop(); mini.stop(); $('mini-canvas').hidden = true; gameRgb = null; }
 function renderGameChips() {
   const k = gameKind();
   document.querySelectorAll('#game-chips button').forEach(b => b.classList.toggle('on', b.dataset.g === k));
@@ -1065,7 +1066,7 @@ function resetGamePanel() {
 function maybeStartGame() {
   if (screen !== 'break' || store.brk().style !== 'game' || gameRunning() || endingBreak || !active) return;
   const k = gameKind();
-  if (k === 'bubbles') moveGame.start(store.brk().minutes * 60); else mini.start(k, store.brk().minutes * 60);
+  if (k === 'bubbles') moveGame.start(store.brk().minutes * 60); else { $('mini-canvas').hidden = false; mini.start(k, store.brk().minutes * 60); }
 }
 $('game-end').onclick = () => { if (moveGame.running) breakLog.game(moveGame.result()); else if (mini.running) breakLog.game(mini.result()); endBreak(); };
 function startBreakStyle(brk) {
@@ -1233,10 +1234,3 @@ renderPause();
 mountAgents();
 syncRef();
 
-// Full screen for games: the whole game card fills the screen (stage, score, End button).
-// The browser's Fullscreen API handles it; Esc or the same button exits.
-$('game-fs').onclick = () => {
-  const el = $('game-panel');
-  if (document.fullscreenElement) document.exitFullscreen();
-  else (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
-};

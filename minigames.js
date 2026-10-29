@@ -18,8 +18,8 @@ export const GAMES = {
 };
 
 export class MiniGame {
-  constructor(canvas, { onTick, onEnd, onColor } = {}) {
-    this.cv = canvas; this.onTick = onTick; this.onEnd = onEnd; this.onColor = onColor;
+  constructor(canvas, { onTick, onEnd, onColor, helper } = {}) {
+    this.cv = canvas; this.helper = helper; this.onTick = onTick; this.onEnd = onEnd; this.onColor = onColor;
     this.running = false; this.kind = 'boat';
   }
   start(kind, seconds = 60) {
@@ -71,10 +71,26 @@ export class MiniGame {
     const cv = this.cv, dpr = Math.min(2, devicePixelRatio || 1), W = cv.offsetWidth, H = cv.offsetHeight;
     if (!W) return;
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    // The game is drawn over the camera picture. Shapes were designed for a ~360px box,
+    // so everything is scaled up by k to fit the camera view.
+    const k = Math.max(1, Math.min(W, H) / 360), gw = W / k, gh = H / k;
     const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    ctx.setTransform(dpr * k, 0, 0, dpr * k, 0, 0);
+    // a soft white halo keeps dark lines readable on top of the camera
+    ctx.shadowColor = 'rgba(255,255,250,.9)'; ctx.shadowBlur = 6;
     const c = this.cues();
     let label = !this.pose ? 'Sit so your head and shoulders are in view.' : !this.base ? 'Sit still for a moment…' : '';
-    this[this.kind](ctx, W, H, dt, now, c);
+    this[this.kind](ctx, gw, gh, dt, now, c);
+    ctx.shadowBlur = 0;
+    // side box: a small live copy of the game, as a helper
+    const hp = this.helper;
+    if (hp && hp.offsetWidth) {
+      const hw = hp.offsetWidth, hh = hp.offsetHeight;
+      if (hp.width !== Math.round(hw * dpr)) { hp.width = Math.round(hw * dpr); hp.height = Math.round(hh * dpr); }
+      const h = hp.getContext('2d'); h.setTransform(1, 0, 0, 1, 0, 0); h.clearRect(0, 0, hp.width, hp.height);
+      const f = Math.min(hp.width / cv.width, hp.height / cv.height);
+      h.drawImage(cv, (hp.width - cv.width * f) / 2, (hp.height - cv.height * f) / 2, cv.width * f, cv.height * f);
+    }
     if (this.hint && !label) label = this.hint;
     this.onTick?.({ score: this.s.score, left: Math.max(0, left), label });
     if (left <= 0) { this.stop(); this.onEnd?.(this.result()); }
@@ -84,7 +100,7 @@ export class MiniGame {
   boat(ctx, W, H, dt, now, c) {
     const lane = W * .34;
     // stream
-    ctx.fillStyle = '#e8eef0'; ctx.fillRect(W / 2 - lane - 18, 0, (lane + 18) * 2, H);
+    ctx.fillStyle = 'rgba(225,238,245,.35)'; ctx.fillRect(W / 2 - lane - 18, 0, (lane + 18) * 2, H);
     this.scroll = (this.scroll + dt * .06) % 40;
     ctx.strokeStyle = 'rgba(120,150,165,.35)'; ctx.lineWidth = 1.5;
     for (let y = -40 + this.scroll; y < H; y += 40) for (const x of [-.5, 0, .5]) { ctx.beginPath(); ctx.moveTo(W / 2 + x * lane - 8, y); ctx.quadraticCurveTo(W / 2 + x * lane, y + 6, W / 2 + x * lane + 8, y); ctx.stroke(); }
