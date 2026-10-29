@@ -1,3 +1,4 @@
+import { sfx } from './sfx.js';
 // Seated movement games played inside the white stage box on the Game card.
 // Each game reads the pose (MediaPipe landmarks) and draws into a small canvas.
 //   boat   — Paper Boat: lean left/right to steer a boat down a stream (side bends)
@@ -121,7 +122,7 @@ export class MiniGame {
       const x = W / 2 + it.x * lane;
       if (!it.done && Math.abs(it.y - by) < 16 && Math.abs(x - bx) < 26) {
         it.done = true;
-        if (it.kind === 'drop') { this.s.score++; this.onColor?.([40, 180, 255]); } else { this.s.b++; this.onColor?.([255, 130, 0]); }
+        if (it.kind === 'drop') { sfx.drop(); this.s.score++; this.onColor?.([40, 180, 255]); } else { sfx.thud(); this.s.b++; this.onColor?.([255, 130, 0]); }
         setTimeout(() => this.onColor?.(null), 500);
       }
       if (it.done) continue;
@@ -146,7 +147,7 @@ export class MiniGame {
     this.lift += (lift - this.lift) * Math.min(1, dt / 120);
     if (this.lift > .65) { this.upMs += dt; this.s.a += dt; if (!this.up && this.upMs > 500) this.up = true; }
     else if (this.lift < .25) {
-      if (this.up) { this.s.score++; this.rings.push(now); this.swing = 1; this.onColor?.([255, 200, 60]); setTimeout(() => this.onColor?.(null), 450); }
+      if (this.up) { sfx.bell(); this.s.score++; this.rings.push(now); this.swing = 1; this.onColor?.([255, 200, 60]); setTimeout(() => this.onColor?.(null), 450); }
       else if (this.upMs > 120) this.s.b++;
       this.up = false; this.upMs = 0;
     }
@@ -201,7 +202,7 @@ export class MiniGame {
       for (let i = 0; i < 9; i++) { const a = -Math.PI + i / 8 * Math.PI; ctx.beginPath(); ctx.moveTo(s.x, s.y + 4); ctx.lineTo(s.x + Math.cos(a) * 9, s.y + 4 + Math.sin(a) * 9); ctx.stroke(); }
       const near = Math.hypot(this.cur[0] - s.x, this.cur[1] - s.y) < 34;
       this.holdMs = near ? this.holdMs + dt : Math.max(0, this.holdMs - dt);
-      if (this.holdMs > 1200) { this.s.score++; this.seed = null; this.holdMs = 0; this.onColor?.([255, 220, 0]); setTimeout(() => this.onColor?.(null), 400); }
+      if (this.holdMs > 1200) { sfx.seed(); this.s.score++; this.seed = null; this.holdMs = 0; this.onColor?.([255, 220, 0]); setTimeout(() => this.onColor?.(null), 400); }
       if (s && near) { ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(s.x, s.y + 6, 22, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke(); }
     }
     // head cursor

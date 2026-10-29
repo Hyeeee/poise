@@ -1,3 +1,4 @@
+import { sfx } from './sfx.js';
 // Reach & Pop: a short full-body movement game for breaks.
 // Soft bubbles appear around you — above your head, out to the sides, down by your hips.
 // Touch them with your hands to pop them. Gold bubbles are for your head: lean to reach them.
@@ -98,7 +99,7 @@ export class MoveGame {
         if (bub.dead) continue;
         const hitters = bub.zone === 'head' ? (b.ok(0) ? [b.p[0]] : []) : hands;
         if (hitters.some(q => Math.hypot((q.x - bub.x) * vw, (q.y - bub.y) * vh) < bub.r * vw * 1.1)) {
-          bub.dead = true; this.popped++; this.combo++; this.best = Math.max(this.best, this.combo);
+          bub.dead = true; sfx.pop(); this.popped++; this.combo++; this.best = Math.max(this.best, this.combo);
           const pts = (bub.zone === 'head' ? 150 : 100) + Math.min(5, this.combo - 1) * 20;
           this.score += pts; this.zones[bub.zone]++;
           this.pops.push({ x: bub.x, y: bub.y, r: bub.r, size: bub.size || 1, seed: bub.seed, dx: Math.sin(now / 1300 + bub.seed) * 7, dy: Math.cos(now / 1100 + bub.seed) * 6 - Math.min(10, (now - bub.born) / 400), t: now, pts, color: bub.color, drops: Array.from({ length: 26 }, () => ({ a: -Math.PI * .75 + (Math.random() - .5) * 2.6, v: .6 + Math.random() * .9, s: .6 + Math.random() * 1.4 })) });
