@@ -103,12 +103,12 @@ export class MiniGame {
 
   // ---------- Paper Boat ----------
   boat(ctx, W, H, dt, now, c) {
-    const lane = W * .34;
+    const lane = W / 2 - 40;                    // the stream spans the whole visible width
     // stream
-    ctx.fillStyle = 'rgba(225,238,245,.35)'; ctx.fillRect(W / 2 - lane - 18, 0, (lane + 18) * 2, H);
+    ctx.fillStyle = 'rgba(225,238,245,.22)'; ctx.fillRect(0, 0, W, H);
     this.scroll = (this.scroll + dt * .06) % 40;
     ctx.strokeStyle = 'rgba(120,150,165,.35)'; ctx.lineWidth = 1.5;
-    for (let y = -40 + this.scroll; y < H; y += 40) for (const x of [-.5, 0, .5]) { ctx.beginPath(); ctx.moveTo(W / 2 + x * lane - 8, y); ctx.quadraticCurveTo(W / 2 + x * lane, y + 6, W / 2 + x * lane + 8, y); ctx.stroke(); }
+    for (let y = -40 + this.scroll; y < H; y += 40) for (const x of [-.75, -.25, .25, .75]) { ctx.beginPath(); ctx.moveTo(W / 2 + x * lane - 8, y); ctx.quadraticCurveTo(W / 2 + x * lane, y + 6, W / 2 + x * lane + 8, y); ctx.stroke(); }
     if (c) {
       const target = Math.max(-1, Math.min(1, c.lean / .35));
       if (Math.abs(target) > .6 && Math.abs(this.boatX) <= .6) this.s.a += .5;     // counts each lean out
