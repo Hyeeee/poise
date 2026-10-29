@@ -21,8 +21,8 @@ const COLORS = [
 ];
 const GOLD = [255, 190, 40];
 // Muted, refined paint colours for drawing; same order as COLORS (the LED still gets COLORS).
-const PAINT = ['#e8806f', '#e9a25a', '#e8c95a', '#8fbf8a', '#7cc0c4', '#7b9fd6', '#a88fd6', '#e08fb7'];
-const PAINT_GOLD = '#d9a93a';
+const PAINT = ['#ec6f63', '#f29a3e', '#e9c23a', '#5fc477', '#3fb8c9', '#5b8fe0', '#9b7be0', '#e46fae'];
+const PAINT_GOLD = '#f0a93b';
 const INK = '#1e1f1c';
 
 export class MoveGame {
@@ -153,18 +153,13 @@ export class MoveGame {
       const x = X(bub.x), y = Y(bub.y) + Math.sin(now / 800 + bub.seed) * 3;
       const fade = age > .82 ? 1 - (age - .82) / .18 * .6 : 1;
       ctx.globalAlpha = ease * fade;
-      // Print-style bubble: a solid colour disc slightly offset from a fine ink ring (like a
-      // misregistered risograph print), a tiny white glint, and one small ink dot that travels
-      // around the ring as the countdown. Calm, flat, no gradients.
-      const a0 = ease * fade;
-      ctx.globalAlpha = a0 * .9; ctx.fillStyle = bub.paint;
-      ctx.beginPath(); ctx.arc(x + r * .08, y + r * .08, r * .92, 0, TAU); ctx.fill();
-      ctx.globalAlpha = a0; ctx.strokeStyle = INK; ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.ellipse(x + r * .38, y - r * .38, r * .11, r * .07, -.7, 0, TAU); ctx.fill();   // canvas is mirrored, so this shows top-left
-      const ta = -Math.PI / 2 - TAU * (1 - age);
-      ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x + Math.cos(ta) * (r + 8), y + Math.sin(ta) * (r + 8), 2.5, 0, TAU); ctx.fill();
+      // Same simple look as the guide box: pale colour fill, a clear colour ring,
+      // and a matching countdown arc just outside.
+      const a0 = ease * fade, lw = Math.max(3, r * .07);
+      ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.strokeStyle = bub.paint; ctx.fillStyle = bub.paint;
+      ctx.globalAlpha = a0 * .28; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+      ctx.globalAlpha = a0; ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, r + lw * 2.2, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - age)); ctx.stroke();
       ctx.globalAlpha = 1;
     }
     // Pops: the film tears (WebGL) and a fine mist of droplets sprays out and falls.
