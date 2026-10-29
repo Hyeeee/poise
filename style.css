@@ -742,3 +742,19 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 .card-foot .sub { margin-right: 0; }
 #sensor-dist.off { color: #b8741a; }
 .card-foot .stat small, .card-foot #calibrate { white-space: nowrap; } .card-foot .stat + .stat { margin-left: 10px; padding-left: 10px; } .card-foot { gap: 10px; }
+
+/* Posture card: no moving logo, footer wraps instead of clipping */
+#state-agent { display: none !important; }
+.state .card-foot { flex-wrap: wrap; row-gap: 10px; }
+.state .card-foot #calibrate { margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+/* More air between the timer and its progress bar */
+.session .timer { margin-bottom: 14px; }
+.session .meter.thin { margin-bottom: 14px; }
+/* Short screens: panel uses the full height and stage boxes shrink so nothing gets cut */
+.panel { max-height: calc(100% - 82px - 20px); }
+@media (max-height: 900px) {
+  .stage-box, #breathe-panel .breath-stage { aspect-ratio: auto; height: clamp(160px, 34vh, 340px); }
+}
+@media (max-height: 700px) {
+  .stage-box, #breathe-panel .breath-stage { height: clamp(140px, 28vh, 240px); margin-bottom: 12px; }
+}
