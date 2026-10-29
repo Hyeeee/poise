@@ -1033,14 +1033,19 @@ const gameKind = () => GAMES[store.state.gameKind] ? store.state.gameKind : 'bub
 const mini = new MiniGame($('mini-canvas'), {
   helper: $('game-map'),
   onTick({ score, left, label }) {
-    gameRgb ? light('idle', gameRgb, 20) : light('idle');
+    // Every catch / ring / seed blinks the light bar: 3 quick on/off flashes in the
+    // event's colour (instant fade), then it settles back to the calm colour.
+    const fk = gameFlash && performance.now() - gameFlash.t;
+    if (gameFlash && fk < 600) light('idle', Math.floor(fk / 100) % 2 ? [0, 0, 0] : gameFlash.rgb, 100);
+    else { gameFlash = null; gameRgb ? light('idle', gameRgb, 20) : light('idle'); }
     text('game-score', score); text('game-left', fmtClock(left));
     $('game-bar').style.width = (100 - left / (store.brk().minutes * 60000) * 100) + '%';
     text('game-label', label);
   },
-  onColor(rgb) { gameRgb = rgb; },
+  onColor(rgb) { if (rgb) gameFlash = { rgb, t: performance.now() }; },
   onEnd(r) { breakLog.game(r); endBreak(); },
 });
+let gameFlash = null;
 const gameRunning = () => moveGame.running || mini.running;
 function stopGames() { moveGame.stop(); mini.stop(); $('mini-canvas').hidden = true; gameRgb = null; }
 function renderGameChips() {
