@@ -153,17 +153,18 @@ export class MoveGame {
       const x = X(bub.x), y = Y(bub.y) + Math.sin(now / 800 + bub.seed) * 3;
       const fade = age > .82 ? 1 - (age - .82) / .18 * .6 : 1;
       ctx.globalAlpha = ease * fade;
-      // Flat illustration, like the stretch figure: soft colour fill, fine ink outline,
-      // one small white highlight, and a thin ink arc counting down.
-      ctx.fillStyle = bub.paint; ctx.globalAlpha = ease * fade * .55;
-      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-      ctx.globalAlpha = ease * fade;
-      ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
+      // Print-style bubble: a solid colour disc slightly offset from a fine ink ring (like a
+      // misregistered risograph print), a tiny white glint, and one small ink dot that travels
+      // around the ring as the countdown. Calm, flat, no gradients.
+      const a0 = ease * fade;
+      ctx.globalAlpha = a0 * .9; ctx.fillStyle = bub.paint;
+      ctx.beginPath(); ctx.arc(x + r * .08, y + r * .08, r * .92, 0, TAU); ctx.fill();
+      ctx.globalAlpha = a0; ctx.strokeStyle = INK; ctx.lineWidth = 1.2;
       ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(2, r * .06); ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.arc(x, y, r * .7, Math.PI * 1.1, Math.PI * 1.4); ctx.stroke();
-      ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(x, y, r + 7, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - age)); ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.ellipse(x + r * .38, y - r * .38, r * .11, r * .07, -.7, 0, TAU); ctx.fill();   // canvas is mirrored, so this shows top-left
+      const ta = -Math.PI / 2 - TAU * (1 - age);
+      ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x + Math.cos(ta) * (r + 8), y + Math.sin(ta) * (r + 8), 2.5, 0, TAU); ctx.fill();
       ctx.globalAlpha = 1;
     }
     // Pops: the film tears (WebGL) and a fine mist of droplets sprays out and falls.
