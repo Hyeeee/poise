@@ -284,11 +284,11 @@ function updateWork(p, now) {
 }
 // How far you've leaned toward the screen, 0–100, from the sensor alone.
 // Sensor-only mode uses the same fixed range as the light bar: 55–80 cm is good.
-const SENSOR_GOOD = [55, 80];
+const SENSOR_GOOD = [50, 85];   // wider good range = less sensitive
 function sensorShift() {
   if (sensorRef && sensor.cm > 0) {
     const off = sensor.cm < SENSOR_GOOD[0] ? SENSOR_GOOD[0] - sensor.cm : sensor.cm > SENSOR_GOOD[1] ? sensor.cm - SENSOR_GOOD[1] : 0;
-    return Math.min(100, Math.round(Math.max(0, off - 3) * 4));
+    return Math.min(100, Math.round(Math.max(0, off - 5) * 3));   // 5 cm slack, gentler slope
   }
   const k = sensor.closeness;
   return k > 1.08 ? Math.min(100, Math.round((k - 1.08) * 260)) : 0;

@@ -100,16 +100,16 @@ void handleMessage(String msg) {
 //   GOOD_MIN..GOOD_MAX cm  = good posture (soft white)
 //   closer than GOOD_MIN   = leaning in;  farther than GOOD_MAX = leaning back
 //  Outside the good range: the light warms right away (the farther out, the warmer),
-//  turns yellow after 5 s and red after 10 s. Back in range -> green for a moment, then white.
+//  turns yellow after 7 s and red after 14 s. Back in range -> green for a moment, then white.
 //  Nothing in front for 3 s -> away: the strip dims. Sitting down again flashes green once.
 //  Two sensors (left + right): if one side gets more than TILT_CM closer than the other,
 //  you're tilting to that side - same yellow/red rule.
-constexpr int GOOD_MIN = 55;         // <- tune to your desk (your sweet spot ~60-70 plus some room)
-constexpr int GOOD_MAX = 80;
-constexpr int SLACK    = 3;          // small moves past the edge are ignored
+constexpr int GOOD_MIN = 50;         // <- tune to your desk (your sweet spot ~60-70 plus some room)
+constexpr int GOOD_MAX = 85;
+constexpr int SLACK    = 5;          // small moves past the edge are ignored
 constexpr int AWAY_CM  = 150;
-constexpr int TILT_CM  = 8;          // left/right difference above this = tilting to one side        // farther than this (or no echo) counts as nobody there
-float smoothCm = -1, smoothTilt = 0;  // tilt = left minus right (cm)                 // distance with jitter smoothed out
+constexpr int TILT_CM  = 12;         // left/right difference above this = tilting to one side
+float smoothCm = -1, smoothTilt = 0;  // smoothed distance, and tilt = left minus right (cm)
 unsigned long goneSince = 0, outSince = 0, okUntil = 0;
 bool away = true;
 
@@ -141,11 +141,12 @@ void sensorDemo() {
     if (!outSince) outSince = now;
     unsigned long held = now - outSince;
     fade = 0.05;
-    if (held < 5000)       mixTarget(140, 140, 130, 255, 190, 60, off / 30.0);   // gentle warm hint (half-warm at 15 cm out)
-    else if (held < 10000) setTarget(255, 130, 0);                              // yellow
+    if (held < 2000)       setTarget(140, 140, 130);                             // first 2 s: ignore
+    else if (held < 7000)  mixTarget(140, 140, 130, 255, 190, 60, off / 30.0);   // gentle warm hint
+    else if (held < 14000) setTarget(255, 130, 0);                              // yellow
     else                   setTarget(255, 0, 0);                                // red
   } else {
-    if (outSince && now - outSince >= 5000) okUntil = now + 1200;               // corrected
+    if (outSince && now - outSince >= 7000) okUntil = now + 1200;               // corrected
     outSince = 0;
     fade = 0.12;
     setTarget(140, 140, 130);                                                   // good: soft white
