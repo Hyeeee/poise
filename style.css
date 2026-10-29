@@ -738,6 +738,7 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 .card-foot .stat b { font-family: var(--ui); font-size: var(--t-l); font-weight: 400; letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
 .card-foot .stat small { font-size: var(--t-xs); color: var(--ink-2); }
 .card-foot .stat + .stat { margin-left: 14px; padding-left: 14px; box-shadow: inset 1px 0 0 rgba(30,31,28,.12); }
-.card-foot .stat:last-of-type { margin-right: auto; }
+.card-foot #calibrate { margin-left: auto; }
 .card-foot .sub { margin-right: 0; }
 #sensor-dist.off { color: #b8741a; }
+.card-foot .stat small, .card-foot #calibrate { white-space: nowrap; } .card-foot .stat + .stat { margin-left: 10px; padding-left: 10px; } .card-foot { gap: 10px; }
