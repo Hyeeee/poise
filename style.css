@@ -763,3 +763,7 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 
 /* Seated games are drawn right over the camera, like Bubbles */
 #mini-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+/* Posture card footer: compact enough that number, cm and button share one line */
+.state .card-foot .stat b { font-size: 24px; }
+.state .card-foot .stat small { font-size: 13px; }
+.state .card-foot #calibrate { font-size: 13px; height: 36px; }
