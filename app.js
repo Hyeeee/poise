@@ -399,12 +399,15 @@ function loop(now) {
 }
 
 // Before a reference exists: the side panel is hidden and the main screen asks for one.
+let barSkipped = false;
 const hasRef = () => !!reference || sensorRef;
 function syncRef() {
   $('studio').classList.toggle('no-ref', !hasRef() && screen === 'work');
   $('end-session').hidden = !hasRef();
   $('sensor-mode').hidden = !(sensor.live && !active);
-  $('ref-prompt').hidden = !!reference || !active || screen !== 'work';
+  const needBar = !writer && !barSkipped && ('serial' in navigator);
+  $('bar-prompt').hidden = !!reference || !active || screen !== 'work' || !needBar;
+  $('ref-prompt').hidden = !!reference || !active || screen !== 'work' || needBar;
 }
 function calibrate() {
   if (!active && sensor.live && sensor.cm > 0) return calibrateSensor();
@@ -1172,6 +1175,8 @@ function onSensorTap() {
   }
 }
 
+$('bar-connect').onclick = () => $('connect').click();
+$('bar-skip').onclick = () => { barSkipped = true; syncRef(); };
 $('connect').onclick = async () => {
   if (!('serial' in navigator)) return toast('Use desktop Chrome or Edge to connect the light bar');
   try {
@@ -1187,6 +1192,7 @@ $('connect').onclick = async () => {
     $('connect').classList.add('on'); $('connect').setAttribute('aria-label', 'Disconnect light bar');
     toast('Light bar connected'); light('idle');
     readSensor(port);
+    syncRef();
   } catch (e) { if (e.name !== 'NotFoundError') toast('Check the USB connection. Another app may be using the port.'); }
 };
 document.addEventListener('visibilitychange', () => {

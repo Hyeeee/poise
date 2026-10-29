@@ -719,3 +719,5 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 .game-chips button.on { background: var(--ink) !important; color: var(--paper); }
 #empty-camera.sensor-on em { display: block; font-style: normal; font-family: var(--ui); font-size: var(--t-s); color: var(--ink-2); margin-top: 10px; }
 #empty-camera.sensor-on #sensor-mode { display: none !important; }
+#lightbar { display: none !important; }
+#bar-prompt .row { display: flex; gap: 12px; align-items: center; }
