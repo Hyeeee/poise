@@ -72,11 +72,19 @@ const SAY = {
   'Good rest.': 'Good rest. Here is how your break went.',
   'Short rest.': 'A short rest. Try two minutes or more next time.',
   breakOther: 'Break ended. Here is your summary.',
+  pose_close: 'You are leaning in close to the screen. Sit back a little.',
+  pose_far: 'You have drifted far from the screen. Come a bit closer.',
+  pose_forward: 'Your head is pushing forward. Bring it back over your shoulders.',
+  pose_side: 'You are tilting to one side. Center yourself.',
+  pose_shoulders: 'One shoulder has dropped. Let both shoulders relax evenly.',
+  pose_slouch: 'You are slouching back. Sit up tall.',
+  pose_other: 'Your posture has drifted for a while. Take a moment to reset.',
   'Great moves.': 'Great moves. Here is how you did.',
   'Nice moves.': 'Nice moves. Here is how you did.',
   'A quick move.': 'A quick move. Every bit helps.',
 };
 export const SPOKEN_LINES = Object.values(SAY);
+export const POSTURE_SAY = k => SAY['pose_' + k] || SAY.pose_other;
 
 function headline(r) {
   if (r.aligned == null) return { en: 'Short session. Set a reference and keep the timer running to see your full analysis.', title: 'Session ended.' };

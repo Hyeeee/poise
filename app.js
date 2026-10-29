@@ -23,7 +23,7 @@ mountPainting();
   document.body.classList.add('enter');
 })();
 import { startTour } from './tour.js';
-import { session as posture, showReport, breakLog, showBreakReport } from './report.js';
+import { session as posture, showReport, breakLog, showBreakReport, POSTURE_SAY } from './report.js';
 
 const $ = id => document.getElementById(id);
 const text = (id, value) => { $(id).textContent = value; };
@@ -241,6 +241,7 @@ function shiftCause(delta, widthRatio = 1) {
   };
   const [key, size] = Object.entries(parts).sort((a, b) => b[1] - a[1])[0];
   if (size < .05) return null;
+  shiftCause.key = key;
   return {
     close: ['Too close to the screen', 'Sit back a little — about an arm’s length away.'],
     far: ['Too far from the screen', 'Move a little closer so you don’t lean in to read.'],
@@ -328,7 +329,11 @@ function applyPosture(d, now, delta, widthRatio) {
     state = recoverAt && now - recoverAt < 1500 ? 'green' : driftSince ? lastState : 'white';
     if (driftSince && state !== 'green') rgb = lastRgb;
   }
-  if (state === 'red' && lastState !== 'red' && store.work().chime) chime();
+  if (state === 'red' && lastState !== 'red') {
+    if (store.work().chime) chime();
+    // Say what's going on, once per red, in the chosen voice.
+    if (store.state.voice) { shiftCause.key = null; shiftCause(delta, widthRatio); setTimeout(() => speak(POSTURE_SAY(shiftCause.key), $('state-agent')), store.work().chime ? 700 : 0); }
+  }
   lastState = state; lastRgb = rgb;
   light(state, rgb);
   // Say WHAT moved, not just that something did: the biggest part of the shift wins.
