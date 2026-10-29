@@ -294,7 +294,7 @@ function sensorShift() {
 //  4. Back in position for 1 s → green for a moment, then white again.
 const GRACE_MS = () => Math.max(5000, strongDelay());
 const FADE_MS = 6000, RED_AFTER_MS = 20000, SETTLE_MS = 1000;
-const WHITE = [110, 110, 100], YELLOW = [255, 130, 0], RED = [255, 0, 0];
+const WHITE = [150, 150, 140], YELLOW = [255, 130, 0], RED = [255, 0, 0];
 const mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
 let alignedSince = 0, cueShown = false, lastRgb = null;
 function applyPosture(d, now, delta, widthRatio) {
