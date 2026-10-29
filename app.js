@@ -1033,10 +1033,14 @@ const gameKind = () => GAMES[store.state.gameKind] ? store.state.gameKind : 'bub
 const mini = new MiniGame($('mini-canvas'), {
   helper: $('game-map'),
   onTick({ score, left, label }) {
-    // Every catch / ring / seed blinks the light bar: 3 quick on/off flashes in the
-    // event's colour (instant fade), then it settles back to the calm colour.
+    // Every catch / ring / seed pulses the light bar softly twice in the
+    // event's colour, then it settles back to the calm colour.
     const fk = gameFlash && performance.now() - gameFlash.t;
-    if (gameFlash && fk < 600) light('idle', Math.floor(fk / 100) % 2 ? [0, 0, 0] : gameFlash.rgb, 100);
+    if (gameFlash && fk < 1000) {
+      // two soft pulses: brightness rises and falls like a breath (sin²), 0.5 s each
+      const b = Math.pow(Math.sin(fk / 500 * Math.PI), 2) * .85 + .15;
+      light('idle', gameFlash.rgb.map(v => Math.round(v * b / 8) * 8), 35);
+    }
     else { gameFlash = null; gameRgb ? light('idle', gameRgb, 20) : light('idle'); }
     text('game-score', score); text('game-left', fmtClock(left));
     $('game-bar').style.width = (100 - left / (store.brk().minutes * 60000) * 100) + '%';
