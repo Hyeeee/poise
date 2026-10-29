@@ -166,15 +166,27 @@ export class MiniGame {
     // rope from the top, bell hangs from it; the rope is pulled up as you lift
     const cx = W / 2, top = 0, by = H * .2 - this.lift * H * .08;   // bell hangs high, off your face
     const rot = Math.sin(now / 110) * .45 * this.swing;
-    ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(cx, by); ctx.stroke();
+    // thin cord
+    ctx.strokeStyle = 'rgba(30,31,28,.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(cx, by); ctx.stroke();
     ctx.save(); ctx.translate(cx, by); ctx.rotate(rot);
-    ctx.fillStyle = paper; ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.lineJoin = 'round';
-    ctx.beginPath(); ctx.moveTo(-8, 0); ctx.quadraticCurveTo(-12, 10, -16, 34); ctx.quadraticCurveTo(-26, 44, -30, 48); ctx.lineTo(30, 48); ctx.quadraticCurveTo(26, 44, 16, 34); ctx.quadraticCurveTo(12, 10, 8, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(rot * -20, 54, 5, 0, TAU); ctx.fill();
+    // small ring at the top
+    ctx.strokeStyle = '#b8902f'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -3, 4, 0, TAU); ctx.stroke();
+    // brass body: one smooth curved silhouette, lit from the left
+    const bell = new Path2D('M0 1 C-11 1 -15 10 -16 22 C-17 32 -19 38 -26 43 L26 43 C19 38 17 32 16 22 C15 10 11 1 0 1 Z');
+    const g = ctx.createLinearGradient(-26, 0, 26, 0);
+    g.addColorStop(0, '#f6dc8e'); g.addColorStop(.35, '#e2b94f'); g.addColorStop(.75, '#b8862a'); g.addColorStop(1, '#8e6420');
+    ctx.shadowColor = 'rgba(0,0,0,.2)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 5;
+    ctx.fillStyle = g; ctx.fill(bell); ctx.shadowColor = 'transparent';
+    // soft highlight streak + rim
+    ctx.strokeStyle = 'rgba(255,250,230,.75)'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-8, 8); ctx.quadraticCurveTo(-11, 22, -13, 34); ctx.stroke();
+    ctx.fillStyle = '#9c7024'; ctx.beginPath(); ctx.ellipse(0, 43, 26, 3, 0, 0, TAU); ctx.fill();
+    // clapper swings opposite the bell
+    ctx.fillStyle = '#7a561b'; ctx.beginPath(); ctx.arc(-rot * 16, 47, 4, 0, TAU); ctx.fill();
     ctx.restore();
     // sound rings expanding from the bell
     this.rings = this.rings.filter(t => now - t < 1400);
-    for (const t of this.rings) { const k = (now - t) / 1400; ctx.strokeStyle = `rgba(20,20,18,${.35 * (1 - k)})`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cx, by + 30, 40 + k * W * .35, 0, TAU); ctx.stroke(); }
+    for (const t of this.rings) { const k = (now - t) / 1400; ctx.strokeStyle = `rgba(226,185,79,${.6 * (1 - k)})`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cx, by + 24, 40 + k * W * .35, 0, TAU); ctx.stroke(); }
     // lift meter: two shoulder marks that rise
     const my = H * .82, mx = W * .3;
     ctx.strokeStyle = 'rgba(20,20,18,.18)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
