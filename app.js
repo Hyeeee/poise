@@ -466,9 +466,16 @@ function applyPosture(d, now, delta, widthRatio) {
   shiftCause.key = null; shiftCause(delta, widthRatio);
   const DEV_LABEL = { close: '% closer', far: '% farther', forward: '% forward', side: '% tilted', shoulders: '% uneven', slouch: '% slouched' };
   text('dev-label', d < 6 ? '% off your reference' : DEV_LABEL[shiftCause.key] || '% off your reference');
-  if (state === 'amber' || state === 'red') {
+  // Name the shift as soon as it is visible, not only once the light has changed.
+  // Shown from half the cue threshold; hides again below a third, so it doesn't flicker at the edge.
+  const thr = threshold();
+  if (d > thr * .5) applyPosture.naming = true; else if (d < thr * .35) applyPosture.naming = false;
+  if (state !== 'green' && applyPosture.naming) {
     const c = shiftCause(delta, widthRatio);
-    if (c) { title = c[0]; hint = state === 'red' ? `${c[1]} You've been like this for a while.` : c[1]; }
+    if (c) {
+      title = c[0];
+      hint = state === 'red' ? `${c[1]} You've been like this for a while.` : state === 'amber' ? c[1] : `A small shift. ${c[1]}`;
+    }
   }
   if (silent()) { title = 'Silent test'; hint = 'Tracking quietly. The light and voice are off.'; text('deviation', '—'); $('deviation-bar').style.width = '0'; }
   text('posture-state', title); text('posture-hint', hint);
