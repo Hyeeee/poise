@@ -96,13 +96,24 @@ function toast(msg) {
   if (!b) {
     b = document.createElement('div'); b.className = 'say-bubble'; b.setAttribute('role', 'status');
     // Ink-drawn tail, same line weight as the figure.
-    b.innerHTML = '<span class="sb-text"></span><svg class="sb-tail" viewBox="0 0 22 18" aria-hidden="true"><path d="M2 0 C4 7 3 12 1 17 C8 13 13 8 15 0" /></svg>';
+    // Body and tail are ONE ink path, so the tail joins the bubble without a seam.
+    b.innerHTML = '<svg class="sb-shape" aria-hidden="true"><path/></svg><span class="sb-text"></span>';
     host.append(b);
   }
   b.querySelector('.sb-text').textContent = msg;
+  b._shape = null;   // redraw the outline for the new text size
   b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
   clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('show'), 3200);
   followHead(host, b);
+}
+// Hand-drawn bubble outline: rounded body with a short curved tail at a bottom corner.
+function drawBubble(b, w, h, flip) {
+  const r = Math.min(14, h / 2), x0 = 16, svg = b.querySelector('.sb-shape');
+  const d = `M${r},0 H${w - r} Q${w},0 ${w},${r} V${h - r} Q${w},${h} ${w - r},${h} H${x0 + 13} Q${x0 + 6},${h + 3} ${x0 - 4},${h + 11} Q${x0 + 1},${h + 4} ${x0},${h} H${r} Q0,${h} 0,${h - r} V${r} Q0,0 ${r},0 Z`;
+  svg.setAttribute('viewBox', `-2 -2 ${w + 4} ${h + 16}`);
+  svg.setAttribute('width', w + 4); svg.setAttribute('height', h + 16);
+  const path = svg.querySelector('path'); path.setAttribute('d', d);
+  path.setAttribute('transform', flip ? `translate(${w},0) scale(-1,1)` : '');
 }
 // Keep the bubble just above and beside the figure's head, easing after it as the figure moves.
 function followHead(host, b) {
@@ -115,10 +126,20 @@ function followHead(host, b) {
     const k = cv.getBoundingClientRect().width / cv.width, hr = host.getBoundingClientRect(), cr = cv.getBoundingClientRect();
     const hx = cr.left - hr.left + cv._head.x * k, hy = cr.top - hr.top + cv._head.y * k, r = cv._head.r * k;
     const bw = b.offsetWidth, bh = b.offsetHeight;
-    const right = hx + r * .7 + bw + 8 < hr.width;              // room on the right of the head?
-    let x = right ? hx + r * .7 : hx - r * .7 - bw, y = hy - r * 1.05 - bh;
+    // Pick a side once (with a little hysteresis) so the bubble doesn't flip back and forth.
+    const roomR = hr.width - hx - r, roomL = hx - r;
+    if (b._side == null || (b._side === 'r' && roomL > roomR + 40) || (b._side === 'l' && roomR > roomL + 40)) b._side = roomR >= roomL ? 'r' : 'l';
+    const right = b._side === 'r';
+    // Above the head if there is room, otherwise beside it. Width shrinks to the room on that side.
+    const room = (right ? roomR : roomL) - r * .2 - 6;
+    const mw = Math.max(84, Math.min(170, room));
+    if (b._mw !== mw) { b._mw = mw; b.style.setProperty('max-width', mw + 'px', 'important'); }
+    let x = right ? hx + r * .55 - 12 : hx - r * .55 - bw + 12, y = hy - r * 1.1 - bh - 10;
+    if (y < 6) { x = right ? hx + r * 1.15 : hx - r * 1.15 - bw; y = hy - r * .9 - bh; }
     x = Math.max(6, Math.min(hr.width - bw - 6, x)); y = Math.max(6, y);
     b.classList.toggle('flip', !right);
+    const key = `${bw}x${bh}${right}`;
+    if (b._shape !== key) { b._shape = key; drawBubble(b, bw, bh, !right); }
     const cur = b._pos || [x, y], e = b._pos ? .18 : 1;
     b._pos = [cur[0] + (x - cur[0]) * e, cur[1] + (y - cur[1]) * e];
     b.style.transform = `translate(${b._pos[0]}px, ${b._pos[1]}px)`;
