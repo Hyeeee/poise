@@ -1137,7 +1137,7 @@ async function rerunSetup() {
 }
 
 // ---------- Ask Poise ----------
-const SUGGEST = ['Focus 40 minutes', 'Less sensitive', 'Breaks with breathing', 'How am I doing?'];
+const SUGGEST = ['Focus 40 min', 'Less sensitive', 'Breathing breaks', 'How am I doing?'];
 function addMessage(who, msg) {
   const el = document.createElement('div');
   el.className = `msg ${who}`; el.textContent = msg;
