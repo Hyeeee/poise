@@ -1595,3 +1595,4 @@ body .report-card.pop::before { display: none !important; }
 /* Suggestion chips: one row, sized to fit */
 .suggest { flex-wrap: nowrap !important; gap: 6px !important; overflow: hidden; }
 .suggest button { flex: 0 1 auto; min-width: 0; height: 32px !important; padding: 0 12px !important; font-size: 13px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ls-ends { margin-top: 2px !important; }
