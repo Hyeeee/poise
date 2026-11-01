@@ -64,12 +64,20 @@ export class PostureAvatar {
     const base = { lean: 0, bend: 0, look: 0, shrug: 0, breath, ...REST_ARMS };
     const place = zoom => { ctx.save(); ctx.translate(w / 2, h * 1.02); ctx.scale(s * zoom, s * zoom); ctx.translate(0, 8); };
 
-    // Reference: a faint copy of the same figure, sitting well, right behind you.
+    // Reference: just a dashed outline of head and shoulders where you sat when you saved it.
     if (this.hasRef) {
       place(1);
-      ctx.globalAlpha = .16;
-      drawFigure(ctx, { ...base, head: 0, hx: 0, shTilt: 0, fwd: 0, drop: 0 }, { legs: false });
-      ctx.globalAlpha = 1;
+      ctx.setLineDash([5, 5]); ctx.lineDashOffset = -this.t * 6;       // dashes drift slowly
+      ctx.strokeStyle = 'rgba(13,13,13,.32)'; ctx.lineWidth = 1.6 / s; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.ellipse(0, -162, 22, 26, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath();
+      for (const m of [-1, 1]) {
+        ctx.moveTo(10 * m, -134); ctx.lineTo(10 * m, -126);
+        ctx.quadraticCurveTo(14 * m, -122, 38 * m, -121);
+        ctx.quadraticCurveTo(54 * m, -119, 56 * m, -102);
+        ctx.lineTo(66 * m, -64); ctx.lineTo(52 * m, 4);
+      }
+      ctx.stroke(); ctx.setLineDash([]);
       ctx.restore();
     }
 

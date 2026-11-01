@@ -1183,5 +1183,5 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 .avatar-box canvas { position: absolute; inset: 0; display: block; }
 .avatar-key { position: absolute; z-index: 2; left: 12px; top: 10px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-3); }
 .avatar-key i { display: inline-block; width: 12px; height: 0; border-top: 2px solid var(--live-line); border-radius: 2px; }
-.avatar-key i.k-ref { margin-left: 6px; border-top: 2px solid rgba(13,13,13,.16); }
+.avatar-key i.k-ref { margin-left: 6px; border-top: 1.5px dashed rgba(13,13,13,.4); }
 #work-panel .state { padding-bottom: 8px !important; }
