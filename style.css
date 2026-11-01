@@ -1444,3 +1444,7 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 .ls-marks button { font-size: 12px !important; font-weight: 500; color: var(--ink-3) !important; padding: 0 6px !important; }
 .ls-marks button.on { color: var(--ink) !important; font-weight: 600; background: none !important; }
 .ls-marks button:hover { background: none !important; color: var(--ink) !important; }
+/* Start cards follow the app's green: camera (mint), light bar (sage-gold), reference (soft green-teal) */
+[data-tone="mint"]  { --g1: #c8ecb8; --g2: #d6efd0; --g-ink: #3f8a5c; }
+[data-tone="peach"] { --g1: #e3ecb4; --g2: #f3e3b0; --g-ink: #8a7a2e; }
+[data-tone="lilac"] { --g1: #bfe6d4; --g2: #d4ecc4; --g-ink: #3f7f6a; }
