@@ -1500,3 +1500,30 @@ body .report-card.pop::before { display: none !important; }
 #work-panel #end-session { margin-top: 24px !important; }
 /* Segmented: hover and selected share one corner radius */
 .segmented button, .segmented button:not(.active):hover, .field .segmented button:not(.active):hover, .seg-thumb { border-radius: 12px !important; }
+
+/* Settings v4 */
+#modes.drawer .sheet-head { background: transparent !important; box-shadow: none !important; -webkit-backdrop-filter: blur(18px) !important; backdrop-filter: blur(18px) !important; }
+#modes.drawer #mode-list { display: none !important; }
+#modes.drawer .editor-foot { display: block !important; }
+/* Mode dropdown */
+.mode-row { overflow: visible; }
+.dd { position: relative; justify-self: end; }
+.dd-btn { display: inline-flex !important; align-items: center; gap: 6px; height: 36px !important; min-height: 0 !important; padding: 0 10px 0 14px !important;
+  border-radius: 10px !important; background: rgba(13,13,13,.05) !important; font-size: 15px !important; color: var(--ink); }
+.dd-btn:hover { background: rgba(13,13,13,.09) !important; }
+.dd-btn b { font-weight: 500; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-btn svg { width: 16px; height: 16px; color: var(--ink-2); transition: transform .3s; }
+.dd.open .dd-btn svg { transform: rotate(180deg); }
+.dd-name { width: 180px; height: 36px; padding: 0 12px; border: 0; border-radius: 10px; background: #fff; box-shadow: inset 0 0 0 1.5px #0d0d0d; font: inherit; font-size: 15px; text-align: right; outline: none; }
+.dd-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; min-width: 200px; padding: 6px; border-radius: 14px;
+  background: rgba(255,255,255,.92); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 0 0 1px rgba(13,13,13,.06), 0 16px 40px -12px rgba(13,13,13,.35); animation: ddIn .25s cubic-bezier(.22,1,.36,1); }
+@keyframes ddIn { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+.dd-item { display: flex !important; justify-content: flex-start !important; width: 100%; height: 36px !important; min-height: 0 !important; padding: 0 10px 0 30px !important;
+  border-radius: 9px !important; font-size: 14.5px !important; color: var(--ink); text-align: left; position: relative; background: none !important; }
+.dd-item:hover { background: rgba(13,13,13,.06) !important; }
+.dd-item.on::before { content: ""; position: absolute; left: 11px; top: 50%; width: 9px; height: 5px; margin-top: -4px; border-left: 1.8px solid currentColor; border-bottom: 1.8px solid currentColor; transform: rotate(-45deg); }
+.dd-item.act { padding-left: 10px !important; color: var(--ink-2); }
+.dd-item.danger-item { color: #b2463b; }
+.dd-sep { display: block; height: 1px; margin: 5px 6px; background: rgba(13,13,13,.08); }
+#modes.drawer .group { overflow: visible; }

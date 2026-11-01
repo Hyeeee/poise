@@ -101,7 +101,7 @@ export function patchMode(kind, patch) {
 }
 
 export function describeWork(m) {
-  return `${m.focus} min focus, ${SENSITIVITY[m.sensitivity].label.toLowerCase()} cues after ${m.delay}s${m.eyes ? ', eye care on' : ''}`;
+  return `${m.focus} min focus, ${SENSITIVITY[m.sensitivity].label.toLowerCase()} cues after ${m.delay}s`;
 }
 export function describeBreak(m) {
   if (m.style === 'breathe') return `${m.minutes < 1 ? m.minutes * 60 + ' sec' : m.minutes + ' min'} of slow breathing and eye rest`;

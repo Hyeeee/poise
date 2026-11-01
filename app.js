@@ -548,7 +548,7 @@ function applyPosture(d, now, delta, widthRatio) {
   // Session analysis (only while the focus timer runs).
   if (timerRunning) posture.record(now, d, state, delta, widthRatio);
   else posture.pause();
-  if (store.work().eyes) {
+  if (false) {   // eye care removed
     if (widthRatio > 1.25) { if (!nearSince) nearSince = now; text('distance', now - nearSince > 3000 ? 'Too close' : 'Close'); }
     else { nearSince = 0; text('distance', 'Good'); }
   }
@@ -556,7 +556,7 @@ function applyPosture(d, now, delta, widthRatio) {
 
 
 function updateFace(now) {
-  if (!face || !store.work().eyes) return;
+  return;   // eye care removed
   const r = face.detectForVideo(camera, now), s = r.faceBlendshapes?.[0]?.categories;
   if (!s) { text('blinks', '—'); return; }
   const l = s.find(x => x.categoryName === 'eyeBlinkLeft')?.score || 0, rgt = s.find(x => x.categoryName === 'eyeBlinkRight')?.score || 0;
@@ -943,7 +943,7 @@ function syncUI() {
   text('next-break', brk.style === 'breathe' ? `Up next, a ${brk.minutes < 1 ? brk.minutes * 60 + '-second' : brk.minutes + '-minute'} breathing break`
     : brk.style === 'game' ? `Up next, a ${brk.minutes}-minute movement game`
     : `Up next, ${brk.count} easy stretch${brk.count > 1 ? 'es' : ''}`);
-  $('eye-stat').hidden = !work.eyes; $('dist-stat').hidden = !work.eyes;
+  $('eye-stat').hidden = true; $('dist-stat').hidden = true;
   document.querySelector('.card.stats').hidden = true;
   renderTimer(); renderPause();
   if (screen === 'break') {
@@ -984,42 +984,75 @@ function segmented(name, options, value) {
   return `<div class="segmented" role="group" data-seg="${name}">${options.map(([v, l]) => `<button type="button" data-v="${v}" class="${v === value ? 'active' : ''}">${l}</button>`).join('')}</div>`;
 }
 function toggle(name, checked) { return `<label class="toggle"><input type="checkbox" data-k="${name}" ${checked ? 'checked' : ''}></label>`; }
+// Settings editor. Every choice is the same control: a segmented row of a few sensible values.
+// The mode itself is picked, added, renamed and deleted from one dropdown at the top.
+const CHOICES = {
+  focus: [[15, '15m'], [25, '25m'], [30, '30m'], [45, '45m'], [60, '1h']],
+  delay: [[3, '3s'], [5, '5s'], [10, '10s'], [20, '20s']],
+  count: [[3, '3'], [5, '5'], [10, '10']],
+  breathe: [[.5, '30s'], [1, '1m'], [2, '2m']],
+  game: [[1, '1m'], [2, '2m'], [3, '3m']],
+};
+function numSeg(key, opts, value, label) {
+  const list = opts.some(([v]) => v === value) ? opts : [...opts, [value, label(value)]].sort((a, b) => a[0] - b[0]);
+  return `<div class="segmented" role="group" data-num="${key}">${list.map(([v, l]) => `<button type="button" data-v="${v}" class="${v === value ? 'active' : ''}">${l}</button>`).join('')}</div>`;
+}
+const CHEV = '<svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg>';
 function renderEditor() {
   const ed = $('editor');
   const m = tab === 'work' ? store.work() : store.brk();
-  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-  let html = field('Name', `<input type="text" data-k="name" maxlength="32" value="${esc(m.name)}">`);
+  const list = tab === 'work' ? store.state.works : store.state.breaks;
+  const current = m.id;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  let html = `<div class="field mode-row"><span>Mode</span>
+    <div class="dd" id="mode-dd">
+      <button type="button" class="dd-btn" aria-haspopup="menu" aria-expanded="false"><b>${esc(m.name)}</b>${CHEV}</button>
+      <input type="text" class="dd-name" maxlength="32" value="${esc(m.name)}" aria-label="Mode name" hidden>
+      <div class="dd-menu" role="menu" hidden>
+        ${list.map(x => `<button type="button" role="menuitemradio" aria-checked="${x.id === current}" data-id="${x.id}" class="dd-item${x.id === current ? ' on' : ''}">${esc(x.name)}</button>`).join('')}
+        <i class="dd-sep"></i>
+        <button type="button" role="menuitem" class="dd-item act" data-act="new">New mode</button>
+        <button type="button" role="menuitem" class="dd-item act" data-act="rename">Rename</button>
+        ${list.length > 1 ? '<button type="button" role="menuitem" class="dd-item act danger-item" data-act="delete">Delete this mode</button>' : ''}
+      </div>
+    </div></div>`;
   if (tab === 'work') {
-    html += field('Focus length', `<input type="range" data-k="focus" min="5" max="90" step="5" value="${m.focus}">`, `<output>${m.focus} min</output>`);
+    html += field('Focus length', numSeg('focus', CHOICES.focus, m.focus, v => v + 'm'));
     html += field('Sensitivity', segmented('sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
-    html += field('Strong cue after', `<input type="range" data-k="delay" min="2" max="20" step="1" value="${m.delay}">`, `<output>${m.delay}s</output>`);
-    html += field('Eye care', toggle('eyes', m.eyes));
+    html += field('Strong cue after', numSeg('delay', CHOICES.delay, m.delay, v => v + 's'));
     html += field('Chime', toggle('chime', m.chime));
   } else {
     html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
-    html += m.style === 'stretch'
-      ? field('Stretches', `<input type="range" data-k="count" min="1" max="10" step="1" value="${m.count}">`, `<output>${m.count}</output>`)
-      : m.style === 'breathe'
-        ? field('Length', `<input type="range" data-k="minutes" min=".5" max="10" step=".5" value="${m.minutes}">`, `<output>${m.minutes < 1 ? m.minutes * 60 + ' sec' : m.minutes + ' min'}</output>`)
-        : field('Length', `<input type="range" data-k="minutes" min="1" max="10" step="1" value="${m.minutes}">`, `<output>${m.minutes} min</output>`);
+    html += m.style === 'stretch' ? field('Stretches', numSeg('count', CHOICES.count, m.count, v => String(v)))
+      : field('Length', numSeg('minutes', CHOICES[m.style], m.minutes, v => v < 1 ? v * 60 + 's' : v + 'm'));
     html += field('Start automatically', toggle('auto', m.auto));
   }
-  const list = tab === 'work' ? store.state.works : store.state.breaks;
-  html = `<div class="group">${html}</div>`;
-  html += `<div class="editor-foot"><span class="sub">${tab === 'work' ? describeWork(m) : describeBreak(m)}</span>${list.length > 1 ? '<button type="button" class="danger" id="delete-mode">Delete</button>' : ''}</div>`;
-  ed.innerHTML = html;
+  ed.innerHTML = `<div class="group">${html}</div><p class="editor-foot"><span class="sub">${tab === 'work' ? describeWork(m) : describeBreak(m)}</span></p>`;
 
-  ed.querySelectorAll('input[type=range]').forEach(inp => inp.oninput = () => {
-    const v = Number(inp.value); patchMode(tab, { [inp.dataset.k]: v });
-    const unit = { focus: ' min', minutes: ' min', delay: 's', count: '' }[inp.dataset.k];
-    inp.parentElement.querySelector('output').textContent = inp.dataset.k === 'minutes' && v < 1 ? v * 60 + ' sec' : v + unit;
-    ed.querySelector('.editor-foot .sub').textContent = tab === 'work' ? describeWork(store.work()) : describeBreak(store.brk());
-  });
   ed.querySelectorAll('input[type=checkbox]').forEach(inp => inp.onchange = () => patchMode(tab, { [inp.dataset.k]: inp.checked }));
-  ed.querySelector('input[type=text]').oninput = e => patchMode(tab, { name: e.target.value.trim() || 'Untitled' });
   ed.querySelectorAll('[data-seg] button').forEach(b => b.onclick = () => { patchMode(tab, { [b.parentElement.dataset.seg]: b.dataset.v }); renderEditor(); });
-  const del = $('delete-mode');
-  if (del) del.onclick = () => { deleteMode(tab, m.id); renderModes(); };
+  ed.querySelectorAll('[data-num] button').forEach(b => b.onclick = () => { patchMode(tab, { [b.parentElement.dataset.num]: Number(b.dataset.v) }); renderEditor(); });
+
+  // Mode dropdown
+  const dd = $('mode-dd'), btn = dd.querySelector('.dd-btn'), menu = dd.querySelector('.dd-menu'), name = dd.querySelector('.dd-name');
+  const open = on => { menu.hidden = !on; btn.setAttribute('aria-expanded', on); dd.classList.toggle('open', on); };
+  btn.onclick = e => { e.stopPropagation(); open(menu.hidden); };
+  $('modes').onpointerdown = e => { if (!$('mode-dd')?.contains(e.target)) open(false); };
+  menu.onclick = e => {
+    const it = e.target.closest('.dd-item'); if (!it) return;
+    open(false);
+    if (it.dataset.id) { store.update(s => { if (tab === 'work') s.workId = it.dataset.id; else s.breakId = it.dataset.id; }); renderEditor(); return; }
+    if (it.dataset.act === 'new') { createMode(tab, ''); renderModes(); startRename(); }
+    if (it.dataset.act === 'rename') startRename();
+    if (it.dataset.act === 'delete') { deleteMode(tab, m.id); renderModes(); }
+  };
+  function startRename() {
+    const d = $('mode-dd'), b = d.querySelector('.dd-btn'), n = d.querySelector('.dd-name');
+    b.hidden = true; n.hidden = false; n.focus(); n.select();
+    const done = () => { patchMode(tab, { name: n.value.trim() || 'Untitled' }); renderEditor(); };
+    n.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); n.blur(); } if (e.key === 'Escape') { n.value = m.name; n.blur(); } };
+    n.onblur = done;
+  }
 }
 document.querySelectorAll('#modes-tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; renderModes(); });
 $('pref-silent').onchange = e => {
@@ -1091,7 +1124,7 @@ function addMessage(who, msg) {
 }
 function openThread(suggestions = SUGGEST) {
   $('thread').hidden = false; $('studio').classList.add('chatting');
-  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, eye care, your breaks, or a new mode.');
+  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, your breaks, or a new mode.');
   $('suggest').innerHTML = '';
   suggestions.forEach(s => {
     const b = document.createElement('button'); b.type = 'button'; b.textContent = s;
@@ -1120,7 +1153,7 @@ const assistantCtx = {
     const sum = posture.summary();
     const share = sum ? sum.aligned : null;
     const mins = Math.ceil(remaining / 60);
-    const blinks = store.work().eyes && active ? blinkTimes.length : null;
+    const blinks = null;
     return {
       en: [share !== null ? `You've been aligned ${share}% of this session.` : 'Set a reference and start the timer to see how you are doing.',
         `${mins} min left in ${store.work().name}.`, blinks !== null ? `${blinks} blinks in the last minute.` : ''].join(' ').trim(),
