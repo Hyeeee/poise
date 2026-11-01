@@ -1283,3 +1283,7 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 #work-panel #work-mode-name { display: none !important; }
 .fc-sub .mode-name + .sub::before { content: none !important; }
 .fc-sub .sub { color: var(--ink-2) !important; }
+/* Posture section: state title sits on the same line as Reset reference; no eyebrow */
+#work-panel .fc-head { margin-bottom: 4px; gap: 12px; }
+#work-panel .fc-head #posture-state { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#work-panel #posture-hint { margin-top: 0; }
