@@ -185,8 +185,19 @@ function renderSteps(id, step) {
   const box = $(id).querySelector('.pop-steps'); if (!box) return;
   const i = flowSteps.indexOf(step);
   box.hidden = i < 0 || flowSteps.length < 2;
-  box.innerHTML = flowSteps.map((_, n) => `<i class="${n === i ? 'on' : ''}"></i>`).join('');
+  box.innerHTML = flowSteps.map((st, n) => `<button type="button" data-step="${st}" class="${n === i ? 'on' : ''}" aria-label="Step ${n + 1} of ${flowSteps.length}"${n === i ? ' aria-current="step"' : ''}></button>`).join('');
 }
+// Tap a dot to jump back (or ahead) to that step.
+function goStep(step) {
+  $('cam-notice').hidden = step !== 'cam';
+  if (step === 'bar') barSkipped = false;
+  if (step === 'ref') barSkipped = true;
+  syncRef();
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.pop-steps button[data-step]');
+  if (b && !b.classList.contains('on')) goStep(b.dataset.step);
+});
 $('cam-notice-ok').onclick = hideCamNotice;
 $('cam-notice-sensor').onclick = () => {
   hideCamNotice();
