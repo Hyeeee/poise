@@ -1113,3 +1113,10 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 .reel-video .reel-progress { gap: 4px; }
 .reel-video .reel-progress span { height: 3px; border-radius: 3px; background: rgba(13,13,13,.1); }
 .reel-video .reel-progress .done, .reel-video .reel-progress .current { background: var(--ink); }
+
+/* One glass surface at all times: no surface fade between steps, no blur filter on the card
+   (a filter on the card turns its backdrop blur off for a moment, which looked like a white flash). */
+.studio .pop.empty:is([data-dir="next"],[data-dir="back"]):not([hidden]):not(.leaving) { animation: none !important; }
+.studio .pop.empty:is([data-dir="next"],[data-dir="back"]):not([hidden])::before { animation: glowIn .6s ease both; }
+@keyframes glowIn { from { opacity: 0; } }
+@keyframes popIn { from { opacity: 0; scale: .97; } }

@@ -191,6 +191,10 @@ function setPop(id, show, dir = 1) {
     el.classList.remove('leaving'); el.dataset.dir = dir === 0 ? 'enter' : dir > 0 ? 'next' : 'back';
     el.hidden = false;
     el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+  } else if (!el.hidden && dir !== 0) {
+    // Between steps: swap at once. Two glass cards stacked during a cross-fade looked whiter
+    // than one, so the surface flashed white; now there is only ever one surface on screen.
+    clearTimeout(el._leave); el.classList.remove('leaving'); el.hidden = true;
   } else if (!el.hidden && !el.classList.contains('leaving')) {
     el.dataset.dir = dir === 0 ? 'enter' : dir > 0 ? 'next' : 'back';
     el.classList.add('leaving');
