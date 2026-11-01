@@ -15,26 +15,26 @@ const QUESTIONS = [
     key: 'nudge',
     say: 'When your posture starts to drift, how should I let you know?',
     options: [
-      { label: 'Gently, after 10 seconds', value: { sensitivity: 'gentle', delay: 10 } },
-      { label: 'Clearly, after 5 seconds', value: { sensitivity: 'balanced', delay: 5 } },
-      { label: 'Right away, with a chime', value: { sensitivity: 'firm', delay: 3, chime: true } },
+      { label: 'Gently', sub: 'After 10 seconds', icon: 'gentle', value: { sensitivity: 'gentle', delay: 10 } },
+      { label: 'Clearly', sub: 'After 5 seconds', icon: 'clear', value: { sensitivity: 'balanced', delay: 5 } },
+      { label: 'Right away', sub: 'With a chime', icon: 'chime', value: { sensitivity: 'firm', delay: 3, chime: true } },
     ],
   },
   {
     key: 'rest',
     say: 'And when it is time to rest, what helps you reset?',
     options: [
-      { label: 'Stretch', value: { style: 'stretch', count: 10 } },
-      { label: 'Breathe', value: { style: 'breathe', minutes: 2 } },
-      { label: 'Game', value: { style: 'game', minutes: 1 } },
+      { label: 'Stretch', sub: 'Follow a figure', icon: 'stretch', value: { style: 'stretch', count: 10 } },
+      { label: 'Breathe', sub: 'Slow breaths, eye rest', icon: 'breathe', value: { style: 'breathe', minutes: 2 } },
+      { label: 'Game', sub: 'Move to play', icon: 'game', value: { style: 'game', minutes: 1 } },
     ],
   },
   {
     key: 'auto',
     say: 'Last one. When focus time ends, should I start your break for you?',
     options: [
-      { label: 'Start it for me', value: true },
-      { label: 'Ask me first', value: false },
+      { label: 'Start it for me', sub: 'Break begins on its own', icon: 'auto', value: true },
+      { label: 'Ask me first', sub: 'I’ll check with you', icon: 'ask', value: false },
     ],
   },
 ];
@@ -89,6 +89,16 @@ const VOICE_ICON = {
   sonia: '<svg viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>',
   andrew: '<svg viewBox="0 0 24 24"><path d="M3 9c2.5-2 4.5-2 7 0s4.5 2 7 0 3-1.5 4-1"/><path d="M3 15c2.5-2 4.5-2 7 0s4.5 2 7 0 3-1.5 4-1"/></svg>',
   off: '<svg viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg>',
+};
+const OPT_ICON = {
+  gentle: '<svg viewBox="0 0 24 24"><path d="M4 15c3-4 5-4 8 0s5 4 8 0"/></svg>',
+  clear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/></svg>',
+  chime: '<svg viewBox="0 0 24 24"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 1.5H5z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>',
+  stretch: '<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M6 3.5 10 9h4l4-5.5M12 9v6M9 21l3-6 3 6"/></svg>',
+  breathe: '<svg viewBox="0 0 24 24"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 13h15a3 3 0 1 1-3 3"/><path d="M3 17h7"/></svg>',
+  game: '<svg viewBox="0 0 24 24"><circle cx="9" cy="10" r="4.5"/><circle cx="17" cy="15" r="3"/><circle cx="7" cy="18" r="1.5"/></svg>',
+  auto: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>',
+  ask: '<svg viewBox="0 0 24 24"><path d="M5 5h14v10H10l-4 4v-4H5z"/><path d="M10 9.5a2 2 0 1 1 2.5 2V12"/></svg>',
 };
 // Stop whatever is speaking right now.
 export function stopVoice(orb) {
@@ -194,41 +204,44 @@ export function runOnboarding() {
     }
 
     // Minutes picker: type a number, nudge it with − / +, or tap a quick chip.
-    // Focus length: one slider. The value reads above it in the app's number style, small marks
-    // under the track jump to common lengths. No text field (people rarely typed a number).
+    // Focus length: five tall cards in one row. Four common lengths, and a Custom card
+    // with − / + inside it for anything else. No text field (people rarely typed a number).
     function minutesPicker(q) {
       let value = answers[q.key] ?? q.start;
       const clampV = v => Math.max(q.min, Math.min(q.max, Math.round(v / q.step) * q.step || q.start));
-      const MARKS = [15, 30, 45, 60, 90, 120];
-      const pct = m => (m - q.min) / (q.max - q.min) * 100;
-      const short = m => m < 60 ? `${m}m` : m % 60 ? `${(m / 60).toFixed(1)}h` : `${m / 60}h`;
+      const PRESETS = [[15, 'Quick'], [30, 'Steady'], [45, 'Deep'], [60, 'Long']];
+      const num = m => m < 60 ? [m, 'min'] : m % 60 ? [`${Math.floor(m / 60)}h ${m % 60}`, 'min'] : [m / 60, m === 60 ? 'hour' : 'hours'];
+      let custom = !PRESETS.some(([m]) => m === value), customVal = custom ? value : 90;
       const wrap = document.createElement('div');
-      wrap.className = 'len-slider';
-      wrap.innerHTML = `
-        <div class="ls-value"><b></b><span></span></div>
-        <div class="ls-track">
-          <div class="ls-rail"><i class="ls-fill"></i>${MARKS.map(m => `<i class="ls-tick" style="left:${pct(m)}%"></i>`).join('')}</div>
-          <input type="range" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Focus length in minutes">
-        </div>
-        <div class="ls-marks">${MARKS.map(m => `<button type="button" data-m="${m}" style="left:${pct(m)}%">${short(m)}</button>`).join('')}</div>`;
-      const range = wrap.querySelector('input'), b = wrap.querySelector('.ls-value b'), u = wrap.querySelector('.ls-value span');
-      const set = v => {
-        value = clampV(v); range.value = value;
-        const h = Math.floor(value / 60), m = value % 60;
-        b.textContent = value < 60 ? value : m ? `${h}h ${m}` : h;
-        u.textContent = value < 60 ? 'min' : m ? 'min' : h > 1 ? 'hours' : 'hour';
-        range.setAttribute('aria-valuetext', `${value} minutes`);
-        wrap.style.setProperty('--p', pct(value) + '%');
-        wrap.querySelectorAll('.ls-marks button').forEach(x => x.classList.toggle('on', +x.dataset.m === value));
-        wrap.querySelectorAll('.ls-tick').forEach((t, i) => t.classList.toggle('past', MARKS[i] <= value));
+      wrap.className = 'len-cards';
+      wrap.setAttribute('role', 'radiogroup'); wrap.setAttribute('aria-label', 'Focus length');
+      wrap.innerHTML = PRESETS.map(([m, l]) => `<button type="button" class="len-card" role="radio" data-m="${m}"><span>${l}</span><b>${num(m)[0]}<small>${num(m)[1]}</small></b></button>`).join('')
+        + `<div class="len-card custom" role="radio" tabindex="0"><span>Custom</span><b class="cv"></b>
+            <div class="mini-step"><button type="button" data-d="-1" aria-label="${q.step} minutes less"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button><button type="button" data-d="1" aria-label="${q.step} minutes more"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button></div></div>`;
+      const cc = wrap.querySelector('.custom');
+      const render = () => {
+        wrap.querySelectorAll('.len-card[data-m]').forEach(c => { const on = !custom && +c.dataset.m === value; c.classList.toggle('on', on); c.setAttribute('aria-checked', on); });
+        cc.classList.toggle('on', custom); cc.setAttribute('aria-checked', custom);
+        const [n, u] = num(customVal); cc.querySelector('.cv').innerHTML = `${n}<small>${u}</small>`;
+        cc.querySelector('[data-d="-1"]').disabled = customVal <= q.min; cc.querySelector('[data-d="1"]').disabled = customVal >= q.max;
       };
-      range.oninput = () => set(+range.value);
-      wrap.querySelectorAll('.ls-marks button').forEach(x => x.onclick = () => set(+x.dataset.m));
+      wrap.querySelectorAll('.len-card[data-m]').forEach(c => c.onclick = () => { custom = false; value = +c.dataset.m; render(); });
+      cc.onclick = e => { if (e.target.closest('button')) return; custom = true; value = customVal; render(); };
+      cc.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cc.onclick(e); } };
+      // Hold − or + to keep counting.
+      cc.querySelectorAll('.mini-step button').forEach(b => {
+        let t;
+        const stepOnce = () => { customVal = clampV(customVal + +b.dataset.d * q.step); custom = true; value = customVal; render(); };
+        b.onpointerdown = e => { e.stopPropagation(); stepOnce(); t = setTimeout(function rep() { stepOnce(); t = setTimeout(rep, 90); }, 420); };
+        b.onpointerup = b.onpointerleave = b.onpointercancel = () => clearTimeout(t);
+        b.onclick = e => e.stopPropagation();
+        b.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); stepOnce(); } };
+      });
       const go = document.createElement('button');
       go.className = 'choice next'; go.textContent = 'Continue';
       go.onclick = () => { answers[q.key] = value; go.classList.add('picked'); setTimeout(next, 220); };
       choices.append(wrap, go);
-      set(value);
+      render();
     }
 
     let editUntil = null; // when editing from the summary, return there after this question index
@@ -240,13 +253,17 @@ export function runOnboarding() {
       const q = QUESTIONS[index];
       show(q.say, () => {
         if (q.input === 'minutes') return minutesPicker(q);
+        // Each answer is a card like the voice cards: icon tile, label, one short line.
+        const row = document.createElement('div');
+        row.className = 'opt-cards'; row.style.setProperty('--n', q.options.length);
         q.options.forEach(opt => {
           const b = document.createElement('button');
-          b.className = 'choice';
-          b.textContent = opt.label;
-          b.onclick = () => { answers[q.key] = opt.value; b.classList.add('picked'); setTimeout(next, 220); };
-          choices.append(b);
+          b.type = 'button'; b.className = 'voice-opt opt-card';
+          b.innerHTML = `<span class="vo-icon" aria-hidden="true">${OPT_ICON[opt.icon] || ''}</span><b>${opt.label}</b><small>${opt.sub || ''}</small>`;
+          b.onclick = () => { answers[q.key] = opt.value; row.querySelectorAll('.opt-card').forEach(x => x.classList.toggle('on', x === b)); setTimeout(next, 260); };
+          row.append(b);
         });
+        choices.append(row);
       });
     }
 

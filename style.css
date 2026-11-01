@@ -1373,3 +1373,36 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 .ls-marks button:hover { color: var(--ink); background: rgba(255,255,255,.5) !important; }
 .ls-marks button.on { color: var(--ink); font-weight: 600; }
 .ls-rail { left: 13px !important; right: 13px !important; }
+
+/* Focus length v3: five tall cards in one row; the last one is Custom with − / + */
+.setup .len-cards { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; width: 100%; max-width: 640px; margin-bottom: 18px; }
+.setup .len-card { display: flex !important; flex-direction: column; align-items: flex-start !important; justify-content: space-between !important;
+  min-height: 150px; padding: 14px 14px 14px !important; border-radius: 18px !important; text-align: left; color: var(--ink); cursor: pointer;
+  background: rgba(255,255,255,.55) !important; -webkit-backdrop-filter: blur(20px) saturate(1.3); backdrop-filter: blur(20px) saturate(1.3);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.5), 0 10px 30px -20px rgba(60,70,45,.3) !important; transition: background .5s; }
+.setup .len-card:hover { background: rgba(255,255,255,.75) !important; }
+.setup .len-card > span { font-size: 13px; color: var(--ink-2); }
+.setup .len-card b { font-size: 30px; font-weight: 500; letter-spacing: -.03em; line-height: 1; display: flex; flex-direction: column; gap: 4px; }
+.setup .len-card b small { font-size: 13px; font-weight: 400; letter-spacing: 0; color: var(--ink-2); }
+.setup .len-card.on { background: #fff !important; box-shadow: inset 0 0 0 1.5px #0d0d0d, 0 10px 30px -18px rgba(60,70,45,.35) !important; }
+.setup .len-card.custom { gap: 8px; }
+.setup .len-card.custom .cv { margin-top: auto; }
+.mini-step { display: flex; gap: 6px; width: 100%; }
+.mini-step button { flex: 1; height: 30px !important; min-height: 0 !important; padding: 0 !important; border-radius: 9px !important; display: grid !important; place-items: center;
+  background: rgba(13,13,13,.06) !important; color: var(--ink); touch-action: manipulation; }
+.mini-step button:hover { background: rgba(13,13,13,.12) !important; }
+.mini-step button:disabled { opacity: .35; cursor: default; }
+.mini-step svg { width: 15px; height: 15px; stroke-width: 1.8; }
+@media (max-width: 640px) { .setup .len-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Onboarding answers: icon cards like the voice picker */
+.opt-cards { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 10px; width: 100%; max-width: calc(var(--n, 3) * 160px); }
+.opt-card.on { background: #fff !important; }
+.opt-card.on .vo-icon { background: #0d0d0d; color: #fff; }
+.setup .len-card.on, .setup .len-card.custom.on { box-shadow: inset 0 1px 1px rgba(255,255,255,.8), 0 10px 30px -18px rgba(60,70,45,.28) !important; }
+.setup .len-card { justify-content: flex-start !important; }
+.setup .len-card b { margin-top: auto; }
+@media (max-width: 640px) { .opt-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; } }
+/* Onboarding progress: a thin bar across the very top of the screen */
+.setup .setup-progress { position: fixed; top: 0; left: 0; right: 0; max-width: none !important; width: 100%; height: 3px; margin: 0; z-index: 30; background: rgba(13,13,13,.08); }
+.setup .setup-top { justify-content: flex-end; }
