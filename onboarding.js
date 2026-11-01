@@ -141,13 +141,15 @@ function reducedMotion() { return matchMedia('(prefers-reduced-motion: reduce)')
 // Words drift in one after another, softly, instead of typing letter by letter.
 function typeLine(el, text, token) {
   return new Promise(resolve => {
-    if (reducedMotion()) { el.textContent = text; return resolve(); }
+    if (reducedMotion()) { el.innerHTML = ''; text.split(' First, ').forEach((t, i) => { if (i) el.append(document.createElement('br'), 'First, '); el.append(t); }); return resolve(); }
     el.innerHTML = '';
     const words = text.split(' ');
     words.forEach((w, i) => {
       const s = document.createElement('span');
       s.className = 'word'; s.textContent = w + (i < words.length - 1 ? ' ' : '');
       s.style.animationDelay = `${i * 70}ms`;
+      // The voice ask in the intro starts on its own line (display only; the spoken text is unchanged).
+      if (w === 'First,' && i > 0) el.append(document.createElement('br'));
       el.append(s);
     });
     setTimeout(() => resolve(), words.length * 70 + 350);
@@ -220,7 +222,8 @@ export function runOnboarding() {
           <div class="ls-rail"><i class="ls-fill"></i>${MARKS.map(m => `<i class="ls-tick" style="left:${pct(m)}%"></i>`).join('')}</div>
           <input type="range" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Focus length in minutes">
         </div>
-        <div class="ls-marks">${MARKS.map(m => `<button type="button" data-m="${m}" style="left:${pct(m)}%">${short(m)}</button>`).join('')}</div>`;
+        <div class="ls-ends"><span>${short(q.min)}</span><span>${short(q.max)}</span></div>
+        <div class="quick">${q.quick.map(m => `<button type="button" class="quick-chip" data-m="${m}">${m >= 60 ? m / 60 + ' hour' : m + ' min'}</button>`).join('')}</div>`;
       const range = wrap.querySelector('input'), b = wrap.querySelector('.ls-value b'), u = wrap.querySelector('.ls-value span');
       const set = v => {
         value = clampV(v); range.value = value;
@@ -229,11 +232,11 @@ export function runOnboarding() {
         u.textContent = value < 60 ? 'min' : m ? 'min' : h > 1 ? 'hours' : 'hour';
         range.setAttribute('aria-valuetext', `${value} minutes`);
         wrap.style.setProperty('--p', pct(value) + '%');
-        wrap.querySelectorAll('.ls-marks button').forEach(x => x.classList.toggle('on', +x.dataset.m === value));
+        wrap.querySelectorAll('.quick-chip').forEach(x => x.classList.toggle('on', +x.dataset.m === value));
         wrap.querySelectorAll('.ls-tick').forEach((t, i) => t.classList.toggle('past', MARKS[i] <= value));
       };
       range.oninput = () => set(+range.value);
-      wrap.querySelectorAll('.ls-marks button').forEach(x => x.onclick = () => set(+x.dataset.m));
+      wrap.querySelectorAll('.quick-chip').forEach(x => x.onclick = () => set(+x.dataset.m));
       const go = document.createElement('button');
       go.className = 'choice next'; go.textContent = 'Continue';
       go.onclick = () => { answers[q.key] = value; go.classList.add('picked'); setTimeout(next, 220); };
