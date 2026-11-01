@@ -321,7 +321,7 @@ export function runOnboarding() {
     }
 
     function intro() {
-      const hello = 'Hi, I’m Poise. A few quick questions so your breaks fit how you work. First, pick a voice.';
+      const hello = 'Hi, I’m Poise. A few questions to fit how you work. First, pick a voice.';
       show(hello, () => {
         const pick = document.createElement('div');
         pick.className = 'voice-pick';
