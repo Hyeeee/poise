@@ -1095,7 +1095,10 @@ async function endSession(reason) {
   const r = posture.summary();
   posture.clear();
   if (reason === 'end') { light('idle'); }
-  const choice = r ? await showReport(r, line => speak(line, $('ask-orb'))) : 'break';
+  // Always say out loud that the session is over (works with the mini window open, too).
+  // The report's lines are pre-recorded ("Great session. Here is how your posture went." …), so they play in the natural voice.
+  const say = line => speak(line, $('ask-orb'));
+  const choice = r ? await showReport(r, say) : (say('Session ended. Here is your summary.'), 'break');
   ending = false;
   remaining = store.work().focus * 60; renderTimer();
   if (choice === 'break') { setScreen('break'); if (!active) toast('Turn on your camera to follow the stretches'); }
@@ -1443,7 +1446,7 @@ let pipWin = null, pipTimer = 0;
 async function togglePip() {
   if (pipWin && !pipWin.closed) { pipWin.close(); return; }
   if (!('documentPictureInPicture' in window)) { toast('The mini window works in Chrome or Edge on a computer'); return; }
-  try { pipWin = await documentPictureInPicture.requestWindow({ width: 340, height: 150 }); }
+  try { pipWin = await documentPictureInPicture.requestWindow({ width: 380, height: 184 }); }
   catch { toast('Could not open the mini window'); return; }
   // Mini window: the same little figure on the left, the state in words on the right. Sans serif.
   const d = pipWin.document;
@@ -1457,10 +1460,25 @@ async function togglePip() {
     canvas{display:block;width:100%;height:100%}
     .txt{min-width:0;display:flex;flex-direction:column;gap:3px}
     b{font-size:16px;font-weight:600;letter-spacing:-.022em;line-height:1.2}
-    .hint{color:#5d5d5d;font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .tm{margin-top:6px;font-size:12px;color:#8f8f8f}
+    .hint{color:#5d5d5d;font-size:13px;line-height:1.35}
+    .txt{max-height:100%;overflow:hidden}
+    .tm{font-size:12px;color:#8f8f8f}
+    .foot{margin-top:8px;display:flex;align-items:center;gap:8px}
+    button{font:inherit;font-size:13px;font-weight:500;letter-spacing:-.01em;border:0;cursor:pointer;height:30px;padding:0 12px;border-radius:10px;
+      background:rgba(13,13,13,.07);color:#0d0d0d;transition:background .4s}
+    button:hover{background:rgba(13,13,13,.13)}
+    button.pri{background:#0d0d0d;color:#fff} button.pri:hover{background:#333}
+    #end{margin-left:auto}
+    [hidden]{display:none!important}
   </style>`;
-  d.body.innerHTML = '<div class="fig"><canvas id="fig"></canvas></div><div class="txt"><b id="st"></b><span class="hint" id="hint"></span><span class="tm" id="tm"></span></div>';
+  d.body.innerHTML = '<div class="fig"><canvas id="fig"></canvas></div><div class="txt"><b id="st"></b><span class="hint" id="hint"></span>'
+    + '<div class="foot" id="live-foot"><span class="tm" id="tm"></span><button id="end">End session</button></div>'
+    + '<div class="foot" id="done-foot" hidden><button class="pri" id="go-break">Take a break</button><button id="see-report">See report</button></div></div>';
+  // Bring the main Poise tab forward (needs the click that just happened in the mini window).
+  const toMain = () => { try { window.focus(); } catch {} };
+  d.getElementById('end').onclick = () => $('end-session').click();
+  d.getElementById('go-break').onclick = () => { if (!$('report').hidden) $('report-break').click(); else setScreen('break'); toMain(); };
+  d.getElementById('see-report').onclick = toMain;
   const cv = d.getElementById('fig'), pctx = cv.getContext('2d');
   const frame = now => {
     if (!pipWin || pipWin.closed) return;
@@ -1478,6 +1496,19 @@ async function togglePip() {
     q('st').textContent = $('posture-state').textContent;
     q('hint').textContent = $('posture-hint').textContent;
     q('tm').textContent = `${$('timer').textContent} ${$('timer-unit').textContent}`;
+    // Session over: the report is open in the main tab, so offer the next step here.
+    const done = !$('report').hidden;
+    if (done) { q('st').textContent = 'Session done'; q('hint').textContent = $('report-title').textContent + ' ' + $('report-line').textContent; }
+    q('live-foot').hidden = done;
+    q('end').hidden = screen !== 'work' || $('end-session').hidden;
+    q('done-foot').hidden = !done;
+    // Never cut the text: if it doesn't fit, step the text size down until it does.
+    const txt = d.querySelector('.txt');
+    for (const [t, h] of [[16, 13], [15, 12.5], [14, 12], [13, 11.5]]) {
+      q('st').style.fontSize = t + 'px'; q('hint').style.fontSize = h + 'px';
+      if (txt.scrollHeight <= txt.clientHeight + 1) break;
+    }
+    if (!done && screen !== 'work') q('tm').textContent = '';
     const c = getComputedStyle(document.documentElement).getPropertyValue('--signal').trim() || '#c9ccd1';
     d.body.style.setProperty('--sig', c);
   };
