@@ -1562,3 +1562,6 @@ body .report-card.pop::before { display: none !important; }
 #modes.drawer .field input.dd-name { grid-column: auto !important; height: 36px !important; padding: 0 12px !important; border-radius: 10px !important;
   background: #fff !important; box-shadow: inset 0 0 0 1.5px #0d0d0d !important; text-align: left !important; font-size: 15px !important; font-weight: 500;
   animation: ddIn .2s ease; }
+/* Every settings dropdown: one fixed width; long mode names truncate */
+#modes.drawer .dd-btn, #modes.drawer input.dd-name { width: 160px !important; min-width: 0 !important; }
+#modes.drawer .dd-btn b { max-width: 118px; }
