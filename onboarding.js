@@ -141,7 +141,7 @@ function reducedMotion() { return matchMedia('(prefers-reduced-motion: reduce)')
 // Words drift in one after another, softly, instead of typing letter by letter.
 function typeLine(el, text, token) {
   return new Promise(resolve => {
-    if (reducedMotion()) { el.innerHTML = ''; text.split(' First, ').forEach((t, i) => { if (i) el.append(document.createElement('br'), 'First, '); el.append(t); }); return resolve(); }
+    if (reducedMotion()) { el.innerHTML = ''; text.replace('Poise. A ', 'Poise.\nA ').replace(' First, ', '\nFirst, ').split('\n').forEach((t, i) => { if (i) el.append(document.createElement('br')); el.append(t); }); return resolve(); }
     el.innerHTML = '';
     const words = text.split(' ');
     words.forEach((w, i) => {
@@ -149,7 +149,7 @@ function typeLine(el, text, token) {
       s.className = 'word'; s.textContent = w + (i < words.length - 1 ? ' ' : '');
       s.style.animationDelay = `${i * 70}ms`;
       // The voice ask in the intro starts on its own line (display only; the spoken text is unchanged).
-      if (w === 'First,' && i > 0) el.append(document.createElement('br'));
+      if ((w === 'First,' || (w === 'A' && words[i - 1] === 'Poise.')) && i > 0) el.append(document.createElement('br'));
       el.append(s);
     });
     setTimeout(() => resolve(), words.length * 70 + 350);

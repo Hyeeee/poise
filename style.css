@@ -1532,3 +1532,4 @@ body .report-card.pop::before { display: none !important; }
 #modes.drawer .field .dd, #modes.drawer .pref-row .dd { justify-self: end; }
 .brand { padding-left: 6px !important; }
 .brand { font-weight: 500 !important; -webkit-text-stroke: .25px currentColor; }
+.setup-line { max-width: none !important; }
