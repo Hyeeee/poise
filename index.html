@@ -239,7 +239,6 @@
       <svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
     </button>
   </header>
-  <h3 class="drawer-h">Modes</h3>
   <nav class="segmented" id="modes-tabs" aria-label="Mode type">
     <button data-tab="work" class="active">Focus</button>
     <button data-tab="break">Break</button>
@@ -247,17 +246,23 @@
   <div class="mode-list" id="mode-list"></div>
   <div class="editor" id="editor"></div>
   <footer class="prefs">
-    <h3 class="drawer-h">Preferences</h3>
+    <h3 class="drawer-h">Voice and light</h3>
     <div class="pref-group">
       <label class="pref-row"><span>Voice guidance<small>Spoken cues and summaries</small></span><span class="toggle"><input type="checkbox" id="pref-voice"></span></label>
       <div class="pref-row" id="pref-voice-pick"><span>Voice</span><nav class="segmented" id="voice-seg"><button data-v="ava">Ava</button><button data-v="sonia">Sonia</button><button data-v="andrew">Andrew</button></nav></div>
-      <div class="pref-row" id="pref-bright"><span>Brightness<small>Light bar</small></span><nav class="segmented" id="bright-seg"><button data-b="25">Low</button><button data-b="50">Soft</button><button data-b="75">Medium</button><button data-b="100">Full</button></nav></div>
-      <label class="pref-row"><span>Silent test<small>Tracks quietly, no light or voice</small></span><span class="toggle"><input type="checkbox" id="pref-silent"></span></label>
+      <div class="pref-row" id="pref-bright"><span>Brightness<small>Light bar</small></span><nav class="segmented" id="bright-seg"><button data-b="25">Low</button><button data-b="50">Soft</button><button data-b="75">Mid</button><button data-b="100">Full</button></nav></div>
       <label class="pref-row"><span>Background music</span><span class="toggle"><input type="checkbox" id="pref-music"></span></label>
     </div>
-    <label class="toggle"><input type="checkbox" id="pref-joints"><span>Show joints</span></label>
-    <button class="text-btn" id="pref-tour">Show tour</button>
-    <button class="text-btn" id="pref-setup">Run setup again</button>
+    <h3 class="drawer-h">Testing</h3>
+    <div class="pref-group">
+      <label class="pref-row"><span>Silent test<small>Tracks quietly, no light or voice</small></span><span class="toggle"><input type="checkbox" id="pref-silent"></span></label>
+      <label class="pref-row"><span>Show joints<small>Lines over the camera</small></span><span class="toggle"><input type="checkbox" id="pref-joints"></span></label>
+    </div>
+    <h3 class="drawer-h">Help</h3>
+    <div class="pref-group">
+      <button class="pref-row link" id="pref-tour"><span>Show tour</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      <button class="pref-row link" id="pref-setup"><span>Run setup again</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
   </footer>
 </dialog>
 

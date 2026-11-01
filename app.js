@@ -926,6 +926,7 @@ function renderEditor() {
     html += field('Start automatically', toggle('auto', m.auto));
   }
   const list = tab === 'work' ? store.state.works : store.state.breaks;
+  html = `<div class="group">${html}</div>`;
   html += `<div class="editor-foot"><span class="sub">${tab === 'work' ? describeWork(m) : describeBreak(m)}</span>${list.length > 1 ? '<button type="button" class="danger" id="delete-mode">Delete</button>' : ''}</div>`;
   ed.innerHTML = html;
 

@@ -1234,3 +1234,48 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 #modes.drawer .pref-group { gap: 10px; }
 #modes.drawer .editor-foot { padding-top: 6px; }
 #modes.drawer .prefs { margin-top: 10px !important; padding-top: 14px; }
+
+/* =====================================================================
+   Settings v3: one component system.
+   - grouped lists: white rounded group, rows split by hairlines
+   - row = label (15) + one-line sub (12.5) on the left, control on the right
+   - on/off → toggle · 2–4 choices → segmented · numbers → slider · actions → row with chevron
+   ===================================================================== */
+#modes.drawer { gap: 10px !important; }
+#modes.drawer #modes-tabs { align-self: stretch !important; display: flex; }
+#modes.drawer #modes-tabs button { flex: 1; }
+#modes.drawer .mode-list { margin-top: 2px; }
+#modes.drawer .drawer-h { margin: 14px 4px 6px !important; font-size: 13px !important; font-weight: 500 !important; color: var(--ink-3) !important; }
+#modes.drawer .prefs { display: block !important; margin-top: 4px !important; padding-top: 0 !important; border-top: 0 !important; }
+
+#modes.drawer .group, #modes.drawer .pref-group {
+  display: block; width: 100%; padding: 0 14px; margin: 0 !important; border-radius: 16px;
+  background: rgba(255,255,255,.78); box-shadow: inset 0 0 0 1px rgba(13,13,13,.05), 0 1px 2px rgba(13,13,13,.04); }
+#modes.drawer .editor { padding: 0 !important; margin-top: 4px; }
+#modes.drawer .field, #modes.drawer .pref-row {
+  display: grid !important; grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; row-gap: 8px;
+  min-height: 52px; padding: 10px 0 !important; border: 0 !important; border-top: 1px solid rgba(13,13,13,.07) !important;
+  font-family: var(--ui); font-size: 15px; color: var(--ink); text-align: left; width: 100%; background: none !important; }
+#modes.drawer .group > .field:first-child, #modes.drawer .pref-group > .pref-row:first-child { border-top: 0 !important; }
+#modes.drawer .field > span, #modes.drawer .pref-row > span:first-child { font-size: 15px !important; color: var(--ink) !important; white-space: nowrap; }
+#modes.drawer .pref-row small { display: block; font-size: 12.5px; color: var(--ink-3); margin-top: 1px; white-space: nowrap; }
+#modes.drawer .field output { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+#modes.drawer .field input[type=range] { grid-column: 1 / -1; margin: -4px 0 -2px; }
+#modes.drawer .field input[type=text] { grid-column: 2; width: 180px; height: 36px !important; padding: 0 12px !important; text-align: right;
+  background: rgba(13,13,13,.05) !important; box-shadow: none !important; border-radius: 10px !important; font-size: 15px !important; }
+/* Segmented inside a group: light grey track, black thumb */
+#modes.drawer .group .segmented, #modes.drawer .pref-group .segmented { background: rgba(13,13,13,.055) !important; box-shadow: none !important; padding: 3px; }
+#modes.drawer .group .segmented button, #modes.drawer .pref-group .segmented button { min-height: 30px !important; height: 30px; padding: 0 12px !important; font-size: 13.5px !important; }
+/* Toggles: one size everywhere */
+#modes.drawer .toggle input { width: 44px !important; height: 26px !important; border-radius: 26px !important; }
+#modes.drawer .toggle input::after { width: 22px !important; height: 22px !important; top: 2px; left: 2px; box-shadow: 0 1px 3px rgba(13,13,13,.25); }
+#modes.drawer .toggle input:checked::after { transform: translateX(18px) !important; }
+/* Action rows */
+#modes.drawer .pref-row.link { cursor: pointer; border-radius: 0 !important; height: auto !important; min-height: 52px !important; justify-content: stretch !important; }
+#modes.drawer .pref-row.link:hover span { color: var(--ink) !important; }
+#modes.drawer .pref-row.link .chev { width: 16px; height: 16px; color: var(--ink-3); }
+#modes.drawer .pref-row.link::after { display: none; }
+/* Summary + delete sit under the mode group as a caption */
+#modes.drawer .editor-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 4px 0 !important; }
+#modes.drawer .editor-foot .sub { font-size: 12.5px; color: var(--ink-3); }
+#modes.drawer .editor-foot .danger { font-size: 13px; }
