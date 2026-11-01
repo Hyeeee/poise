@@ -165,12 +165,25 @@ function stop() {
 }
 
 // Said up front every time the camera turns on (playtest: people worried about being watched).
-let camNoticeTimer;
+// It is step 1 of the start flow: notice, then light bar, then reference. One card at a time.
+let flowSteps = [];
 function showCamNotice() {
+  flowSteps = ['cam', ...(needBar() ? ['bar'] : []), 'ref'];
   $('cam-notice').hidden = false;
-  clearTimeout(camNoticeTimer); camNoticeTimer = setTimeout(hideCamNotice, 12000);
+  syncRef();
 }
-function hideCamNotice() { clearTimeout(camNoticeTimer); $('cam-notice').hidden = true; }
+function hideCamNotice() {
+  if ($('cam-notice').hidden) return;
+  $('cam-notice').hidden = true;
+  syncRef();
+}
+// Small dots under each start card so people can see how many steps are left.
+function renderSteps(id, step) {
+  const box = $(id).querySelector('.pop-steps'); if (!box) return;
+  const i = flowSteps.indexOf(step);
+  box.hidden = i < 0 || flowSteps.length < 2;
+  box.innerHTML = flowSteps.map((_, n) => `<i class="${n === i ? 'on' : ''}"></i>`).join('');
+}
 $('cam-notice-ok').onclick = hideCamNotice;
 $('cam-notice-sensor').onclick = () => {
   hideCamNotice();
@@ -439,14 +452,16 @@ function loop(now) {
 
 // Before a reference exists: the side panel is hidden and the main screen asks for one.
 let barSkipped = false;
+const needBar = () => !writer && !barSkipped && ('serial' in navigator);
 const hasRef = () => !!reference || sensorRef;
 function syncRef() {
   $('studio').classList.toggle('no-ref', !hasRef() && screen === 'work');
   $('end-session').hidden = !hasRef();
   $('sensor-mode').hidden = true;
-  const needBar = !writer && !barSkipped && ('serial' in navigator);
-  $('bar-prompt').hidden = !!reference || !active || screen !== 'work' || !needBar;
-  $('ref-prompt').hidden = !!reference || !active || screen !== 'work' || needBar;
+  const bar = needBar(), notice = !$('cam-notice').hidden;
+  $('bar-prompt').hidden = notice || !!reference || !active || screen !== 'work' || !bar;
+  $('ref-prompt').hidden = notice || !!reference || !active || screen !== 'work' || bar;
+  renderSteps('cam-notice', 'cam'); renderSteps('bar-prompt', 'bar'); renderSteps('ref-prompt', 'ref');
 }
 function calibrate() {
   if (!active && sensor.live && sensor.cm > 0) return calibrateSensor();
@@ -853,10 +868,19 @@ $('bright-seg').addEventListener('click', e => {
 });
 syncBright();
 $('pref-joints').onchange = e => setJoints(e.target.checked);
-$('pref-setup').onclick = () => { $('modes').close(); rerunSetup(); };
-$('pref-tour').onclick = () => { $('modes').close(); setScreen('work'); startTour(); };
-document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
-$('modes').addEventListener('click', e => { if (e.target === $('modes')) $('modes').close(); });
+// Settings drawer slides out before it closes.
+function closeModes(then) {
+  const d = $('modes');
+  if (!d.open) { then?.(); return; }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { d.close(); then?.(); return; }
+  d.classList.add('closing');
+  setTimeout(() => { d.classList.remove('closing'); d.close(); then?.(); }, 320);
+}
+$('pref-setup').onclick = () => closeModes(rerunSetup);
+$('pref-tour').onclick = () => closeModes(() => { setScreen('work'); startTour(); });
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => closeModes());
+$('modes').addEventListener('click', e => { if (e.target === $('modes')) closeModes(); });
+$('modes').addEventListener('cancel', e => { e.preventDefault(); closeModes(); });
 
 function setJoints(v) {
   store.update(s => { s.joints = v; });
@@ -1202,8 +1226,8 @@ function showSensorCard() {
   const on = sensorRef && !active;
   $('empty-camera').classList.toggle('sensor-on', on);
   $('empty-camera').querySelector('.say').innerHTML = on
-    ? `<b>Sensor mode.</b> <span>The camera is off, so the distance sensor is keeping an eye on how far you sit.</span>`
-    : '<b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span>';
+    ? `<b>Sensor mode</b> <span>The camera is off, so the distance sensor is keeping an eye on how far you sit.</span>`
+    : '<b>Camera off</b> <span>Turn it on and I will start watching your posture.</span>';
   $('enable').textContent = on ? 'Use the camera instead' : 'Turn on camera';
   $('enable').classList.add('primary'); $('enable').classList.remove('ghost'); $('enable').classList.toggle('end-wide', on);
 }

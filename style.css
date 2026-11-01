@@ -778,3 +778,146 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 .silent-chip { left: auto; right: 20px; }
 .silent-chip::before { background: var(--drift); }
 @media (max-width: 720px) { .cam-notice { top: 64px; } .silent-chip { top: 62px; bottom: auto; right: 12px; } }
+
+/* =====================================================================
+   Type v3: one sans for everything (SF Pro on Apple, Inter elsewhere),
+   tuned like ChatGPT's dialogs. Serif stays only on the logo, the welcome
+   line and the onboarding questions.
+   title  600, -0.022em, line-height 1.2, ink #0d0d0d
+   body   400, -0.011em, line-height 1.4, gray #5d5d5d
+   ===================================================================== */
+:root {
+  --ui: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --brand-serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+  --serif: var(--ui);
+  --sans: var(--ui);
+  --ink: #0d0d0d;
+  --ink-2: #5d5d5d;
+  --ink-3: #8f8f8f;
+  --track-title: -0.022em;
+  --track-body: -0.011em;
+}
+body { font-family: var(--ui); letter-spacing: var(--track-body); }
+button, input, select, textarea, .chip, .quick-chip, .min-label, .min-help, .min-unit, .voice-label, .segmented button, .field label { letter-spacing: var(--track-body) !important; }
+.say { font-size: 22px; line-height: 1.28; letter-spacing: var(--track-title); }
+.say b { font-weight: 600; }
+.studio .card, .glass, .choice, .ghost, .tour-card { text-shadow: none !important; }
+h2, h3, #pose-name, #breath-cue, #game-title, .sheet-head h2 { font-weight: 600 !important; letter-spacing: var(--track-title) !important; }
+#pose-instruction, #breath-tip, #game-tip, .msg.poise { letter-spacing: var(--track-body); }
+#timer, .match b, .report-stats b, .card-foot .stat b { letter-spacing: -0.03em !important; }
+/* Serif keepers */
+.brand, .lede, .lede *, .setup-line, .setup-line *, .summary-card, .summary-card b, .summary-card p, .sum-card h3 {
+  font-family: var(--brand-serif) !important; letter-spacing: -.015em;
+}
+.summary-card span { font-family: var(--ui) !important; }
+.lede b, .setup-line b { font-weight: 400; }
+
+/* =====================================================================
+   Surfaces v3: white cards with a soft colour glow at the top,
+   like the reference dialogs. One card on screen at a time.
+   ===================================================================== */
+:root { --r-pop: 24px; }
+[data-tone="sky"]   { --g1: #b8d4ff; --g2: #dccbff; --g-ink: #4a6fb3; }
+[data-tone="mint"]  { --g1: #c6efbe; --g2: #bfe6e2; --g-ink: #3f8a5c; }
+[data-tone="peach"] { --g1: #ffd6a8; --g2: #ffc9d8; --g-ink: #b5772e; }
+[data-tone="lilac"] { --g1: #e3c9ff; --g2: #ffc9e8; --g-ink: #8457b8; }
+
+body .pop.pop, body #ref-prompt.pop {
+  isolation: isolate; overflow: hidden;
+  background: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  border-radius: var(--r-pop) !important; color: var(--ink); text-shadow: none;
+  box-shadow: 0 0 0 1px rgba(13,13,13,.04), 0 2px 6px -2px rgba(13,13,13,.06), 0 28px 70px -28px rgba(13,13,13,.38) !important;
+}
+body .pop.pop::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  left: -15%; right: -15%; top: -38%; height: 100%;
+  background:
+    radial-gradient(42% 50% at 34% 58%, var(--g1, #e6e6e6), transparent 74%),
+    radial-gradient(42% 50% at 66% 52%, var(--g2, #eee), transparent 74%);
+  filter: blur(18px) saturate(1.25); opacity: 1;
+}
+/* Popups in the studio: centred, icon on top, buttons share the row */
+.studio .pop.empty { width: min(400px, calc(100% - 32px)); padding: 34px 26px 22px; text-align: center; }
+.pop-icon { width: 52px; height: 52px; margin: 0 auto 18px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--g-ink, var(--ink));
+  box-shadow: 0 0 0 1px rgba(13,13,13,.04), 0 6px 16px -6px rgba(13,13,13,.18); }
+.pop-icon svg { width: 22px; height: 22px; stroke-width: 1.7; }
+.pop .say { margin: 0 0 24px !important; }
+.pop .say b { display: block; font-size: 21px; line-height: 1.2; font-weight: 600; letter-spacing: var(--track-title); color: var(--ink); margin-bottom: 8px; }
+.pop .say span { display: block; font-size: 15px; line-height: 1.4; font-weight: 400; letter-spacing: var(--track-body); color: var(--ink-2); text-wrap: pretty; }
+.pop .privacy-note { margin: -12px 0 20px; color: var(--ink-3); }
+.pop-actions { display: flex; gap: 10px; }
+.pop-actions > button { flex: 1; width: auto; min-width: 0; height: 48px !important; min-height: 48px !important; border-radius: 14px !important; font-size: 15px !important; font-weight: 500; margin: 0 !important; }
+.pop .ghost, .pop-actions .ghost { background: #f2f2f2 !important; color: var(--ink) !important; box-shadow: none !important; }
+.pop .ghost::after { display: none; }
+.pop .ghost:hover { background: #e8e8e8 !important; }
+.pop .primary { background: #0d0d0d !important; color: #fff !important; box-shadow: none !important; }
+.pop .primary:hover { background: #333 !important; }
+.pop-steps { display: flex; justify-content: center; gap: 6px; margin-top: 18px; }
+.pop-steps i { width: 6px; height: 6px; border-radius: 50%; background: #dcdcdc; transition: background .4s, width .4s; }
+.pop-steps i.on { width: 18px; border-radius: 6px; background: #0d0d0d; }
+#empty-camera.sensor-on em { text-align: center; }
+/* Each card eases in when it takes its turn */
+.studio .pop.empty:not([hidden]) { animation: popIn .6s cubic-bezier(.22,1,.36,1) both; }
+@keyframes popIn { from { opacity: 0; scale: .96; filter: blur(4px); } }
+@media (max-width: 760px) { .studio .pop.empty { top: 50%; transform: translate(-50%, -50%); } }
+
+/* Tour card: same surface, left aligned next to what it points at */
+.tour-card.pop { padding: 20px 22px 18px !important; background: #fff !important; }
+.tour-card.pop .say { margin: 8px 0 18px !important; }
+.tour-card.pop .say b { font-size: 18px; margin-bottom: 6px; }
+.tour-card.pop .say span { color: var(--ink-2) !important; }
+#tour-title::after { content: none !important; }
+.tour-card .tour-actions .primary, .tour-card .tour-actions .ghost { height: 42px !important; min-height: 42px !important; border-radius: 12px !important; font-size: 15px !important; }
+
+/* Report: same surface */
+.report-card.pop { padding: 30px 30px 24px !important; }
+.report-card.pop::before { height: 60%; top: -30%; }
+.report-card .report-say b { display: block; font-size: 26px; font-weight: 600; letter-spacing: var(--track-title); color: var(--ink); margin-bottom: 6px; }
+.report-card .report-say span { display: block; font-size: 16px; line-height: 1.4; letter-spacing: var(--track-body); color: var(--ink-2); }
+.report-card .report-chart { background: #f6f6f6 !important; }
+.report-card .report-actions button { height: 46px !important; min-height: 46px !important; border-radius: 14px !important; }
+
+/* Side panel cards: white, with a faint glow. The posture card glows in the light bar's colour. */
+.studio .panel .card { background: rgba(255,255,255,.94) !important; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  border-radius: 20px !important; position: relative; isolation: isolate; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(13,13,13,.04), 0 18px 44px -24px rgba(13,13,13,.32) !important; }
+.studio .panel .card::before { content: ""; position: absolute; z-index: -1; pointer-events: none; left: -20%; right: -20%; top: -70%; height: 120%;
+  background: radial-gradient(40% 45% at 30% 60%, var(--card-glow, #dfe7ff), transparent 72%), radial-gradient(40% 45% at 72% 55%, var(--card-glow-2, #efe3ff), transparent 72%);
+  filter: blur(24px); opacity: .75; transition: background 1.2s ease; }
+.studio .panel .card.state { --card-glow: color-mix(in srgb, var(--signal) 60%, white); --card-glow-2: color-mix(in srgb, var(--signal) 35%, white); }
+#break-panel, #breathe-panel, #game-panel { --card-glow: #cdeec4; --card-glow-2: #c4e6e4; }
+.studio .panel .card .ghost { background: #f2f2f2 !important; box-shadow: none !important; }
+.state .say { font-size: 22px; }
+.thread { background: #fff !important; border-radius: 20px !important; box-shadow: 0 0 0 1px rgba(13,13,13,.04), 0 18px 44px -24px rgba(13,13,13,.32) !important; }
+.toast { background: #fff !important; color: var(--ink); box-shadow: 0 0 0 1px rgba(13,13,13,.05), 0 12px 30px -14px rgba(13,13,13,.35) !important; border-radius: 14px !important; }
+
+/* =====================================================================
+   Settings: a drawer that slides in from the right
+   ===================================================================== */
+#modes.drawer {
+  position: fixed; inset: 12px 12px 12px auto; margin: 0;
+  width: min(420px, calc(100vw - 24px)); height: auto !important; max-height: none !important;
+  padding: 22px 24px 28px; overflow-y: auto; overscroll-behavior: contain;
+  background: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  border-radius: var(--r-pop) !important; isolation: isolate;
+  box-shadow: 0 0 0 1px rgba(13,13,13,.05), -24px 0 80px -30px rgba(13,13,13,.4) !important;
+}
+#modes.drawer[open] { display: flex; flex-direction: column; gap: 12px; animation: drawerIn .5s cubic-bezier(.22,1,.36,1); }
+#modes.drawer.closing { animation: drawerOut .32s cubic-bezier(.4,0,.6,1) forwards; }
+#modes.drawer::backdrop { background: rgba(13,13,13,.14); -webkit-backdrop-filter: none; backdrop-filter: none; animation: fadeIn .4s ease; }
+#modes.drawer.closing::backdrop { animation: fadeOut .32s ease forwards; }
+@keyframes drawerIn { from { transform: translateX(calc(100% + 24px)); } }
+@keyframes drawerOut { to { transform: translateX(calc(100% + 24px)); } }
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes fadeOut { to { opacity: 0; } }
+#modes.drawer .sheet-head { position: sticky; top: -22px; z-index: 2; margin: -22px -24px 0; padding: 22px 24px 10px; background: #fff; }
+#modes.drawer .sheet-head h2 { font-size: 24px; }
+#modes.drawer .drawer-h { font-size: 13px !important; font-weight: 500 !important; letter-spacing: 0 !important; color: var(--ink-3); text-transform: none; margin: 6px 0 -2px; width: 100%; }
+#modes.drawer .prefs { margin-top: 18px !important; padding-top: 18px; border-top: 1px solid rgba(13,13,13,.07) !important; }
+#modes.drawer .field input[type=text], #modes.drawer .mode-chip:not(.active):not(.add), #modes.drawer .segmented, #modes.drawer .pref-row .segmented { background: #f2f2f2 !important; }
+@media (max-width: 560px) { #modes.drawer { inset: auto 0 0 0; width: 100%; max-height: 88dvh !important; border-radius: var(--r-pop) var(--r-pop) 0 0 !important; }
+  @keyframes drawerIn { from { transform: translateY(100%); } } @keyframes drawerOut { to { transform: translateY(100%); } } }
+
+.report-card.pop { position: relative; }
+.studio .pop.empty { position: absolute; }
+.tour-card.pop { position: fixed; }
