@@ -50,7 +50,10 @@ const strongDelay = () => store.work().delay * 1000;
 // state: green | amber | red | idle | white. rgb (optional) sends an exact blended color to the bar.
 // Light bar presets as RGB (same values the board uses), so brightness can scale them too.
 const PRESET_RGB = { white: [140, 140, 130], green: [0, 255, 30], amber: [255, 130, 0], red: [255, 0, 0], idle: [40, 45, 50] };
+const silent = () => !!store.state.silent && screen === 'work';
 function light(state, rgb, fast) {
+  // Silent test: keep tracking, but send no cue. The bar goes dark and the screen stays neutral.
+  if (silent()) { state = 'idle'; rgb = [0, 0, 0]; fast = undefined; }
   document.documentElement.style.setProperty('--signal', rgb ? `rgb(${rgb.join(',')})` : colors[state]);
   // Brightness setting (25-100%): every colour is scaled down before it is sent to the board.
   const bright = (store.state.brightness ?? 100) / 100;
@@ -130,6 +133,7 @@ async function start() {
     $('stop').classList.add('on'); $('stop').setAttribute('aria-label', 'Turn camera off');
     text('start-status', '');
     setChip('Find your frame', false);
+    showCamNotice();
     requestAnimationFrame(loop);
   } catch (e) {
     stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null; active = false;
@@ -144,6 +148,7 @@ async function start() {
 }
 
 function stop() {
+  hideCamNotice();
   session++; active = false;
   stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null;
   landmarks = null; reference = null; if (!sensorRef) timerRunning = false; holdStart = 0; driftSince = 0; nearSince = 0; blinkTimes = []; eyesClosed = false;
@@ -158,6 +163,20 @@ function stop() {
   renderPause(); light('idle');
   if (sensor.live && !sensorRef) calibrateSensor(); else showSensorCard();   // camera off + sensor: straight to sensor mode
 }
+
+// Said up front every time the camera turns on (playtest: people worried about being watched).
+let camNoticeTimer;
+function showCamNotice() {
+  $('cam-notice').hidden = false;
+  clearTimeout(camNoticeTimer); camNoticeTimer = setTimeout(hideCamNotice, 12000);
+}
+function hideCamNotice() { clearTimeout(camNoticeTimer); $('cam-notice').hidden = true; }
+$('cam-notice-ok').onclick = hideCamNotice;
+$('cam-notice-sensor').onclick = () => {
+  hideCamNotice();
+  if (sensor.live) stop();   // camera off + sensor connected: Poise switches to sensor mode on its own
+  else toast('Connect the light bar first. Its distance sensor works without the camera.');
+};
 
 function setChip(label, live = false) { text('tracking', label); $('tracking').classList.toggle('live', live); }
 
@@ -338,7 +357,7 @@ function applyPosture(d, now, delta, widthRatio) {
     state = recoverAt && now - recoverAt < 1500 ? 'green' : driftSince ? lastState : 'white';
     if (driftSince && state !== 'green') rgb = lastRgb;
   }
-  if (state === 'red' && lastState !== 'red') {
+  if (state === 'red' && lastState !== 'red' && !silent()) {
     if (store.work().chime) chime();
     // Say what's going on, once per red, in the chosen voice.
     if (store.state.voice) { shiftCause.key = null; shiftCause(delta, widthRatio); setTimeout(() => speak(POSTURE_SAY(shiftCause.key), $('state-agent')), store.work().chime ? 700 : 0); }
@@ -350,11 +369,12 @@ function applyPosture(d, now, delta, widthRatio) {
   // The % label names what moved most: forward, tilt, closer, back, slouch…
   shiftCause.key = null; shiftCause(delta, widthRatio);
   const DEV_LABEL = { close: '% closer', far: '% farther', forward: '% forward', side: '% tilted', shoulders: '% uneven', slouch: '% slouched' };
-  text('dev-label', d < 6 ? '% shift' : DEV_LABEL[shiftCause.key] || '% shift');
+  text('dev-label', d < 6 ? '% off your reference' : DEV_LABEL[shiftCause.key] || '% off your reference');
   if (state === 'amber' || state === 'red') {
     const c = shiftCause(delta, widthRatio);
     if (c) { title = c[0]; hint = state === 'red' ? `${c[1]} You've been like this for a while.` : c[1]; }
   }
+  if (silent()) { title = 'Silent test'; hint = 'Tracking quietly. The light and voice are off.'; text('deviation', '—'); $('deviation-bar').style.width = '0'; }
   text('posture-state', title); text('posture-hint', hint);
   // Session analysis (only while the focus timer runs).
   if (timerRunning) posture.record(now, d, state, delta, widthRatio);
@@ -738,7 +758,7 @@ let tab = 'work';
 function openModes(kind = tab) { tab = kind; renderModes(); if (!$('modes').open) $('modes').showModal(); }
 function renderModes() {
   document.querySelectorAll('#modes-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  $('pref-voice').checked = store.state.voice; syncVoicePick(); $('pref-music').checked = store.state.music; $('pref-joints').checked = store.state.joints;
+  $('pref-voice').checked = store.state.voice; syncVoicePick(); $('pref-silent').checked = !!store.state.silent; $('pref-music').checked = store.state.music; $('pref-joints').checked = store.state.joints;
   renderModeList(); renderEditor();
 }
 function renderModeList() {
@@ -799,6 +819,14 @@ function renderEditor() {
   if (del) del.onclick = () => { deleteMode(tab, m.id); renderModes(); };
 }
 document.querySelectorAll('#modes-tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; renderModes(); });
+$('pref-silent').onchange = e => {
+  store.update(s => { s.silent = e.target.checked; });
+  if (e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
+  syncSilent(); lastSerial = ''; light(lastState === 'idle' ? 'idle' : 'white');
+  toast(e.target.checked ? 'Silent test on. Light and voice are off.' : 'Silent test off');
+};
+function syncSilent() { $('silent-chip').hidden = !store.state.silent; }
+syncSilent();
 $('pref-voice').onchange = e => {
   store.update(s => { s.voice = e.target.checked; });
   if (!e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
@@ -1183,7 +1211,7 @@ $('sensor-mode').onclick = () => { if (screen !== 'work') setScreen('work'); cal
 sensor.on(() => {
   const now = performance.now();
   $('sensor-chip').hidden = false;
-  text('sensor-chip', sensor.cm > 0 ? `${sensor.cm} cm` : '— cm');
+  text('sensor-chip', sensor.cm > 0 ? `Distance from screen ${sensor.cm} cm` : 'Distance from screen — cm');
   if (now - lastSensorTick > 180) { lastSensorTick = now; sensorTick(now); }
   sensorTap(now);
   // Camera off: switch to sensor mode on its own, so the bar and the session keep working.
@@ -1274,3 +1302,42 @@ renderPause();
 mountAgents();
 syncRef();
 
+
+
+// ---------- Mini window ----------
+// Playtest: while working nobody looks at the Poise tab, so a small always-on-top window
+// shows posture and time left. Uses Document Picture-in-Picture (Chrome and Edge on desktop).
+let pipWin = null, pipTimer = 0;
+async function togglePip() {
+  if (pipWin && !pipWin.closed) { pipWin.close(); return; }
+  if (!('documentPictureInPicture' in window)) { toast('The mini window works in Chrome or Edge on a computer'); return; }
+  try { pipWin = await documentPictureInPicture.requestWindow({ width: 300, height: 156 }); }
+  catch { toast('Could not open the mini window'); return; }
+  const d = pipWin.document;
+  d.head.innerHTML = `<style>
+    *{box-sizing:border-box;margin:0}
+    body{font:14px/1.35 Newsreader,Georgia,serif;color:#23262b;background:#f4f2ee;padding:14px 16px;display:flex;flex-direction:column;gap:10px;height:100vh}
+    .top{display:flex;gap:10px;align-items:flex-start}
+    .dot{width:12px;height:12px;border-radius:50%;flex:none;margin-top:4px;box-shadow:0 0 12px currentColor}
+    b{font-weight:500} .hint{color:#6b6f75}
+    .row{display:flex;justify-content:space-between;font:12px/1 Geist,system-ui,sans-serif;color:#6b6f75}
+    .bar{height:4px;border-radius:2px;background:#e3e0da;overflow:hidden} .bar i{display:block;height:100%;background:#23262b;width:0;transition:width .4s}
+  </style>`;
+  d.body.innerHTML = '<div class="top"><span class="dot" id="dot"></span><p><b id="st"></b> <span class="hint" id="hint"></span></p></div><div class="bar"><i id="fill"></i></div><div class="row"><span id="dev"></span><span id="tm"></span></div>';
+  const tick = () => {
+    if (!pipWin || pipWin.closed) return;
+    const q = id => d.getElementById(id);
+    q('st').textContent = $('posture-state').textContent;
+    q('hint').textContent = $('posture-hint').textContent;
+    const dev = $('deviation').textContent;
+    q('dev').textContent = dev === '—' ? '' : `${dev}${$('dev-label').textContent}`;
+    q('tm').textContent = `${$('timer').textContent} left`;
+    q('fill').style.width = $('deviation-bar').style.width || '0';
+    const c = getComputedStyle(document.documentElement).getPropertyValue('--signal').trim() || '#c9ccd1';
+    q('dot').style.background = c; q('dot').style.color = c;
+  };
+  tick(); clearInterval(pipTimer); pipTimer = setInterval(tick, 500);
+  $('pip').classList.add('on');
+  pipWin.addEventListener('pagehide', () => { clearInterval(pipTimer); pipWin = null; $('pip').classList.remove('on'); });
+}
+$('pip').onclick = togglePip;

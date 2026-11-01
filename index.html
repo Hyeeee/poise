@@ -71,6 +71,9 @@
       <button id="stop" class="icon-btn glass" aria-label="Turn camera on" title="Camera">
         <svg viewBox="0 0 24 24"><rect x="3" y="6.5" width="13" height="11" rx="3"/><path d="m16 10.5 5-3v9l-5-3"/></svg>
       </button>
+      <button id="pip" class="icon-btn glass" aria-label="Open mini window" title="Mini window">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><rect x="12" y="11" width="7" height="6" rx="1.5"/></svg>
+      </button>
       <button id="open-modes" class="icon-btn glass" aria-label="Modes and settings" title="Modes">
         <svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
       </button>
@@ -79,11 +82,18 @@
 
   <div id="empty-camera" class="empty card">
     <p class="say"><b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span></p>
+    <p class="tiny privacy-note">Video stays on this device. Nothing is saved or sent.</p>
     <button class="primary" id="enable">Turn on camera</button>
     <button class="ghost" id="sensor-mode" hidden>Use the distance sensor instead</button>
   </div>
 
   <span id="tracking" class="chip glass">Camera off</span>
+  <span id="silent-chip" class="chip glass silent-chip" hidden>Silent test · light and voice off</span>
+
+  <div id="cam-notice" class="cam-notice glass" role="status" hidden>
+    <p class="say"><b>Camera on.</b> <span>Video is processed on this device. It is never saved or sent.</span></p>
+    <div class="row"><button class="text-btn" id="cam-notice-sensor">Prefer no camera? Use the distance sensor</button><span class="tour-gap"></span><button class="ghost" id="cam-notice-ok">Got it</button></div>
+  </div>
   <span id="sensor-chip" class="chip glass sensor-chip" hidden>— cm</span>
 
   <div id="bar-prompt" class="empty card" hidden>
@@ -104,8 +114,8 @@
         <div class="meter"><div id="deviation-bar"></div></div>
         <div class="card-foot">
           <div class="agent glyph" id="state-agent" data-mood="idle" aria-hidden="true" hidden></div>
-          <span class="stat"><b id="deviation">—</b><small id="dev-label">% shift</small></span>
-          <span class="stat" id="sensor-row" hidden><b id="sensor-dist">—</b><small>cm</small></span>
+          <span class="stat"><b id="deviation">—</b><small id="dev-label">% off your reference</small></span>
+          <span class="stat" id="sensor-row" hidden><b id="sensor-dist">—</b><small>cm from screen</small></span>
           <button class="ghost" id="calibrate">Set reference</button>
         </div>
       </section>
@@ -121,7 +131,7 @@
       </section>
       <section class="card stats" hidden>
         <div id="eye-stat"><b id="blinks">—</b><small>blinks/min</small></div>
-        <div id="dist-stat"><b id="distance">—</b><small>distance</small></div>
+        <div id="dist-stat"><b id="distance">—</b><small>screen distance</small></div>
       </section>
     </div>
 
@@ -230,6 +240,7 @@
       <label class="pref-row"><span>Voice guidance<small>Spoken posture cues and summaries</small></span><span class="toggle"><input type="checkbox" id="pref-voice"></span></label>
       <div class="pref-row" id="pref-voice-pick"><span>Voice</span><nav class="segmented" id="voice-seg"><button data-v="ava">Ava</button><button data-v="sonia">Sonia</button><button data-v="andrew">Andrew</button></nav></div>
       <div class="pref-row" id="pref-bright"><span>Light bar brightness<small>How bright the light bar glows</small></span><nav class="segmented" id="bright-seg"><button data-b="25">Low</button><button data-b="50">Soft</button><button data-b="75">Medium</button><button data-b="100">Full</button></nav></div>
+      <label class="pref-row"><span>Silent test<small>Tracks and reports as usual, but the light and voice stay off. For comparing sessions with and without cues.</small></span><span class="toggle"><input type="checkbox" id="pref-silent"></span></label>
       <label class="pref-row"><span>Background music</span><span class="toggle"><input type="checkbox" id="pref-music"></span></label>
     </div>
     <label class="toggle"><input type="checkbox" id="pref-joints"><span>Show joints</span></label>
