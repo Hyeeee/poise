@@ -1409,3 +1409,11 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 /* Setup summary cards: sans title (components stay sans), no row dividers */
 .sum-card h3 { font-family: var(--ui) !important; font-size: 20px !important; font-weight: 600 !important; letter-spacing: -.022em !important; }
 .sum-row + .sum-row::before { display: none !important; }
+/* Posture header: short title + short button, never wraps or clips */
+#work-panel #calibrate { white-space: nowrap; flex: none; }
+#work-panel .fc-head #posture-state { overflow: visible; text-overflow: clip; }
+/* Speech bubble sits in the top-right corner, small, clear of the figure's head */
+.avatar-box .say-bubble, .stage-box .say-bubble, .breath-stage .say-bubble, .reel-video .say-bubble {
+  top: 10px !important; right: 10px; max-width: 34%; padding: 6px 10px; font-size: 12px; border-radius: 12px; white-space: normal; }
+.say-bubble::after { display: none; }
+.reel-video .say-bubble { top: 26px !important; }

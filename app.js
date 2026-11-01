@@ -181,7 +181,7 @@ function stop() {
   $('stop').classList.remove('on'); $('stop').setAttribute('aria-label', 'Turn camera on');
   setChip('Camera off');
   text('deviation', '—'); text('blinks', '—'); text('distance', '—'); text('match-score', '—');
-  text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay, then save it.'); text('calibrate', 'Set reference');
+  text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay.'); text('calibrate', 'Set');
   $('hold-bar').style.width = '0'; $('deviation-bar').style.width = '0';
   renderPause(); light('idle');
   if (sensor.live && !sensorRef) calibrateSensor(); else showSensorCard();   // camera off + sensor: straight to sensor mode
@@ -285,10 +285,10 @@ function checkScene(p) {
     g.drawImage(camera, 0, 0, 32, 18);
     const px = g.getImageData(0, 0, 32, 18).data;
     let sum = 0; for (let i = 0; i < px.length; i += 4) sum += px[i] * .3 + px[i + 1] * .59 + px[i + 2] * .11;
-    if (sum / (px.length / 4) < 55) issue = 'It’s a bit dark. Add some light in front of you';
+    if (sum / (px.length / 4) < 55) issue = 'A bit dark here.';
   } catch {}
-  if (!issue && p && [11, 12].some(i => p[i].x < .04 || p[i].x > .96 || p[i].y > .97)) issue = 'Move back so both shoulders are in view';
-  if (!issue && p && !visible(p, [7, 8]) && visible(p, [0, 11, 12])) issue = 'Face the camera so both ears show';
+  if (!issue && p && [11, 12].some(i => p[i].x < .04 || p[i].x > .96 || p[i].y > .97)) issue = 'Move back a little.';
+  if (!issue && p && !visible(p, [7, 8]) && visible(p, [0, 11, 12])) issue = 'Face the camera.';
   if (issue !== sceneIssue) { sceneIssue = issue; if (issue && !issue.startsWith('Face')) toast(issue); }
   if (issue) setChip(issue);
 }
@@ -370,12 +370,12 @@ function shiftCause(delta, widthRatio = 1) {
   if (size < .05) return null;
   shiftCause.key = key;
   return {
-    close: ['Too close to the screen', 'Sit back about an arm’s length.'],
-    far: ['Too far from the screen', 'Come a little closer to the screen.'],
+    close: ['Too close', 'Sit back an arm’s length.'],
+    far: ['Too far', 'Come a little closer.'],
     forward: ['Leaning forward', 'Head back over your shoulders.'],
-    side: ['Tilting to one side', 'Bring your head back to center.'],
+    side: ['Tilting', 'Bring your head back to center.'],
     shoulders: ['Uneven shoulders', 'Let both shoulders drop evenly.'],
-    slouch: ['Slouching back', 'Sit up a little taller.'],
+    slouch: ['Slouching', 'Sit up a little taller.'],
   }[key];
 }
 
@@ -383,11 +383,11 @@ const STATE_COPY = {
   white: ['Aligned', 'Close to your reference.'],
   green: ['Back in balance', 'Nice correction.'],
   amber: ['Drifting', 'Settle back when you can.'],
-  red: ['Reset your posture', 'You’ve been off for a while.'],
+  red: ['Time to reset', 'You’ve been off for a while.'],
 };
 
 function updateWork(p, now) {
-  if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay, then save it.'); return; }
+  if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay.'); return; }
   const c = cue(p);
   // If the ears were visible when the reference was saved but aren't now (or the other way round),
   // the head point moved source, so take a fresh baseline for the head.
@@ -592,7 +592,7 @@ function calibrate() {
   if (sensor.live && sensor.cm > 0) sensor.base = sensor.cm;
   syncRef();
   if (!posture.active) posture.reset();
-  text('calibrate', 'Reset reference');
+  text('calibrate', 'Reset');
   toast('Got it. That’s your reference now.');
   timerRunning = true; timerLast = performance.now(); renderPause();
   maybeTour();
@@ -1362,7 +1362,7 @@ function calibrateSensor() {
   sensor.base = sensor.cm > 0 ? sensor.cm : 65; sensorRef = true; reference = null; driftSince = 0;
   syncRef();
   if (!posture.active) posture.reset();
-  text('calibrate', 'Reset reference');
+  text('calibrate', 'Reset');
   toast('The distance sensor is keeping track now.');
   timerRunning = true; timerLast = performance.now(); renderPause();
   showSensorCard();
