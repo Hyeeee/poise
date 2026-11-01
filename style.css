@@ -1425,3 +1425,4 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 .game-chips button { color: var(--ink-2) !important; background: transparent !important; }
 .game-chips button:hover { background: rgba(13,13,13,.05) !important; color: var(--ink) !important; }
 .game-chips button.on { background: rgba(13,13,13,.07) !important; color: var(--ink) !important; font-weight: 600; }
+.voice-opt small, .voice-opt b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }

@@ -25,7 +25,7 @@ const QUESTIONS = [
     say: 'And when it is time to rest, what helps you reset?',
     options: [
       { label: 'Stretch', sub: 'Follow a figure', icon: 'stretch', value: { style: 'stretch', count: 10 } },
-      { label: 'Breathe', sub: 'Slow breaths, eye rest', icon: 'breathe', value: { style: 'breathe', minutes: 2 } },
+      { label: 'Breathe', sub: 'Slow and calm', icon: 'breathe', value: { style: 'breathe', minutes: 2 } },
       { label: 'Game', sub: 'Move to play', icon: 'game', value: { style: 'game', minutes: 1 } },
     ],
   },
@@ -33,8 +33,8 @@ const QUESTIONS = [
     key: 'auto',
     say: 'Last one. When focus time ends, should I start your break for you?',
     options: [
-      { label: 'Start it for me', sub: 'Break begins on its own', icon: 'auto', value: true },
-      { label: 'Ask me first', sub: 'I’ll check with you', icon: 'ask', value: false },
+      { label: 'Start it for me', sub: 'No need to tap', icon: 'auto', value: true },
+      { label: 'Ask me first', sub: 'I’ll check first', icon: 'ask', value: false },
     ],
   },
 ];
