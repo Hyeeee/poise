@@ -1120,3 +1120,50 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 .studio .pop.empty:is([data-dir="next"],[data-dir="back"]):not([hidden])::before { animation: glowIn .6s ease both; }
 @keyframes glowIn { from { opacity: 0; } }
 @keyframes popIn { from { opacity: 0; scale: .97; } }
+
+/* =====================================================================
+   Focus panel v3: live posture chart. One card:
+     Posture · [Set reference]
+     Aligned / hint
+     chart (grows across the session, dips when you drift) + tooltip
+     Start ………… 30 min
+     30 min left            [pause]
+     My focus ⌄ · Then …
+     [End session]
+   ===================================================================== */
+:root { --live-line: color-mix(in srgb, var(--signal), #0d0d0d 32%); }
+#work-panel .state .say::before { content: none !important; }
+#work-panel .state { padding: 20px 20px 6px !important; }
+.fc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.eyebrow { font-size: 13px; font-weight: 500; color: var(--ink-3); }
+#work-panel #calibrate { height: var(--btn-s) !important; min-height: var(--btn-s) !important; padding: 0 12px !important; font-size: 13px !important; border-radius: var(--r-sm) !important; background: rgba(255,255,255,.6) !important; }
+#work-panel #calibrate:hover { background: rgba(255,255,255,.95) !important; }
+
+.live { position: relative; height: 110px; margin: 12px -20px 0; }
+.live #live-svg, .live .pchart { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+.pc-line { fill: none; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; transition: stroke 1.4s ease; }
+.pc-ref { stroke: rgba(13,13,13,.12); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.pc-cue { stroke: rgba(13,13,13,.18); stroke-width: 1; stroke-dasharray: 3 4; vector-effect: non-scaling-stroke; }
+.live-label { position: absolute; right: 20px; transform: translateY(-120%); font-size: 11px; color: var(--ink-3); pointer-events: none; }
+.live-label-ref { right: auto; left: 20px; }
+.live-dot { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--live-line); box-shadow: 0 0 0 4px rgba(255,255,255,.85); transition: left 1s linear, top 1s ease, background 1.4s ease; }
+.live-dot::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 1.5px solid var(--live-line); opacity: 0; animation: livePulse 2s ease-out infinite; }
+@keyframes livePulse { 0% { opacity: .6; transform: scale(.6); } 100% { opacity: 0; transform: scale(1.6); } }
+.live-tip { position: absolute; transform: translate(-50%, calc(-100% - 12px)); display: inline-flex; align-items: baseline; gap: 3px; white-space: nowrap;
+  padding: 6px 10px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px rgba(13,13,13,.05), 0 6px 16px -8px rgba(13,13,13,.35);
+  transition: left 1s linear, top 1s ease; pointer-events: none; }
+.live-tip b { font-size: 15px; font-weight: 600; letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.live-tip small { font-size: 12px; color: var(--ink-2); }
+.live-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-3); margin: 6px 0 0; }
+.sensor-stat { display: inline-flex; gap: 4px; align-items: baseline; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+.sensor-stat b { font-size: 17px; font-weight: 600; color: var(--ink); }
+
+#work-panel .session { padding: 14px 20px 20px !important; }
+.fc-time { display: flex; align-items: center; justify-content: space-between; border-top: 0; }
+#work-panel .fc-time .timer { margin: 0 !important; gap: 6px; }
+#work-panel #timer { font-size: 34px !important; font-weight: 500 !important; letter-spacing: -.03em !important; }
+.fc-sub { display: flex; align-items: center; gap: 8px; margin-top: 4px; min-width: 0; }
+.fc-sub .sub { font-size: 13px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fc-sub .mode-name { flex: none; color: var(--ink-2) !important; }
+.fc-sub .mode-name + .sub::before { content: "· "; }
+#work-panel #end-session { margin-top: 16px !important; }

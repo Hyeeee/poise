@@ -23,6 +23,7 @@ mountPainting();
   document.body.classList.add('enter');
 })();
 import { startTour } from './tour.js';
+import { postureChart, bucket } from './chart.js';
 import { session as posture, showReport, breakLog, showBreakReport, POSTURE_SAY } from './report.js';
 
 const $ = id => document.getElementById(id);
@@ -418,6 +419,7 @@ function applyPosture(d, now, delta, widthRatio) {
   // Counted as a shift too (20% closer or farther ≈ 45% shift).
   // Ignore the first ~12% of size change (normal shifting in the chair), then count it more gently.
   if (widthRatio) d = Math.max(d, Math.min(100, Math.round(Math.max(0, Math.abs(Math.log(widthRatio)) - .12) * 200)));
+  live.d = live.d == null ? d : live.d * .6 + d * .4;
   // The number updates twice a second at most, so it reads calmly.
   if (now - (applyPosture.shown || 0) > 500) { applyPosture.shown = now; text('deviation', d); }
   $('deviation-bar').style.width = d + '%';
@@ -841,6 +843,36 @@ setInterval(() => {
   }
   timerLast = now;
 }, 200);
+
+// ---------- Live posture chart ----------
+// One point a second while the focus timer runs. x = how far through the session (0..1),
+// so the line grows left to right like the timer, and dips whenever posture drifts.
+const live = { pts: [], d: null };
+function renderLive() {
+  const total = store.work().focus * 60, x = Math.min(1, Math.max(0, 1 - remaining / total));
+  const on = hasRef() && !silent();
+  if (on && timerRunning && live.d != null && screen === 'work') {
+    const lastPt = live.pts[live.pts.length - 1];
+    if (lastPt && x < lastPt.x - 1e-4) live.pts = [];        // timer was reset: new session
+    if (!lastPt || x > lastPt.x) live.pts.push({ x, d: live.d });
+  }
+  if (!hasRef()) live.pts = [];
+  const ymax = Math.max(30, threshold() * 2.5);
+  const pts = on ? bucket(live.pts, 160) : [];
+  const c = postureChart(pts, { ymax, cue: threshold() });
+  $('live-svg').innerHTML = c.svg;
+  const show = on && pts.length > 0;
+  $('live-dot').hidden = $('live-tip').hidden = !show;
+  if (show) {
+    $('live-dot').style.left = c.end.x + '%'; $('live-dot').style.top = c.end.y + '%';
+    const tx = Math.min(78, Math.max(22, c.end.x));
+    $('live-tip').style.left = tx + '%'; $('live-tip').style.top = c.end.y + '%';
+  }
+  $('live-cue-label').style.top = c.cueY + '%';
+  document.querySelector('.live-label-ref').style.top = c.refY + '%';
+  text('live-end', `${store.work().focus} min`);
+}
+setInterval(renderLive, 1000);
 
 // Keep panel text in sync with the current modes.
 function syncUI() {
