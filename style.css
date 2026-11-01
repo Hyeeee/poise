@@ -1497,3 +1497,4 @@ body .report-card.pop::before { display: none !important; }
 /* Figure boxes in the side panel: soft glass so they melt into the card's colour */
 .avatar-box, .stage-box, #breathe-panel .breath-stage, .reel-video #reel-player {
   background: rgba(255,255,255,.5) !important; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+#work-panel #end-session { margin-top: 24px !important; }
