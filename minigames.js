@@ -98,7 +98,8 @@ export class MiniGame {
       for (const [key, v] of rec) {
         if (key === 'helperSkip') { skip = helper && v[0]; continue; }   // parts only meant for the camera view
         if (skip) continue;
-        if (key[0] === '=') cx2[key.slice(1)] = key === '=lineWidth' ? 3 * v / s : v;
+        // Camera view: 3 px lines. Side box: 1.5 px, about the weight of the ink figure.
+        if (key[0] === '=') cx2[key.slice(1)] = key === '=lineWidth' ? (helper ? 1.5 : 3) * v / s : v;
         else cx2[key](...v);
       }
       cx2.restore();
