@@ -289,7 +289,7 @@ export class MiniGame {
     }
     // dandelion head in the middle
     ctx.strokeStyle = 'rgba(20,20,18,.2)'; ctx.lineWidth = this.lw;
-    for (let i = 0; i < 24; i++) { const a = i / 24 * TAU; ctx.beginPath(); ctx.moveTo(W / 2, H / 2); ctx.lineTo(W / 2 + Math.cos(a) * 18, H / 2 + Math.sin(a) * 18); ctx.stroke(); }
+    for (let i = 0; i < 24; i++) { const a = i / 24 * TAU; ctx.beginPath(); ctx.moveTo(W / 2, H / 2); ctx.lineTo(W / 2 + Math.cos(a) * 32, H / 2 + Math.sin(a) * 32); ctx.stroke(); }
     if (this.seed) {
       const s = this.seed;
       // gentle sway around where it landed (a few px), not a drift away, so you can hold your neck still
@@ -297,17 +297,17 @@ export class MiniGame {
       s.x = s.ox + Math.sin(now / 1400 + s.ph) * 4; s.y = s.oy + Math.cos(now / 1700 + s.ph) * 3;
       // seed: a tiny stem with a fluffy top
       ctx.strokeStyle = ink; ctx.lineWidth = this.lw;
-      ctx.beginPath(); ctx.moveTo(s.x, s.y + 4); ctx.lineTo(s.x, s.y + 14); ctx.stroke();
-      for (let i = 0; i < 9; i++) { const a = -Math.PI + i / 8 * Math.PI; ctx.beginPath(); ctx.moveTo(s.x, s.y + 4); ctx.lineTo(s.x + Math.cos(a) * 9, s.y + 4 + Math.sin(a) * 9); ctx.stroke(); }
-      const near = Math.hypot(this.cur[0] - s.x, this.cur[1] - s.y) < 34;
+      ctx.beginPath(); ctx.moveTo(s.x, s.y + 6); ctx.lineTo(s.x, s.y + 26); ctx.stroke();
+      for (let i = 0; i < 9; i++) { const a = -Math.PI + i / 8 * Math.PI; ctx.beginPath(); ctx.moveTo(s.x, s.y + 6); ctx.lineTo(s.x + Math.cos(a) * 17, s.y + 6 + Math.sin(a) * 17); ctx.stroke(); }
+      const near = Math.hypot(this.cur[0] - s.x, this.cur[1] - s.y) < 46;
       this.holdMs = near ? this.holdMs + dt : Math.max(0, this.holdMs - dt);
       if (this.holdMs > 1200) { sfx.seed(); this.s.score++; this.seed = null; this.holdMs = 0; this.onColor?.([255, 220, 0]); setTimeout(() => this.onColor?.(null), 400); }
-      if (s && near) { ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(s.x, s.y + 6, 22, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke(); }
+      if (s && near) { ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(s.x, s.y + 8, 34, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke(); }
     }
     // head cursor
     ctx.strokeStyle = ink; ctx.lineWidth = this.lw;
-    ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 14, 0, TAU); ctx.stroke();
-    ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 2.5, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 22, 0, TAU); ctx.stroke();
+    ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 4, 0, TAU); ctx.fill();
     this.hint = c ? 'Turn and tilt your head to reach the seed.' : '';
   }
 }
