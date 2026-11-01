@@ -1531,3 +1531,4 @@ body .report-card.pop::before { display: none !important; }
 #modes.drawer .dd-btn { min-width: 132px; justify-content: space-between !important; }
 #modes.drawer .field .dd, #modes.drawer .pref-row .dd { justify-self: end; }
 .brand { padding-left: 6px !important; }
+.brand { font-weight: 500 !important; -webkit-text-stroke: .25px currentColor; }
