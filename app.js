@@ -251,18 +251,50 @@ function cue(p) {
   return { x: (hx - mx) / w, y: (hy - my) / w, tilt: (a.y - b.y) / w, roll, width: w, ears, sy: my };
 }
 
+// Joint colour flips with what is behind the lines: dark lines on light clothes or walls,
+// white lines on dark ones. We sample a tiny copy of the video along the skeleton twice a second.
+const lumaCanvas = document.createElement('canvas'), lumaCtx = lumaCanvas.getContext('2d', { willReadFrequently: true });
+lumaCanvas.width = 64; lumaCanvas.height = 36;
+let jointLuma = 0.4, jointDark = false, lumaAt = 0;
+function jointInk(p) {
+  const now = performance.now();
+  if (now - lumaAt > 500 && camera.videoWidth) {
+    lumaAt = now;
+    lumaCtx.drawImage(camera, 0, 0, 64, 36);
+    const px = lumaCtx.getImageData(0, 0, 64, 36).data;
+    const pts = [];
+    for (const [a, b] of [[11, 12], [11, 13], [12, 14], [11, 23], [12, 24]]) {
+      if (!visible(p, [a, b])) continue;
+      for (const t of [0, .25, .5, .75, 1]) pts.push([p[a].x + (p[b].x - p[a].x) * t, p[a].y + (p[b].y - p[a].y) * t]);
+    }
+    let sum = 0, n = 0;
+    for (const [x, y] of pts) {
+      const X = Math.round(x * 63), Y = Math.round(y * 35);
+      if (X < 0 || Y < 0 || X > 63 || Y > 35) continue;
+      const i = (Y * 64 + X) * 4;
+      sum += (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255; n++;
+    }
+    if (n) jointLuma = jointLuma * .6 + (sum / n) * .4;
+    // Gap between the two thresholds stops it flickering on mid-grey clothes.
+    if (!jointDark && jointLuma > .62) jointDark = true;
+    else if (jointDark && jointLuma < .5) jointDark = false;
+  }
+  return jointDark ? 'rgba(13,13,13,.9)' : 'rgba(255,255,255,.95)';
+}
+
 function draw(p) {
   const w = canvas.clientWidth, h = canvas.clientHeight;
   canvas.width = w; canvas.height = h;
   if (!store.state.joints) return;
   const scale = Math.max(w / camera.videoWidth, h / camera.videoHeight), vw = camera.videoWidth * scale, vh = camera.videoHeight * scale, ox = (w - vw) / 2, oy = (h - vh) / 2;
   const xy = a => [a.x * vw + ox, a.y * vh + oy];
-  ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.fillStyle = '#fff'; ctx.lineWidth = 1.5; ctx.shadowBlur = 12; ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--signal');
+  const ink = jointInk(p);
+  ctx.strokeStyle = ink; ctx.fillStyle = ink; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.shadowBlur = 0;
   for (const [a, b] of [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [24, 26]]) {
     if (!visible(p, [a, b])) continue;
     ctx.beginPath(); ctx.moveTo(...xy(p[a])); ctx.lineTo(...xy(p[b])); ctx.stroke();
   }
-  for (const i of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26]) if (visible(p, [i])) { ctx.beginPath(); ctx.arc(...xy(p[i]), 3.5, 0, Math.PI * 2); ctx.fill(); }
+  for (const i of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26]) if (visible(p, [i])) { ctx.beginPath(); ctx.arc(...xy(p[i]), 5, 0, Math.PI * 2); ctx.fill(); }
 }
 
 // Which part of the shift is largest → a specific message.
