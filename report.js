@@ -87,12 +87,14 @@ const SAY = {
 export const SPOKEN_LINES = Object.values(SAY);
 export const POSTURE_SAY = k => SAY['pose_' + k] || SAY.pose_other;
 
+// "In this 25 min session" / "In this 40 sec session" — said once, at the start of the line.
+const lenPhrase = r => { const ms = r.tracked || r.minutes * 60000; return ms < 60000 ? `${Math.max(1, Math.round(ms / 1000))} sec` : `${Math.round(ms / 60000)} min`; };
 function headline(r) {
   if (r.aligned == null) return { en: 'Short session. Set a reference and keep the timer running to see your full analysis.', title: 'Session ended.' };
   const quick = r.avgRecover != null && r.avgRecover < 6000;
-  if (r.aligned >= 80) return { en: `Great session. You stayed aligned ${r.aligned}% of the time${quick ? ` and caught yourself in about ${Math.round(r.avgRecover / 1000)} seconds` : ''}.`, title: 'Great session.' };
-  if (r.aligned >= 55) return { en: `Good session. You stayed aligned ${r.aligned}% of the time${r.causes[0] ? `, and most drifts were ${r.causes[0].label.toLowerCase()}` : ''}.`, title: 'Good session.' };
-  return { en: `A tough one. You were aligned ${r.aligned}% of the time${r.causes[0] ? `, mostly ${r.causes[0].label.toLowerCase()}` : ''}. A short break will help.`, title: 'Time to reset.' };
+  if (r.aligned >= 80) return { en: `Great session. In ${lenPhrase(r)}, you stayed aligned ${r.aligned}% of the time${quick ? ` and caught yourself in about ${Math.round(r.avgRecover / 1000)} seconds` : ''}.`, title: 'Great session.' };
+  if (r.aligned >= 55) return { en: `Good session. In ${lenPhrase(r)}, you stayed aligned ${r.aligned}% of the time${r.causes[0] ? `, and most drifts were ${r.causes[0].label.toLowerCase()}` : ''}.`, title: 'Good session.' };
+  return { en: `A tough one. In ${lenPhrase(r)}, you were aligned ${r.aligned}% of the time${r.causes[0] ? `, mostly ${r.causes[0].label.toLowerCase()}` : ''}. A short break will help.`, title: 'Time to reset.' };
 }
 
 // Same chart as the live one in the Focus panel, plus a coloured strip for aligned / drifting / reset
@@ -191,7 +193,7 @@ export function showBreakReport(r, speak) {
     if (r.kind === 'game' && r.game && r.game.kind && r.game.kind !== 'bubbles') {
       const g = r.game, names = { boat: 'Sail the stream', bells: 'Ring the bells', seeds: 'Follow the seeds' };
       title = g.score >= 8 ? 'Great moves.' : g.score >= 3 ? 'Nice moves.' : 'A quick move.';
-      line = `${names[g.kind]}: ${g.stats.map(([v, l]) => `${v} ${l}`).join(', ')}.`;
+      line = `In ${len}, ${g.stats.map(([v, l]) => `${v} ${l}`).join(', ')}.`;
       $('report-chart').hidden = true; legend.hidden = true;
       set('rep-aligned', g.stats[0][0]); set('rep-aligned-l', g.stats[0][1]);
       set('rep-recover', g.stats[1][0]); set('rep-recover-l', g.stats[1][1]);
@@ -201,7 +203,7 @@ export function showBreakReport(r, speak) {
       const g = r.game || { score: 0, popped: 0, missed: 0, best: 0, zones: { high: 0, side: 0, low: 0, head: 0 } };
       const tries = g.popped + g.missed, rate = tries ? Math.round(g.popped / tries * 100) : 0;
       title = g.popped >= 20 ? 'Great moves.' : g.popped >= 8 ? 'Nice moves.' : 'A quick move.';
-      line = g.popped ? `You popped ${g.popped} bubbles for ${g.score} points, best streak ${g.best}.` : 'Start the game next time to get moving.';
+      line = g.popped ? `In ${len}, you popped ${g.popped} bubbles for ${g.score} points, best streak ${g.best}.` : 'Start the game next time to get moving.';
       $('report-chart').hidden = true; legend.hidden = true;
       set('rep-aligned', g.score); set('rep-aligned-l', 'points');
       set('rep-recover', g.popped); set('rep-recover-l', 'bubbles popped');
@@ -216,7 +218,7 @@ export function showBreakReport(r, speak) {
       const rs = r.reset || { shoulderCm: 0, eyesMs: 0 };
       const cm = rs.shoulderCm || 0;
       title = mins >= 1.5 ? 'Good rest.' : 'Short rest.';
-      line = cm >= .3 ? `You took ${r.cycles} slow breath${r.cycles === 1 ? '' : 's'} and your shoulders came down ${cm.toFixed(1)} cm.` : `You took ${r.cycles} slow breath${r.cycles === 1 ? '' : 's'} and rested your eyes.`;
+      line = cm >= .3 ? `In ${len}, you took ${r.cycles} slow breath${r.cycles === 1 ? '' : 's'} and your shoulders came down ${cm.toFixed(1)} cm.` : `In ${len}, you took ${r.cycles} slow breath${r.cycles === 1 ? '' : 's'} and rested your eyes.`;
       $('report-chart').innerHTML = ''; $('report-chart').hidden = true; legend.hidden = true;
       set('rep-aligned', cm >= .3 ? `${cm.toFixed(1)} cm` : '—'); set('rep-aligned-l', 'shoulders lowered');
       set('rep-recover', r.cycles); set('rep-recover-l', 'slow breaths');
@@ -227,7 +229,7 @@ export function showBreakReport(r, speak) {
       const done = r.poses.filter(p => p.matched), total = r.poses.length;
       const avg = total ? Math.round(r.poses.reduce((a, p) => a + p.best, 0) / total) : 0;
       title = !total ? 'Break ended.' : done.length === total ? 'Great stretch.' : done.length >= total / 2 ? 'Nice stretch.' : 'A light stretch.';
-      line = total ? `You rested ${len} and followed ${done.length} of ${total} stretches.` : `You rested ${len}.`;
+      line = total ? `In ${len}, you followed ${done.length} of ${total} stretches.` : `You rested ${len}.`;
       $('report-chart').hidden = false; $('report-chart').innerHTML = bars(r.poses); legend.hidden = true;
       set('rep-aligned', len); set('rep-aligned-l', 'rested');
       set('rep-recover', `${done.length}/${total}`); set('rep-recover-l', 'stretches followed');
