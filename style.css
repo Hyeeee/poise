@@ -1420,3 +1420,8 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 /* Bottom status line in every break card: same 13px, one line */
 #hold-label, #game-label, #breath-left, .breath-metric, #breath-metric {
   font-size: 13px !important; line-height: 1.35 !important; min-height: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Game chips: left aligned, secondary style (light tint when picked, not black) */
+.game-chips { justify-content: flex-start !important; margin: -6px 0 16px !important; gap: 4px !important; }
+.game-chips button { color: var(--ink-2) !important; background: transparent !important; }
+.game-chips button:hover { background: rgba(13,13,13,.05) !important; color: var(--ink) !important; }
+.game-chips button.on { background: rgba(13,13,13,.07) !important; color: var(--ink) !important; font-weight: 600; }
