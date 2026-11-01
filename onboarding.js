@@ -194,46 +194,36 @@ export function runOnboarding() {
     }
 
     // Minutes picker: type a number, nudge it with − / +, or tap a quick chip.
-    // Focus length: four ready-made lengths as cards, plus a compact stepper for anything else.
-    // (People rarely typed a number, so there is no big text field.)
+    // Focus length: one slider. The value reads above it in the app's number style, small marks
+    // under the track jump to common lengths. No text field (people rarely typed a number).
     function minutesPicker(q) {
       let value = answers[q.key] ?? q.start;
       const clampV = v => Math.max(q.min, Math.min(q.max, Math.round(v / q.step) * q.step || q.start));
-      const PRESETS = [[15, 'Quick'], [30, 'Steady'], [45, 'Deep'], [60, 'Long']];
-      const fmt = m => m >= 60 && m % 60 === 0 ? `${m / 60} hr` : m > 60 ? `${Math.floor(m / 60)} hr ${m % 60}` : `${m}`;
-      const unit = m => m >= 60 && m % 60 === 0 ? '' : m > 60 ? 'min' : 'min';
+      const MARKS = [15, 30, 45, 60, 90, 120];
+      const pct = m => (m - q.min) / (q.max - q.min) * 100;
+      const short = m => m < 60 ? `${m}m` : m % 60 ? `${(m / 60).toFixed(1)}h` : `${m / 60}h`;
       const wrap = document.createElement('div');
-      wrap.className = 'len-picker';
+      wrap.className = 'len-slider';
       wrap.innerHTML = `
-        <div class="len-cards" role="radiogroup" aria-label="Focus length">
-          ${PRESETS.map(([m, l]) => `<button type="button" class="len-card" role="radio" data-m="${m}"><b>${fmt(m)}<small>${unit(m)}</small></b><span>${l}</span></button>`).join('')}
+        <div class="ls-value"><b></b><span></span></div>
+        <div class="ls-track">
+          <div class="ls-rail"><i class="ls-fill"></i>${MARKS.map(m => `<i class="ls-tick" style="left:${pct(m)}%"></i>`).join('')}</div>
+          <input type="range" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Focus length in minutes">
         </div>
-        <div class="len-custom">
-          <span>Something else</span>
-          <div class="stepper">
-            <button type="button" class="st-btn" data-d="-1" aria-label="${q.step} minutes less"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
-            <output aria-live="polite"></output>
-            <button type="button" class="st-btn" data-d="1" aria-label="${q.step} minutes more"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
-          </div>
-        </div>`;
-      const out = wrap.querySelector('output');
+        <div class="ls-marks">${MARKS.map(m => `<button type="button" data-m="${m}" style="left:${pct(m)}%">${short(m)}</button>`).join('')}</div>`;
+      const range = wrap.querySelector('input'), b = wrap.querySelector('.ls-value b'), u = wrap.querySelector('.ls-value span');
       const set = v => {
-        value = clampV(v);
-        out.textContent = value >= 60 ? `${Math.floor(value / 60)} hr${value % 60 ? ' ' + (value % 60) + ' min' : ''}` : `${value} min`;
-        wrap.querySelectorAll('.len-card').forEach(c => { const on = +c.dataset.m === value; c.classList.toggle('on', on); c.setAttribute('aria-checked', on); });
-        wrap.querySelector('.len-custom').classList.toggle('on', !PRESETS.some(([m]) => m === value));
-        wrap.querySelector('[data-d="-1"]').disabled = value <= q.min;
-        wrap.querySelector('[data-d="1"]').disabled = value >= q.max;
+        value = clampV(v); range.value = value;
+        const h = Math.floor(value / 60), m = value % 60;
+        b.textContent = value < 60 ? value : m ? `${h}h ${m}` : h;
+        u.textContent = value < 60 ? 'min' : m ? 'min' : h > 1 ? 'hours' : 'hour';
+        range.setAttribute('aria-valuetext', `${value} minutes`);
+        wrap.style.setProperty('--p', pct(value) + '%');
+        wrap.querySelectorAll('.ls-marks button').forEach(x => x.classList.toggle('on', +x.dataset.m === value));
+        wrap.querySelectorAll('.ls-tick').forEach((t, i) => t.classList.toggle('past', MARKS[i] <= value));
       };
-      wrap.querySelectorAll('.len-card').forEach(c => c.onclick = () => set(+c.dataset.m));
-      // Hold a stepper button to keep counting.
-      wrap.querySelectorAll('.st-btn').forEach(b => {
-        let t;
-        const stepOnce = () => set(value + +b.dataset.d * q.step);
-        b.onpointerdown = () => { stepOnce(); t = setTimeout(function rep() { stepOnce(); t = setTimeout(rep, 90); }, 420); };
-        b.onpointerup = b.onpointerleave = b.onpointercancel = () => clearTimeout(t);
-        b.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stepOnce(); } };
-      });
+      range.oninput = () => set(+range.value);
+      wrap.querySelectorAll('.ls-marks button').forEach(x => x.onclick = () => set(+x.dataset.m));
       const go = document.createElement('button');
       go.className = 'choice next'; go.textContent = 'Continue';
       go.onclick = () => { answers[q.key] = value; go.classList.add('picked'); setTimeout(next, 220); };
