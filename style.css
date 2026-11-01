@@ -1187,3 +1187,19 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 #work-panel .state { padding-bottom: 8px !important; }
 
 .avatar-key i.k-you { border-top-color: #141412; }
+
+/* Voice picker v2: four taller cards with an icon tile, and a quieter section label */
+.setup .voice-label { display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px 2px !important; font-family: var(--ui) !important; }
+.vl-title { font-size: 12px; font-weight: 600; letter-spacing: .08em !important; text-transform: uppercase; color: var(--ink); }
+.vl-hint { font-size: 13px; color: var(--ink-3); }
+.vl-title + .vl-hint::before { content: ""; display: inline-block; width: 16px; height: 1px; background: rgba(13,13,13,.2); vertical-align: middle; margin: 0 10px 3px 0; }
+.voice-pick { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px !important; width: 100%; max-width: 640px; margin-bottom: 18px !important; }
+.voice-opt { display: flex !important; flex-direction: column; align-items: flex-start !important; justify-content: flex-start !important; gap: 2px; min-width: 0 !important;
+  padding: 14px 14px 16px !important; min-height: 132px; border-radius: 18px !important; text-align: left; line-height: 1.25; }
+.vo-icon { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; margin-bottom: auto; background: rgba(13,13,13,.06); color: var(--ink); transition: background .5s, color .5s; }
+.vo-icon svg { width: 18px; height: 18px; stroke-width: 1.6; }
+.voice-opt b { margin-top: 18px; font-size: 16px !important; font-weight: 600 !important; letter-spacing: -.02em; }
+.voice-opt small { font-size: 13px !important; color: var(--ink-2); }
+.voice-opt.on .vo-icon { background: #0d0d0d; color: #fff; }
+.voice-opt .vo-dot { display: none; }
+@media (max-width: 640px) { .voice-pick { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

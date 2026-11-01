@@ -83,6 +83,20 @@ function matchVoice() {
 let currentAudio = null;
 // Speak a line. Uses a natural pre-recorded voice when one exists for this exact text,
 // otherwise falls back to the browser's built-in speech.
+// Small line icons for the voice cards.
+const VOICE_ICON = {
+  ava: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M6 18l1.4-1.4M16.6 7.4 18 6"/></svg>',
+  sonia: '<svg viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>',
+  andrew: '<svg viewBox="0 0 24 24"><path d="M3 9c2.5-2 4.5-2 7 0s4.5 2 7 0 3-1.5 4-1"/><path d="M3 15c2.5-2 4.5-2 7 0s4.5 2 7 0 3-1.5 4-1"/></svg>',
+  off: '<svg viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg>',
+};
+// Stop whatever is speaking right now.
+export function stopVoice(orb) {
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  orb?.classList.remove('speaking'); ambient.duck(false);
+}
+
 export function speak(text, orb, lang = 'en') {
   if (!store.state.voice) return;
   if ('speechSynthesis' in window) speechSynthesis.cancel();
@@ -304,21 +318,31 @@ export function runOnboarding() {
         const pick = document.createElement('div');
         pick.className = 'voice-pick';
         pick.setAttribute('role', 'radiogroup'); pick.setAttribute('aria-label', 'Voice');
-        const current = store.state.voiceId || 'ava';
-        VOICES.forEach(v => {
+        // Three voices plus "No voice". Each card: a small icon tile, the name, and a one-line feel.
+        const current = store.state.voice === false ? 'off' : (store.state.voiceId || 'ava');
+        const OPTS = [...VOICES, { id: 'off', name: 'No voice', vibe: 'Text only' }];
+        OPTS.forEach(v => {
           const o = document.createElement('button');
-          o.type = 'button'; o.className = 'voice-opt' + (v.id === current ? ' on' : '');
+          o.type = 'button'; o.className = 'voice-opt' + (v.id === current ? ' on' : '') + (v.id === 'off' ? ' off-opt' : '');
           o.setAttribute('role', 'radio'); o.setAttribute('aria-checked', v.id === current);
-          o.innerHTML = `<b>${v.name}</b><small>${v.vibe}</small>`;
+          o.innerHTML = `<span class="vo-icon" aria-hidden="true">${VOICE_ICON[v.id] || ''}</span><b>${v.name}</b><small>${v.vibe}</small>`;
           o.onclick = () => {
-            store.update(s => { s.voiceId = v.id; s.voice = true; });
+            if (v.id === 'off') {
+              store.update(s => { s.voice = false; });
+              if ('speechSynthesis' in window) speechSynthesis.cancel();
+              stopVoice(orb);
+            } else {
+              store.update(s => { s.voiceId = v.id; s.voice = true; });
+              speak(hello, orb);
+            }
             pick.querySelectorAll('.voice-opt').forEach(x => { x.classList.toggle('on', x === o); x.setAttribute('aria-checked', x === o); });
-            speak(hello, orb);
+            syncVoiceButton();
           };
           pick.append(o);
         });
-        const label = document.createElement('p');
-        label.className = 'voice-label'; label.textContent = 'Choose a voice';
+        const label = document.createElement('div');
+        label.className = 'voice-label';
+        label.innerHTML = '<span class="vl-title">Voice</span><span class="vl-hint">Tap one to hear it</span>';
         const b = document.createElement('button');
         b.className = 'choice next';
         b.textContent = "Let's start";
