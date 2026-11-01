@@ -1,5 +1,6 @@
 import { safeArea } from './safearea.js';
 import { sfx } from './sfx.js';
+import { drawFigure } from './figure.js';
 // Seated movement games played inside the white stage box on the Game card.
 // Each game reads the pose (MediaPipe landmarks) and draws into a small canvas.
 //   boat   — Paper Boat: lean left/right to steer a boat down a stream (side bends)
@@ -91,9 +92,12 @@ export class MiniGame {
     let label = !this.pose ? 'Sit so your head and shoulders are in view.' : !this.base ? 'Sit still for a moment…' : '';
     this.lw = 1;                      // games set lineWidth = this.lw; replay turns it into 3 screen px
     this[this.kind](R, gw, gh, dt, now, c);
-    const play = (cx2, s, ox, oy) => {
+    const play = (cx2, s, ox, oy, helper = false) => {
       cx2.save(); cx2.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
+      let skip = false;
       for (const [key, v] of rec) {
+        if (key === 'helperSkip') { skip = helper && v[0]; continue; }   // parts only meant for the camera view
+        if (skip) continue;
         if (key[0] === '=') cx2[key.slice(1)] = key === '=lineWidth' ? 3 * v / s : v;
         else cx2[key](...v);
       }
@@ -108,11 +112,45 @@ export class MiniGame {
       if (hp.width !== Math.round(hw * dpr) || hp.height !== Math.round(hh * dpr)) { hp.width = Math.round(hw * dpr); hp.height = Math.round(hh * dpr); }
       const h = hp.getContext('2d'); h.setTransform(1, 0, 0, 1, 0, 0); h.clearRect(0, 0, hp.width, hp.height);
       const pad = 16, s = Math.min((hw - pad * 2) / gw, (hh - pad * 2) / gh);
-      play(h, s, (hw - gw * s) / 2, (hh - gh * s) / 2);
+      play(h, s, (hw - gw * s) / 2, (hh - gh * s) / 2, true);
+      // The ink figure plays the game in the side box: it rides the boat, lifts its shoulders, follows the seed.
+      h.save(); h.setTransform(dpr * s, 0, 0, dpr * s, dpr * (hw - gw * s) / 2, dpr * (hh - gh * s) / 2);
+      this.actor(h, gw, gh, c, now);
+      h.restore();
     }
     if (this.hint && !label) label = this.hint;
     this.onTick?.({ score: this.s.score, left: Math.max(0, left), label });
     if (left <= 0) { this.stop(); this.onEnd?.(this.result()); }
+  }
+
+  // ---------- The figure in the side box ----------
+  actor(ctx, W, H, c, now) {
+    const base = { lean: 0, bend: 0, look: 0, head: 0, drop: 0, shrug: 0, breath: Math.sin(now / 700) * 1.2,
+      eL: [-58, -66], wL: [-40, -14], eR: [58, -66], wR: [40, -14] };
+    const tilt = c ? Math.max(-1, Math.min(1, c.tilt / .15)) : 0;
+    ctx.save();
+    if (this.kind === 'boat') {
+      // sitting in the paper boat, leaning with it; shoulders dip toward the lean
+      const lane = W / 2 - 40, bx = W / 2 + this.boatX * lane, by = H * .78, f = .34;
+      ctx.translate(bx, by + 2); ctx.rotate(this.boatX * .25); ctx.scale(f, f);
+      drawFigure(ctx, { ...base, bend: this.boatX * .32, shTilt: -this.boatX * 10 + tilt * 6, head: this.boatX * .12,
+        eL: [-56, -70], wL: [-30, -26], eR: [56, -70], wR: [30, -26] }, { legs: false });
+    } else if (this.kind === 'bells') {
+      // standing under the bell: shoulders rise toward the ears as you shrug
+      const f = Math.min(W / 300, H / 300);
+      ctx.translate(W / 2, H + 6); ctx.scale(f, f);
+      drawFigure(ctx, { ...base, shrug: this.lift * 24, head: 0, eL: [-60, -70 - this.lift * 14], wL: [-44, -16 - this.lift * 14], eR: [60, -70 - this.lift * 14], wR: [44, -16 - this.lift * 14] }, { legs: false });
+    } else if (this.kind === 'seeds') {
+      // the figure turns its head toward where you are looking, with a dotted line of sight
+      const f = Math.min(W / 320, H / 320), hx = W / 2, hy = H + 6 - 162 * f;
+      const dx = this.cur[0] - hx, dy = this.cur[1] - hy;
+      const head = Math.max(-.5, Math.min(.5, Math.atan2(dx, -dy) * .45));
+      ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = 'rgba(20,20,18,.35)'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(this.cur[0], this.cur[1]); ctx.stroke(); ctx.restore();
+      ctx.translate(W / 2, H + 6); ctx.scale(f, f);
+      drawFigure(ctx, { ...base, head, look: Math.max(-1, Math.min(1, dx / (W * .3))) }, { legs: false });
+    }
+    ctx.restore();
   }
 
   // ---------- Paper Boat ----------
@@ -188,7 +226,8 @@ export class MiniGame {
     // sound rings expanding from the bell
     this.rings = this.rings.filter(t => now - t < 1400);
     for (const t of this.rings) { const k = (now - t) / 1400; ctx.strokeStyle = `rgba(30,31,28,${.4 * (1 - k)})`; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(cx, by + 24, 40 + k * W * .35, 0, TAU); ctx.stroke(); }
-    // lift meter: two shoulder marks that rise
+    // lift meter: two shoulder marks that rise (camera view only; in the side box the figure's shoulders show it)
+    ctx.helperSkip(true);
     const my = H * .82, mx = W * .3;
     ctx.strokeStyle = 'rgba(20,20,18,.18)'; ctx.lineWidth = this.lw; ctx.lineCap = 'round';
     for (const x of [cx - mx, cx + mx]) { ctx.beginPath(); ctx.moveTo(x, my); ctx.lineTo(x, my - H * .22); ctx.stroke(); }
@@ -213,6 +252,7 @@ export class MiniGame {
       ctx.fillText(phase === 'drop' ? 'DROP' : phase === 'hold' ? 'HOLD' : 'LIFT', cx, my - H * .02);
       ctx.restore();
     }
+    ctx.helperSkip(false);
     this.hint = !c ? '' : this.up ? 'Now let your shoulders drop.' : this.lift > .55 ? 'Hold it up there…' : 'Lift both shoulders up to your ears.';
   }
 

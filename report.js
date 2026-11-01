@@ -223,7 +223,7 @@ export function showBreakReport(r, speak) {
       $('rep-causes-h').hidden = !total; $('rep-causes-h').textContent = 'Each stretch';
       $('rep-causes').innerHTML = r.poses.map(p => `<div class="cause"><span>${p.name}</span><i style="--w:${Math.round(p.best)}%"></i><b>${p.matched ? '✓' : p.skipped ? 'skip' : Math.round(p.best) + '%'}</b></div>`).join('');
       const miss = r.poses.find(p => !p.matched);
-      $('rep-tip').innerHTML = miss ? `<b>Try again later: ${miss.name}.</b> <span>Keep your arms in view and mirror the figure slowly.</span>` : '<b>Nicely done.</b> <span>Your shoulders and neck should feel looser now.</span>';
+      $('rep-tip').innerHTML = miss ? `<b>Give ${miss.name.toLowerCase()} another try later.</b> <span>Keep your arms in view and mirror the figure slowly.</span>` : '<b>Nicely done.</b> <span>Your shoulders and neck should feel looser now.</span>';
     }
     if (r.awayMs > 15000) line += ` You stepped away from your desk for ${r.awayMs < 60000 ? Math.round(r.awayMs / 1000) + ' seconds' : Math.round(r.awayMs / 60000) + ' min'}.`;
     set('report-title', title); set('report-line', line); set('report-len', `${len} break`);

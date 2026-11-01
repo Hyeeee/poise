@@ -104,7 +104,7 @@ export function describeWork(m) {
   return `${m.focus} min focus, ${SENSITIVITY[m.sensitivity].label.toLowerCase()} cues after ${m.delay}s${m.eyes ? ', eye care on' : ''}`;
 }
 export function describeBreak(m) {
-  if (m.style === 'breathe') return `${m.minutes} min reset: shoulder-drop breathing + eye rest`;
+  if (m.style === 'breathe') return `${m.minutes} min of slow breathing and eye rest`;
   if (m.style === 'game') return `${m.minutes} min movement game`;
   return `${m.count} guided stretch${m.count > 1 ? 'es' : ''}`;
 }

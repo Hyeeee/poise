@@ -24,6 +24,7 @@ mountPainting();
 })();
 import { startTour } from './tour.js';
 import { PostureAvatar } from './avatar.js';
+import { BreathFigure, drawFigure } from './figure.js';
 import { session as posture, showReport, breakLog, showBreakReport, POSTURE_SAY } from './report.js';
 
 const $ = id => document.getElementById(id);
@@ -37,6 +38,7 @@ const ICON = {
 const colors = { green: '#4fbf73', amber: '#f0a020', red: '#e5483d', idle: '#b3c2d8', white: '#e9e7df' };
 
 // ---------- State ----------
+const breathState = { mode: 'idle', level: 0 };   // Reset card figure: how full the breath is
 let session = 0, screen = 'work', stream, pose, face, loading = false, active = false;
 let landmarks = null, reference = null, lastFrame = -1, lastDetect = 0, lastFace = 0;
 let driftSince = 0, nearSince = 0, recoverAt = 0, lastState = 'idle', blinkTimes = [], eyesClosed = false, faceStart = 0;
@@ -69,13 +71,32 @@ function light(state, rgb, fast, tone) {
     serialBusy = true;
     writer.write(new TextEncoder().encode(msg + '\n'))
       .then(() => { lastSerial = msg; lastSerialTime = performance.now(); })
-      .catch(() => { writer = null; $('connect').classList.remove('on'); toast('Light bar disconnected'); })
+      .catch(() => { writer = null; $('connect').classList.remove('on'); toast('The light bar got disconnected.'); })
       .finally(() => { serialBusy = false; });
   }
 }
+// Feedback appears as a speech bubble next to the figure in the side panel, as if it were talking to you.
+// When no figure is on screen (welcome, camera off), it falls back to the small toast at the top.
+function bubbleHost() {
+  for (const sel of ['#work-panel:not([hidden]) #avatar-box', '#break-panel:not([hidden]) .reel-video', '#breathe-panel:not([hidden]) .breath-stage', '#game-panel:not([hidden]) .stage-box']) {
+    const el = document.querySelector(sel);
+    if (el && el.offsetParent !== null && el.offsetHeight > 0) return el;
+  }
+  return null;
+}
 function toast(msg) {
-  text('toast', msg); $('toast').hidden = false;
-  clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { $('toast').hidden = true; }, 4000);
+  const host = bubbleHost();
+  if (!host) {
+    text('toast', msg); $('toast').hidden = false;
+    clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { $('toast').hidden = true; }, 4000);
+    return;
+  }
+  $('toast').hidden = true;
+  let b = host.querySelector('.say-bubble');
+  if (!b) { b = document.createElement('div'); b.className = 'say-bubble'; b.setAttribute('role', 'status'); host.append(b); }
+  b.textContent = msg;
+  b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+  clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('show'), 3200);
 }
 let audio;
 function chime() {
@@ -515,7 +536,7 @@ function loop(now) {
         if (!sceneIssue) setChip('Tracking', true);
         camGoneSince = 0;
         avatar.setPresent(true);
-        if (camAway) { camAway = false; if (camPaused) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back'); } camPaused = false; }
+        if (camAway) { camAway = false; if (camPaused) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back.'); } camPaused = false; }
         if (screen === 'work') updateWork(landmarks, now);
         else if (store.brk().style === 'stretch') updateGame(landmarks, now);
         else if (store.brk().style === 'game') { moveGame.update(landmarks); mini.update(landmarks); }
@@ -528,6 +549,7 @@ function loop(now) {
         if (!camGoneSince) camGoneSince = now;
         if (!camAway && now - camGoneSince > 3000 && screen === 'work') {
           camAway = true; camPaused = timerRunning; timerRunning = false; renderPause(); light('idle');
+          toast(screen === 'work' ? 'I can’t see you, so I paused the timer.' : 'I can’t see you. Step back into view.');
           setChip('Away from desk');
         }
         avatar.setPresent(false);
@@ -538,7 +560,7 @@ function loop(now) {
       if (now - lastFace > 120) { updateFace(now); lastFace = now; }
     }
   } catch (e) {
-    stop(); toast('Tracking stopped. Turn the camera on to try again.'); return;
+    stop(); toast('Tracking stopped. Turn the camera back on to try again.'); return;
   }
   requestAnimationFrame(loop);
 }
@@ -565,14 +587,14 @@ function syncRef() {
 }
 function calibrate() {
   if (!active && sensor.live && sensor.cm > 0) return calibrateSensor();
-  if (!active || !visible(landmarks, [0, 11, 12])) { toast('Keep your head and both shoulders in view'); return false; }
+  if (!active || !visible(landmarks, [0, 11, 12])) { toast('Keep your head and both shoulders in view, then try again.'); return false; }
   reference = cue(landmarks); driftSince = 0; nearSince = 0;
   sensorRef = false;
   if (sensor.live && sensor.cm > 0) sensor.base = sensor.cm;
   syncRef();
   if (!posture.active) posture.reset();
   text('calibrate', 'Reset reference');
-  toast('Reference saved');
+  toast('Got it. That’s your reference now.');
   timerRunning = true; timerLast = performance.now(); renderPause();
   maybeTour();
   return true;
@@ -631,7 +653,7 @@ function showPose() {
 function advance(passed = false) {
   if (gameDone) return;
   if (passed) breakLog.matched(); else breakLog.skipped();
-  if (passed) { points += 100; perfect++; toast('Perfect  +100'); light('green'); }
+  if (passed) { points += 100; perfect++; toast('Perfect! That’s 100 points.'); light('green'); }
   round++; betweenUntil = performance.now() + 1500; showPose(); text('points', `${points} points`);
 }
 // Position-based estimates, normalized by shoulder width. No video is uploaded.
@@ -698,7 +720,7 @@ function updateGame(p, now) {
     holdStart = 0; $('hold-bar').style.width = '0'; text('match-score', '—'); light('idle');
     if (!missingSince) missingSince = now;
     text('hold-label', ['neck', 'shrug', 'turn'].includes(target.type) ? 'Keep your face and shoulders in view.' : 'Step back so your arms fit in the frame.');
-    if (now - missingSince > 6000) { toast('Arms out of view. Skipped.'); advance(); }
+    if (now - missingSince > 6000) { toast('I lost your arms, so let’s skip this one.'); advance(); }
     return;
   }
   missingSince = 0;
@@ -747,6 +769,7 @@ function startBreathe() {
   breakLog.start('breathe');
   resetShoulder = { base: null, now: null, best: 0, samples: [] };
   const orb = $('breath-orb');
+  breathState.mode = 'breathe'; breathState.level = 0;
   let inhale = true, phaseStart = 0, phaseEnd = 0, eyeStep = -1, breaths = 0;
   text('reset-cm', '—'); $('reset-bar').style.width = '0';
   const EYES = [
@@ -776,6 +799,7 @@ function startBreathe() {
       const k = Math.min(1, (now - phaseStart) / (phaseEnd - phaseStart));
       const level = inhale ? k : 1 - k;                      // 0 dim … 1 bright
       const lv = .5 - .5 * Math.cos(level * Math.PI);        // ease in and out
+      breathState.level = lv;
       light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)], 15);
       const s = resetShoulder;
       const drop = s.base != null && s.now != null ? Math.max(0, (s.now - s.top) * SHOULDER_CM) : 0;
@@ -784,10 +808,11 @@ function startBreathe() {
       text('reset-cm', s.base == null ? '—' : drop.toFixed(1));
       text('reset-count', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}`);
       $('reset-bar').style.width = Math.min(100, drop / 1.5 * 100) + '%';
-      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : inhale ? 'Breathing in: shoulders rise a little. This is the starting point.' : drop >= 1.5 ? 'Lovely. Your shoulders came down a long way from the top of your breath.' : 'Breathing out: let your shoulders sink. The number shows how far they come down.');
+      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : inhale ? 'As you breathe in, your shoulders rise a little. That’s where we start.' : drop >= 1.5 ? 'Lovely. Your shoulders came down a long way from the top of your breath.' : 'As you breathe out, let your shoulders sink. The number shows how far they drop.');
     } else {
       // Part 2: eye rest. Gentle steady glow on the bar.
       const step = Math.min(EYES.length - 1, Math.floor((t - eyesAt) / ((total - eyesAt) / EYES.length)));
+      breathState.mode = 'eyes';
       if (step !== eyeStep) { eyeStep = step; orb.classList.remove('in'); text('breath-cue', EYES[step][0]); text('breath-tip', EYES[step][1]); }
       light('idle', [90, 100, 85]);
       text('reset-count', 'Eye rest'); text('breath-metric', `${Math.ceil(left / 1000)}s left`);
@@ -795,7 +820,9 @@ function startBreathe() {
   };
   tick(); breathTimer = setInterval(tick, 120);
 }
-function stopBreathe() { clearInterval(breathTimer); breathTimer = null; }
+function stopBreathe() { clearInterval(breathTimer); breathTimer = null; breathState.mode = 'idle'; }
+// Reset card: the same figure breathes with you instead of the dot orb.
+new BreathFigure(document.querySelector('#breathe-panel .breath-stage'), { level: () => breathState.level, mode: () => breathState.mode });
 
 // ---------- Screens ----------
 let breakToured = null;
@@ -951,7 +978,7 @@ $('pref-silent').onchange = e => {
   store.update(s => { s.silent = e.target.checked; });
   if (e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
   syncSilent(); lastSerial = ''; light(lastState === 'idle' ? 'idle' : 'white');
-  toast(e.target.checked ? 'Silent test on. Light and voice are off.' : 'Silent test off');
+  toast(e.target.checked ? 'Silent test is on. The light and voice stay off.' : 'Silent test is off.');
 };
 function syncSilent() { $('silent-chip').hidden = !store.state.silent; }
 syncSilent();
@@ -1190,15 +1217,21 @@ function drawGameMap(g) {
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
   const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
   const cx = W / 2, cy = H * .5, u = W * .11;               // u = one shoulder-width on the map
-  // figure
-  c.strokeStyle = '#141412'; c.lineWidth = 3; c.lineCap = 'round'; c.fillStyle = '#141412';
-  c.beginPath(); c.arc(cx, cy - u * 1.05, u * .32, 0, Math.PI * 2); c.stroke();
-  c.beginPath(); c.moveTo(cx - u * .5, cy - u * .5); c.lineTo(cx + u * .5, cy - u * .5); c.lineTo(cx + u * .38, cy + u * .55); c.lineTo(cx - u * .38, cy + u * .55); c.closePath(); c.fill();
-  c.beginPath(); c.moveTo(cx - u * .25, cy + u * .55); c.lineTo(cx - u * .3, cy + u * 1.9); c.moveTo(cx + u * .25, cy + u * .55); c.lineTo(cx + u * .3, cy + u * 1.9); c.stroke();
+  // You: the same ink figure, with its arms following yours so you can see yourself reach for a bubble.
   const b = g.body;
-  if (!b) { c.fillStyle = '#6a6b64'; c.font = '500 13px Geist, sans-serif'; c.textAlign = 'center'; c.fillText(active ? 'Step back so your arms fit in view' : 'Bubbles will appear around you', cx, H - 22); return; }
+  const fs = u / 80, fy = cy - u * .5 + 116 * fs;           // figure units → map: shoulders on the map's shoulder line
   const aspect = (camera.videoWidth / camera.videoHeight) || 16 / 9;
-  const map = (x, y) => [cx - (x - b.cx) / b.w * u, cy - u * .5 + (y - b.cy) / b.w / aspect * u];   // mirrored like the camera
+  const map = b ? (x, y) => [cx - (x - b.cx) / b.w * u, cy - u * .5 + (y - b.cy) / b.w / aspect * u] : null;   // mirrored like the camera
+  const P = { eL: [-60, -66], wL: [-46, -8], eR: [60, -66], wR: [46, -8] };
+  if (b) {
+    const toFig = i => { const [x, y] = map(b.p[i].x, b.p[i].y); return [(x - cx) / fs, (y - fy) / fs]; };
+    if (b.ok(13)) P.eL = toFig(13); if (b.ok(15)) P.wL = toFig(15);
+    if (b.ok(14)) P.eR = toFig(14); if (b.ok(16)) P.wR = toFig(16);
+  }
+  c.save(); c.translate(cx, fy); c.scale(fs, fs);
+  drawFigure(c, { lean: 0, bend: 0, look: 0, head: 0, drop: 0, shrug: 0, ...P });
+  c.restore();
+  if (!b) { c.fillStyle = '#6a6b64'; c.font = '500 13px -apple-system, Inter, sans-serif'; c.textAlign = 'center'; c.fillText(active ? 'Step back so your arms fit in view' : 'Bubbles will appear around you', cx, H - 22); return; }
   // hands
   for (const i of [15, 16]) if (b.ok(i)) { const [x, y] = map(b.p[i].x, b.p[i].y); c.fillStyle = '#141412'; c.beginPath(); c.arc(x, y, 4, 0, Math.PI * 2); c.fill(); }
   const now = performance.now();
@@ -1330,7 +1363,7 @@ function calibrateSensor() {
   syncRef();
   if (!posture.active) posture.reset();
   text('calibrate', 'Reset reference');
-  toast('Sensor mode: tracking with the distance sensor');
+  toast('The distance sensor is keeping track now.');
   timerRunning = true; timerLast = performance.now(); renderPause();
   showSensorCard();
   setChip(`Sensor mode · ${sensor.cm} cm`, true);
@@ -1351,7 +1384,7 @@ $('sensor-mode').onclick = () => { if (screen !== 'work') setScreen('work'); cal
 sensor.on(() => {
   const now = performance.now();
   $('sensor-chip').hidden = false;
-  text('sensor-chip', sensor.cm > 0 ? `Distance from screen ${sensor.cm} cm` : 'Distance from screen — cm');
+  text('sensor-chip', sensor.cm > 0 ? `Distance from screen ${sensor.cm} cm` : 'Distance from screen');
   if (now - lastSensorTick > 180) { lastSensorTick = now; sensorTick(now); }
   sensorTap(now);
   // Camera off: switch to sensor mode on its own, so the bar and the session keep working.
@@ -1372,14 +1405,14 @@ function sensorTick(now) {
     if (screen === 'work') {
       pausedByAway = timerRunning; timerRunning = false; renderPause(); posture.pause(); light('idle');
       text('posture-state', 'Away'); text('posture-hint', 'Paused until you sit back down.');
-      toast('You stepped away, so I paused for you');
+      toast('You stepped away, so I paused for you.');
     }
     setChip('Away from desk');
   }
   if (away) { if (screen === 'break') breakAwayMs += 180; }
   if (away && backSince && now - backSince > 1500) {
     away = false; avatar.setPresent(true);
-    if (screen === 'work' && pausedByAway) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back'); }
+    if (screen === 'work' && pausedByAway) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back.'); }
     pausedByAway = false;
     setChip(active ? 'Tracking' : `Sensor mode · ${sensor.cm} cm`, true);
   }
@@ -1403,10 +1436,10 @@ function onSensorTap() {
     const style = store.brk().style;
     if (style === 'game' && !gameRunning()) maybeStartGame();
     else if (style === 'stretch') advance();
-    else toast('Wave noticed');
+    else toast('I saw your wave.');
   } else if (hasRef()) {
     timerRunning = !timerRunning; timerLast = performance.now(); renderPause();
-    toast(timerRunning ? 'Timer on (sensor tap)' : 'Timer paused (sensor tap)');
+    toast(timerRunning ? 'You tapped the sensor, so the timer is running.' : 'You tapped the sensor, so I paused the timer.');
   }
 }
 

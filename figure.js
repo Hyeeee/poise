@@ -68,3 +68,43 @@ export function drawFigure(ctx, P, { j = () => 0, ink = '#141412', paper = '#fbf
   }
   ctx.restore();
 }
+
+// Upper body placed in a box (waist at the bottom edge), used by the Reset breathing card.
+const REST_ARMS = { eL: [-58, -66], wL: [-40, -14], eR: [58, -66], wR: [40, -14] };
+export function drawSeated(ctx, w, h, P = {}, { fit = [240, 215], j } = {}) {
+  const s = Math.min(w / fit[0], h / fit[1]);
+  ctx.save(); ctx.translate(w / 2, h * 1.02); ctx.scale(s, s); ctx.translate(0, 8);
+  drawFigure(ctx, { lean: 0, bend: 0, look: 0, shrug: 0, head: 0, ...REST_ARMS, ...P }, { legs: false, j });
+  ctx.restore();
+}
+
+// Breathing figure: breathe in, shoulders rise and the chest opens; breathe out, they sink.
+// level() returns 0..1 (how full the breath is), mode() returns 'breathe' | 'eyes' | 'idle'.
+export class BreathFigure {
+  constructor(mount, { level, mode }) {
+    this.mount = mount; this.level = level; this.mode = mode;
+    this.cv = document.createElement('canvas'); this.cv.setAttribute('aria-hidden', 'true');
+    this.cv.className = 'breath-fig'; mount.append(this.cv);
+    this.ctx = this.cv.getContext('2d'); this.lv = 0; this.t = 0;
+    const loop = now => {
+      requestAnimationFrame(loop);
+      const dt = Math.min(.05, (now - (this.last || now)) / 1000); this.last = now; this.t += dt;
+      if (this.mount.offsetParent === null) return;
+      const r = this.mount.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+      if (this.cv.width !== Math.round(r.width * dpr) || this.cv.height !== Math.round(r.height * dpr)) { this.cv.width = Math.round(r.width * dpr); this.cv.height = Math.round(r.height * dpr); }
+      const c = this.ctx; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, r.width, r.height);
+      const m = this.mode(), target = m === 'breathe' ? this.level() : 0;
+      this.lv += (target - this.lv) * (1 - Math.pow(.01, dt));
+      // a soft halo behind the chest grows with the breath
+      const cx = r.width / 2, cy = r.height * .62, R = Math.min(r.width, r.height) * (.28 + this.lv * .14);
+      const g = c.createRadialGradient(cx, cy, R * .2, cx, cy, R);
+      g.addColorStop(0, `rgba(160, 214, 175, ${.15 + this.lv * .35})`); g.addColorStop(1, 'rgba(160, 214, 175, 0)');
+      c.fillStyle = g; c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2); c.fill();
+      // eye rest: the head looks slowly left and right
+      const look = m === 'eyes' ? Math.sin(this.t * .9) : 0;
+      drawSeated(c, r.width, r.height, { shrug: this.lv * 14, head: -this.lv * .04, look, breath: 0,
+        eL: [-58 - this.lv * 4, -66 - this.lv * 6], eR: [58 + this.lv * 4, -66 - this.lv * 6] }, { fit: [230, 220] });
+    };
+    requestAnimationFrame(loop);
+  }
+}

@@ -25,7 +25,7 @@ const QUESTIONS = [
     say: 'And when it is time to rest, what helps you reset?',
     options: [
       { label: 'Guided stretches', value: { style: 'stretch', count: 10 } },
-      { label: 'A calm reset: breathing + eye rest', value: { style: 'breathe', minutes: 2 } },
+      { label: 'A calm reset with breathing and eye rest', value: { style: 'breathe', minutes: 2 } },
       { label: 'A quick movement game', value: { style: 'game', minutes: 1 } },
     ],
   },
@@ -345,7 +345,7 @@ export function runOnboarding() {
         });
         const label = document.createElement('div');
         label.className = 'voice-label';
-        label.innerHTML = '<span class="vl-title">Voice</span>';
+        label.hidden = true;   // the icons and play marks already say what these are
         // Bars play on the selected card for as long as Poise is speaking.
         const syncPlaying = () => pick.querySelectorAll('.voice-opt').forEach(x => x.classList.toggle('playing', x.classList.contains('on') && orb.classList.contains('speaking')));
         new MutationObserver(syncPlaying).observe(orb, { attributes: true, attributeFilter: ['class'] });
