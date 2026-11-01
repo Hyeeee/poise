@@ -1446,8 +1446,9 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 .ls-marks button:hover { background: none !important; color: var(--ink) !important; }
 /* Start cards follow the app's green: camera (mint), light bar (sage-gold), reference (soft green-teal) */
 [data-tone="mint"]  { --g1: #c8ecb8; --g2: #d6efd0; --g-ink: #3f8a5c; }
-[data-tone="peach"] { --g1: #e3ecb4; --g2: #f3e3b0; --g-ink: #8a7a2e; }
-[data-tone="lilac"] { --g1: #bfe6d4; --g2: #d4ecc4; --g-ink: #3f7f6a; }
+/* Light bar and reference cards keep their original colours; only the first (camera) card is green. */
+[data-tone="peach"] { --g1: #ffd6a8; --g2: #ffc9d8; --g-ink: #b5772e; }
+[data-tone="lilac"] { --g1: #e3c9ff; --g2: #ffc9e8; --g-ink: #8457b8; }
 
 /* Speech bubble v3: ink-drawn like the figure, with a tail, following the head */
 body .say-bubble { position: absolute; left: 0 !important; top: 0 !important; right: auto !important; z-index: 5; max-width: 62% !important;
