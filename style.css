@@ -1069,3 +1069,37 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 #work-panel .session .meter.thin { margin: 0 0 10px !important; background: rgba(13,13,13,.08); }
 #work-panel #pause.round { background: rgba(13,13,13,.06) !important; }
 #work-panel #end-session { margin-top: 14px !important; width: 100%; }
+
+/* =====================================================================
+   Start cards v3: between steps the card itself stays put. The new card
+   fades in exactly on top of the old one (same size, so it reads as one
+   surface whose colour shifts), and only the content slides.
+   ===================================================================== */
+.studio .pop.empty { padding: 24px 26px 20px !important; }
+.studio .pop.empty .say { flex: none !important; margin: 0 0 24px !important; }
+.studio .pop.empty .pop-icon { margin-top: auto; }
+.studio .pop.empty .pop-actions { margin-top: auto; }
+.studio .pop.empty .privacy-note { margin: -14px 0 24px; }
+
+/* reset the earlier slide rules */
+.studio .pop.empty:not([hidden]), .studio .pop.empty[data-dir="back"]:not([hidden]),
+.studio .pop.empty:not([hidden]):not(.leaving) .pop-icon, .studio .pop.empty:not([hidden]):not(.leaving) .say { animation: none; }
+
+/* First card in / last card out: the whole card fades */
+.studio .pop.empty[data-dir="enter"]:not([hidden]):not(.leaving) { animation: popIn .6s cubic-bezier(.22,1,.36,1) both; }
+.studio .pop.empty.leaving[data-dir="enter"] { animation: popFade .3s ease both !important; }
+@keyframes popFade { to { opacity: 0; } }
+
+/* Between steps: surface cross-fades in place, content slides */
+.studio .pop.empty:is([data-dir="next"],[data-dir="back"]):not([hidden]):not(.leaving) { z-index: 6; animation: surfaceIn .42s ease both; }
+.studio .pop.empty.leaving:is([data-dir="next"],[data-dir="back"]) { z-index: 5; animation: none !important; }
+@keyframes surfaceIn { from { opacity: 0; } }
+.studio .pop.empty[data-dir="next"]:not(.leaving) :is(.pop-icon, .say, .privacy-note, .pop-actions) { animation: contentNext .55s cubic-bezier(.22,1,.36,1) both; }
+.studio .pop.empty[data-dir="back"]:not(.leaving) :is(.pop-icon, .say, .privacy-note, .pop-actions) { animation: contentBack .55s cubic-bezier(.22,1,.36,1) both; }
+.studio .pop.empty:not(.leaving) .say { animation-delay: .05s !important; }
+.studio .pop.empty:not(.leaving) .pop-actions { animation-delay: .1s !important; }
+.studio .pop.empty.leaving:is([data-dir="next"],[data-dir="back"]) :is(.pop-icon, .say, .privacy-note, .pop-actions) { animation: contentOut .2s ease both; }
+@keyframes contentNext { from { opacity: 0; transform: translateX(22px); filter: blur(2px); } }
+@keyframes contentBack { from { opacity: 0; transform: translateX(-22px); filter: blur(2px); } }
+@keyframes contentOut { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .studio .pop.empty, .studio .pop.empty * { animation: none !important; } }

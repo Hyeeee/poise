@@ -188,13 +188,13 @@ function setPop(id, show, dir = 1) {
   if (show) {
     if (!el.hidden && !el.classList.contains('leaving')) return;
     clearTimeout(el._leave);
-    el.classList.remove('leaving'); el.dataset.dir = dir > 0 ? 'next' : 'back';
+    el.classList.remove('leaving'); el.dataset.dir = dir === 0 ? 'enter' : dir > 0 ? 'next' : 'back';
     el.hidden = false;
     el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
   } else if (!el.hidden && !el.classList.contains('leaving')) {
-    el.dataset.dir = dir > 0 ? 'next' : 'back';
+    el.dataset.dir = dir === 0 ? 'enter' : dir > 0 ? 'next' : 'back';
     el.classList.add('leaving');
-    el._leave = setTimeout(() => { el.hidden = true; el.classList.remove('leaving'); }, 260);
+    el._leave = setTimeout(() => { el.hidden = true; el.classList.remove('leaving'); }, 420);
   }
 }
 // Small dots under each start card. The new card starts with the previous dot lit,
@@ -538,7 +538,8 @@ function syncRef() {
   const step = noticeOpen ? 'cam' : !open ? null : bar ? 'bar' : 'ref';
   if (step !== flowStep) {
     const from = flowSteps.indexOf(flowStep), to = flowSteps.indexOf(step);
-    const dir = from < 0 || to < 0 || to >= from ? 1 : -1;
+    // 0 = first card or closing the flow (whole card fades); ±1 = moving between steps (only the content moves).
+    const dir = from < 0 || to < 0 ? 0 : to >= from ? 1 : -1;
     for (const [k, id] of Object.entries(POP_FOR)) setPop(id, k === step, dir);
     if (step) renderSteps(POP_FOR[step], step, flowStep ? from : -1);
     flowStep = step;
