@@ -1103,3 +1103,7 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 @keyframes contentBack { from { opacity: 0; transform: translateX(-22px); filter: blur(2px); } }
 @keyframes contentOut { to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .studio .pop.empty, .studio .pop.empty * { animation: none !important; } }
+
+/* Inner boxes: no outline, the fill colour alone sets them apart. */
+.reel-video #reel-player, .stage-box, #breathe-panel .breath-stage, .reel-video { box-shadow: none !important; border: 0 !important; outline: 0 !important; }
+.timer-box { box-shadow: none !important; }
