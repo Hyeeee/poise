@@ -1231,3 +1231,6 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 #modes.drawer .pref-row small { white-space: nowrap; }
 #modes.drawer .editor { flex: none !important; }
 #modes.drawer .prefs .toggle span { white-space: nowrap; }
+#modes.drawer .pref-group { gap: 10px; }
+#modes.drawer .editor-foot { padding-top: 6px; }
+#modes.drawer .prefs { margin-top: 10px !important; padding-top: 14px; }
