@@ -951,3 +951,4 @@ body .pop.pop, body #ref-prompt.pop, #modes.drawer {
 .pop-steps button.on { width: 30px !important; cursor: default; }
 .pop-steps button.on::before { width: 18px; background: #0d0d0d; }
 #modes.drawer .sheet-head { background: rgba(255,255,255,.72); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+body .tour-card.pop::before { display: none; }
