@@ -2,6 +2,7 @@
 // Same interface the app used for the video player: load / replay / stop / suspend / resume.
 // Screen directions match what the user sees in their mirrored camera.
 
+import { drawFigure } from './figure.js';
 const $ = id => document.getElementById(id);
 const ICON = {
   play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z" fill="currentColor" stroke="none"/></svg>',
@@ -123,62 +124,7 @@ export class GuidePlayer {
     ctx.translate(w / 2, h * .62);
     ctx.scale(s, s);
     const INK = '#141412', PAPER = '#fbfaf6';
-    let n = 0;
-    const jp = p => [p[0] + this.j(n++), p[1] + this.j(n++)];
-
-    ctx.strokeStyle = INK; ctx.lineCap = 'round';
-    // Upper body pose transforms.
-    const lean = P.lean, drop = P.drop + P.breath;
-    const sh = (x, y) => [x + lean * (y + 120) * -0, y + drop + lean * 30];
-    const SL = sh(-40, -116 - P.shrug), SR = sh(40, -116 - P.shrug), NECK = sh(0, -124);
-
-    // Legs: black trousers, standing, feet hip-width apart.
-    ctx.fillStyle = INK;
-    this.poly([[-36, -10], [-3, -10], [-6, 60], [-10, 160], [-34, 160], [-38, 60]], jp);
-    this.poly([[36, -10], [3, -10], [6, 60], [10, 160], [34, 160], [38, 60]], jp);
-    ctx.fillStyle = PAPER; ctx.strokeStyle = INK; ctx.lineWidth = 2.4;
-    this.poly([[-34, 158], [-10, 158], [-6, 170], [-42, 170]], jp, true);
-    this.poly([[34, 158], [10, 158], [6, 170], [42, 170]], jp, true);
-    // Everything above the waist bends sideways around the waist.
-    ctx.save(); ctx.translate(0, -10); ctx.rotate(P.bend); ctx.translate(0, 10);
-
-    // Torso: narrow bare waist under a black crop top.
-    const top = -60 + drop * .6, lx = lean * 40;
-    ctx.fillStyle = PAPER; ctx.lineWidth = 2.4;
-    this.poly([[-30 + lx * .3, top + 4], [30 + lx * .3, top + 4], [32, -12], [-32, -12]], jp, true);
-    ctx.fillStyle = INK;
-    this.poly([[SL[0] + 2, SL[1] + 2], [NECK[0] - 10, NECK[1] + 8], [NECK[0] + 10, NECK[1] + 8], [SR[0] - 2, SR[1] + 2], [36 + lx * .3, top - 2], [33 + lx * .3, top + 6], [-33 + lx * .3, top + 6], [-36 + lx * .3, top - 2]], jp);
-
-    // Head on the neck, tilted.
-    const tilt = P.head, hx = NECK[0] + Math.sin(tilt) * 38 + P.look * 7, hy = NECK[1] - Math.cos(tilt) * 38;
-    this.limb(NECK, [NECK[0] + Math.sin(tilt) * 16, NECK[1] - Math.cos(tilt) * 16], 13, INK, PAPER, jp);
-    ctx.save();
-    ctx.translate(hx, hy); ctx.rotate(tilt);
-    ctx.fillStyle = PAPER; ctx.strokeStyle = INK; ctx.lineWidth = 2.4;
-    ctx.beginPath(); ctx.ellipse(this.j(n++, .5), this.j(n++, .5), 19, 23, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    // Hair cap with a soft side part, and a bun.
-    ctx.fillStyle = INK;
-    ctx.beginPath(); ctx.ellipse(0, 0, 20, 24, 0, Math.PI * 1.06, Math.PI * 1.96);
-    ctx.quadraticCurveTo(10, -16 + this.j(n++, .6), 2, -13); ctx.quadraticCurveTo(-10, -12, -19, -2); ctx.fill();
-    ctx.beginPath(); ctx.arc(this.j(n++, .4) - 2, -30, 9, 0, Math.PI * 2); ctx.fill();
-    // Closed eyes and a small nose line.
-    ctx.lineWidth = 1.8; ctx.beginPath();
-    const lk = P.look * 7;
-    ctx.moveTo(-11 + lk, 1); ctx.quadraticCurveTo(-7 + lk, 4, -3 + lk, 1);
-    ctx.moveTo(4 + lk, 1); ctx.quadraticCurveTo(8 + lk, 4, 12 + lk, 1);
-    ctx.moveTo(1 + lk * 1.3, 5); ctx.lineTo(lk * 1.3, 10); ctx.stroke();
-    ctx.restore();
-
-    // Arms last so crossing arms sit in front of the body. Draw the arm that crosses on top.
-    const L = [SL, sh(...P.eL), sh(...P.wL)], R = [SR, sh(...P.eR), sh(...P.wR)];
-    const order = [R, L];
-    for (const [s0, e, wr] of order) {
-      this.limb(s0, e, 11, INK, PAPER, jp);
-      this.limb(e, wr, 9, INK, PAPER, jp);
-      ctx.fillStyle = PAPER; ctx.strokeStyle = INK; ctx.lineWidth = 2.4;
-      ctx.beginPath(); ctx.ellipse(wr[0] + this.j(n++, .6), wr[1] + this.j(n++, .6), 5.5, 7.5, Math.atan2(wr[1] - e[1], wr[0] - e[0]) - Math.PI / 2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    }
-    ctx.restore();   // bend
+    drawFigure(ctx, P, { j: (i, a) => this.j(i, a), ink: INK, paper: PAPER });
     ctx.restore();
   }
   poly(pts, jp, stroke) {

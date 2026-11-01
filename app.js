@@ -23,7 +23,7 @@ mountPainting();
   document.body.classList.add('enter');
 })();
 import { startTour } from './tour.js';
-import { postureChart, bucket } from './chart.js';
+import { PostureAvatar } from './avatar.js';
 import { session as posture, showReport, breakLog, showBreakReport, POSTURE_SAY } from './report.js';
 
 const $ = id => document.getElementById(id);
@@ -420,6 +420,7 @@ function applyPosture(d, now, delta, widthRatio) {
   // Ignore the first ~12% of size change (normal shifting in the chair), then count it more gently.
   if (widthRatio) d = Math.max(d, Math.min(100, Math.round(Math.max(0, Math.abs(Math.log(widthRatio)) - .12) * 200)));
   live.d = live.d == null ? d : live.d * .6 + d * .4;
+  if (!silent()) avatar.set(delta, widthRatio || 1);
   // The number updates twice a second at most, so it reads calmly.
   if (now - (applyPosture.shown || 0) > 500) { applyPosture.shown = now; text('deviation', d); }
   $('deviation-bar').style.width = d + '%';
@@ -458,6 +459,7 @@ function applyPosture(d, now, delta, widthRatio) {
     if (store.state.voice) { shiftCause.key = null; shiftCause(delta, widthRatio); setTimeout(() => speak(POSTURE_SAY(shiftCause.key), $('state-agent')), store.work().chime ? 700 : 0); }
   }
   lastState = state; lastRgb = rgb; lastTone = tone;
+  avatar.setColor(silent() ? null : shirtFor(tone || (state === 'white' ? S_WHITE : null)));
   light(state, rgb, undefined, tone || (state === 'white' ? S_WHITE : null));
   // Say WHAT moved, not just that something did: the biggest part of the shift wins.
   let [title, hint] = STATE_COPY[state];
@@ -537,6 +539,7 @@ let barSkipped = false;
 const needBar = () => !writer && !barSkipped && ('serial' in navigator);
 const hasRef = () => !!reference || sensorRef;
 function syncRef() {
+  avatar.setActive(hasRef());
   $('studio').classList.toggle('no-ref', !hasRef() && screen === 'work');
   $('end-session').hidden = !hasRef();
   $('sensor-mode').hidden = true;
@@ -844,34 +847,11 @@ setInterval(() => {
   timerLast = now;
 }, 200);
 
-// ---------- Live posture chart ----------
-// One point a second while the focus timer runs. x = how far through the session (0..1),
-// so the line grows left to right like the timer, and dips whenever posture drifts.
-const live = { pts: [], d: null };
-function renderLive() {
-  const total = store.work().focus * 60, x = Math.min(1, Math.max(0, 1 - remaining / total));
-  const on = hasRef() && !silent();
-  if (on && timerRunning && live.d != null && screen === 'work') {
-    const lastPt = live.pts[live.pts.length - 1];
-    if (lastPt && x < lastPt.x - 1e-4) live.pts = [];        // timer was reset: new session
-    if (!lastPt || x > lastPt.x) live.pts.push({ x, d: live.d });
-  }
-  if (!hasRef()) live.pts = [];
-  const ymax = Math.max(30, threshold() * 2.5);
-  const pts = on ? bucket(live.pts, 160) : [];
-  const c = postureChart(pts, { ymax, cue: threshold() });
-  $('live-svg').innerHTML = c.svg;
-  const show = on && pts.length > 0;
-  $('live-dot').hidden = $('live-tip').hidden = !show;
-  if (show) {
-    $('live-dot').style.left = c.end.x + '%'; $('live-dot').style.top = c.end.y + '%';
-    const tx = Math.min(78, Math.max(22, c.end.x));
-    $('live-tip').style.left = tx + '%'; $('live-tip').style.top = c.end.y + '%';
-  }
-  $('live-cue-label').style.top = c.cueY + '%';
-  text('live-end', `${store.work().focus} min`);
-}
-setInterval(renderLive, 1000);
+// ---------- Avatar ----------
+// Upper-body figure that copies how you sit, over a dashed outline of your reference.
+const avatar = new PostureAvatar($('avatar-box'));
+const live = { d: null };
+const shirtFor = tone => tone ? `rgb(${mix(tone, [13, 13, 13], .28).join(',')})` : '#141412';
 
 // Keep panel text in sync with the current modes.
 function syncUI() {
