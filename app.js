@@ -1265,7 +1265,9 @@ if (Recognition) {
         an.getByteTimeDomainData(data);
         let sum = 0; for (const v of data) sum += (v - 128) ** 2;
         const lvl = Math.min(1, Math.sqrt(sum / data.length) / 28);
-        bars.forEach((b, i) => { b.style.transform = `scaleY(${.3 + lvl * [0.7, 1, 0.8][i] * (0.8 + Math.random() * .4)})`; });
+        // Same mark as the voice cards: a gentle idle wave, taller when you speak.
+        const t = performance.now() / 1000;
+        bars.forEach((b, i) => { const idle = .35 + .2 * (Math.sin(t * 6 + i * 1.1) + 1) / 2; b.style.transform = `scaleY(${Math.min(1, idle + lvl * [0.6, .8, .7][i])})`; });
         raf = requestAnimationFrame(tick);
       };
       tick();
