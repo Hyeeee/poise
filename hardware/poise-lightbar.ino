@@ -24,7 +24,7 @@ constexpr uint16_t LED_COUNT = 30;   // <- change to your strip's LED count
 constexpr uint8_t TRIG_L = 7, ECHO_L = 8;    // sensor on the screen's left
 constexpr uint8_t TRIG_R = 9, ECHO_R = 10;   // sensor on the screen's right
 constexpr bool    USE_SENSOR = true;  // <- false if the HC-SR04 isn't wired
-constexpr uint8_t BRIGHTNESS = 120;  // brighter, saturated colors; white is kept dim to stay within USB power
+constexpr uint8_t BRIGHTNESS = 255;  // full brightness by default. If the board resets or flickers on white, power the strip separately or lower this.
 
 // How fast the strip moves toward a new color each frame (every 20 ms).
 // 0.07 ≈ 0.6 s (snappy) · 0.03 ≈ 1.5 s (calm) · 0.015 ≈ 3 s (very slow)
