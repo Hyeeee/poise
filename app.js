@@ -1704,12 +1704,11 @@ async function togglePip() {
   </style>`;
   d.body.innerHTML = '<div class="fig"><canvas id="fig"></canvas></div><div class="txt"><b id="st"></b><span class="hint" id="hint"></span>'
     + '<span class="tm" id="tm"></span><div class="foot" id="live-foot"><button id="end">End session</button></div>'
-    + '<div class="foot" id="done-foot" hidden><button class="pri" id="go-break">Take a break</button><button id="see-report">See report</button></div></div>';
+    + '<div class="foot" id="done-foot" hidden><button class="pri" id="go-break">Take a break</button></div></div>';
   // Bring the main Poise tab forward (needs the click that just happened in the mini window).
   const toMain = () => { try { window.focus(); } catch {} };
   d.getElementById('end').onclick = () => $('end-session').click();
   d.getElementById('go-break').onclick = () => { if (!$('report').hidden) $('report-break').click(); else setScreen('break'); toMain(); };
-  d.getElementById('see-report').onclick = toMain;
   const cv = d.getElementById('fig'), pctx = cv.getContext('2d');
   const frame = now => {
     if (!pipWin || pipWin.closed) return;
