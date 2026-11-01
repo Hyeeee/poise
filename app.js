@@ -459,7 +459,6 @@ function applyPosture(d, now, delta, widthRatio) {
     if (store.state.voice) { shiftCause.key = null; shiftCause(delta, widthRatio); setTimeout(() => speak(POSTURE_SAY(shiftCause.key), $('state-agent')), store.work().chime ? 700 : 0); }
   }
   lastState = state; lastRgb = rgb; lastTone = tone;
-  avatar.setColor(silent() ? null : shirtFor(tone || (state === 'white' ? S_WHITE : null)));
   light(state, rgb, undefined, tone || (state === 'white' ? S_WHITE : null));
   // Say WHAT moved, not just that something did: the biggest part of the shift wins.
   let [title, hint] = STATE_COPY[state];
@@ -851,7 +850,6 @@ setInterval(() => {
 // Upper-body figure that copies how you sit, over a dashed outline of your reference.
 const avatar = new PostureAvatar($('avatar-box'));
 const live = { d: null };
-const shirtFor = tone => tone ? `rgb(${mix(tone, [13, 13, 13], .28).join(',')})` : '#141412';
 
 // Keep panel text in sync with the current modes.
 function syncUI() {
