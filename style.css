@@ -1448,3 +1448,17 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 [data-tone="mint"]  { --g1: #c8ecb8; --g2: #d6efd0; --g-ink: #3f8a5c; }
 [data-tone="peach"] { --g1: #e3ecb4; --g2: #f3e3b0; --g-ink: #8a7a2e; }
 [data-tone="lilac"] { --g1: #bfe6d4; --g2: #d4ecc4; --g-ink: #3f7f6a; }
+
+/* Speech bubble v3: ink-drawn like the figure, with a tail, following the head */
+body .say-bubble { position: absolute; left: 0 !important; top: 0 !important; right: auto !important; z-index: 5; max-width: 62% !important;
+  padding: 7px 12px !important; background: #fbfaf6 !important; color: #141412; font-size: 13px !important; font-weight: 500; line-height: 1.3;
+  border: 2px solid #141412; border-radius: 16px 18px 15px 17px / 17px 15px 18px 16px !important; box-shadow: none !important; white-space: nowrap;
+  opacity: 0; transition: opacity .3s ease; will-change: transform; }
+body .say-bubble.show { opacity: 1; }
+body .say-bubble::after { display: none !important; }
+.sb-text { display: block; animation: none; }
+.say-bubble.show .sb-text { animation: sbPop .45s cubic-bezier(.22,1.4,.36,1); }
+@keyframes sbPop { from { transform: scale(.85); opacity: 0; } }
+.sb-tail { position: absolute; left: 6px; bottom: -15px; width: 18px; height: 16px; overflow: visible; }
+.sb-tail path { fill: #fbfaf6; stroke: #141412; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.say-bubble.flip .sb-tail { left: auto; right: 6px; transform: scaleX(-1); }

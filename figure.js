@@ -41,6 +41,9 @@ export function drawFigure(ctx, P, { j = () => 0, ink = '#141412', paper = '#fbf
   const tilt = P.head || 0, look = P.look || 0, neckLen = 38 - fwd * 14, hs = 1 + fwd * .14;
   const hX = NECK[0] + hx * .65 + Math.sin(tilt) * neckLen + look * 7, hY = NECK[1] - Math.cos(tilt) * neckLen;
   limb(NECK, [NECK[0] + (hX - NECK[0]) * .42, NECK[1] + (hY - NECK[1]) * .42], 13);
+  // Remember where the head ended up on this canvas (device px), so a speech bubble can follow it.
+  try { const m = ctx.getTransform(), c = m.transformPoint(new DOMPoint(hX, hY)), t = m.transformPoint(new DOMPoint(hX + 24, hY));
+    if (ctx.canvas) ctx.canvas._head = { x: c.x, y: c.y, r: Math.hypot(t.x - c.x, t.y - c.y), at: performance.now() }; } catch {}
   ctx.save();
   ctx.translate(hX, hY); ctx.rotate(tilt); ctx.scale(hs, hs);
   ctx.fillStyle = paper; ctx.strokeStyle = ink; ctx.lineWidth = 2.4;

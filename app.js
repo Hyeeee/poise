@@ -93,10 +93,37 @@ function toast(msg) {
   }
   $('toast').hidden = true;
   let b = host.querySelector('.say-bubble');
-  if (!b) { b = document.createElement('div'); b.className = 'say-bubble'; b.setAttribute('role', 'status'); host.append(b); }
-  b.textContent = msg;
+  if (!b) {
+    b = document.createElement('div'); b.className = 'say-bubble'; b.setAttribute('role', 'status');
+    // Ink-drawn tail, same line weight as the figure.
+    b.innerHTML = '<span class="sb-text"></span><svg class="sb-tail" viewBox="0 0 22 18" aria-hidden="true"><path d="M2 0 C4 7 3 12 1 17 C8 13 13 8 15 0" /></svg>';
+    host.append(b);
+  }
+  b.querySelector('.sb-text').textContent = msg;
   b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
   clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('show'), 3200);
+  followHead(host, b);
+}
+// Keep the bubble just above and beside the figure's head, easing after it as the figure moves.
+function followHead(host, b) {
+  if (b._follow) return;
+  const step = () => {
+    if (!b.isConnected || !b.classList.contains('show')) { b._follow = 0; return; }
+    b._follow = requestAnimationFrame(step);
+    const cv = [...host.querySelectorAll('canvas')].find(c => c._head && performance.now() - c._head.at < 1000);
+    if (!cv) return;
+    const k = cv.getBoundingClientRect().width / cv.width, hr = host.getBoundingClientRect(), cr = cv.getBoundingClientRect();
+    const hx = cr.left - hr.left + cv._head.x * k, hy = cr.top - hr.top + cv._head.y * k, r = cv._head.r * k;
+    const bw = b.offsetWidth, bh = b.offsetHeight;
+    const right = hx + r * .7 + bw + 8 < hr.width;              // room on the right of the head?
+    let x = right ? hx + r * .7 : hx - r * .7 - bw, y = hy - r * 1.05 - bh;
+    x = Math.max(6, Math.min(hr.width - bw - 6, x)); y = Math.max(6, y);
+    b.classList.toggle('flip', !right);
+    const cur = b._pos || [x, y], e = b._pos ? .18 : 1;
+    b._pos = [cur[0] + (x - cur[0]) * e, cur[1] + (y - cur[1]) * e];
+    b.style.transform = `translate(${b._pos[0]}px, ${b._pos[1]}px)`;
+  };
+  b._follow = requestAnimationFrame(step);
 }
 let audio;
 function chime() {
