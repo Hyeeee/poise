@@ -1210,12 +1210,23 @@ if (Recognition) {
   const rec = new Recognition();
   rec.lang = navigator.languages?.some(l => l.startsWith('ko')) ? 'ko-KR' : 'en-US';
   rec.interimResults = false;
+  rec.continuous = true;           // keep listening between sentences
   $('mic').hidden = false;
-  rec.onresult = e => { spoken = true; send(e.results[0][0].transcript); };
-  rec.onend = rec.onerror = () => { $('mic').classList.remove('listening'); $('ask-orb').classList.remove('listening'); };
+  let listening = false;
+  const setUI = on => { $('mic').classList.toggle('listening', on); $('ask-orb').classList.toggle('listening', on); };
+  rec.onresult = e => {
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (!e.results[i].isFinal) continue;
+      const t = e.results[i][0].transcript.trim();
+      if (t) { spoken = true; send(t); }
+    }
+  };
+  // Browsers stop recognition after a pause or an error; start it again until the mic is turned off.
+  rec.onend = () => { if (listening) { try { rec.start(); } catch { listening = false; setUI(false); } } else setUI(false); };
+  rec.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { listening = false; setUI(false); } };
   $('mic').onclick = () => {
-    if ($('mic').classList.contains('listening')) { rec.stop(); return; }
-    try { rec.start(); $('mic').classList.add('listening'); $('ask-orb').classList.add('listening'); openThread(); } catch {}
+    if (listening) { listening = false; rec.stop(); setUI(false); return; }
+    try { rec.start(); listening = true; setUI(true); openThread(); } catch {}
   };
 }
 
