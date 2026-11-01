@@ -1601,3 +1601,8 @@ body .report-card.pop::before { display: none !important; }
 .suggest { overflow-x: auto !important; overflow-y: hidden; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent); }
 .suggest::-webkit-scrollbar { display: none; }
 .suggest button { flex: none !important; overflow: visible !important; text-overflow: clip !important; }
+/* Mic listening = the exact voice-card mark: 28px white circle, faint 1px ring, three 2px bars */
+#mic.listening { background: transparent !important; }
+#mic .mic-bars { width: 28px; height: 28px; border-radius: 50% !important; background: #fff; box-shadow: inset 0 0 0 1px rgba(13,13,13,.1);
+  gap: 2.5px; align-items: center; justify-content: center; color: var(--ink); }
+#mic .mic-bars i { width: 2px; height: 10px; opacity: .8; }
