@@ -513,6 +513,7 @@ function loop(now) {
         draw(landmarks);
         if (!sceneIssue) setChip('Tracking', true);
         camGoneSince = 0;
+        avatar.setPresent(true);
         if (camAway) { camAway = false; if (camPaused) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back'); } camPaused = false; }
         if (screen === 'work') updateWork(landmarks, now);
         else if (store.brk().style === 'stretch') updateGame(landmarks, now);
@@ -528,6 +529,7 @@ function loop(now) {
           camAway = true; camPaused = timerRunning; timerRunning = false; renderPause(); light('idle');
           setChip('Away from desk');
         }
+        avatar.setPresent(false);
         if (screen === 'work') { text('posture-state', camAway ? 'Away' : 'Paused'); text('posture-hint', camAway ? 'Paused until you sit back down.' : 'Move back into the frame to continue.'); text('deviation', '—'); }
         text('match-score', '—'); $('hold-bar').style.width = '0';
         if (!(screen === 'break' && store.brk().style === 'breathe')) light('idle');
@@ -1358,7 +1360,7 @@ function sensorTick(now) {
   if (isFar) { backSince = 0; if (!awaySince) awaySince = now; }
   else { awaySince = 0; if (!backSince) backSince = now; }
   if (!away && awaySince && now - awaySince > 3000) {
-    away = true;
+    away = true; avatar.setPresent(false);
     if (screen === 'work') {
       pausedByAway = timerRunning; timerRunning = false; renderPause(); posture.pause(); light('idle');
       text('posture-state', 'Away'); text('posture-hint', 'Paused until you sit back down.');
@@ -1368,7 +1370,7 @@ function sensorTick(now) {
   }
   if (away) { if (screen === 'break') breakAwayMs += 180; }
   if (away && backSince && now - backSince > 1500) {
-    away = false;
+    away = false; avatar.setPresent(true);
     if (screen === 'work' && pausedByAway) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back'); }
     pausedByAway = false;
     setChip(active ? 'Tracking' : `Sensor mode · ${sensor.cm} cm`, true);
@@ -1466,7 +1468,7 @@ async function togglePip() {
     if (cv.width !== Math.round(r.width * dpr) || cv.height !== Math.round(r.height * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); }
     pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     avatar.step(performance.now());
-    avatar.render(pctx, r.width, r.height);
+    avatar.render(pctx, r.width, r.height, { fit: [165, 205] });
     pipWin.requestAnimationFrame(frame);
   };
   pipWin.requestAnimationFrame(frame);
