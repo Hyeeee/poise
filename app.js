@@ -1441,30 +1441,43 @@ let pipWin = null, pipTimer = 0;
 async function togglePip() {
   if (pipWin && !pipWin.closed) { pipWin.close(); return; }
   if (!('documentPictureInPicture' in window)) { toast('The mini window works in Chrome or Edge on a computer'); return; }
-  try { pipWin = await documentPictureInPicture.requestWindow({ width: 300, height: 156 }); }
+  try { pipWin = await documentPictureInPicture.requestWindow({ width: 340, height: 150 }); }
   catch { toast('Could not open the mini window'); return; }
+  // Mini window: the same little figure on the left, the state in words on the right. Sans serif.
   const d = pipWin.document;
   d.head.innerHTML = `<style>
     *{box-sizing:border-box;margin:0}
-    body{font:14px/1.35 Newsreader,Georgia,serif;color:#23262b;background:#f4f2ee;padding:14px 16px;display:flex;flex-direction:column;gap:10px;height:100vh}
-    .top{display:flex;gap:10px;align-items:flex-start}
-    .dot{width:12px;height:12px;border-radius:50%;flex:none;margin-top:4px;box-shadow:0 0 12px currentColor}
-    b{font-weight:500} .hint{color:#6b6f75}
-    .row{display:flex;justify-content:space-between;font:12px/1 Geist,system-ui,sans-serif;color:#6b6f75}
-    .bar{height:4px;border-radius:2px;background:#e3e0da;overflow:hidden} .bar i{display:block;height:100%;background:#23262b;width:0;transition:width .4s}
+    html,body{height:100%}
+    body{font:14px/1.35 -apple-system,BlinkMacSystemFont,'SF Pro Text',Inter,'Segoe UI',sans-serif;letter-spacing:-.011em;color:#0d0d0d;
+      background:#fff;display:flex;gap:14px;align-items:center;padding:12px 16px 12px 12px;position:relative;overflow:hidden}
+    body::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,var(--sig) 0%,rgba(255,255,255,0) 75%);opacity:.55;transition:background 1.2s}
+    .fig{flex:none;width:96px;height:100%;max-height:126px;border-radius:14px;background:rgba(255,255,255,.75);overflow:hidden}
+    canvas{display:block;width:100%;height:100%}
+    .txt{min-width:0;display:flex;flex-direction:column;gap:3px}
+    b{font-size:16px;font-weight:600;letter-spacing:-.022em;line-height:1.2}
+    .hint{color:#5d5d5d;font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .tm{margin-top:6px;font-size:12px;color:#8f8f8f}
   </style>`;
-  d.body.innerHTML = '<div class="top"><span class="dot" id="dot"></span><p><b id="st"></b> <span class="hint" id="hint"></span></p></div><div class="bar"><i id="fill"></i></div><div class="row"><span id="dev"></span><span id="tm"></span></div>';
+  d.body.innerHTML = '<div class="fig"><canvas id="fig"></canvas></div><div class="txt"><b id="st"></b><span class="hint" id="hint"></span><span class="tm" id="tm"></span></div>';
+  const cv = d.getElementById('fig'), pctx = cv.getContext('2d');
+  const frame = now => {
+    if (!pipWin || pipWin.closed) return;
+    const r = cv.getBoundingClientRect(), dpr = Math.min(2, pipWin.devicePixelRatio || 1);
+    if (cv.width !== Math.round(r.width * dpr) || cv.height !== Math.round(r.height * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); }
+    pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    avatar.step(performance.now());
+    avatar.render(pctx, r.width, r.height);
+    pipWin.requestAnimationFrame(frame);
+  };
+  pipWin.requestAnimationFrame(frame);
   const tick = () => {
     if (!pipWin || pipWin.closed) return;
     const q = id => d.getElementById(id);
     q('st').textContent = $('posture-state').textContent;
     q('hint').textContent = $('posture-hint').textContent;
-    const dev = $('deviation').textContent;
-    q('dev').textContent = dev === '—' ? '' : `${dev}${$('dev-label').textContent}`;
     q('tm').textContent = `${$('timer').textContent} ${$('timer-unit').textContent}`;
-    q('fill').style.width = $('deviation-bar').style.width || '0';
     const c = getComputedStyle(document.documentElement).getPropertyValue('--signal').trim() || '#c9ccd1';
-    q('dot').style.background = c; q('dot').style.color = c;
+    d.body.style.setProperty('--sig', c);
   };
   tick(); clearInterval(pipTimer); pipTimer = setInterval(tick, 500);
   $('pip').classList.add('on');

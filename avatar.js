@@ -46,18 +46,26 @@ export class PostureAvatar {
   }
   setColor(c) { this.color = c || '#141412'; }
   setActive(on) { this.hasRef = on; if (!on) this.goal = { ...ZERO }; }
-  loop(now) {
-    requestAnimationFrame(this.loop);
-    if (!this.w || this.mount.offsetParent === null) return;
-    const dt = Math.min(.05, ((now - (this.last || now)) / 1000)); this.last = now; this.t += dt;
+  // Advance the easing. Safe to call from more than one loop (main page and mini window).
+  step(now) {
+    const dt = Math.min(.05, Math.max(0, (now - (this.last || now)) / 1000));
+    if (dt === 0 && this.last) return;
+    this.last = now; this.t += dt;
     const k = 1 - Math.pow(.02, dt);                                // smooth follow, ~1 s to settle
     for (const key in this.cur) this.cur[key] += (this.goal[key] - this.cur[key]) * k;
     this.seed = Math.floor(now / 220);
+  }
+  loop(now) {
+    requestAnimationFrame(this.loop);
+    this.step(now);
+    if (!this.w || this.mount.offsetParent === null) return;
     this.draw();
   }
   j(i, amp = .9) { const x = Math.sin((i + 1) * 12.9898 + this.seed * 78.233) * 43758.5453; return (x - Math.floor(x) - .5) * 2 * amp; }
-  draw() {
-    const { ctx, w, h } = this, c = this.cur;
+  draw() { this.render(this.ctx, this.w, this.h); }
+  // Draw into any 2D context (the panel, or the mini window's canvas).
+  render(ctx, w, h) {
+    const c = this.cur;
     ctx.clearRect(0, 0, w, h);
     const s = Math.min(w / 240, h / 215);
     const breath = Math.sin(this.t * 1.4) * 1.2;
