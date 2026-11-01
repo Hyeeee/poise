@@ -58,7 +58,7 @@
   <div id="lightbar" aria-hidden="true"></div>
 
   <header class="topbar">
-    <button id="home" class="brand" aria-label="Back to start"><span class="agent mini" data-shape="sphere" data-dots="44" data-dot="0.75" aria-hidden="true"></span>poise</button>
+    <button id="home" class="brand" aria-label="Back to start">poise</button>
     <nav class="segmented glass" aria-label="Mode">
       <button id="work" class="active">Focus</button>
       <button id="break">Break</button>
@@ -217,7 +217,7 @@
       <div class="suggest" id="suggest"></div>
     </div>
     <form class="askbar glass" id="ask-form" autocomplete="off">
-      <span class="agent mini" id="ask-orb" aria-hidden="true"></span>
+      <span class="agent mini" id="ask-orb" data-shape="sphere" aria-hidden="true"></span>
       <input id="ask-input" aria-label="Ask Poise" placeholder="Ask Poise to change anything">
       <button type="button" id="mic" class="icon-btn" aria-label="Speak instead" hidden>
         <svg viewBox="0 0 24 24"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v3"/></svg>
@@ -249,8 +249,8 @@
     <h3 class="drawer-h">Voice and light</h3>
     <div class="pref-group">
       <label class="pref-row"><span>Voice guidance<small>Spoken cues and summaries</small></span><span class="toggle"><input type="checkbox" id="pref-voice"></span></label>
-      <div class="pref-row" id="pref-voice-pick"><span>Voice</span><nav class="segmented" id="voice-seg"><button data-v="ava">Ava</button><button data-v="sonia">Sonia</button><button data-v="andrew">Andrew</button></nav></div>
-      <div class="pref-row" id="pref-bright"><span>Brightness<small>Light bar</small></span><nav class="segmented" id="bright-seg"><button data-b="25">Low</button><button data-b="50">Soft</button><button data-b="75">Mid</button><button data-b="100">Full</button></nav></div>
+      <div class="pref-row" id="pref-voice-pick"><span>Voice</span><div class="dd" id="voice-seg"><button type="button" class="dd-btn" aria-haspopup="menu" aria-expanded="false"><b>Ava</b><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button><div class="dd-menu" role="menu" hidden><button type="button" class="dd-item" data-v="ava">Ava</button><button type="button" class="dd-item" data-v="sonia">Sonia</button><button type="button" class="dd-item" data-v="andrew">Andrew</button></div></div></div>
+      <div class="pref-row" id="pref-bright"><span>Brightness<small>Light bar</small></span><div class="dd" id="bright-seg"><button type="button" class="dd-btn" aria-haspopup="menu" aria-expanded="false"><b>Full</b><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button><div class="dd-menu" role="menu" hidden><button type="button" class="dd-item" data-v="25">Low</button><button type="button" class="dd-item" data-v="50">Soft</button><button type="button" class="dd-item" data-v="75">Medium</button><button type="button" class="dd-item" data-v="100">Full</button></div></div></div>
       <label class="pref-row"><span>Background music</span><span class="toggle"><input type="checkbox" id="pref-music"></span></label>
     </div>
     <h3 class="drawer-h">Testing</h3>

@@ -987,17 +987,33 @@ function toggle(name, checked) { return `<label class="toggle"><input type="chec
 // Settings editor. Every choice is the same control: a segmented row of a few sensible values.
 // The mode itself is picked, added, renamed and deleted from one dropdown at the top.
 const CHOICES = {
-  focus: [[15, '15m'], [25, '25m'], [30, '30m'], [45, '45m'], [60, '1h']],
-  delay: [[3, '3s'], [5, '5s'], [10, '10s'], [20, '20s']],
-  count: [[3, '3'], [5, '5'], [10, '10']],
-  breathe: [[.5, '30s'], [1, '1m'], [2, '2m']],
-  game: [[1, '1m'], [2, '2m'], [3, '3m']],
+  focus: [[15, '15 min'], [25, '25 min'], [30, '30 min'], [45, '45 min'], [60, '1 hour'], [90, '1.5 hours'], [120, '2 hours']],
+  delay: [[3, '3 sec'], [5, '5 sec'], [10, '10 sec'], [20, '20 sec']],
+  count: [[3, '3 stretches'], [5, '5 stretches'], [10, '10 stretches']],
+  breathe: [[.5, '30 sec'], [1, '1 min'], [2, '2 min'], [5, '5 min']],
+  game: [[1, '1 min'], [2, '2 min'], [3, '3 min']],
 };
 function numSeg(key, opts, value, label) {
   const list = opts.some(([v]) => v === value) ? opts : [...opts, [value, label(value)]].sort((a, b) => a[0] - b[0]);
-  return `<div class="segmented" role="group" data-num="${key}">${list.map(([v, l]) => `<button type="button" data-v="${v}" class="${v === value ? 'active' : ''}">${l}</button>`).join('')}</div>`;
+  return ddHTML('n:' + key, list, value);
 }
 const CHEV = '<svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg>';
+// One dropdown for every choice in Settings: a small button showing the value, a menu with a check on the current one.
+function ddHTML(key, opts, value) {
+  const cur = opts.find(([v]) => String(v) === String(value)) || opts[0];
+  return `<div class="dd" data-dd="${key}"><button type="button" class="dd-btn" aria-haspopup="menu" aria-expanded="false"><b>${cur[1]}</b>${CHEV}</button>
+    <div class="dd-menu" role="menu" hidden>${opts.map(([v, l]) => `<button type="button" role="menuitemradio" data-v="${v}" aria-checked="${String(v) === String(value)}" class="dd-item${String(v) === String(value) ? ' on' : ''}">${l}</button>`).join('')}</div></div>`;
+}
+function wireDD(dd, pick) {
+  const btn = dd.querySelector('.dd-btn'), menu = dd.querySelector('.dd-menu');
+  btn.onclick = e => { e.stopPropagation(); const show = menu.hidden; closeDDs(); menu.hidden = !show; dd.classList.toggle('open', show); btn.setAttribute('aria-expanded', show); };
+  menu.addEventListener('click', e => { const it = e.target.closest('.dd-item[data-v]'); if (!it) return; closeDDs(); pick(it.dataset.v, it); });
+}
+function setDD(dd, value) {
+  dd.querySelectorAll('.dd-item[data-v]').forEach(it => { const on = it.dataset.v === String(value); it.classList.toggle('on', on); it.setAttribute('aria-checked', on); if (on) dd.querySelector('.dd-btn b').textContent = it.textContent; });
+}
+function closeDDs() { document.querySelectorAll('.dd').forEach(d => { d.classList.remove('open'); const m = d.querySelector('.dd-menu'); if (m) m.hidden = true; d.querySelector('.dd-btn')?.setAttribute('aria-expanded', 'false'); }); }
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.dd')) closeDDs(); });
 function renderEditor() {
   const ed = $('editor');
   const m = tab === 'work' ? store.work() : store.brk();
@@ -1017,27 +1033,29 @@ function renderEditor() {
       </div>
     </div></div>`;
   if (tab === 'work') {
-    html += field('Focus length', numSeg('focus', CHOICES.focus, m.focus, v => v + 'm'));
-    html += field('Sensitivity', segmented('sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
-    html += field('Strong cue after', numSeg('delay', CHOICES.delay, m.delay, v => v + 's'));
+    html += field('Focus length', numSeg('focus', CHOICES.focus, m.focus, v => v + ' min'));
+    html += field('Sensitivity', ddHTML('s:sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
+    html += field('Strong cue after', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
     html += field('Chime', toggle('chime', m.chime));
   } else {
-    html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
-    html += m.style === 'stretch' ? field('Stretches', numSeg('count', CHOICES.count, m.count, v => String(v)))
-      : field('Length', numSeg('minutes', CHOICES[m.style], m.minutes, v => v < 1 ? v * 60 + 's' : v + 'm'));
+    html += field('Style', ddHTML('s:style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
+    html += m.style === 'stretch' ? field('Stretches', numSeg('count', CHOICES.count, m.count, v => v + ' stretches'))
+      : field('Length', numSeg('minutes', CHOICES[m.style], m.minutes, v => v < 1 ? v * 60 + ' sec' : v + ' min'));
     html += field('Start automatically', toggle('auto', m.auto));
   }
   ed.innerHTML = `<div class="group">${html}</div><p class="editor-foot"><span class="sub">${tab === 'work' ? describeWork(m) : describeBreak(m)}</span></p>`;
 
   ed.querySelectorAll('input[type=checkbox]').forEach(inp => inp.onchange = () => patchMode(tab, { [inp.dataset.k]: inp.checked }));
   ed.querySelectorAll('[data-seg] button').forEach(b => b.onclick = () => { patchMode(tab, { [b.parentElement.dataset.seg]: b.dataset.v }); renderEditor(); });
-  ed.querySelectorAll('[data-num] button').forEach(b => b.onclick = () => { patchMode(tab, { [b.parentElement.dataset.num]: Number(b.dataset.v) }); renderEditor(); });
+  ed.querySelectorAll('.dd[data-dd]').forEach(dd => wireDD(dd, v => {
+    const [kind, key] = dd.dataset.dd.split(':');
+    patchMode(tab, { [key]: kind === 'n' ? Number(v) : v }); renderEditor();
+  }));
 
   // Mode dropdown
   const dd = $('mode-dd'), btn = dd.querySelector('.dd-btn'), menu = dd.querySelector('.dd-menu'), name = dd.querySelector('.dd-name');
   const open = on => { menu.hidden = !on; btn.setAttribute('aria-expanded', on); dd.classList.toggle('open', on); };
-  btn.onclick = e => { e.stopPropagation(); open(menu.hidden); };
-  $('modes').onpointerdown = e => { if (!$('mode-dd')?.contains(e.target)) open(false); };
+  btn.onclick = e => { e.stopPropagation(); const show = menu.hidden; closeDDs(); open(show); };
   menu.onclick = e => {
     const it = e.target.closest('.dd-item'); if (!it) return;
     open(false);
@@ -1070,8 +1088,10 @@ $('pref-voice').onchange = e => {
 };
 function syncVoicePick() {
   $('pref-voice-pick').classList.toggle('dim', !store.state.voice);
-  document.querySelectorAll('#voice-seg button').forEach(b => b.classList.toggle('active', b.dataset.v === (store.state.voiceId || 'ava')));
+  setDD($('voice-seg'), store.state.voiceId || 'ava');
 }
+wireDD($('voice-seg'), () => {});        // picks are handled by the click listener below
+wireDD($('bright-seg'), () => {});
 $('voice-seg').addEventListener('click', e => {
   const b = e.target.closest('button[data-v]'); if (!b) return;
   store.update(s => { s.voiceId = b.dataset.v; s.voice = true; });
@@ -1080,11 +1100,11 @@ $('voice-seg').addEventListener('click', e => {
 });
 // Light bar brightness: pick a level, the light updates on its next message (within a frame).
 function syncBright() {
-  document.querySelectorAll('#bright-seg button').forEach(b => b.classList.toggle('active', +b.dataset.b === (store.state.brightness ?? 100)));
+  setDD($('bright-seg'), store.state.brightness ?? 100);
 }
 $('bright-seg').addEventListener('click', e => {
-  const b = e.target.closest('button[data-b]'); if (!b) return;
-  store.update(s => { s.brightness = +b.dataset.b; }); syncBright();
+  const b = e.target.closest('.dd-item[data-v]'); if (!b) return;
+  store.update(s => { s.brightness = +b.dataset.v; }); syncBright();
   lastSerial = null;                                   // force the new level to be sent right away
 });
 syncBright();

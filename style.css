@@ -1527,3 +1527,7 @@ body .report-card.pop::before { display: none !important; }
 .dd-item.danger-item { color: #b2463b; }
 .dd-sep { display: block; height: 1px; margin: 5px 6px; background: rgba(13,13,13,.08); }
 #modes.drawer .group { overflow: visible; }
+/* Settings: every choice is a dropdown; give them a steady width so rows line up */
+#modes.drawer .dd-btn { min-width: 132px; justify-content: space-between !important; }
+#modes.drawer .field .dd, #modes.drawer .pref-row .dd { justify-self: end; }
+.brand { padding-left: 6px !important; }
