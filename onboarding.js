@@ -321,7 +321,7 @@ export function runOnboarding() {
     }
 
     function intro() {
-      const hello = 'Hi, I’m Poise. A few quick questions so your breaks fit the way you work.';
+      const hello = 'Hi, I’m Poise. Let’s set things up. First, pick a voice.';
       show(hello, () => {
         const pick = document.createElement('div');
         pick.className = 'voice-pick';
@@ -354,7 +354,7 @@ export function runOnboarding() {
         const label = document.createElement('div');
         label.className = 'voice-label';
         // After the intro, one short line asks for a voice before moving on.
-        label.innerHTML = '<span class="vl-ask">First, pick a voice.</span>';
+        label.hidden = true;   // the intro line already asks for a voice
         // Bars play on the selected card for as long as Poise is speaking.
         const syncPlaying = () => pick.querySelectorAll('.voice-opt').forEach(x => x.classList.toggle('playing', x.classList.contains('on') && orb.classList.contains('speaking')));
         new MutationObserver(syncPlaying).observe(orb, { attributes: true, attributeFilter: ['class'] });
