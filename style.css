@@ -1612,3 +1612,4 @@ body .report-card.pop::before { display: none !important; }
 .agent, .agent.hero, .setup-stage .agent { color: #1e1f1c !important; }
 .suggest button, .suggest button:hover { box-shadow: none !important; border: 0 !important; }
 #rep-causes-h, #rep-causes { display: none !important; }
+body .say-bubble { font-weight: 600 !important; }

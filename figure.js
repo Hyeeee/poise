@@ -55,15 +55,16 @@ export function drawFigure(ctx, P, { j = () => 0, ink = '#141412', paper = '#fbf
   // Closed eyes and a small nose line.
   ctx.lineWidth = 1.8; ctx.beginPath();
   const lk = look * 7;
-  ctx.moveTo(-11 + lk, 3); ctx.quadraticCurveTo(-7 + lk, 6, -3 + lk, 3);
-  ctx.moveTo(4 + lk, 3); ctx.quadraticCurveTo(8 + lk, 6, 12 + lk, 3);
-  ctx.moveTo(1 + lk * 1.3, 7); ctx.lineTo(lk * 1.3, 12); ctx.stroke();
+  // Face sits a little higher in the head so the mouth has room above the chin.
+  ctx.moveTo(-11 + lk, 0); ctx.quadraticCurveTo(-7 + lk, 3, -3 + lk, 0);
+  ctx.moveTo(4 + lk, 0); ctx.quadraticCurveTo(8 + lk, 3, 12 + lk, 0);
+  ctx.moveTo(1 + lk * 1.3, 4); ctx.lineTo(lk * 1.3, 9); ctx.stroke();
   // Mouth (only when asked for): a soft closed line, opening into a round "o" when breathing out.
   if (P.mouth != null) {
     const o = Math.max(0, Math.min(1, P.mouth)), mx = lk * 1.3 + .5;
     ctx.beginPath();
-    if (o < .15) { ctx.moveTo(mx - 4, 17.5); ctx.quadraticCurveTo(mx, 19, mx + 4, 17.5); ctx.stroke(); }
-    else { ctx.fillStyle = ink; ctx.ellipse(mx, 18.5, 2 + o * 1.2, 1.1 + o * 1.7, 0, 0, Math.PI * 2); ctx.fill(); }   // small 'o', clear of the nose
+    if (o < .15) { ctx.moveTo(mx - 4, 13.5); ctx.quadraticCurveTo(mx, 15, mx + 4, 13.5); ctx.stroke(); }
+    else { ctx.fillStyle = ink; ctx.ellipse(mx, 14.5, 2 + o * 1.2, 1.1 + o * 1.7, 0, 0, Math.PI * 2); ctx.fill(); }   // small 'o', clear of the nose
   }
   ctx.restore();
 
