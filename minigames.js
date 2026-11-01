@@ -14,10 +14,10 @@ const vis = (p, i) => p && p[i] && (p[i].visibility ?? 1) > .4;
 const ink = '#141412', paper = '#fbfaf6';
 
 export const GAMES = {
-  bubbles: { chip: 'Bubbles', title: 'Pop the bubbles', tip: 'Reach up, out and down to pop them with your hands. Gold ones are for your head, so lean over to touch them.' },
-  boat: { chip: 'Boat', title: 'Sail the stream', tip: 'Lean your upper body left and right to steer the paper boat. Miss the stones, catch the drops.' },
-  bells: { chip: 'Bells', title: 'Ring the bells', tip: 'Lift both shoulders up toward your ears, hold for a beat, then let them drop. Each full lift rings a bell.' },
-  seeds: { chip: 'Seeds', title: 'Follow the seeds', tip: 'Turn and tilt your head to bring the circle onto a drifting seed, then hold it there.' },
+  bubbles: { chip: 'Bubbles', title: 'Pop the bubbles', tip: 'Reach out with your hands to pop them.' },
+  boat: { chip: 'Boat', title: 'Sail the stream', tip: 'Lean left and right to catch the drops.' },
+  bells: { chip: 'Bells', title: 'Ring the bells', tip: 'Lift your shoulders, then drop to ring.' },
+  seeds: { chip: 'Seeds', title: 'Follow the seeds', tip: 'Move your head to reach the seed.' },
 };
 
 export class MiniGame {

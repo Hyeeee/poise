@@ -659,16 +659,16 @@ function calibrate() {
 // Each target matches the visible direction and movement in its video segment.
 const poses = [
   // Standing stretches, chosen so the arms never cover each other: the camera sees every joint.
-  { name: 'Side reach, left', tip: 'Stand tall. Raise both arms overhead and lean gently to the left of your mirror.', type: 'side', side: 'left' },
-  { name: 'Side reach, right', tip: 'Now the other way. Arms overhead, lean to the right of your mirror.', type: 'side', side: 'right' },
-  { name: 'Neck release, right', tip: 'Soften your shoulders. Tip your head right and slightly forward.', type: 'neck', target: 18 },
-  { name: 'Neck release, left', tip: 'Now to the left. Stay within a comfortable range.', type: 'neck', target: -18 },
-  { name: 'Overhead reach', tip: 'Stand tall and reach both arms straight up. Grow taller through your fingertips.', type: 'reach' },
-  { name: 'T-arms', tip: 'Open both arms straight out to the sides at shoulder height. Keep your shoulders low.', type: 'tee' },
-  { name: 'Shoulder shrug', tip: 'Lift both shoulders up toward your ears, hold, then let them drop.', type: 'shrug' },
-  { name: 'Look left', tip: 'Keep your shoulders still and turn your head slowly to the left of your mirror.', type: 'turn', side: 'left' },
-  { name: 'Look right', tip: 'Now turn your head slowly to the right of your mirror.', type: 'turn', side: 'right' },
-  { name: 'Chest opener', tip: 'Elbows out at shoulder height, hands up like a goalpost. Squeeze your shoulder blades together.', type: 'wings' },
+  { name: 'Side reach, left', tip: 'Arms up, lean gently to the left.', type: 'side', side: 'left' },
+  { name: 'Side reach, right', tip: 'Arms up, lean gently to the right.', type: 'side', side: 'right' },
+  { name: 'Neck release, right', tip: 'Tip your head gently to the right.', type: 'neck', target: 18 },
+  { name: 'Neck release, left', tip: 'Tip your head gently to the left.', type: 'neck', target: -18 },
+  { name: 'Overhead reach', tip: 'Reach both arms straight up.', type: 'reach' },
+  { name: 'T-arms', tip: 'Arms out to the sides, shoulders low.', type: 'tee' },
+  { name: 'Shoulder shrug', tip: 'Lift your shoulders, then let them drop.', type: 'shrug' },
+  { name: 'Look left', tip: 'Turn your head slowly to the left.', type: 'turn', side: 'left' },
+  { name: 'Look right', tip: 'Turn your head slowly to the right.', type: 'turn', side: 'right' },
+  { name: 'Chest opener', tip: 'Hands up like a goalpost, chest open.', type: 'wings' },
 ];
 let holdAcc = 0, holdLast = 0;
 let queue = [], round = 0, points = 0, perfect = 0, holdStart = 0, missingSince = 0, betweenUntil = 0, gameDone = false, guidePlaying = false, poseStarted = 0;
@@ -828,9 +828,9 @@ function startBreathe() {
   let inhale = true, phaseStart = 0, phaseEnd = 0, eyeStep = -1, breaths = 0;
   text('reset-cm', '—'); $('reset-bar').style.width = '0';
   const EYES = [
-    ['Look far away', 'Find something at least 6 m (20 ft) away and rest your eyes on it.'],
-    ['Blink slowly', 'Close your eyes fully, then open. Do it slowly, a few times.'],
-    ['Look around', 'Look up, down, left and right without moving your head.'],
+    ['Look far away', 'Rest your eyes on something far away.'],
+    ['Blink slowly', 'Close your eyes fully, a few times.'],
+    ['Look around', 'Move only your eyes, all around.'],
   ];
   const tick = () => {
     const now = performance.now(), t = now - began, left = Math.max(0, total - t);
@@ -858,7 +858,7 @@ function startBreathe() {
       light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)], 15);
       const s = resetShoulder;
       const drop = s.base != null && s.now != null ? Math.max(0, (s.now - s.top) * SHOULDER_CM) : 0;
-      text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Breathe out and let your shoulders sink down, away from your ears.');
+      text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Breathe out and let your shoulders sink.');
       // Same layout as stretching: big number = how far your shoulders have relaxed, bar = toward a 2 cm goal.
       text('reset-cm', s.base == null ? '—' : drop.toFixed(1));
       text('reset-count', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}`);
