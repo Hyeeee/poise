@@ -1346,3 +1346,6 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 @media (max-width: 640px) { .len-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 #empty-camera.sensor-on #cam-off-sensor { display: none !important; }
 #work-panel #posture-hint { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Playing mark: same quiet circle as the play button, just with soft bars in it */
+.voice-opt.playing .vo-play { background: #fff !important; color: var(--ink) !important; box-shadow: inset 0 0 0 1px rgba(13,13,13,.1) !important; transform: none !important; }
+.voice-opt.playing .vo-play i { width: 2px !important; opacity: .8; }
