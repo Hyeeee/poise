@@ -1613,3 +1613,7 @@ body .report-card.pop::before { display: none !important; }
 .suggest button, .suggest button:hover { box-shadow: none !important; border: 0 !important; }
 #rep-causes-h, #rep-causes { display: none !important; }
 body .say-bubble { font-weight: 600 !important; }
+/* Less space between the figure box and the timer row */
+.avatar-box { margin-bottom: 0 !important; }
+#work-panel .state { padding-bottom: 4px !important; }
+#work-panel .session { padding-top: 10px !important; }
