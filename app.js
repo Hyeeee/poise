@@ -181,7 +181,7 @@ function stop() {
   $('stop').classList.remove('on'); $('stop').setAttribute('aria-label', 'Turn camera on');
   setChip('Camera off');
   text('deviation', '—'); text('blinks', '—'); text('distance', '—'); text('match-score', '—');
-  text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); text('calibrate', 'Set reference');
+  text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay, then save it.'); text('calibrate', 'Set reference');
   $('hold-bar').style.width = '0'; $('deviation-bar').style.width = '0';
   renderPause(); light('idle');
   if (sensor.live && !sensorRef) calibrateSensor(); else showSensorCard();   // camera off + sensor: straight to sensor mode
@@ -370,24 +370,24 @@ function shiftCause(delta, widthRatio = 1) {
   if (size < .05) return null;
   shiftCause.key = key;
   return {
-    close: ['Too close to the screen', 'Sit back a little, about an arm’s length away.'],
-    far: ['Too far from the screen', 'Move a little closer so you don’t lean in to read.'],
-    forward: ['Leaning forward', 'Bring your head back over your shoulders.'],
-    side: ['Tilting to one side', 'Center your head between your shoulders.'],
+    close: ['Too close to the screen', 'Sit back about an arm’s length.'],
+    far: ['Too far from the screen', 'Come a little closer to the screen.'],
+    forward: ['Leaning forward', 'Head back over your shoulders.'],
+    side: ['Tilting to one side', 'Bring your head back to center.'],
     shoulders: ['Uneven shoulders', 'Let both shoulders drop evenly.'],
-    slouch: ['Slouching back', 'Sit up and bring your shoulders back up to where they were.'],
+    slouch: ['Slouching back', 'Sit up a little taller.'],
   }[key];
 }
 
 const STATE_COPY = {
   white: ['Aligned', 'Close to your reference.'],
   green: ['Back in balance', 'Nice correction.'],
-  amber: ['Drifting', 'A small shift. Settle back when you can.'],
-  red: ['Reset your posture', 'You have been out of position for a while.'],
+  amber: ['Drifting', 'Settle back when you can.'],
+  red: ['Reset your posture', 'You’ve been off for a while.'],
 };
 
 function updateWork(p, now) {
-  if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); return; }
+  if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay, then save it.'); return; }
   const c = cue(p);
   // If the ears were visible when the reference was saved but aren't now (or the other way round),
   // the head point moved source, so take a fresh baseline for the head.
@@ -493,10 +493,10 @@ function applyPosture(d, now, delta, widthRatio) {
     const c = shiftCause(delta, widthRatio);
     if (c) {
       title = c[0];
-      hint = state === 'red' ? `${c[1]} You've been like this for a while.` : state === 'amber' ? c[1] : `A small shift. ${c[1]}`;
+      hint = c[1];   // one short line; how long it's been shows in the colour, not in more words
     }
   }
-  if (silent()) { title = 'Silent test'; hint = 'Tracking quietly. The light and voice are off.'; text('deviation', '—'); $('deviation-bar').style.width = '0'; }
+  if (silent()) { title = 'Silent test'; hint = 'Tracking quietly, light and voice off.'; text('deviation', '—'); $('deviation-bar').style.width = '0'; }
   text('posture-state', title); text('posture-hint', hint);
   // Session analysis (only while the focus timer runs).
   if (timerRunning) posture.record(now, d, state, delta, widthRatio);
