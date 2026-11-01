@@ -1610,3 +1610,4 @@ body .report-card.pop::before { display: none !important; }
 .thread .messages { flex: 1 1 auto; min-height: 0; }
 .thread .suggest { flex: none !important; min-height: 44px; align-items: center; padding: 6px 0 2px !important; }
 .agent, .agent.hero, .setup-stage .agent { color: #1e1f1c !important; }
+.suggest button, .suggest button:hover { box-shadow: none !important; border: 0 !important; }
