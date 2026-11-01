@@ -1608,7 +1608,7 @@ let pipWin = null, pipTimer = 0;
 async function togglePip() {
   if (pipWin && !pipWin.closed) { pipWin.close(); return; }
   if (!('documentPictureInPicture' in window)) { toast('The mini window works in Chrome or Edge on a computer'); return; }
-  try { pipWin = await documentPictureInPicture.requestWindow({ width: 330, height: 184 }); }
+  try { pipWin = await documentPictureInPicture.requestWindow({ width: 340, height: 150 }); }
   catch { toast('Could not open the mini window'); return; }
   // Mini window: the same little figure on the left, the state in words on the right. Sans serif.
   const d = pipWin.document;
@@ -1624,7 +1624,7 @@ async function togglePip() {
     b{font-size:16px;font-weight:600;letter-spacing:-.022em;line-height:1.2}
     .hint{color:#5d5d5d;font-size:13px;line-height:1.35}
     .txt{flex:1;min-width:0;height:calc(100vh - 24px);display:flex;flex-direction:column;overflow:hidden;padding:0}
-    .fig{height:calc(100vh - 24px)!important;max-height:none!important}
+    .fig{height:calc(100vh - 24px)!important;width:calc(100vh - 24px)!important;max-height:none!important}
     .tm{margin-top:4px}
     .foot{margin-top:auto!important}
     #live-foot{align-items:stretch}
