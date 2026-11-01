@@ -1167,3 +1167,13 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 .fc-sub .mode-name { flex: none; color: var(--ink-2) !important; }
 .fc-sub .mode-name + .sub::before { content: "· "; }
 #work-panel #end-session { margin-top: 16px !important; }
+.live { margin: 12px 0 0 !important; }
+.live-label { right: 0; }
+/* Report chart: same style as the live one, bigger, with a state strip */
+.report-card .report-chart { padding: 14px 16px 10px !important; background: rgba(13,13,13,.035) !important; --signal: #8fd3a2; }
+.rc-plot { position: relative; height: 140px; }
+.rc-plot .pchart { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rc-plot .pc-cue { display: none; }
+.rc-strip { position: relative; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 8px; background: rgba(13,13,13,.06); }
+.rc-strip i { position: absolute; top: 0; bottom: 0; }
+.tl-empty-msg { padding: 40px 0; text-align: center; }

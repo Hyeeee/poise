@@ -1,5 +1,6 @@
 // Session analysis: records posture while the focus timer runs, then shows a summary
 // when the session ends (End button or timer finished).
+import { postureChart, bucket } from './chart.js';
 const $ = id => document.getElementById(id);
 
 const CAUSES = {
@@ -94,21 +95,23 @@ function headline(r) {
   return { en: `A tough one. You were aligned ${r.aligned}% of the time${r.causes[0] ? `, mostly ${r.causes[0].label.toLowerCase()}` : ''}. A short break will help.`, title: 'Time to reset.' };
 }
 
+// Same chart as the live one in the Focus panel, plus a coloured strip for aligned / drifting / reset
+// and time marks, so the report reads as the full version of what you watched during the session.
 function timeline(samples) {
-  const W = 560, H = 120, pad = 6;
-  if (samples.length < 2) return `<svg viewBox="0 0 ${W} ${H}" class="tl"><text x="${W / 2}" y="${H / 2}" text-anchor="middle" class="tl-empty">Not enough data yet</text></svg>`;
-  const maxT = samples[samples.length - 1].t || 1;
-  const x = t => pad + (t / maxT) * (W - pad * 2), y = d => H - pad - (Math.min(100, d) / 100) * (H - pad * 2);
+  if (samples.length < 2) return `<p class="sub tl-empty-msg">Not enough data yet</p>`;
+  const t0 = samples[0].t, span = (samples[samples.length - 1].t - t0) || 1, maxT = span;
+  const pts = bucket(samples.map(p => ({ x: (p.t - t0) / span, d: p.d, state: p.state })), 220);
+  const ymax = Math.max(30, Math.min(100, Math.max(...pts.map(p => p.d)) * 1.1));
+  const c = postureChart(pts, { W: 560, H: 140, top: 14, bottom: 10, ymax, cue: 0.0001 });
   const color = { white: 'var(--aligned)', green: 'var(--aligned)', amber: 'var(--drift)', red: 'var(--reset)' };
-  let bands = '';
+  let strip = '';
   for (let i = 0; i < samples.length - 1; i++) {
     const a = samples[i], b = samples[i + 1];
-    bands += `<rect x="${x(a.t)}" y="${H - 10}" width="${Math.max(1, x(b.t) - x(a.t))}" height="8" rx="2" fill="${color[a.state] || color.white}"/>`;
+    strip += `<i style="left:${((a.t - t0) / maxT * 100).toFixed(2)}%;width:${Math.max(.3, (b.t - a.t) / maxT * 100).toFixed(2)}%;background:${color[a.state] || color.white}"></i>`;
   }
-  const line = samples.map(p => `${x(p.t).toFixed(1)},${y(p.d).toFixed(1)}`).join(' ');
-  return `<svg viewBox="0 0 ${W} ${H}" class="tl" role="img" aria-label="Posture shift over the session">
-    <line x1="${pad}" x2="${W - pad}" y1="${y(50)}" y2="${y(50)}" class="tl-mid"/>
-    <polyline points="${line}" class="tl-line"/>${bands}</svg>`;
+  const fmt = ms => ms < 120000 ? `${Math.round(ms / 1000)}s` : `${Math.round(ms / 60000)} min`;
+  return `<div class="rc-plot">${c.svg}</div><div class="rc-strip">${strip}</div>
+    <div class="live-axis"><span>0</span><span>${fmt(maxT / 2)}</span><span>${fmt(maxT)}</span></div>`;
 }
 
 /** Show the report. Resolves with 'break' | 'new' | 'done'. */

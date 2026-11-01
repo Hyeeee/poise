@@ -869,7 +869,6 @@ function renderLive() {
     $('live-tip').style.left = tx + '%'; $('live-tip').style.top = c.end.y + '%';
   }
   $('live-cue-label').style.top = c.cueY + '%';
-  document.querySelector('.live-label-ref').style.top = c.refY + '%';
   text('live-end', `${store.work().focus} min`);
 }
 setInterval(renderLive, 1000);
