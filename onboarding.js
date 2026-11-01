@@ -24,9 +24,9 @@ const QUESTIONS = [
     key: 'rest',
     say: 'And when it is time to rest, what helps you reset?',
     options: [
-      { label: 'Guided stretches', value: { style: 'stretch', count: 10 } },
-      { label: 'A calm reset with breathing and eye rest', value: { style: 'breathe', minutes: 2 } },
-      { label: 'A quick movement game', value: { style: 'game', minutes: 1 } },
+      { label: 'Stretch', value: { style: 'stretch', count: 10 } },
+      { label: 'Breathe', value: { style: 'breathe', minutes: 2 } },
+      { label: 'Game', value: { style: 'game', minutes: 1 } },
     ],
   },
   {
@@ -194,45 +194,49 @@ export function runOnboarding() {
     }
 
     // Minutes picker: type a number, nudge it with − / +, or tap a quick chip.
+    // Focus length: four ready-made lengths as cards, plus a compact stepper for anything else.
+    // (People rarely typed a number, so there is no big text field.)
     function minutesPicker(q) {
       let value = answers[q.key] ?? q.start;
-      const clampV = v => Math.max(q.min, Math.min(q.max, Math.round(v) || q.start));
+      const clampV = v => Math.max(q.min, Math.min(q.max, Math.round(v / q.step) * q.step || q.start));
+      const PRESETS = [[15, 'Quick'], [30, 'Steady'], [45, 'Deep'], [60, 'Long']];
+      const fmt = m => m >= 60 && m % 60 === 0 ? `${m / 60} hr` : m > 60 ? `${Math.floor(m / 60)} hr ${m % 60}` : `${m}`;
+      const unit = m => m >= 60 && m % 60 === 0 ? '' : m > 60 ? 'min' : 'min';
       const wrap = document.createElement('div');
-      wrap.className = 'min-picker';
+      wrap.className = 'len-picker';
       wrap.innerHTML = `
-        <div class="min-field">
-          <label class="min-box"><span class="roll" aria-hidden="true"></span><input type="number" inputmode="numeric" min="${q.min}" max="${q.max}" step="1" value="${value}" aria-label="Focus minutes"><span class="min-unit">min</span></label>
-          <input type="range" class="min-range" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Focus minutes slider">
-          <div class="min-scale"><span>${q.min} min</span><span>${q.max / 60} hours</span></div>
+        <div class="len-cards" role="radiogroup" aria-label="Focus length">
+          ${PRESETS.map(([m, l]) => `<button type="button" class="len-card" role="radio" data-m="${m}"><b>${fmt(m)}<small>${unit(m)}</small></b><span>${l}</span></button>`).join('')}
         </div>
-        <div class="quick">${q.quick.map(m => `<button type="button" class="quick-chip" data-m="${m}">${m >= 60 ? m / 60 + ' hour' : m + ' min'}</button>`).join('')}</div>`;
-      const input = wrap.querySelector('input[type=number]'); let range;
-      // Rolling digits (like Toss): each digit is a column of 0-9 that slides to the new value.
-      const rollEl = wrap.querySelector('.roll');
-      const roll = n => {
-        const digits = String(n).split('');
-        while (rollEl.children.length < digits.length) {
-          const col = document.createElement('span'); col.className = 'roll-col';
-          col.innerHTML = '<span>' + [...'0123456789'].join('</span><span>') + '</span>';
-          rollEl.prepend(col);
-        }
-        while (rollEl.children.length > digits.length) rollEl.firstChild.remove();
-        [...rollEl.children].forEach((col, i) => { col.style.transform = `translateY(${-digits[i] * 10}%)`; });
-        input.style.width = digits.length + 'ch';
-      };
+        <div class="len-custom">
+          <span>Something else</span>
+          <div class="stepper">
+            <button type="button" class="st-btn" data-d="-1" aria-label="${q.step} minutes less"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
+            <output aria-live="polite"></output>
+            <button type="button" class="st-btn" data-d="1" aria-label="${q.step} minutes more"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
+          </div>
+        </div>`;
+      const out = wrap.querySelector('output');
       const set = v => {
-        value = clampV(v); input.value = value; roll(value); if (range) { range.value = value; range.style.setProperty('--p', ((value - q.min) / (q.max - q.min) * 100) + '%'); }
-        wrap.querySelectorAll('.quick-chip').forEach(c => c.classList.toggle('on', +c.dataset.m === value));
+        value = clampV(v);
+        out.textContent = value >= 60 ? `${Math.floor(value / 60)} hr${value % 60 ? ' ' + (value % 60) + ' min' : ''}` : `${value} min`;
+        wrap.querySelectorAll('.len-card').forEach(c => { const on = +c.dataset.m === value; c.classList.toggle('on', on); c.setAttribute('aria-checked', on); });
+        wrap.querySelector('.len-custom').classList.toggle('on', !PRESETS.some(([m]) => m === value));
+        wrap.querySelector('[data-d="-1"]').disabled = value <= q.min;
+        wrap.querySelector('[data-d="1"]').disabled = value >= q.max;
       };
-      range = wrap.querySelector('.min-range');
-      range.oninput = () => set(+range.value);
-      wrap.querySelectorAll('.quick-chip').forEach(c => c.onclick = () => set(+c.dataset.m));
-      input.onchange = () => set(+input.value);
-      input.oninput = () => { input.style.width = Math.max(1, input.value.length) + 'ch'; const v = +input.value; if (v >= q.min && v <= q.max) { range.value = v; range.style.setProperty('--p', ((v - q.min) / (q.max - q.min) * 100) + '%'); } };
-      input.onkeydown = e => { if (e.key === 'Enter') { set(+input.value); go.click(); } };
+      wrap.querySelectorAll('.len-card').forEach(c => c.onclick = () => set(+c.dataset.m));
+      // Hold a stepper button to keep counting.
+      wrap.querySelectorAll('.st-btn').forEach(b => {
+        let t;
+        const stepOnce = () => set(value + +b.dataset.d * q.step);
+        b.onpointerdown = () => { stepOnce(); t = setTimeout(function rep() { stepOnce(); t = setTimeout(rep, 90); }, 420); };
+        b.onpointerup = b.onpointerleave = b.onpointercancel = () => clearTimeout(t);
+        b.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stepOnce(); } };
+      });
       const go = document.createElement('button');
       go.className = 'choice next'; go.textContent = 'Continue';
-      go.onclick = () => { set(+input.value); answers[q.key] = value; go.classList.add('picked'); setTimeout(next, 220); };
+      go.onclick = () => { answers[q.key] = value; go.classList.add('picked'); setTimeout(next, 220); };
       choices.append(wrap, go);
       set(value);
     }
