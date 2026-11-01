@@ -1417,3 +1417,6 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
   top: 10px !important; right: 10px; max-width: 34%; padding: 6px 10px; font-size: 12px; border-radius: 12px; white-space: normal; }
 .say-bubble::after { display: none; }
 .reel-video .say-bubble { top: 26px !important; }
+/* Bottom status line in every break card: same 13px, one line */
+#hold-label, #game-label, #breath-left, .breath-metric, #breath-metric {
+  font-size: 13px !important; line-height: 1.35 !important; min-height: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
