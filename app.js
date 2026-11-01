@@ -865,7 +865,10 @@ function syncUI() {
   const work = store.work(), brk = store.brk();
   if (work.focus !== lastFocus) { lastFocus = work.focus; remaining = work.focus * 60; }
   text('work-mode-name', work.name);
-  text('next-break', `Then ${brk.name.toLowerCase()}: ${describeBreak(brk)}`);
+  // Plain, spoken-style line about what comes after the focus block.
+  text('next-break', brk.style === 'breathe' ? `Up next, a ${brk.minutes}-minute breathing break`
+    : brk.style === 'game' ? `Up next, a ${brk.minutes}-minute movement game`
+    : `Up next, ${brk.count} easy stretch${brk.count > 1 ? 'es' : ''}`);
   $('eye-stat').hidden = !work.eyes; $('dist-stat').hidden = !work.eyes;
   document.querySelector('.card.stats').hidden = true;
   renderTimer(); renderPause();
