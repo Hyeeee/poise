@@ -1567,3 +1567,6 @@ body .report-card.pop::before { display: none !important; }
 #modes.drawer .dd-btn b { max-width: 118px; }
 /* Settings header: same glass as the drawer (a nested blur made it look solid white), scrolls with the content */
 #modes.drawer .sheet-head { position: static !important; background: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: none !important; margin: 0 !important; padding: 0 0 6px !important; }
+/* Focus/Break tabs in settings: flat, no shadow or outline */
+#modes.drawer #modes-tabs { box-shadow: none !important; border: 0 !important; background: rgba(13,13,13,.05) !important; }
+#modes.drawer #modes-tabs .seg-thumb, #modes.drawer #modes-tabs button { box-shadow: none !important; }
