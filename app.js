@@ -1210,7 +1210,7 @@ function send(message) {
     if ($('modes').open) renderEditor();
   }, 380);
 }
-$('ask-form').onsubmit = e => { e.preventDefault(); send($('ask-input').value); };
+$('ask-form').onsubmit = e => { e.preventDefault(); window.setSpeechLang?.($('ask-input').value); send($('ask-input').value); };
 $('ask-input').onfocus = () => openThread();
 document.addEventListener('pointerdown', e => { if (!$('ask').contains(e.target) && !$('thread').hidden) closeThread(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('thread').hidden) { closeThread(); $('ask-input').blur(); } });
@@ -1220,7 +1220,15 @@ if (Recognition) {
   // Hands-free conversation: tap the mic once, talk as many times as you like, tap again to stop.
   // Recognition pauses while Poise is speaking (so it doesn't hear itself) and resumes right after.
   const rec = new Recognition();
-  rec.lang = navigator.languages?.some(l => l.startsWith('ko')) ? 'ko-KR' : 'en-US';
+  // One recognition language at a time (a browser limit). English by default, since Poise speaks English;
+  // typing a message in Korean switches listening to Korean, and typing in English switches it back.
+  rec.lang = store.state.speechLang || 'en-US';
+  window.setSpeechLang = text => {
+    const lang = /[가-힣]/.test(text) ? 'ko-KR' : /[a-z]/i.test(text) ? 'en-US' : null;
+    if (!lang || lang === rec.lang) return;
+    rec.lang = lang; store.update(st => { st.speechLang = lang; });
+    if (on && running) { try { rec.abort(); } catch {} }      // restarts in the new language
+  };
   rec.interimResults = true;
   rec.continuous = true;
   $('mic').hidden = false;

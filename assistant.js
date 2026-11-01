@@ -46,7 +46,7 @@ export function respond(message, ctx) {
 
     if (/help|what can you|how do i|뭐\s?(할|해)|도움|도와|기능/.test(c)) {
       say('Try things like "focus 40 minutes", "less sensitive", "breaks with breathing", "make a mode called Study", or "take a break".',
-        '"집중 40분", "덜 민감하게", "눈 추적 꺼줘", "휴식은 호흡으로", "\'공부\' 모드 만들어줘", "지금 쉬자" 처럼 말해보세요.');
+        '"집중 40분", "덜 민감하게", "휴식은 호흡으로", "\'공부\' 모드 만들어줘", "지금 쉬자" 처럼 말해보세요.');
       continue;
     }
 
@@ -175,7 +175,7 @@ export function respond(message, ctx) {
       changed: false,
       reply: t(lang,
         'I can change focus length, how sensitive cues are, break style, and your modes. Try "focus 40 minutes" or "less sensitive".',
-        '집중 시간, 알림 민감도, 눈 추적, 휴식 방식, 모드를 바꿀 수 있어요. "집중 40분" 이나 "덜 민감하게" 처럼 말해보세요.'),
+        '집중 시간, 알림 민감도, 휴식 방식, 모드를 바꿀 수 있어요. "집중 40분" 이나 "덜 민감하게" 처럼 말해보세요.'),
     };
   }
   return { changed: true, reply: out.join(' ') };
