@@ -127,7 +127,10 @@ class Agent {
     this.scale += (wantScale - this.scale) * Math.min(1, dt * (cl.contains('in') ? .7 : 4));
     const wantEnergy = speaking ? 1 : thinking ? .7 : listening ? .5 : mood === 'amber' ? .45 : mood === 'red' ? .8 : .12;
     this.energy += (wantEnergy - this.energy) * Math.min(1, dt * 3);
-    this.spin += dt * (.12 + this.energy * (thinking ? 2.2 : .6));
+    // A pinned sphere has no shape changes to look alive, so it turns a bit faster and breathes.
+    const pinned = !!h.dataset.shape;
+    this.spin += dt * ((pinned ? .55 : .12) + this.energy * (thinking ? 2.2 : .6));
+    if (pinned && !reduced) this.scale *= 1 + .035 * Math.sin(now / 900);
 
     const { ctx, w, hgt = this.h } = { ctx: this.ctx, w: this.w, hgt: this.h };
     ctx.clearRect(0, 0, w, hgt);
