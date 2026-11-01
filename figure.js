@@ -62,8 +62,8 @@ export function drawFigure(ctx, P, { j = () => 0, ink = '#141412', paper = '#fbf
   if (P.mouth != null) {
     const o = Math.max(0, Math.min(1, P.mouth)), mx = lk * 1.3 + .5;
     ctx.beginPath();
-    if (o < .15) { ctx.moveTo(mx - 4, 16.5); ctx.quadraticCurveTo(mx, 18, mx + 4, 16.5); ctx.stroke(); }
-    else { ctx.fillStyle = ink; ctx.ellipse(mx, 17, 2.2 + o * 1.6, 1.4 + o * 3, 0, 0, Math.PI * 2); ctx.fill(); }
+    if (o < .15) { ctx.moveTo(mx - 4, 17.5); ctx.quadraticCurveTo(mx, 19, mx + 4, 17.5); ctx.stroke(); }
+    else { ctx.fillStyle = ink; ctx.ellipse(mx, 18.5, 2 + o * 1.2, 1.1 + o * 1.7, 0, 0, Math.PI * 2); ctx.fill(); }   // small 'o', clear of the nose
   }
   ctx.restore();
 
