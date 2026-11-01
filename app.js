@@ -1060,12 +1060,13 @@ function renderEditor() {
     const it = e.target.closest('.dd-item'); if (!it) return;
     open(false);
     if (it.dataset.id) { store.update(s => { if (tab === 'work') s.workId = it.dataset.id; else s.breakId = it.dataset.id; }); renderEditor(); return; }
-    if (it.dataset.act === 'new') { createMode(tab, ''); renderModes(); startRename(); }
+    if (it.dataset.act === 'new') { createMode(tab, ''); patchMode(tab, { name: 'New mode' }); renderModes(); startRename(); }
     if (it.dataset.act === 'rename') startRename();
     if (it.dataset.act === 'delete') { deleteMode(tab, m.id); renderModes(); }
   };
   function startRename() {
     const d = $('mode-dd'), b = d.querySelector('.dd-btn'), n = d.querySelector('.dd-name');
+    n.style.width = Math.max(140, b.offsetWidth) + 'px';   // same size as the button it replaces
     b.hidden = true; n.hidden = false; n.focus(); n.select();
     const done = () => { patchMode(tab, { name: n.value.trim() || 'Untitled' }); renderEditor(); };
     n.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); n.blur(); } if (e.key === 'Escape') { n.value = m.name; n.blur(); } };
