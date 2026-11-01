@@ -1597,3 +1597,7 @@ body .report-card.pop::before { display: none !important; }
 .suggest button { flex: 0 1 auto; min-width: 0; height: 32px !important; padding: 0 12px !important; font-size: 13px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ls-ends { margin-top: 2px !important; }
 .ls-value { margin-bottom: 8px !important; }
+/* Chips never shrink or cut; on a narrow screen the row scrolls sideways */
+.suggest { overflow-x: auto !important; overflow-y: hidden; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent); }
+.suggest::-webkit-scrollbar { display: none; }
+.suggest button { flex: none !important; overflow: visible !important; text-overflow: clip !important; }
