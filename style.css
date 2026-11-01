@@ -1473,3 +1473,5 @@ body .say-bubble { border: 0 !important; background: none !important; border-rad
 .sb-tail { display: none; }
 .say-bubble { isolation: isolate; }
 .say-bubble svg.sb-shape { width: auto; height: auto; }
+.setup .voice-label .vl-ask { font-family: var(--ui); font-size: 17px; font-weight: 500; letter-spacing: -.015em; color: var(--ink-2); }
+.setup .voice-label { margin: 4px 0 14px 2px !important; }
