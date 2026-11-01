@@ -1498,3 +1498,5 @@ body .report-card.pop::before { display: none !important; }
 .avatar-box, .stage-box, #breathe-panel .breath-stage, .reel-video #reel-player {
   background: rgba(255,255,255,.5) !important; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 #work-panel #end-session { margin-top: 24px !important; }
+/* Segmented: hover and selected share one corner radius */
+.segmented button, .segmented button:not(.active):hover, .field .segmented button:not(.active):hover, .seg-thumb { border-radius: 12px !important; }
