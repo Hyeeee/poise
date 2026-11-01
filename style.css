@@ -1287,3 +1287,12 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 #work-panel .fc-head { margin-bottom: 4px; gap: 12px; }
 #work-panel .fc-head #posture-state { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #work-panel #posture-hint { margin-top: 0; }
+
+/* Avatar box: closer to square */
+.avatar-box { height: auto !important; aspect-ratio: 1 / .9; }
+
+/* Break cards: white by default; the top glows like the light bar only when you match (or miss) the pose */
+.studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before {
+  --card-glow: color-mix(in srgb, var(--signal) 70%, white); --card-glow-2: color-mix(in srgb, var(--signal) 45%, white);
+  opacity: 0 !important; transition: opacity .8s ease, background 1.2s ease; }
+html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before { opacity: .9 !important; }
