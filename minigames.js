@@ -114,6 +114,10 @@ export class MiniGame {
       if (hp.width !== Math.round(hw * dpr) || hp.height !== Math.round(hh * dpr)) { hp.width = Math.round(hw * dpr); hp.height = Math.round(hh * dpr); }
       const h = hp.getContext('2d'); h.setTransform(1, 0, 0, 1, 0, 0); h.clearRect(0, 0, hp.width, hp.height);
       const pad = 16, s = Math.min((hw - pad * 2) / gw, (hh - pad * 2) / gh);
+      // Figure size is set in SCREEN pixels so it matches the Bubbles figure exactly:
+      // 1 figure unit = (box − 32) / 300 px, waist 10 px above the bottom of the box.
+      this._hf = Math.min(hw - 32, hh - 32) / 300 / s;
+      this._hy = (hh - 10 - (hh - gh * s) / 2) / s;
       play(h, s, (hw - gw * s) / 2, (hh - gh * s) / 2, true);
       // The ink figure plays the game in the side box: it rides the boat, lifts its shoulders, follows the seed.
       h.save(); h.setTransform(dpr * s, 0, 0, dpr * s, dpr * (hw - gw * s) / 2, dpr * (hh - gh * s) / 2);
@@ -127,6 +131,7 @@ export class MiniGame {
 
   // How big the figure is drawn in the side box, per game (game units per figure unit).
   figScale(W, H) {
+    if (this._hf) return this._hf;
     return Math.min(W / 300, H / 300);   // same size in every game (the Bells size)
   }
 
@@ -139,7 +144,7 @@ export class MiniGame {
     if (this.kind === 'boat') {
       // Same size and place as the other games; the figure sways with the boat and leans into the turn.
       const f = this.figScale(W, H);
-      ctx.translate(W / 2 + this.boatX * W * .12, H + 6); ctx.rotate(this.boatX * .12); ctx.scale(f, f);
+      ctx.translate(W / 2 + this.boatX * W * .12, this._hy ?? H + 6); ctx.rotate(this.boatX * .12); ctx.scale(f, f);
       drawFigure(ctx, { ...base, bend: this.boatX * .32, shTilt: -this.boatX * 10 + tilt * 6, head: this.boatX * .12,
         eL: [-56, -70], wL: [-46, -22], eR: [56, -70], wR: [46, -22] }, { legs: false });
       // paper boat around the waist
@@ -149,16 +154,16 @@ export class MiniGame {
     } else if (this.kind === 'bells') {
       // standing under the bell: shoulders rise toward the ears as you shrug
       const f = this.figScale(W, H);
-      ctx.translate(W / 2, H + 6); ctx.scale(f, f);
+      ctx.translate(W / 2, this._hy ?? H + 6); ctx.scale(f, f);
       drawFigure(ctx, { ...base, shrug: this.lift * 24, head: 0, eL: [-60, -70 - this.lift * 14], wL: [-44, -16 - this.lift * 14], eR: [60, -70 - this.lift * 14], wR: [44, -16 - this.lift * 14] }, { legs: false });
     } else if (this.kind === 'seeds') {
       // the figure turns its head toward where you are looking, with a dotted line of sight
-      const f = this.figScale(W, H), hx = W / 2, hy = H + 6 - 162 * f;
+      const f = this.figScale(W, H), hx = W / 2, hy = (this._hy ?? H + 6) - 162 * f;
       const dx = this.cur[0] - hx, dy = this.cur[1] - hy;
       const head = Math.max(-.5, Math.min(.5, Math.atan2(dx, -dy) * .45));
       ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = 'rgba(20,20,18,.35)'; ctx.lineWidth = 1.2;
       ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(this.cur[0], this.cur[1]); ctx.stroke(); ctx.restore();
-      ctx.translate(W / 2, H + 6); ctx.scale(f, f);
+      ctx.translate(W / 2, this._hy ?? H + 6); ctx.scale(f, f);
       drawFigure(ctx, { ...base, head, look: Math.max(-1, Math.min(1, dx / (W * .3))) }, { legs: false });
     }
     ctx.restore();

@@ -143,6 +143,7 @@ function typeLine(el, text, token) {
   return new Promise(resolve => {
     if (reducedMotion()) { el.innerHTML = ''; text.replace('Poise. A ', 'Poise.\nA ').replace(' First, ', '\nFirst, ').split('\n').forEach((t, i) => { if (i) el.append(document.createElement('br')); el.append(t); }); return resolve(); }
     el.innerHTML = '';
+    el.classList.toggle('lines', / First, /.test(text));   // intro: fixed line breaks, no extra wrapping
     const words = text.split(' ');
     words.forEach((w, i) => {
       const s = document.createElement('span');
