@@ -1565,3 +1565,5 @@ body .report-card.pop::before { display: none !important; }
 /* Every settings dropdown: one fixed width; long mode names truncate */
 #modes.drawer .dd-btn, #modes.drawer input.dd-name { width: 160px !important; min-width: 0 !important; }
 #modes.drawer .dd-btn b { max-width: 118px; }
+/* Settings header: same glass as the drawer (a nested blur made it look solid white), scrolls with the content */
+#modes.drawer .sheet-head { position: static !important; background: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: none !important; margin: 0 !important; padding: 0 0 6px !important; }
