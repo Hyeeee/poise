@@ -133,7 +133,14 @@ function followHead(host, b) {
     // Always beside the head (never over the face). Narrow, so long lines wrap to 3–4 rows.
     const room = (right ? roomR : roomL) - r * .25 - 6;
     const mw = Math.max(78, Math.min(132, room));
-    if (b._mw !== mw) { b._mw = mw; b.style.setProperty('max-width', mw + 'px', 'important'); }
+    if (b._mw !== mw || b._txt !== b.textContent) {
+      b._mw = mw; b._txt = b.textContent;
+      b.style.width = ''; b.style.setProperty('max-width', mw + 'px', 'important');
+      // Shrink-wrap: after the text wraps, make the bubble only as wide as its longest line.
+      const r = document.createRange(); r.selectNodeContents(b.querySelector('.sb-text'));
+      const widest = Math.max(...[...r.getClientRects()].map(x => x.width));
+      if (widest > 0) b.style.setProperty('width', Math.ceil(widest) + 26 + 'px', 'important');
+    }
     let x = right ? hx + r * 1.2 : hx - r * 1.2 - bw, y = hy - r * .55 - bh;
     x = Math.max(6, Math.min(hr.width - bw - 6, x)); y = Math.max(6, y);
     b.classList.toggle('flip', !right);
@@ -1685,7 +1692,7 @@ async function togglePip() {
     #end{margin-left:0;width:100%}
     .tm{font-size:12px;color:#8f8f8f}
     .foot{margin-top:8px;display:flex;align-items:center;gap:8px}
-    button{font:inherit;font-size:13px;font-weight:500;letter-spacing:-.01em;border:0;cursor:pointer;height:30px;padding:0 12px;border-radius:10px;
+    button{font:inherit;font-size:13px;font-weight:500;letter-spacing:-.01em;border:0;cursor:pointer;height:30px;padding:0 10px;white-space:nowrap;flex:1;min-width:0;border-radius:10px;
       background:rgba(13,13,13,.07);color:#0d0d0d;transition:background .4s}
     button:hover{background:rgba(13,13,13,.13)}
     button.pri{background:#0d0d0d;color:#fff} button.pri:hover{background:#333}
@@ -1723,6 +1730,7 @@ async function togglePip() {
     q('live-foot').hidden = done;
     q('end').hidden = screen !== 'work' || $('end-session').hidden;
     q('done-foot').hidden = !done;
+    q('tm').hidden = done;
     // Never cut the text: if it doesn't fit, step the text size down until it does.
     const txt = d.querySelector('.txt');
     for (const [t, h] of [[16, 13], [15, 12.5], [14, 12], [13, 11.5]]) {

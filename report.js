@@ -121,6 +121,7 @@ export function showReport(r, speak) {
     $('report-title').textContent = h.title;
     $('report-line').textContent = h.en.replace(/^[^.]+\. /, '');
     $('report-chart').innerHTML = timeline(r.samples);
+    $('rep-causes-h').hidden = true; $('rep-causes').hidden = true;   // the chart and numbers say enough
     $('report-len').textContent = r.minutes < 1 ? 'Under a minute' : `${r.minutes} min session`;
     $('rep-aligned').textContent = r.aligned == null ? '—' : r.aligned + '%';
     $('rep-recover').textContent = fmtSec(r.avgRecover);
@@ -182,6 +183,7 @@ export function showBreakReport(r, speak) {
   return new Promise(resolve => {
     const mins = r.ms / 60000, len = mins < 1 ? `${Math.max(1, Math.round(r.ms / 1000))} sec` : `${Math.round(mins)} min`;
     const set = (id, v) => { $(id).textContent = v; };
+    $('rep-causes').hidden = false;
     const labels = { 'rep-aligned-l': '', 'rep-recover-l': '', 'rep-drift-note': '', 'rep-causes-h': '', 'report-new': '', 'report-break': '' };
     for (const k in labels) labels[k] = $(k).textContent;
     const legend = $('report-legend'); const legendWas = legend.hidden;
