@@ -1344,3 +1344,4 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 .st-btn:disabled { opacity: .35; cursor: default; }
 .st-btn svg { width: 18px; height: 18px; stroke-width: 1.8; }
 @media (max-width: 640px) { .len-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+#empty-camera.sensor-on #cam-off-sensor { display: none !important; }

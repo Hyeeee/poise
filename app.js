@@ -154,12 +154,10 @@ async function start() {
     active = true; lastFrame = -1; faceStart = performance.now();
     setTimeout(maybeStartGame, 300);
     if (sensorRef) { sensorRef = false; showSensorCard(); }
-    $('empty-camera').hidden = true;
     syncRef();
     $('stop').classList.add('on'); $('stop').setAttribute('aria-label', 'Turn camera off');
     text('start-status', '');
     setChip('Find your frame', false);
-    showCamNotice();
     requestAnimationFrame(loop);
   } catch (e) {
     stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null; active = false;
@@ -179,7 +177,6 @@ function stop() {
   stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null;
   landmarks = null; reference = null; if (!sensorRef) timerRunning = false; holdStart = 0; driftSince = 0; nearSince = 0; blinkTimes = []; eyesClosed = false;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  $('empty-camera').hidden = false;
   syncRef();
   $('stop').classList.remove('on'); $('stop').setAttribute('aria-label', 'Turn camera on');
   setChip('Camera off');
@@ -205,7 +202,7 @@ function hideCamNotice() {
 }
 // Show or hide a start card with a short slide: forward steps come in from the right,
 // going back comes in from the left. The leaving card fades out the other way.
-const POP_FOR = { cam: 'cam-notice', bar: 'bar-prompt', ref: 'ref-prompt' };
+const POP_FOR = { cam: 'empty-camera', bar: 'bar-prompt', ref: 'ref-prompt' };
 function setPop(id, show, dir = 1) {
   const el = $(id);
   if (show) {
@@ -236,7 +233,7 @@ function renderSteps(id, step, from) {
 }
 // Tap a dot to jump back (or ahead) to that step.
 function goStep(step) {
-  noticeOpen = step === 'cam';
+  if (step === 'cam') return;   // going back to step 1 would mean turning the camera off
   if (step === 'bar') barSkipped = false;
   if (step === 'ref') barSkipped = true;
   syncRef();
@@ -575,7 +572,9 @@ function syncRef() {
   $('end-session').hidden = !hasRef();
   $('sensor-mode').hidden = true;
   const bar = needBar(), open = !!reference || !active || screen !== 'work' ? false : true;
-  const step = noticeOpen ? 'cam' : !open ? null : bar ? 'bar' : 'ref';
+  // Step 1 is the camera card (camera starts OFF; you turn it on), then light bar, then reference.
+  const step = !active ? 'cam' : !open ? null : bar ? 'bar' : 'ref';
+  if (step === 'cam' && flowStep !== 'cam') flowSteps = ['cam', ...(needBar() ? ['bar'] : []), 'ref'];
   if (step !== flowStep) {
     const from = flowSteps.indexOf(flowStep), to = flowSteps.indexOf(step);
     // 0 = first card or closing the flow (whole card fades); ±1 = moving between steps (only the content moves).
@@ -1174,7 +1173,7 @@ async function begin(withCamera, skipSetup = false) {
   setScreen('work');
   enter();
   tourPending = ALWAYS_ONBOARD || !store.state.toured;
-  if (withCamera) start();
+  // The camera stays off until you turn it on from the first card.
 }
 // The studio guide waits until the first reference is set, so people can start right away.
 let tourPending = false;
@@ -1191,6 +1190,7 @@ async function maybeTour() {
 $('start').onclick = () => begin(true);
 $('preview').onclick = () => begin(true, true);
 $('enable').onclick = start;
+$('cam-off-sensor').onclick = () => { if (sensor.live) calibrateSensor(); else toast('Connect the light bar first. Its distance sensor works without the camera.'); };
 $('stop').onclick = () => (active ? stop() : start());
 $('home').onclick = () => { reel.stop(); stopBreathe(); stop(); closeThread(); $('studio').hidden = true; $('welcome').hidden = false; };
 $('work').onclick = () => setScreen('work');
@@ -1376,7 +1376,7 @@ function showSensorCard() {
   $('empty-camera').classList.toggle('sensor-on', on);
   $('empty-camera').querySelector('.say').innerHTML = on
     ? `<b>Sensor mode</b> <span>The camera is off, so the distance sensor is keeping an eye on how far you sit.</span>`
-    : '<b>Camera off</b> <span>Turn it on and I will start watching your posture.</span>';
+    : '<b>Turn on your camera</b> <span>I watch your posture through it. The video stays on this device and is never saved or sent.</span>';
   $('enable').textContent = on ? 'Use the camera instead' : 'Turn on camera';
   $('enable').classList.add('primary'); $('enable').classList.remove('ghost'); $('enable').classList.toggle('end-wide', on);
 }
