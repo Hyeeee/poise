@@ -1036,14 +1036,14 @@ function renderEditor() {
     html += field('Focus length', numSeg('focus', CHOICES.focus, m.focus, v => v + ' min'));
     html += field('Sensitivity', ddHTML('s:sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
     html += field('Strong cue after', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
-    html += field('Chime', toggle('chime', m.chime));
+    html += `<label class="pref-row field"><span>Chime<small>A soft sound when the light turns red</small></span>${toggle('chime', m.chime)}</label>`;
   } else {
     html += field('Style', ddHTML('s:style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
     html += m.style === 'stretch' ? field('Stretches', numSeg('count', CHOICES.count, m.count, v => v + ' stretches'))
       : field('Length', numSeg('minutes', CHOICES[m.style], m.minutes, v => v < 1 ? v * 60 + ' sec' : v + ' min'));
     html += field('Start automatically', toggle('auto', m.auto));
   }
-  ed.innerHTML = `<div class="group">${html}</div><p class="editor-foot"><span class="sub">${tab === 'work' ? describeWork(m) : describeBreak(m)}</span></p>`;
+  ed.innerHTML = `<div class="group">${html}</div>`;
 
   ed.querySelectorAll('input[type=checkbox]').forEach(inp => inp.onchange = () => patchMode(tab, { [inp.dataset.k]: inp.checked }));
   ed.querySelectorAll('[data-seg] button').forEach(b => b.onclick = () => { patchMode(tab, { [b.parentElement.dataset.seg]: b.dataset.v }); renderEditor(); });
