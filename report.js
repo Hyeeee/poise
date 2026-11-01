@@ -160,11 +160,21 @@ export const breakLog = {
   },
 };
 
+// Stretch report chart: the same smooth line chart as the focus report. Higher = closer match.
 function bars(poses) {
-  const W = 560, H = 120, pad = 6, n = poses.length || 1, gap = 14, bw = (W - pad * 2 - gap * (n - 1)) / n;
-  return `<svg viewBox="0 0 ${W} ${H}" class="tl" role="img" aria-label="Best match for each stretch">
-    <line x1="${pad}" x2="${W - pad}" y1="${H - 12 - (45 / 100) * (H - 24)}" y2="${H - 12 - (45 / 100) * (H - 24)}" class="tl-mid"/>
-    ${poses.map((p, i) => { const h = Math.max(3, (p.best / 100) * (H - 24)); return `<rect x="${pad + i * (bw + gap)}" y="${H - 12 - h}" width="${bw}" height="${h}" rx="6" fill="${p.matched ? 'var(--aligned)' : p.best > 30 ? 'var(--drift)' : 'var(--reset)'}"/>`; }).join('')}</svg>`;
+  if (poses.length < 2) return `<p class="sub tl-empty-msg">Not enough data yet</p>`;
+  const pts = poses.map((p, i) => ({ x: i / (poses.length - 1), d: 100 - Math.round(p.best) }));
+  const c = postureChart(pts, { W: 560, H: 140, top: 14, bottom: 10, ymax: 100, cue: 0.0001, fill: 'var(--aligned)', stroke: 'color-mix(in srgb, var(--aligned), #0d0d0d 35%)' });
+  const strip = poses.map((p, i) => `<i style="left:${(i / poses.length * 100).toFixed(2)}%;width:${(100 / poses.length).toFixed(2)}%;background:${p.matched ? 'var(--aligned)' : p.best > 30 ? 'var(--drift)' : 'var(--reset)'}"></i>`).join('');
+  return `<div class="rc-plot">${c.svg}</div><div class="rc-strip">${strip}</div>
+    <div class="live-axis"><span>First</span><span>Last stretch</span></div>`;
+}
+// Group stretches by the part of the body they work, so the list stays short.
+const STRETCH_GROUP = n => /neck|look/i.test(n) ? 'Neck' : /side reach/i.test(n) ? 'Side reaches' : /shrug/i.test(n) ? 'Shoulders' : 'Arms and chest';
+function groupPoses(poses) {
+  const g = {};
+  for (const p of poses) { const k = STRETCH_GROUP(p.name); (g[k] ||= []).push(p); }
+  return Object.entries(g).map(([name, list]) => ({ name, avg: Math.round(list.reduce((a, p) => a + p.best, 0) / list.length), done: list.filter(p => p.matched).length, total: list.length }));
 }
 
 /** Break report. Resolves 'again' | 'focus' | 'done'. */
@@ -220,8 +230,9 @@ export function showBreakReport(r, speak) {
       set('rep-aligned', len); set('rep-aligned-l', 'rested');
       set('rep-recover', `${done.length}/${total}`); set('rep-recover-l', 'stretches followed');
       set('rep-drifts', total ? avg + '%' : '—'); set('rep-drift-note', 'average best match');
-      $('rep-causes-h').hidden = !total; $('rep-causes-h').textContent = 'Each stretch';
-      $('rep-causes').innerHTML = r.poses.map(p => `<div class="cause"><span>${p.name}</span><i style="--w:${Math.round(p.best)}%"></i><b>${p.matched ? '✓' : p.skipped ? 'skip' : Math.round(p.best) + '%'}</b></div>`).join('');
+      $('rep-causes-h').hidden = !total;
+      $('rep-causes-h').textContent = 'By area';
+      $('rep-causes').innerHTML = groupPoses(r.poses).map(g => `<div class="cause"><span>${g.name}</span><i style="--w:${g.avg}%"></i><b>${g.done}/${g.total}</b></div>`).join('');
       const miss = r.poses.find(p => !p.matched);
       $('rep-tip').innerHTML = miss ? `<b>Give ${miss.name.toLowerCase()} another try later.</b> <span>Keep your arms in view and mirror the figure slowly.</span>` : '<b>Nicely done.</b> <span>Your shoulders and neck should feel looser now.</span>';
     }

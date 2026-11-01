@@ -99,7 +99,8 @@ export class MiniGame {
         if (key === 'helperSkip') { skip = helper && v[0]; continue; }   // parts only meant for the camera view
         if (skip) continue;
         // Camera view: 3 px lines. Side box: 1.5 px, about the weight of the ink figure.
-        if (key[0] === '=') cx2[key.slice(1)] = key === '=lineWidth' ? (helper ? 1.5 : 3) * v / s : v;
+        // Camera view: 3 px lines. Side box: exactly the ink figure's line weight (2.4 figure units).
+        if (key[0] === '=') cx2[key.slice(1)] = key === '=lineWidth' ? (helper ? 2.4 * this.figScale(gw, gh) * v : 3 * v / s) : v;
         else cx2[key](...v);
       }
       cx2.restore();
@@ -124,6 +125,11 @@ export class MiniGame {
     if (left <= 0) { this.stop(); this.onEnd?.(this.result()); }
   }
 
+  // How big the figure is drawn in the side box, per game (game units per figure unit).
+  figScale(W, H) {
+    return Math.min(W / 300, H / 300);   // same size in every game (the Bells size)
+  }
+
   // ---------- The figure in the side box ----------
   actor(ctx, W, H, c, now) {
     const base = { lean: 0, bend: 0, look: 0, head: 0, drop: 0, shrug: 0, breath: Math.sin(now / 700) * 1.2,
@@ -131,19 +137,23 @@ export class MiniGame {
     const tilt = c ? Math.max(-1, Math.min(1, c.tilt / .15)) : 0;
     ctx.save();
     if (this.kind === 'boat') {
-      // sitting in the paper boat, leaning with it; shoulders dip toward the lean
-      const lane = W / 2 - 40, bx = W / 2 + this.boatX * lane, by = H * .78, f = .52;
-      ctx.translate(bx, by + 2); ctx.rotate(this.boatX * .25); ctx.scale(f, f);
+      // Same size and place as the other games; the figure sways with the boat and leans into the turn.
+      const f = this.figScale(W, H);
+      ctx.translate(W / 2 + this.boatX * W * .12, H + 6); ctx.rotate(this.boatX * .12); ctx.scale(f, f);
       drawFigure(ctx, { ...base, bend: this.boatX * .32, shTilt: -this.boatX * 10 + tilt * 6, head: this.boatX * .12,
-        eL: [-56, -70], wL: [-30, -26], eR: [56, -70], wR: [30, -26] }, { legs: false });
+        eL: [-56, -70], wL: [-46, -22], eR: [56, -70], wR: [46, -22] }, { legs: false });
+      // paper boat around the waist
+      ctx.lineWidth = 2.4; ctx.strokeStyle = '#141412'; ctx.lineJoin = 'round';
+      ctx.fillStyle = '#fbfaf6'; ctx.beginPath(); ctx.moveTo(-96, -34); ctx.lineTo(96, -34); ctx.lineTo(66, 8); ctx.lineTo(-66, 8); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#e9a25a'; ctx.beginPath(); ctx.moveTo(-30, -34); ctx.lineTo(0, -8); ctx.lineTo(30, -34); ctx.closePath(); ctx.fill(); ctx.stroke();
     } else if (this.kind === 'bells') {
       // standing under the bell: shoulders rise toward the ears as you shrug
-      const f = Math.min(W / 300, H / 300);
+      const f = this.figScale(W, H);
       ctx.translate(W / 2, H + 6); ctx.scale(f, f);
       drawFigure(ctx, { ...base, shrug: this.lift * 24, head: 0, eL: [-60, -70 - this.lift * 14], wL: [-44, -16 - this.lift * 14], eR: [60, -70 - this.lift * 14], wR: [44, -16 - this.lift * 14] }, { legs: false });
     } else if (this.kind === 'seeds') {
       // the figure turns its head toward where you are looking, with a dotted line of sight
-      const f = Math.min(W / 320, H / 320), hx = W / 2, hy = H + 6 - 162 * f;
+      const f = this.figScale(W, H), hx = W / 2, hy = H + 6 - 162 * f;
       const dx = this.cur[0] - hx, dy = this.cur[1] - hy;
       const head = Math.max(-.5, Math.min(.5, Math.atan2(dx, -dy) * .45));
       ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = 'rgba(20,20,18,.35)'; ctx.lineWidth = 1.2;
@@ -187,13 +197,15 @@ export class MiniGame {
       }
     }
     this.items = this.items.filter(i => i.y < H + 20 && !i.done);
-    // boat (folded paper)
+    // boat (folded paper): camera view only; the side box draws the figure in a big boat
+    ctx.helperSkip(true);
     ctx.save(); ctx.translate(bx, by); ctx.rotate(this.boatX * .25);
     // paper boat, flat: white hull, pale sail fold, fine ink outline
     ctx.strokeStyle = ink; ctx.lineWidth = this.lw; ctx.lineJoin = 'round';
     ctx.fillStyle = '#fbfaf6'; ctx.beginPath(); ctx.moveTo(-26, 0); ctx.lineTo(26, 0); ctx.lineTo(17, 11); ctx.lineTo(-17, 11); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#e9a25a'; ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(0, -24); ctx.lineTo(12, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.restore();
+    ctx.helperSkip(false);
     this.hint = c ? (Math.abs(this.boatX) < .2 ? 'Lean left or right to steer.' : 'Nice, keep leaning.') : '';
   }
 

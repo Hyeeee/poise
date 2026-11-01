@@ -25,7 +25,7 @@ const QUESTIONS = [
     say: 'And when it is time to rest, what helps you reset?',
     options: [
       { label: 'Stretch', sub: 'Follow a figure', icon: 'stretch', value: { style: 'stretch', count: 10 } },
-      { label: 'Breathe', sub: 'Slow and calm', icon: 'breathe', value: { style: 'breathe', minutes: 2 } },
+      { label: 'Breathe', sub: 'Slow and calm', icon: 'breathe', value: { style: 'breathe', minutes: .5 } },
       { label: 'Game', sub: 'Move to play', icon: 'game', value: { style: 'game', minutes: 1 } },
     ],
   },

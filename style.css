@@ -1489,3 +1489,11 @@ body .say-bubble { border: 0 !important; background: none !important; border-rad
 .ls-ends { margin: 12px 0 0 !important; }
 .ls-value { margin-left: 0; }
 .setup-line { max-width: 26ch !important; }
+
+/* Speech bubble: smaller text, narrow, wraps */
+body .say-bubble { font-size: 11.5px !important; line-height: 1.3 !important; padding: 6px 10px 7px !important; }
+/* Analysis modals: no colour glow, just the results */
+body .report-card.pop::before { display: none !important; }
+/* Figure boxes in the side panel: soft glass so they melt into the card's colour */
+.avatar-box, .stage-box, #breathe-panel .breath-stage, .reel-video #reel-player {
+  background: rgba(255,255,255,.5) !important; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }

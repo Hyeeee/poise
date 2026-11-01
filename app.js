@@ -130,12 +130,11 @@ function followHead(host, b) {
     const roomR = hr.width - hx - r, roomL = hx - r;
     if (b._side == null || (b._side === 'r' && roomL > roomR + 40) || (b._side === 'l' && roomR > roomL + 40)) b._side = roomR >= roomL ? 'r' : 'l';
     const right = b._side === 'r';
-    // Above the head if there is room, otherwise beside it. Width shrinks to the room on that side.
-    const room = (right ? roomR : roomL) - r * .2 - 6;
-    const mw = Math.max(84, Math.min(170, room));
+    // Always beside the head (never over the face). Narrow, so long lines wrap to 3–4 rows.
+    const room = (right ? roomR : roomL) - r * .25 - 6;
+    const mw = Math.max(78, Math.min(132, room));
     if (b._mw !== mw) { b._mw = mw; b.style.setProperty('max-width', mw + 'px', 'important'); }
-    let x = right ? hx + r * .55 - 12 : hx - r * .55 - bw + 12, y = hy - r * 1.1 - bh - 10;
-    if (y < 6) { x = right ? hx + r * 1.15 : hx - r * 1.15 - bw; y = hy - r * .9 - bh; }
+    let x = right ? hx + r * 1.2 : hx - r * 1.2 - bw, y = hy - r * .55 - bh;
     x = Math.max(6, Math.min(hr.width - bw - 6, x)); y = Math.max(6, y);
     b.classList.toggle('flip', !right);
     const key = `${bw}x${bh}${right}`;
@@ -812,7 +811,7 @@ function updateReset(p) {
 }
 function startBreathe() {
   stopBreathe();
-  const total = Math.max(1, store.brk().minutes) * 60 * 1000, began = performance.now(), eyesAt = total * 2 / 3;
+  const total = Math.max(.5, store.brk().minutes) * 60 * 1000, began = performance.now(), eyesAt = total * 2 / 3;
   breakLog.start('breathe');
   resetShoulder = { base: null, now: null, best: 0, samples: [] };
   const orb = $('breath-orb');
@@ -941,7 +940,7 @@ function syncUI() {
   if (work.focus !== lastFocus) { lastFocus = work.focus; remaining = work.focus * 60; }
   text('work-mode-name', work.name);
   // Plain, spoken-style line about what comes after the focus block.
-  text('next-break', brk.style === 'breathe' ? `Up next, a ${brk.minutes}-minute breathing break`
+  text('next-break', brk.style === 'breathe' ? `Up next, a ${brk.minutes < 1 ? brk.minutes * 60 + '-second' : brk.minutes + '-minute'} breathing break`
     : brk.style === 'game' ? `Up next, a ${brk.minutes}-minute movement game`
     : `Up next, ${brk.count} easy stretch${brk.count > 1 ? 'es' : ''}`);
   $('eye-stat').hidden = !work.eyes; $('dist-stat').hidden = !work.eyes;
@@ -1000,7 +999,9 @@ function renderEditor() {
     html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
     html += m.style === 'stretch'
       ? field('Stretches', `<input type="range" data-k="count" min="1" max="10" step="1" value="${m.count}">`, `<output>${m.count}</output>`)
-      : field('Length', `<input type="range" data-k="minutes" min="1" max="10" step="1" value="${m.minutes}">`, `<output>${m.minutes} min</output>`);
+      : m.style === 'breathe'
+        ? field('Length', `<input type="range" data-k="minutes" min=".5" max="10" step=".5" value="${m.minutes}">`, `<output>${m.minutes < 1 ? m.minutes * 60 + ' sec' : m.minutes + ' min'}</output>`)
+        : field('Length', `<input type="range" data-k="minutes" min="1" max="10" step="1" value="${m.minutes}">`, `<output>${m.minutes} min</output>`);
     html += field('Start automatically', toggle('auto', m.auto));
   }
   const list = tab === 'work' ? store.state.works : store.state.breaks;
@@ -1011,7 +1012,7 @@ function renderEditor() {
   ed.querySelectorAll('input[type=range]').forEach(inp => inp.oninput = () => {
     const v = Number(inp.value); patchMode(tab, { [inp.dataset.k]: v });
     const unit = { focus: ' min', minutes: ' min', delay: 's', count: '' }[inp.dataset.k];
-    inp.parentElement.querySelector('output').textContent = v + unit;
+    inp.parentElement.querySelector('output').textContent = inp.dataset.k === 'minutes' && v < 1 ? v * 60 + ' sec' : v + unit;
     ed.querySelector('.editor-foot .sub').textContent = tab === 'work' ? describeWork(store.work()) : describeBreak(store.brk());
   });
   ed.querySelectorAll('input[type=checkbox]').forEach(inp => inp.onchange = () => patchMode(tab, { [inp.dataset.k]: inp.checked }));
@@ -1264,10 +1265,12 @@ function drawGameMap(g) {
   const dpr = Math.min(2, devicePixelRatio || 1), W = cv.offsetWidth, H = cv.offsetHeight;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
   const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
-  const cx = W / 2, cy = H * .5, u = W * .11;               // u = one shoulder-width on the map
+  // Upper body only, same size and place as the figure in the other games.
+  const fs0 = Math.min(W - 32, H - 32) / 300, fy0 = H - 10;
+  const cx = W / 2, u = 80 * fs0, cy = fy0 - 116 * fs0 + u * .5;   // u = one shoulder-width on the map
   // You: the same ink figure, with its arms following yours so you can see yourself reach for a bubble.
   const b = g.body;
-  const fs = u / 80, fy = cy - u * .5 + 116 * fs;           // figure units → map: shoulders on the map's shoulder line
+  const fs = fs0, fy = fy0;
   const aspect = (camera.videoWidth / camera.videoHeight) || 16 / 9;
   const map = b ? (x, y) => [cx - (x - b.cx) / b.w * u, cy - u * .5 + (y - b.cy) / b.w / aspect * u] : null;   // mirrored like the camera
   const P = { eL: [-60, -66], wL: [-46, -8], eR: [60, -66], wR: [46, -8] };
@@ -1277,7 +1280,7 @@ function drawGameMap(g) {
     if (b.ok(14)) P.eR = toFig(14); if (b.ok(16)) P.wR = toFig(16);
   }
   c.save(); c.translate(cx, fy); c.scale(fs, fs);
-  drawFigure(c, { lean: 0, bend: 0, look: 0, head: 0, drop: 0, shrug: 0, ...P });
+  drawFigure(c, { lean: 0, bend: 0, look: 0, head: 0, drop: 0, shrug: 0, ...P }, { legs: false });
   c.restore();
   if (!b) { c.fillStyle = '#6a6b64'; c.font = '500 13px -apple-system, Inter, sans-serif'; c.textAlign = 'center'; c.fillText(active ? 'Step back so your arms fit in view' : 'Bubbles will appear around you', cx, H - 22); return; }
   // hands
@@ -1285,14 +1288,14 @@ function drawGameMap(g) {
   const now = performance.now();
   for (const bub of g.bubbles) {
     const [x, y] = map(bub.x, bub.y), [r, gg, bl] = bub.color, age = (now - bub.born) / bub.life;
-    c.fillStyle = `rgba(${r},${gg},${bl},.22)`; c.strokeStyle = `rgba(${r},${gg},${bl},.9)`; c.lineWidth = 3;
+    c.fillStyle = `rgba(${r},${gg},${bl},.22)`; c.strokeStyle = `rgba(${r},${gg},${bl},.9)`; c.lineWidth = 2.4 * fs;
     c.beginPath(); c.arc(x, y, u * .38, 0, Math.PI * 2); c.fill(); c.stroke();
-    c.beginPath(); c.arc(x, y, u * .38 + 5, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - age)); c.stroke();
+    c.lineWidth = 1.6 * fs; c.beginPath(); c.arc(x, y, u * .38 + 4, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - age)); c.stroke();
   }
   for (const p of g.pops) {
     const k = (now - p.t) / 800; if (k > 1) continue;
     const [x, y] = map(p.x, p.y), [r, gg, bl] = p.color;
-    c.strokeStyle = `rgba(${r},${gg},${bl},${1 - k})`; c.lineWidth = 2;
+    c.strokeStyle = `rgba(${r},${gg},${bl},${1 - k})`; c.lineWidth = 1.6 * fs;
     c.beginPath(); c.arc(x, y, u * (.38 + k * .5), 0, Math.PI * 2); c.stroke();
   }
 }
@@ -1372,7 +1375,7 @@ $('break-switch').addEventListener('click', e => {
   store.update(s => {
     let m = pick;
     if (!m) {   // older saved settings may be missing this type: add it
-      const defs = { stretch: { name: 'Stretch along', count: 10, minutes: 4 }, breathe: { name: 'Reset', count: 3, minutes: 2 }, game: { name: 'Reach & pop', count: 5, minutes: 1 } };
+      const defs = { stretch: { name: 'Stretch along', count: 10, minutes: 4 }, breathe: { name: 'Reset', count: 3, minutes: .5 }, game: { name: 'Reach & pop', count: 5, minutes: 1 } };
       m = { id: style === 'breathe' ? 'breathe' : style, style, auto: true, preset: true, ...defs[style] };
       s.breaks = s.breaks.filter(x => x.id !== m.id); s.breaks.push(m);
     }
