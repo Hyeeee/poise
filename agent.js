@@ -164,7 +164,7 @@ class Agent {
       if (d2 < reach * reach && !reduced && !pinned) { const d = Math.sqrt(d2) || 1, f = (1 - d / reach) * R * .07; nx += dx / d * f; ny += dy / d * f; }
       p.x = (nx - cx) / R; p.y = (ny - cy) / R; p.z += (z2 - p.z) * k;
       const depth = (p.z + 1) / 2;
-      ctx.globalAlpha = .35 + .65 * (1 - depth * .7);
+      ctx.globalAlpha = .3 + .7 * (1 - depth * .8);   // front dots full ink, back ones fainter
       ctx.beginPath();
       ctx.arc(nx, ny, this.dot * .78 * (.75 + (1 - depth) * .45), 0, TAU);
       ctx.fill();
