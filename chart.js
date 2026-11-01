@@ -10,8 +10,10 @@ export function smooth(pts, minY = -Infinity, maxY = Infinity) {
   for (let i = 0; i < pts.length - 1; i++) {
     const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
     const t = 0.18;
-    const c1 = [p1[0] + (p2[0] - p0[0]) * t, c(p1[1] + (p2[1] - p0[1]) * t)];
-    const c2 = [p2[0] - (p3[0] - p1[0]) * t, c(p2[1] - (p3[1] - p1[1]) * t)];
+    // Keep control points between the two ends on x, so the line never loops back on itself.
+    const cx = v => Math.min(p2[0], Math.max(p1[0], v));
+    const c1 = [cx(p1[0] + (p2[0] - p0[0]) * t), c(p1[1] + (p2[1] - p0[1]) * t)];
+    const c2 = [cx(p2[0] - (p3[0] - p1[0]) * t), c(p2[1] - (p3[1] - p1[1]) * t)];
     d += `C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
   }
   return d;
