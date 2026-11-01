@@ -169,27 +169,47 @@ function stop() {
 
 // Said up front every time the camera turns on (playtest: people worried about being watched).
 // It is step 1 of the start flow: notice, then light bar, then reference. One card at a time.
-let flowSteps = [];
+let flowSteps = [], noticeOpen = false, flowStep = null;
 function showCamNotice() {
   flowSteps = ['cam', ...(needBar() ? ['bar'] : []), 'ref'];
-  $('cam-notice').hidden = false;
+  noticeOpen = true; flowStep = null;
   syncRef();
 }
 function hideCamNotice() {
-  if ($('cam-notice').hidden) return;
-  $('cam-notice').hidden = true;
+  if (!noticeOpen) return;
+  noticeOpen = false;
   syncRef();
 }
-// Small dots under each start card so people can see how many steps are left.
-function renderSteps(id, step) {
+// Show or hide a start card with a short slide: forward steps come in from the right,
+// going back comes in from the left. The leaving card fades out the other way.
+const POP_FOR = { cam: 'cam-notice', bar: 'bar-prompt', ref: 'ref-prompt' };
+function setPop(id, show, dir = 1) {
+  const el = $(id);
+  if (show) {
+    if (!el.hidden && !el.classList.contains('leaving')) return;
+    clearTimeout(el._leave);
+    el.classList.remove('leaving'); el.dataset.dir = dir > 0 ? 'next' : 'back';
+    el.hidden = false;
+    el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+  } else if (!el.hidden && !el.classList.contains('leaving')) {
+    el.dataset.dir = dir > 0 ? 'next' : 'back';
+    el.classList.add('leaving');
+    el._leave = setTimeout(() => { el.hidden = true; el.classList.remove('leaving'); }, 260);
+  }
+}
+// Small dots under each start card. The new card starts with the previous dot lit,
+// then the pill slides over, so the dots feel like one control moving along.
+function renderSteps(id, step, from) {
   const box = $(id).querySelector('.pop-steps'); if (!box) return;
-  const i = flowSteps.indexOf(step);
+  const i = flowSteps.indexOf(step), f = from >= 0 ? from : i;
   box.hidden = i < 0 || flowSteps.length < 2;
-  box.innerHTML = flowSteps.map((st, n) => `<button type="button" data-step="${st}" class="${n === i ? 'on' : ''}" aria-label="Step ${n + 1} of ${flowSteps.length}"${n === i ? ' aria-current="step"' : ''}></button>`).join('');
+  box.innerHTML = flowSteps.map((st, n) => `<button type="button" data-step="${st}" class="${n === f ? 'on' : ''}" aria-label="Step ${n + 1} of ${flowSteps.length}"${n === i ? ' aria-current="step"' : ''}></button>`).join('');
+  if (f !== i) requestAnimationFrame(() => requestAnimationFrame(() =>
+    box.querySelectorAll('button').forEach((b, n) => b.classList.toggle('on', n === i))));
 }
 // Tap a dot to jump back (or ahead) to that step.
 function goStep(step) {
-  $('cam-notice').hidden = step !== 'cam';
+  noticeOpen = step === 'cam';
   if (step === 'bar') barSkipped = false;
   if (step === 'ref') barSkipped = true;
   syncRef();
@@ -511,10 +531,15 @@ function syncRef() {
   $('studio').classList.toggle('no-ref', !hasRef() && screen === 'work');
   $('end-session').hidden = !hasRef();
   $('sensor-mode').hidden = true;
-  const bar = needBar(), notice = !$('cam-notice').hidden;
-  $('bar-prompt').hidden = notice || !!reference || !active || screen !== 'work' || !bar;
-  $('ref-prompt').hidden = notice || !!reference || !active || screen !== 'work' || bar;
-  renderSteps('cam-notice', 'cam'); renderSteps('bar-prompt', 'bar'); renderSteps('ref-prompt', 'ref');
+  const bar = needBar(), open = !!reference || !active || screen !== 'work' ? false : true;
+  const step = noticeOpen ? 'cam' : !open ? null : bar ? 'bar' : 'ref';
+  if (step !== flowStep) {
+    const from = flowSteps.indexOf(flowStep), to = flowSteps.indexOf(step);
+    const dir = from < 0 || to < 0 || to >= from ? 1 : -1;
+    for (const [k, id] of Object.entries(POP_FOR)) setPop(id, k === step, dir);
+    if (step) renderSteps(POP_FOR[step], step, flowStep ? from : -1);
+    flowStep = step;
+  }
 }
 function calibrate() {
   if (!active && sensor.live && sensor.cm > 0) return calibrateSensor();
