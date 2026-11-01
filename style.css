@@ -1547,3 +1547,13 @@ body .report-card.pop::before { display: none !important; }
   background: rgba(255,255,255,.85) !important; box-shadow: inset 0 0 0 1px rgba(13,13,13,.1) !important; border-radius: 12px !important; }
 .suggest button:hover { background: #fff !important; box-shadow: inset 0 0 0 1px rgba(13,13,13,.2) !important; }
 .suggest button::after { display: none !important; }
+/* Ask Poise thread: rises in from the input bar; new lines and chips ease in */
+.thread:not([hidden]) { animation: threadIn .45s cubic-bezier(.22,1,.36,1) both; transform-origin: 50% 100%; }
+.thread.closing { animation: threadOut .26s cubic-bezier(.4,0,1,1) both; }
+@keyframes threadIn { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+@keyframes threadOut { to { opacity: 0; transform: translateY(10px) scale(.985); } }
+.msg { animation: msgIn .4s cubic-bezier(.22,1,.36,1) both; }
+.msg.me { transform-origin: 100% 100%; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(6px) scale(.98); } }
+.suggest button { animation: msgIn .4s cubic-bezier(.22,1,.36,1) both; }
+.suggest button:nth-child(2) { animation-delay: .04s; } .suggest button:nth-child(3) { animation-delay: .08s; } .suggest button:nth-child(4) { animation-delay: .12s; }

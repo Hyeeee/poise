@@ -1143,6 +1143,7 @@ function addMessage(who, msg) {
   $('messages').scrollTop = $('messages').scrollHeight;
 }
 function openThread(suggestions = SUGGEST) {
+  $('thread').classList.remove('closing');
   $('thread').hidden = false; $('studio').classList.add('chatting');
   if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, your breaks, or a new mode.');
   $('suggest').innerHTML = '';
@@ -1152,7 +1153,14 @@ function openThread(suggestions = SUGGEST) {
     $('suggest').append(b);
   });
 }
-function closeThread() { $('thread').hidden = true; $('studio').classList.remove('chatting'); }
+// Thread slides down out of view before it hides.
+function closeThread() {
+  const t = $('thread'); if (t.hidden) return;
+  $('studio').classList.remove('chatting');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { t.hidden = true; return; }
+  t.classList.add('closing');
+  setTimeout(() => { t.classList.remove('closing'); t.hidden = true; }, 260);
+}
 
 const assistantCtx = {
   work: () => store.work(), brk: () => store.brk(),
