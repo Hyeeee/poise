@@ -1107,3 +1107,9 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 /* Inner boxes: no outline, the fill colour alone sets them apart. */
 .reel-video #reel-player, .stage-box, #breathe-panel .breath-stage, .reel-video { box-shadow: none !important; border: 0 !important; outline: 0 !important; }
 .timer-box { box-shadow: none !important; }
+
+/* Stretch progress sits inside the figure box, along the top. */
+.reel-video .reel-head { position: absolute; z-index: 3; top: 14px; left: 16px; right: 16px; margin: 0 !important; pointer-events: none; }
+.reel-video .reel-progress { gap: 4px; }
+.reel-video .reel-progress span { height: 3px; border-radius: 3px; background: rgba(13,13,13,.1); }
+.reel-video .reel-progress .done, .reel-video .reel-progress .current { background: var(--ink); }
