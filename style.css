@@ -952,3 +952,49 @@ body .pop.pop, body #ref-prompt.pop, #modes.drawer {
 .pop-steps button.on::before { width: 18px; background: #0d0d0d; }
 #modes.drawer .sheet-head { background: rgba(255,255,255,.72); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
 body .tour-card.pop::before { display: none; }
+
+/* =====================================================================
+   Focus panel: posture and session in ONE card, split by a hairline.
+   Hierarchy, top to bottom:
+     eyebrow  13 / 500 / ink-3   section name
+     title    20 / 600 / ink     state ("Aligned")
+     body     15 / 400 / ink-2   hint
+     number   timer 56 / 300, deviation 26 / 500
+     caption  13 / 400 / ink-2   units, "Then …"
+   ===================================================================== */
+#work-panel { gap: 0 !important; position: relative; isolation: isolate; overflow: hidden; border-radius: 20px;
+  background: rgba(255,255,255,.88); -webkit-backdrop-filter: blur(28px) saturate(1.5); backdrop-filter: blur(28px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 1px rgba(13,13,13,.04), 0 18px 44px -24px rgba(13,13,13,.32); }
+#work-panel[hidden] { display: none !important; }
+.studio .panel #work-panel > .card { background: transparent !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-radius: 0 !important; overflow: visible; }
+.studio .panel #work-panel > .card.state { overflow: hidden; }
+
+/* Posture section */
+#work-panel .state { min-height: 0 !important; padding: 22px 24px 20px; }
+#work-panel .state::before { height: 120% !important; top: -20% !important; }
+#work-panel .state .say { flex: none; margin: 0; }
+#work-panel .state .say::before { content: "Posture"; display: block; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); margin-bottom: 10px; }
+#posture-state { display: block; font-size: 20px; font-weight: 600; line-height: 1.2; letter-spacing: var(--track-title); color: var(--ink); }
+#posture-state::after { content: none !important; }
+#posture-hint { display: block; margin-top: 4px; font-size: 15px; line-height: 1.4; letter-spacing: var(--track-body); color: var(--ink-2); }
+#work-panel .state .card-foot { margin-top: 20px !important; align-items: center; }
+#work-panel .state .card-foot .stat b { font-size: 26px !important; font-weight: 500 !important; letter-spacing: -.03em !important; }
+#work-panel .state .card-foot .stat small { font-size: 13px !important; color: var(--ink-2); }
+#work-panel #calibrate { background: rgba(13,13,13,.06) !important; color: var(--ink) !important; font-weight: 500 !important; }
+#work-panel #calibrate:hover { background: rgba(13,13,13,.1) !important; }
+
+/* Session section */
+#work-panel .session { position: relative; padding: 20px 24px 22px; }
+#work-panel .session::before { content: "" !important; position: absolute; z-index: 0; top: 0; left: 24px; right: 24px; height: 1px; background: rgba(13,13,13,.08) !important;
+  filter: none !important; opacity: 1 !important; bottom: auto; }
+#work-panel .mode-name { font-family: var(--ui) !important; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); gap: 6px; min-height: 0 !important; height: auto !important; padding: 0 !important; }
+#work-panel .mode-name:hover { color: var(--ink); }
+#work-panel .mode-name::after { width: 5px; height: 5px; border-color: currentColor; }
+#work-panel .timer { margin: 8px 0 14px !important; }
+#work-panel #timer { font-size: 56px; font-weight: 300 !important; letter-spacing: -.045em !important; color: var(--ink); }
+#work-panel #pause.round { width: 44px; height: 44px; background: rgba(13,13,13,.06) !important; box-shadow: none !important; }
+#work-panel #pause.round:hover { background: rgba(13,13,13,.1) !important; }
+#work-panel .session .meter.thin { height: 3px !important; margin: 0 0 10px !important; background: rgba(13,13,13,.07); }
+#work-panel #next-break { font-size: 13px; color: var(--ink-2); }
+#work-panel #end-session { margin-top: 18px !important; height: 44px !important; min-height: 44px !important; font-size: 15px !important; border-radius: 14px !important; background: #0d0d0d !important; }
+#work-panel #end-session:hover { background: #333 !important; }
