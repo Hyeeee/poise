@@ -1570,3 +1570,6 @@ body .report-card.pop::before { display: none !important; }
 /* Focus/Break tabs in settings: flat, no shadow or outline */
 #modes.drawer #modes-tabs { box-shadow: none !important; border: 0 !important; background: rgba(13,13,13,.05) !important; }
 #modes.drawer #modes-tabs .seg-thumb, #modes.drawer #modes-tabs button { box-shadow: none !important; }
+/* Focus/Break tabs in Settings: flat, no outline or shadow */
+#modes.drawer #modes-tabs { box-shadow: none !important; border: 0 !important; background: rgba(13,13,13,.05) !important; }
+#modes.drawer #modes-tabs .seg-thumb { box-shadow: none !important; }
