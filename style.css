@@ -921,3 +921,17 @@ body .pop.pop::before {
 .report-card.pop { position: relative; }
 .studio .pop.empty { position: absolute; }
 .tour-card.pop { position: fixed; }
+
+/* Posture card: no progress bar. The top of the card itself takes on the posture colour
+   (pale yellow → yellow → soft red, green when you fix it) and blends smoothly between them. */
+@property --signal { syntax: '<color>'; inherits: true; initial-value: #b3c2d8; }
+:root { transition: --signal 1.4s ease; }
+.state .meter { display: none !important; }
+.state .card-foot { margin-top: 18px; }
+.studio .panel .card.state::before {
+  top: -10%; left: -10%; right: -10%; height: 85%; filter: blur(20px) saturate(1.15); opacity: 1;
+  background:
+    radial-gradient(45% 60% at 28% 30%, color-mix(in srgb, var(--signal) 85%, white), transparent 75%),
+    radial-gradient(45% 60% at 74% 24%, color-mix(in srgb, var(--signal) 60%, white), transparent 75%),
+    linear-gradient(180deg, color-mix(in srgb, var(--signal) 45%, white) 0%, transparent 85%);
+}

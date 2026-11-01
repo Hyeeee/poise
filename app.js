@@ -51,10 +51,13 @@ const strongDelay = () => store.work().delay * 1000;
 // Light bar presets as RGB (same values the board uses), so brightness can scale them too.
 const PRESET_RGB = { white: [140, 140, 130], green: [0, 255, 30], amber: [255, 130, 0], red: [255, 0, 0], idle: [40, 45, 50] };
 const silent = () => !!store.state.silent && screen === 'work';
-function light(state, rgb, fast) {
+// tone (optional): the colour the SCREEN shows. It is kept separate from the LED colour because
+// LED mixes (dim white → orange) look muddy on screen; the screen fades through a pale yellow instead.
+function light(state, rgb, fast, tone) {
   // Silent test: keep tracking, but send no cue. The bar goes dark and the screen stays neutral.
-  if (silent()) { state = 'idle'; rgb = [0, 0, 0]; fast = undefined; }
-  document.documentElement.style.setProperty('--signal', rgb ? `rgb(${rgb.join(',')})` : colors[state]);
+  if (silent()) { state = 'idle'; rgb = [0, 0, 0]; fast = undefined; tone = null; }
+  const screenColor = tone ? `rgb(${tone.join(',')})` : silent() ? colors.idle : rgb ? `rgb(${rgb.join(',')})` : colors[state];
+  document.documentElement.style.setProperty('--signal', screenColor);
   // Brightness setting (25-100%): every colour is scaled down before it is sent to the board.
   const bright = (store.state.brightness ?? 100) / 100;
   if (bright < 1) rgb = (rgb || PRESET_RGB[state] || PRESET_RGB.idle).map(v => Math.round(v * bright));
@@ -366,7 +369,12 @@ function sensorShift() {
 //  4. Back in position for 1 s → green for a moment, then white again.
 const GRACE_MS = () => Math.max(5000, strongDelay());
 const FADE_MS = 6000, RED_AFTER_MS = 20000, SETTLE_MS = 1000;
-const WHITE = [140, 140, 130], YELLOW = [255, 130, 0], RED = [255, 0, 0];
+const WHITE = [140, 140, 130], PALE = [255, 205, 60], YELLOW = [255, 130, 0], RED = [255, 0, 0];
+// Screen versions of the same steps: neutral → pale yellow → warm yellow → soft red.
+const S_WHITE = [233, 231, 223], S_PALE = [255, 238, 168], S_YELLOW = [250, 200, 95], S_RED = [242, 128, 112], S_GREEN = [140, 214, 160];
+// Two-stop fade so the first thing you see is a pale yellow, never a dim, muddy one.
+const toWarm = (k, a, b, c) => k < .5 ? mix(a, b, k * 2) : mix(b, c, (k - .5) * 2);
+let lastTone = null;
 const mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
 let alignedSince = 0, cueShown = false, lastRgb = null;
 function applyPosture(d, now, delta, widthRatio) {
@@ -375,20 +383,21 @@ function applyPosture(d, now, delta, widthRatio) {
   // Ignore the first ~12% of size change (normal shifting in the chair), then count it more gently.
   if (widthRatio) d = Math.max(d, Math.min(100, Math.round(Math.max(0, Math.abs(Math.log(widthRatio)) - .12) * 200)));
   text('deviation', d); $('deviation-bar').style.width = d + '%';
-  let state, rgb = null;
+  let state, rgb = null, tone = null;
   if (d > threshold()) {
     alignedSince = 0;
     if (!driftSince) driftSince = now;
     const held = now - driftSince, grace = GRACE_MS();
     if (held < grace) {
       state = cueShown ? lastState : 'white';          // still within grace: no change
-      if (cueShown) rgb = lastRgb;
+      if (cueShown) { rgb = lastRgb; tone = lastTone; }
     } else {
       cueShown = true;
       const toYellow = Math.min(1, (held - grace) / FADE_MS);
       const redStart = d >= 80 ? grace + FADE_MS : grace + RED_AFTER_MS;
       const toRed = Math.max(0, Math.min(1, (held - redStart) / FADE_MS));
-      rgb = toRed > 0 ? mix(YELLOW, RED, toRed) : mix(WHITE, YELLOW, toYellow);
+      rgb = toRed > 0 ? mix(YELLOW, RED, toRed) : toWarm(toYellow, WHITE, PALE, YELLOW);
+      tone = toRed > 0 ? mix(S_YELLOW, S_RED, toRed) : toWarm(toYellow, S_WHITE, S_PALE, S_YELLOW);
       state = toRed >= 1 ? 'red' : toYellow > .5 ? 'amber' : 'white';
     }
     recoverAt = 0;
@@ -400,15 +409,16 @@ function applyPosture(d, now, delta, widthRatio) {
       driftSince = 0; cueShown = false;
     }
     state = recoverAt && now - recoverAt < 1500 ? 'green' : driftSince ? lastState : 'white';
-    if (driftSince && state !== 'green') rgb = lastRgb;
+    if (driftSince && state !== 'green') { rgb = lastRgb; tone = lastTone; }
+    if (state === 'green') tone = S_GREEN;
   }
   if (state === 'red' && lastState !== 'red' && !silent()) {
     if (store.work().chime) chime();
     // Say what's going on, once per red, in the chosen voice.
     if (store.state.voice) { shiftCause.key = null; shiftCause(delta, widthRatio); setTimeout(() => speak(POSTURE_SAY(shiftCause.key), $('state-agent')), store.work().chime ? 700 : 0); }
   }
-  lastState = state; lastRgb = rgb;
-  light(state, rgb);
+  lastState = state; lastRgb = rgb; lastTone = tone;
+  light(state, rgb, undefined, tone || (state === 'white' ? S_WHITE : null));
   // Say WHAT moved, not just that something did: the biggest part of the shift wins.
   let [title, hint] = STATE_COPY[state];
   // The % label names what moved most: forward, tilt, closer, back, slouch…
