@@ -1316,3 +1316,5 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
   font-family: var(--ui) !important; font-size: 34px !important; font-weight: 500 !important; letter-spacing: -.03em !important; line-height: 1; color: var(--ink); }
 .timer-unit, .card .match span, .card .match { font-size: 15px !important; font-weight: 400 !important; color: var(--ink-2); }
 .card .match b { margin-right: 6px !important; }
+/* Voice cards: selected = black icon tile; playing = white mark with ink bars (so the two never look the same) */
+.voice-opt.playing .vo-play { background: #fff !important; color: #0d0d0d !important; box-shadow: inset 0 0 0 1.5px #0d0d0d !important; }

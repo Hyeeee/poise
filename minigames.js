@@ -131,7 +131,7 @@ export class MiniGame {
     ctx.save();
     if (this.kind === 'boat') {
       // sitting in the paper boat, leaning with it; shoulders dip toward the lean
-      const lane = W / 2 - 40, bx = W / 2 + this.boatX * lane, by = H * .78, f = .34;
+      const lane = W / 2 - 40, bx = W / 2 + this.boatX * lane, by = H * .78, f = .52;
       ctx.translate(bx, by + 2); ctx.rotate(this.boatX * .25); ctx.scale(f, f);
       drawFigure(ctx, { ...base, bend: this.boatX * .32, shTilt: -this.boatX * 10 + tilt * 6, head: this.boatX * .12,
         eL: [-56, -70], wL: [-30, -26], eR: [56, -70], wR: [30, -26] }, { legs: false });
