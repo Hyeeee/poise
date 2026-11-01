@@ -1469,7 +1469,7 @@ body .say-bubble::after { display: none !important; }
 body .say-bubble { border: 0 !important; background: none !important; border-radius: 0 !important; padding: 7px 13px 8px !important;
   white-space: normal !important; max-width: 170px; width: max-content; text-wrap: balance; }
 .sb-shape { position: absolute; left: -2px; top: -2px; z-index: -1; overflow: visible; }
-.sb-shape path { fill: #fbfaf6; stroke: #141412; stroke-width: 1.8; stroke-linejoin: round; }
+.sb-shape path { fill: #fbfaf6; stroke: #141412; stroke-linejoin: round; }
 .sb-tail { display: none; }
 .say-bubble { isolation: isolate; }
 .say-bubble svg.sb-shape { width: auto; height: auto; }

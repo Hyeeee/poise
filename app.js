@@ -146,6 +146,9 @@ function followHead(host, b) {
     b.classList.toggle('flip', !right);
     const key = `${bw}x${bh}${right}`;
     if (b._shape !== key) { b._shape = key; drawBubble(b, bw, bh, !right); }
+    // Outline weight = the figure's ink weight at its current size (2.4 figure units; head radius is 24).
+    const sw = Math.max(1, Math.min(3, r / 10)).toFixed(2);
+    const path = b.querySelector('.sb-shape path'); if (path && path.getAttribute('stroke-width') !== sw) path.setAttribute('stroke-width', sw);
     const cur = b._pos || [x, y], e = b._pos ? .18 : 1;
     b._pos = [cur[0] + (x - cur[0]) * e, cur[1] + (y - cur[1]) * e];
     b.style.transform = `translate(${b._pos[0]}px, ${b._pos[1]}px)`;
