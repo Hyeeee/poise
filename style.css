@@ -1462,3 +1462,5 @@ body .say-bubble::after { display: none !important; }
 .sb-tail { position: absolute; left: 6px; bottom: -15px; width: 18px; height: 16px; overflow: visible; }
 .sb-tail path { fill: #fbfaf6; stroke: #141412; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .say-bubble.flip .sb-tail { left: auto; right: 6px; transform: scaleX(-1); }
+.avatar-box:has(.say-bubble.show) .avatar-key, .reel-video:has(.say-bubble.show) .reel-head { opacity: 0; transition: opacity .3s; }
+.avatar-key, .reel-head { transition: opacity .3s; }

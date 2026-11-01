@@ -58,6 +58,13 @@ export function drawFigure(ctx, P, { j = () => 0, ink = '#141412', paper = '#fbf
   ctx.moveTo(-11 + lk, 3); ctx.quadraticCurveTo(-7 + lk, 6, -3 + lk, 3);
   ctx.moveTo(4 + lk, 3); ctx.quadraticCurveTo(8 + lk, 6, 12 + lk, 3);
   ctx.moveTo(1 + lk * 1.3, 7); ctx.lineTo(lk * 1.3, 12); ctx.stroke();
+  // Mouth (only when asked for): a soft closed line, opening into a round "o" when breathing out.
+  if (P.mouth != null) {
+    const o = Math.max(0, Math.min(1, P.mouth)), mx = lk * 1.3 + .5;
+    ctx.beginPath();
+    if (o < .15) { ctx.moveTo(mx - 4, 16.5); ctx.quadraticCurveTo(mx, 18, mx + 4, 16.5); ctx.stroke(); }
+    else { ctx.fillStyle = ink; ctx.ellipse(mx, 17, 2.2 + o * 1.6, 1.4 + o * 3, 0, 0, Math.PI * 2); ctx.fill(); }
+  }
   ctx.restore();
 
   // Arms last so crossing arms sit in front of the body.
@@ -97,7 +104,11 @@ export class BreathFigure {
       if (this.cv.width !== Math.round(r.width * dpr) || this.cv.height !== Math.round(r.height * dpr)) { this.cv.width = Math.round(r.width * dpr); this.cv.height = Math.round(r.height * dpr); }
       const c = this.ctx; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, r.width, r.height);
       const m = this.mode(), target = m === 'breathe' ? this.level() : 0;
+      const prev = this.lv;
       this.lv += (target - this.lv) * (1 - Math.pow(.01, dt));
+      // Breathing out (level falling) → mouth opens; breathing in → closed, through the nose.
+      const out = m === 'breathe' && this.lv < prev - .0005 ? 1 : 0;
+      this.mouth = (this.mouth || 0) + (out - (this.mouth || 0)) * (1 - Math.pow(.02, dt));
       // a soft halo behind the chest grows with the breath
       const cx = r.width / 2, cy = r.height * .62, R = Math.min(r.width, r.height) * (.28 + this.lv * .14);
       const g = c.createRadialGradient(cx, cy, R * .2, cx, cy, R);
@@ -105,7 +116,7 @@ export class BreathFigure {
       c.fillStyle = g; c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2); c.fill();
       // eye rest: the head looks slowly left and right
       const look = m === 'eyes' ? Math.sin(this.t * .9) : 0;
-      drawSeated(c, r.width, r.height, { shrug: this.lv * 14, head: -this.lv * .04, look, breath: 0,
+      drawSeated(c, r.width, r.height, { shrug: this.lv * 14, head: -this.lv * .04, look, breath: 0, mouth: m === 'breathe' ? this.mouth : 0,
         eL: [-58 - this.lv * 4, -66 - this.lv * 6], eR: [58 + this.lv * 4, -66 - this.lv * 6] }, { fit: [230, 220] });
     };
     requestAnimationFrame(loop);
