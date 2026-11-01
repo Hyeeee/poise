@@ -1621,3 +1621,4 @@ body .say-bubble { font-weight: 600 !important; }
 #work-panel #posture-hint { margin-top: -2px !important; }
 #work-panel .fc-sub { margin-top: 0 !important; }
 #pose-instruction, #breath-tip, #game-tip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#report-len { display: none !important; }
