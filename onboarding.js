@@ -325,7 +325,10 @@ export function runOnboarding() {
           const o = document.createElement('button');
           o.type = 'button'; o.className = 'voice-opt' + (v.id === current ? ' on' : '') + (v.id === 'off' ? ' off-opt' : '');
           o.setAttribute('role', 'radio'); o.setAttribute('aria-checked', v.id === current);
-          o.innerHTML = `<span class="vo-icon" aria-hidden="true">${VOICE_ICON[v.id] || ''}</span><b>${v.name}</b><small>${v.vibe}</small>`;
+          // Top-right play mark says "tap to hear" without a label; it turns into moving bars while that voice speaks.
+          const play = v.id === 'off' ? '' : '<span class="vo-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 7.5v9l7.5-4.5z"/></svg><i></i><i></i><i></i></span>';
+          o.innerHTML = `<span class="vo-icon" aria-hidden="true">${VOICE_ICON[v.id] || ''}</span>${play}<b>${v.name}</b><small>${v.vibe}</small>`;
+          if (v.id !== 'off') o.setAttribute('aria-label', `${v.name}, ${v.vibe}. Plays a sample.`);
           o.onclick = () => {
             if (v.id === 'off') {
               store.update(s => { s.voice = false; });
@@ -342,7 +345,11 @@ export function runOnboarding() {
         });
         const label = document.createElement('div');
         label.className = 'voice-label';
-        label.innerHTML = '<span class="vl-title">Voice</span><span class="vl-hint">Tap one to hear it</span>';
+        label.innerHTML = '<span class="vl-title">Voice</span>';
+        // Bars play on the selected card for as long as Poise is speaking.
+        const syncPlaying = () => pick.querySelectorAll('.voice-opt').forEach(x => x.classList.toggle('playing', x.classList.contains('on') && orb.classList.contains('speaking')));
+        new MutationObserver(syncPlaying).observe(orb, { attributes: true, attributeFilter: ['class'] });
+        syncPlaying();
         const b = document.createElement('button');
         b.className = 'choice next';
         b.textContent = "Let's start";
