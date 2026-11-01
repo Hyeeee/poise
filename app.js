@@ -1662,7 +1662,7 @@ let pipWin = null, pipTimer = 0;
 async function togglePip() {
   if (pipWin && !pipWin.closed) { pipWin.close(); return; }
   if (!('documentPictureInPicture' in window)) { toast('The mini window works in Chrome or Edge on a computer'); return; }
-  try { pipWin = await documentPictureInPicture.requestWindow({ width: 340, height: 150 }); }
+  try { pipWin = await documentPictureInPicture.requestWindow({ width: 360, height: 166 }); }
   catch { toast('Could not open the mini window'); return; }
   // Mini window: the same little figure on the left, the state in words on the right. Sans serif.
   const d = pipWin.document;
@@ -1670,15 +1670,15 @@ async function togglePip() {
     *{box-sizing:border-box;margin:0}
     html,body{height:100%}
     body{font:14px/1.35 -apple-system,BlinkMacSystemFont,'SF Pro Text',Inter,'Segoe UI',sans-serif;letter-spacing:-.011em;color:#0d0d0d;
-      background:#fff;display:flex;gap:14px;align-items:center;padding:12px 16px 12px 12px;position:relative;overflow:hidden}
+      background:#fff;display:flex;gap:16px;align-items:center;padding:18px 20px;position:relative;overflow:hidden}
     body::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,var(--sig) 0%,rgba(255,255,255,0) 75%);opacity:.55;transition:background 1.2s}
     .fig{flex:none;width:96px;height:100%;max-height:126px;border-radius:14px;background:rgba(255,255,255,.75);overflow:hidden}
     canvas{display:block;width:100%;height:100%}
     .txt{min-width:0;display:flex;flex-direction:column;gap:3px}
     b{font-size:16px;font-weight:600;letter-spacing:-.022em;line-height:1.2}
     .hint{color:#5d5d5d;font-size:13px;line-height:1.35}
-    .txt{flex:1;min-width:0;height:calc(100vh - 24px);display:flex;flex-direction:column;overflow:hidden;padding:0}
-    .fig{height:calc(100vh - 24px)!important;width:calc(100vh - 24px)!important;max-height:none!important}
+    .txt{flex:1;min-width:0;height:calc(100vh - 36px);display:flex;flex-direction:column;overflow:hidden;padding:0}
+    .fig{height:calc(100vh - 36px)!important;width:calc(100vh - 36px)!important;max-height:none!important}
     .tm{margin-top:4px}
     .foot{margin-top:auto!important}
     #live-foot{align-items:stretch}
