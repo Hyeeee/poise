@@ -1426,3 +1426,21 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 .game-chips button:hover { background: rgba(13,13,13,.05) !important; color: var(--ink) !important; }
 .game-chips button.on { background: rgba(13,13,13,.07) !important; color: var(--ink) !important; font-weight: 600; }
 .voice-opt small, .voice-opt b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
+/* Focus length slider v2 — clean, Toss/Apple-like */
+.len-slider { max-width: 480px; margin: 6px 0 30px; }
+.ls-value { margin-bottom: 22px; gap: 8px; }
+.ls-value b { font-size: 44px; font-weight: 600; letter-spacing: -.04em; transition: opacity .2s; }
+.ls-value span { font-size: 17px; font-weight: 500; color: var(--ink-3); }
+.ls-track { height: 32px; }
+.ls-rail { height: 8px !important; margin-top: -4px !important; border-radius: 8px; background: rgba(255,255,255,.55) !important; box-shadow: inset 0 0 0 1px rgba(13,13,13,.05); left: 14px !important; right: 14px !important; }
+.ls-fill { background: #0d0d0d; }
+.ls-tick { display: none; }
+.ls-track input[type=range]::-webkit-slider-runnable-track { height: 32px; }
+.ls-track input[type=range]::-webkit-slider-thumb { width: 28px; height: 28px; margin-top: 2px; box-shadow: 0 0 0 .5px rgba(13,13,13,.06), 0 2px 4px rgba(13,13,13,.12), 0 6px 16px -4px rgba(13,13,13,.25); }
+.ls-track input[type=range]::-moz-range-thumb { width: 28px; height: 28px; }
+.ls-track input[type=range]:active::-webkit-slider-thumb { transform: scale(1.1); }
+.ls-marks { margin: 10px 14px 0 !important; }
+.ls-marks button { font-size: 12px !important; font-weight: 500; color: var(--ink-3) !important; padding: 0 6px !important; }
+.ls-marks button.on { color: var(--ink) !important; font-weight: 600; background: none !important; }
+.ls-marks button:hover { background: none !important; color: var(--ink) !important; }
