@@ -1029,3 +1029,43 @@ body .tour-card.pop::before { display: none; }
 body .pop .ghost, body .pop-actions .ghost { background: rgba(13,13,13,.07) !important; color: var(--ink) !important;
   box-shadow: inset 0 0 0 1px rgba(13,13,13,.04) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,13,.12) !important; }
+
+/* =====================================================================
+   Button sizes (design system): S 34 · M 44 · L 54. Nothing else.
+     S  chips, segmented, small icon toggles
+     M  every inline button: popups, tour, report, Reset reference, pause
+     L  full-width end actions: End session, End break, onboarding Next
+   ===================================================================== */
+.pop-actions > button, .tour-card .tour-actions .primary, .tour-card .tour-actions .ghost,
+.report-card .report-actions button, #work-panel #calibrate {
+  height: var(--btn-m) !important; min-height: var(--btn-m) !important; font-size: 15px !important; border-radius: 14px !important; }
+#work-panel #calibrate { padding: 0 16px !important; }
+#work-panel #pause.round { width: var(--btn-m) !important; height: var(--btn-m) !important; border-radius: 14px !important; }
+#end-session, #end-break, #game-end, #breath-end, .end-wide {
+  height: var(--btn-l) !important; min-height: var(--btn-l) !important; font-size: 16px !important; border-radius: 16px !important; }
+#work-panel #end-session { background: rgba(13,13,13,.95) !important; }
+
+/* =====================================================================
+   Focus panel v2: colour washes down from the top of the whole card;
+   the timer sits in its own box inside the card, like the break stage.
+   ===================================================================== */
+#work-panel::before { content: ""; position: absolute; z-index: -1; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(70% 38% at 22% 0%, color-mix(in srgb, var(--signal) 80%, white), transparent 70%),
+    radial-gradient(60% 34% at 85% 4%, color-mix(in srgb, var(--signal) 55%, white), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--signal) 40%, white) 0%, color-mix(in srgb, var(--signal) 14%, white) 42%, rgba(255,255,255,0) 78%);
+  filter: blur(14px) saturate(1.1); transform: scale(1.08); }
+.studio .panel #work-panel .card.state::before { display: none !important; }
+#work-panel .session::before { display: none !important; }
+#work-panel .state { padding: 22px 22px 18px; }
+#work-panel .session { padding: 0 14px 14px; }
+
+.timer-box { border-radius: 16px; padding: 16px 16px 16px; background: rgba(255,255,255,.72);
+  box-shadow: inset 0 0 0 1px rgba(13,13,13,.05), 0 6px 18px -12px rgba(13,13,13,.25); }
+.timer-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#work-panel .timer { display: flex !important; align-items: baseline; justify-content: flex-start; gap: 8px; margin: 6px 0 14px !important; }
+#work-panel #timer { font-size: 52px; line-height: 1; font-weight: 300 !important; letter-spacing: -.04em !important; }
+.timer-unit { font-size: 15px; color: var(--ink-2); letter-spacing: var(--track-body); }
+#work-panel .session .meter.thin { margin: 0 0 10px !important; background: rgba(13,13,13,.08); }
+#work-panel #pause.round { background: rgba(13,13,13,.06) !important; }
+#work-panel #end-session { margin-top: 14px !important; width: 100%; }

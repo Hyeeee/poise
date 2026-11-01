@@ -402,7 +402,8 @@ const GRACE_MS = () => Math.max(5000, strongDelay());
 const FADE_MS = 6000, RED_AFTER_MS = 20000, SETTLE_MS = 1000;
 const WHITE = [140, 140, 130], PALE = [255, 205, 60], YELLOW = [255, 130, 0], RED = [255, 0, 0];
 // Screen versions of the same steps: neutral → pale yellow → warm yellow → soft red.
-const S_WHITE = [233, 231, 223], S_PALE = [255, 238, 168], S_YELLOW = [250, 200, 95], S_RED = [242, 128, 112], S_GREEN = [140, 214, 160];
+// On screen, sitting well is a soft green (the LED stays white), so the card always shows your state.
+const S_WHITE = [150, 214, 165], S_PALE = [255, 238, 168], S_YELLOW = [250, 200, 95], S_RED = [242, 128, 112], S_GREEN = [105, 204, 138];
 // Two-stop fade so the first thing you see is a pale yellow, never a dim, muddy one.
 const toWarm = (k, a, b, c) => k < .5 ? mix(a, b, k * 2) : mix(b, c, (k - .5) * 2);
 let lastTone = null;
@@ -413,7 +414,9 @@ function applyPosture(d, now, delta, widthRatio) {
   // Counted as a shift too (20% closer or farther ≈ 45% shift).
   // Ignore the first ~12% of size change (normal shifting in the chair), then count it more gently.
   if (widthRatio) d = Math.max(d, Math.min(100, Math.round(Math.max(0, Math.abs(Math.log(widthRatio)) - .12) * 200)));
-  text('deviation', d); $('deviation-bar').style.width = d + '%';
+  // The number updates twice a second at most, so it reads calmly.
+  if (now - (applyPosture.shown || 0) > 500) { applyPosture.shown = now; text('deviation', d); }
+  $('deviation-bar').style.width = d + '%';
   let state, rgb = null, tone = null;
   if (d > threshold()) {
     alignedSince = 0;
@@ -810,7 +813,11 @@ function setScreen(next) {
 
 function renderTimer() {
   const total = store.work().focus * 60;
-  text('timer', `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(Math.floor(remaining % 60)).padStart(2, '0')}`);
+  // Minutes only, so the timer changes once a minute and the posture number is the only thing moving.
+  // The last minute counts seconds.
+  const secs = Math.max(0, Math.ceil(remaining));
+  text('timer', secs >= 60 ? Math.ceil(secs / 60) : secs);
+  text('timer-unit', secs >= 60 ? 'min left' : 'sec left');
   $('timer-bar').style.width = (1 - remaining / total) * 100 + '%';
 }
 function renderPause() {
@@ -1433,7 +1440,7 @@ async function togglePip() {
     q('hint').textContent = $('posture-hint').textContent;
     const dev = $('deviation').textContent;
     q('dev').textContent = dev === '—' ? '' : `${dev}${$('dev-label').textContent}`;
-    q('tm').textContent = `${$('timer').textContent} left`;
+    q('tm').textContent = `${$('timer').textContent} ${$('timer-unit').textContent}`;
     q('fill').style.width = $('deviation-bar').style.width || '0';
     const c = getComputedStyle(document.documentElement).getPropertyValue('--signal').trim() || '#c9ccd1';
     q('dot').style.background = c; q('dot').style.color = c;
