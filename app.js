@@ -1603,9 +1603,11 @@ async function togglePip() {
     .txt{min-width:0;display:flex;flex-direction:column;gap:3px}
     b{font-size:16px;font-weight:600;letter-spacing:-.022em;line-height:1.2}
     .hint{color:#5d5d5d;font-size:13px;line-height:1.35}
-    .txt{align-self:stretch;flex:1;min-width:0;max-height:100%;overflow:hidden;padding:4px 0 2px}
+    .txt{flex:1;min-width:0;height:calc(100vh - 24px);display:flex;flex-direction:column;overflow:hidden;padding:0}
+    .fig{height:calc(100vh - 24px)!important;max-height:none!important}
+    .tm{margin-top:4px}
     .foot{margin-top:auto!important}
-    #live-foot{flex-direction:column;align-items:stretch;gap:6px}
+    #live-foot{align-items:stretch}
     #end{margin-left:0;width:100%}
     .tm{font-size:12px;color:#8f8f8f}
     .foot{margin-top:8px;display:flex;align-items:center;gap:8px}
@@ -1617,7 +1619,7 @@ async function togglePip() {
     [hidden]{display:none!important}
   </style>`;
   d.body.innerHTML = '<div class="fig"><canvas id="fig"></canvas></div><div class="txt"><b id="st"></b><span class="hint" id="hint"></span>'
-    + '<div class="foot" id="live-foot"><span class="tm" id="tm"></span><button id="end">End session</button></div>'
+    + '<span class="tm" id="tm"></span><div class="foot" id="live-foot"><button id="end">End session</button></div>'
     + '<div class="foot" id="done-foot" hidden><button class="pri" id="go-break">Take a break</button><button id="see-report">See report</button></div></div>';
   // Bring the main Poise tab forward (needs the click that just happened in the mini window).
   const toMain = () => { try { window.focus(); } catch {} };
