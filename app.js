@@ -1129,7 +1129,10 @@ function setJoints(v) {
 
 async function rerunSetup() {
   const wasBreak = screen === 'break';
+  // Setup is a full-screen page of its own: hide the studio (camera, panel, toolbar) underneath it.
+  $('studio').hidden = true; closeThread();
   await runOnboarding();
+  $('studio').hidden = false;
   if (wasBreak) setScreen('work'); else syncUI();
 }
 
