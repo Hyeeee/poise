@@ -1217,26 +1217,69 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('thread
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (Recognition) {
+  // Hands-free conversation: tap the mic once, talk as many times as you like, tap again to stop.
+  // Recognition pauses while Poise is speaking (so it doesn't hear itself) and resumes right after.
   const rec = new Recognition();
   rec.lang = navigator.languages?.some(l => l.startsWith('ko')) ? 'ko-KR' : 'en-US';
-  rec.interimResults = false;
-  rec.continuous = true;           // keep listening between sentences
+  rec.interimResults = true;
+  rec.continuous = true;
   $('mic').hidden = false;
-  let listening = false;
-  const setUI = on => { $('mic').classList.toggle('listening', on); $('ask-orb').classList.toggle('listening', on); };
-  rec.onresult = e => {
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (!e.results[i].isFinal) continue;
-      const t = e.results[i][0].transcript.trim();
-      if (t) { spoken = true; send(t); }
-    }
+  $('mic').insertAdjacentHTML('beforeend', '<span class="mic-bars" aria-hidden="true"><i></i><i></i><i></i></span>');
+  let on = false, running = false, restartT = 0;
+  const input = $('ask-input'), placeholder = input.placeholder;
+  const setUI = v => {
+    $('mic').classList.toggle('listening', v); $('ask-orb').classList.toggle('listening', v); $('ask-form').classList.toggle('listening', v);
+    $('mic').setAttribute('aria-label', v ? 'Stop listening' : 'Speak instead');
+    input.placeholder = v ? 'Listening…' : placeholder;
   };
-  // Browsers stop recognition after a pause or an error; start it again until the mic is turned off.
-  rec.onend = () => { if (listening) { try { rec.start(); } catch { listening = false; setUI(false); } } else setUI(false); };
-  rec.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { listening = false; setUI(false); } };
+  const begin = () => { if (!on || running || $('ask-orb').classList.contains('speaking')) return; try { rec.start(); running = true; } catch {} };
+  const later = (ms = 250) => { clearTimeout(restartT); restartT = setTimeout(begin, ms); };
+  rec.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript.trim();
+      if (e.results[i].isFinal) { if (t) { input.value = ''; spoken = true; send(t); } }
+      else interim += t;
+    }
+    if (interim) input.value = interim;            // you can see it hearing you
+  };
+  rec.onend = () => { running = false; if (on) later(); };
+  rec.onerror = e => { running = false; if (e.error === 'not-allowed' || e.error === 'service-not-allowed') stopListening(); };
+  // Pause while Poise talks, then listen again.
+  new MutationObserver(() => {
+    if (!on) return;
+    if ($('ask-orb').classList.contains('speaking')) { clearTimeout(restartT); if (running) rec.abort(); }
+    else later(400);
+  }).observe($('ask-orb'), { attributes: true, attributeFilter: ['class'] });
+
+  // Mic level: the three bars in the mic button move with your voice, so you know it hears you.
+  let audioStream, raf;
+  async function startLevel() {
+    try {
+      audioStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      const ac = new (window.AudioContext || window.webkitAudioContext)(), an = ac.createAnalyser();
+      an.fftSize = 256; ac.createMediaStreamSource(audioStream).connect(an);
+      const data = new Uint8Array(an.frequencyBinCount), bars = [...$('mic').querySelectorAll('.mic-bars i')];
+      const tick = () => {
+        if (!on) { ac.close(); return; }
+        an.getByteTimeDomainData(data);
+        let sum = 0; for (const v of data) sum += (v - 128) ** 2;
+        const lvl = Math.min(1, Math.sqrt(sum / data.length) / 28);
+        bars.forEach((b, i) => { b.style.transform = `scaleY(${.3 + lvl * [0.7, 1, 0.8][i] * (0.8 + Math.random() * .4)})`; });
+        raf = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch {}
+  }
+  function stopListening() {
+    on = false; clearTimeout(restartT); cancelAnimationFrame(raf);
+    try { rec.abort(); } catch {} running = false;
+    audioStream?.getTracks().forEach(t => t.stop()); audioStream = null;
+    setUI(false);
+  }
   $('mic').onclick = () => {
-    if (listening) { listening = false; rec.stop(); setUI(false); return; }
-    try { rec.start(); listening = true; setUI(true); openThread(); } catch {}
+    if (on) { stopListening(); return; }
+    on = true; setUI(true); openThread(); begin(); startLevel();
   };
 }
 

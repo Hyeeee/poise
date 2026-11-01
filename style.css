@@ -1573,3 +1573,14 @@ body .report-card.pop::before { display: none !important; }
 /* Focus/Break tabs in Settings: flat, no outline or shadow */
 #modes.drawer #modes-tabs { box-shadow: none !important; border: 0 !important; background: rgba(13,13,13,.05) !important; }
 #modes.drawer #modes-tabs .seg-thumb { box-shadow: none !important; }
+
+/* Mic: while listening it turns into live level bars (same mark as the voice cards) */
+#mic { position: relative; }
+#mic .mic-bars { display: none; gap: 3px; align-items: center; justify-content: center; height: 16px; }
+#mic .mic-bars i { display: block; width: 3px; height: 16px; border-radius: 3px; background: currentColor; transform: scaleY(.3); transition: transform .08s linear; }
+#mic.listening svg { display: none; }
+#mic.listening .mic-bars { display: flex; }
+#mic.listening { background: #fff !important; color: #0d0d0d !important; box-shadow: inset 0 0 0 1.5px #0d0d0d !important; }
+#mic.listening::before { content: ""; position: absolute; inset: -4px; border-radius: inherit; border: 1.5px solid rgba(13,13,13,.25); animation: micRing 1.6s ease-out infinite; }
+@keyframes micRing { from { opacity: 1; transform: scale(.92); } to { opacity: 0; transform: scale(1.18); } }
+#ask-form.listening #ask-input::placeholder { color: var(--ink); }
