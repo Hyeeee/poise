@@ -1406,3 +1406,6 @@ html:is([data-cue="green"], [data-cue="amber"], [data-cue="red"]) .studio .panel
 /* Onboarding progress: a thin bar across the very top of the screen */
 .setup .setup-progress { position: fixed; top: 0; left: 0; right: 0; max-width: none !important; width: 100%; height: 3px; margin: 0; z-index: 30; background: rgba(13,13,13,.08); }
 .setup .setup-top { justify-content: flex-end; }
+/* Setup summary cards: sans title (components stay sans), no row dividers */
+.sum-card h3 { font-family: var(--ui) !important; font-size: 20px !important; font-weight: 600 !important; letter-spacing: -.022em !important; }
+.sum-row + .sum-row::before { display: none !important; }
