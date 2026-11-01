@@ -17,7 +17,7 @@ const QUESTIONS = [
     options: [
       { label: 'Gently', sub: 'After 10 seconds', icon: 'gentle', value: { sensitivity: 'gentle', delay: 10 } },
       { label: 'Clearly', sub: 'After 5 seconds', icon: 'clear', value: { sensitivity: 'balanced', delay: 5 } },
-      { label: 'Right away', sub: 'With a chime', icon: 'chime', value: { sensitivity: 'firm', delay: 3, chime: true } },
+      { label: 'Right away', sub: 'After 3 seconds', icon: 'chime', value: { sensitivity: 'firm', delay: 3 } },
     ],
   },
   {
@@ -298,7 +298,7 @@ export function runOnboarding() {
           <div class="summary">
             <div class="sum-card"><h3>Focus</h3>
               ${row('focus', 'Focus length', `${work.focus} min`)}
-              ${row('nudge', 'Posture cues', `${SENS_WORD[work.sensitivity]}, after ${work.delay}s${work.chime ? ' + chime' : ''}`)}
+              ${row('nudge', 'Posture cues', `${SENS_WORD[work.sensitivity]}, after ${work.delay}s`)}
             </div>
             <div class="sum-card"><h3>Break</h3>
               ${row('rest', 'Break type', rest.style === 'breathe' ? 'Calm reset' : rest.style === 'game' ? 'Movement game' : `${rest.count} stretches`)}

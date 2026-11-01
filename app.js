@@ -520,9 +520,8 @@ function applyPosture(d, now, delta, widthRatio) {
     if (state === 'green') tone = S_GREEN;
   }
   if (state === 'red' && lastState !== 'red' && !silent()) {
-    if (store.work().chime) chime();
     // Say what's going on, once per red, in the chosen voice.
-    if (store.state.voice) { shiftCause.key = null; shiftCause(delta, widthRatio); setTimeout(() => speak(POSTURE_SAY(shiftCause.key), $('state-agent')), store.work().chime ? 700 : 0); }
+    if (store.state.voice) { shiftCause.key = null; shiftCause(delta, widthRatio); setTimeout(() => speak(POSTURE_SAY(shiftCause.key), $('state-agent')), 0); }
   }
   lastState = state; lastRgb = rgb; lastTone = tone;
   light(state, rgb, undefined, tone || (state === 'white' ? S_WHITE : null));
@@ -1036,7 +1035,6 @@ function renderEditor() {
     html += field('Focus length', numSeg('focus', CHOICES.focus, m.focus, v => v + ' min'));
     html += field('Sensitivity', ddHTML('s:sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
     html += field('Strong cue after', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
-    html += `<label class="pref-row field"><span>Chime<small>A soft sound when the light turns red</small></span>${toggle('chime', m.chime)}</label>`;
   } else {
     html += field('Style', ddHTML('s:style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
     html += m.style === 'stretch' ? field('Stretches', numSeg('count', CHOICES.count, m.count, v => v + ' stretches'))

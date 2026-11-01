@@ -134,10 +134,6 @@ export function respond(message, ctx) {
     }
 
     // Toggles
-    if (/sound|chime|beep|소리|알림음|효과음|띵/.test(c)) {
-      const v = toggleValue(c);
-      if (v !== null) { ctx.patchWork({ chime: v }); say(v ? 'Chime is on.' : 'Chime is off.', v ? '알림음을 켰어요.' : '알림음을 껐어요.'); }
-    }
     if (/joint|skeleton|bones|관절|스켈레톤|뼈/.test(c)) {
       const v = toggleValue(c);
       if (v !== null) { ctx.setJoints(v); say(v ? 'Showing joints.' : 'Joints hidden.', v ? '관절을 보여드릴게요.' : '관절 표시를 숨겼어요.'); }
