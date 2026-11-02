@@ -86,10 +86,24 @@ function bubbleHost() {
   }
   return null;
 }
+// Toast icons, drawn like the top bar icons: light bar, camera, mini window, voice, away, done, info.
+const TOAST_ICONS = [
+  [/light bar|usb|sensor|port/i, '<rect x="3" y="7" width="18" height="4" rx="2"/><path d="M8 15h8M12 11v8"/>'],
+  [/camera|see you|in view|frame|arms/i, '<rect x="3" y="6.5" width="13" height="11" rx="3"/><path d="m16 10.5 5-3v9l-5-3"/>'],
+  [/mini window/i, '<rect x="3" y="5" width="18" height="14" rx="3"/><rect x="11" y="10" width="6.5" height="5.5" rx="1.3"/>'],
+  [/voice|silent|light and/i, '<path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6"/>'],
+  [/stepped away|paused|welcome back|timer/i, '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'],
+  [/got it|perfect|reference now|saw your wave/i, '<circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.2 2.4 2.4 4.6-4.8"/>'],
+];
+const toastIcon = msg => (TOAST_ICONS.find(([re]) => re.test(msg)) || [0, '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>'])[1];
 function toast(msg) {
   const host = bubbleHost();
   if (!host) {
-    text('toast', msg); $('toast').hidden = false;
+    // A small line icon that says what the message is about, then the text.
+    const t = $('toast');
+    t.innerHTML = `<svg class="t-ic" viewBox="0 0 24 24" aria-hidden="true">${toastIcon(msg)}</svg><span class="t-tx"></span>`;
+    t.querySelector('.t-tx').textContent = msg;
+    t.hidden = false; t.style.animation = 'none'; void t.offsetWidth; t.style.animation = '';
     clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { $('toast').hidden = true; }, 4000);
     return;
   }
