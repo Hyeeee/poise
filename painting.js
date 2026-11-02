@@ -8,30 +8,28 @@ const FRAG = `precision highp float;
 uniform vec2 R; uniform float T; uniform vec3 C1; uniform vec3 C2; uniform vec3 C3; uniform float L;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 // a soft glow: an oval that is round near its core and stretches out into a long soft band
+// One big soft shape: its size stays the same, but its outline keeps changing. The edge
+// radius is a circle plus a few slow ripples around it (2, 3 and 5 lobes), each turning at
+// its own speed, so the outline swells and dents smoothly in a different place each moment.
+float shape(vec2 p,vec2 c,float R,float t,float seed){
+ vec2 d=p-c; float ang=atan(d.y,d.x), dist=length(d);
+ float r=R*(1.+.16*sin(2.*ang+t*.9+seed)+.10*sin(3.*ang-t*1.2+seed*2.)+.06*sin(5.*ang+t*1.6+seed*3.));
+ return 1.-smoothstep(r*.15,r*1.25,dist);
+}
 void main(){
  vec2 uv=gl_FragCoord.xy/R; float a=R.x/R.y; vec2 p=vec2(uv.x*a,uv.y);
  float t=T*.2;
- // gently bend space so the outlines are never clean circles
- p+=vec2(.06*sin(p.y*3.1+t*1.3)+.035*sin(p.y*5.3-t*.9), .06*cos(p.x*2.7-t*1.1)+.035*cos(p.x*4.9+t*.8));
- // Six blobs, each on its own path and speed. Where they meet they merge into one shape,
- // where they drift apart the shape splits, so the overall form keeps changing on its own.
- float w1=0., w2=0.;
- for(int i=0;i<6;i++){
-  float fi=float(i);
-  vec2 c=vec2(a*(.5+.38*sin(t*(.55+fi*.13)+fi*1.7)+.08*sin(t*1.9+fi)),
-              .5+.40*cos(t*(.47+fi*.11)+fi*2.3)+.07*cos(t*1.6+fi*1.3));
-  float r=.24+.09*sin(t*(.9+fi*.2)+fi);          // each blob breathes in size
-  vec2 d=(p-c)/vec2(r*(1.+.5*sin(t*.8+fi*1.9)),r*(1.+.5*cos(t*.7+fi*1.1)));   // and stretches
-  float f=exp(-dot(d,d));
-  if(mod(fi,2.)<1.) w1+=f; else w2+=f;
- }
- float F=w1+w2;
+ // big shape in the first colour, drifting slowly around the middle of the screen
+ vec2 c1=vec2(a*(.5+.18*sin(t*.5)), .5+.16*cos(t*.43+1.));
+ float f1=shape(p,c1,.62,t,0.);
+ // a second, smaller shape in the second colour, moving inside and around the first
+ vec2 c2=c1+vec2(a*.16*cos(t*.37+2.),.18*sin(t*.53));
+ float f2=shape(p,c2,.36,t*1.1,4.);
  vec3 base=vec3(.975,.975,.968);
- vec3 tint=(C1*w1+C2*w2)/max(F,1e-4);              // colour follows whichever blobs are near
- float amt=smoothstep(.0,1.3,F);
- vec3 col=mix(base,tint,amt*.9);
+ vec3 col=mix(base,C1,f1*.88);
+ col=mix(col,C2,f2*.85);
+ float amt=clamp(max(f1,f2),0.,1.);
  col+=vec3(.025)*L;
- // still grain, gathered in the colour and fading toward the white
  float g=h(floor(gl_FragCoord.xy))-.5;
  col+=g*(.03+.05*amt);
  gl_FragColor=vec4(col,1.);
