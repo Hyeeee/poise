@@ -22,11 +22,12 @@ void main(){
  // main glow (bends when s2 is high, so it reads as a curve rather than an oval)
  // wanders up, down and sideways across the screen
  vec2 c1=vec2(a*(.42+.24*sin(t*.5)+.08*sin(t*1.3+1.)), .45+.25*sin(t*.41+1.2)+.06*cos(t*1.1));
- vec2 q1=p; q1.y-=s2*.18*sin((p.x-c1.x)*2.6+t*.8);
- float f1=glow(q1,c1,.36+.10*(1.-s1),-.5+.9*sin(t*.31),1.+1.8*s1);
+ // mostly a wide band that bends into an arc and back (rarely fully round)
+ vec2 q1=p; q1.y-=(.10+.20*s2)*sin((p.x-c1.x)*2.2+t*.8);
+ float f1=glow(q1,c1,.30+.08*(1.-s1),-.3+.5*sin(t*.31),1.7+1.6*s1);
  // second big glow: always a large soft field, turning and stretching
  vec2 c2=vec2(a*(.62+.22*cos(t*.43+2.)), .55+.24*cos(t*.37+.4));
- float f2=glow(p,c2,.36+.10*s3,.8+.9*cos(t*.29),1.+1.4*(1.-s3));
+ float f2=glow(p,c2,.32+.08*s3,.8+.9*cos(t*.29),1.6+1.2*(1.-s3));
  // third: a big lobe that swells out of the main glow and folds back in (no small spots)
  vec2 c3=c1+vec2(cos(t*.45),sin(t*.55))*(.12+.22*s3)*vec2(a*.5,1.);
  float fs=glow(p,c3,.30+.08*s2,t*.2,1.+.8*s1)*.8;
@@ -34,7 +35,10 @@ void main(){
  vec3 col=mix(base,C1,.10);
  col=mix(col,C1,smoothstep(.05,.8,f2)*.70);
  col=mix(col,C1,smoothstep(.04,.6,f1)*.92);
- col=mix(col,C2,smoothstep(.40,1.,f1)*.95);
+ // core colour sits off-centre inside the band and slides along it, so it never reads as a target
+ vec2 cc=c1+vec2(a*.12*sin(t*.7),.06*cos(t*.9));
+ vec2 qc=q1; float fc=glow(qc,cc,.24+.06*s3,-.3+.5*sin(t*.31),1.5+1.2*s1)*smoothstep(.1,.6,f1);
+ col=mix(col,C2,smoothstep(.15,.9,fc)*.95);
  col=mix(col,C2,smoothstep(.05,.9,fs)*.80);
  float amt=clamp(max(max(f1,f2*.8),fs),0.,1.);
  col+=vec3(.025)*L;
