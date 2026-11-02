@@ -1975,3 +1975,6 @@ body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]
   100% { --p1w: 60%; --p1h: 34%; --p2w: 80%; --p2h: 60%; }
 }
 @media (prefers-reduced-motion: reduce) { #work-panel::before, .studio .panel .card::before { animation: none !important; } }
+
+/* Camera popups: the same sea green as the backdrop behind them, a step lighter. */
+[data-tone="sea"] { --g1: #b3e3cf; --g2: #c8ecdd; --g-ink: #3a8668; }
