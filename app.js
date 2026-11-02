@@ -61,7 +61,8 @@ function light(state, rgb, fast, tone) {
   if (silent()) { state = 'idle'; rgb = [0, 0, 0]; fast = undefined; tone = null; }
   const screenColor = tone ? `rgb(${tone.join(',')})` : silent() ? colors.idle : rgb ? `rgb(${rgb.join(',')})` : colors[state];
   document.documentElement.style.setProperty('--signal', screenColor);
-  document.documentElement.dataset.cue = state;   // break cards glow only on a real cue (green/amber/red)
+  // Break cards glow only on a real cue; in games, any colour the game sends (bubble colour, a ring, a catch) glows too.
+  document.documentElement.dataset.cue = rgb && screen === 'break' && store.brk().style === 'game' && rgb.some(v => v > 40) ? 'game' : state;
   // Brightness setting (25-100%): every colour is scaled down before it is sent to the board.
   const bright = (store.state.brightness ?? 100) / 100;
   if (bright < 1) rgb = (rgb || PRESET_RGB[state] || PRESET_RGB.idle).map(v => Math.round(v * bright));
