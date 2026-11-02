@@ -196,9 +196,9 @@ class Agent {
       ctx.globalAlpha = (.35 + .65 * (1 - depth * .8)) * p.vis;   // front dots full ink, back ones fainter
       const r = this.dot * .82 * (.75 + (1 - depth) * .45);
       // Each dot slowly melts between two of its hand-drawn outlines (no flicker), and floats a hair on its own.
-      const w = reduced ? 0 : .5 + .5 * Math.sin(now / 1900 + p.seed);
+      const w = reduced ? 0 : .5 + .5 * Math.sin(now / 750 + p.seed);
       const a = p.ink[0], b = p.ink[1], shape = a.map((q, j) => { const o = b[j % b.length]; return [q[0] + (o[0] - q[0]) * w, q[1] + (o[1] - q[1]) * w]; });
-      const fx = reduced ? 0 : Math.sin(now / 2300 + p.seed * 3) * r * .35, fy = reduced ? 0 : Math.cos(now / 2700 + p.seed * 2) * r * .35;
+      const fx = reduced ? 0 : Math.sin(now / 950 + p.seed * 3) * r * .45, fy = reduced ? 0 : Math.cos(now / 1150 + p.seed * 2) * r * .45;
       blobPath(ctx, shape, nx + fx, ny + fy, r);
       // Some dots are inked rings (pale inside, like the avatar's limbs); the rest are solid ink.
       if (p.ring && r > 2.2) {
