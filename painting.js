@@ -40,7 +40,7 @@ void main(){
  col+=vec3(.025)*L;
  // still grain (no flicker), gathered in the colour and fading toward the white
  float g=h(floor(gl_FragCoord.xy))-.5;
- col+=g*(.035+.045*amt);   // fine grain over everything, a bit denser in the colour
+ col+=g*(.025+.03*amt);   // fine grain over everything, a bit denser in the colour
  gl_FragColor=vec4(col,1.);
 }`;
 

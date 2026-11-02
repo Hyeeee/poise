@@ -1923,3 +1923,9 @@ body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]
 body .pop.pop::after { opacity: .6 !important; }
 @media (prefers-reduced-motion: reduce) { body .pop.pop::before, .studio .pop.empty::before { animation: none !important; } }
 .studio .panel .card::after { opacity: .1 !important; }
+/* Light grain everywhere (popups and side cards alike), and quicker drifting colour in both. */
+body .pop.pop::after { opacity: .18 !important; }
+.studio .panel .card::after { opacity: .12 !important; }
+body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]):not([hidden])::before {
+  animation: glowIn .6s ease both, popDrift 5s ease-in-out infinite alternate !important; }
+#work-panel::before, .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before { animation-duration: 8s !important; }
