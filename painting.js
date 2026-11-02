@@ -7,25 +7,39 @@ import { ambient } from './ambient.js';
 const FRAG = `precision highp float;
 uniform vec2 R; uniform float T; uniform vec3 C1; uniform vec3 C2; uniform vec3 C3; uniform float L;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+// a soft glow: an oval that is round near its core and stretches out into a long soft band
+float glow(vec2 p,vec2 c,float r,float ang,float st){
+ vec2 d=p-c; float cs=cos(ang),sn=sin(ang); d=vec2(cs*d.x+sn*d.y,-sn*d.x+cs*d.y);
+ d.x/=r*st; d.y/=r; return exp(-dot(d,d));
+}
 void main(){
  vec2 uv=gl_FragCoord.xy/R; float a=R.x/R.y; vec2 p=vec2(uv.x*a,uv.y);
- float t=T*.2;
- // smooth flowing field (no cloud noise): space is bent by slow sine waves, so the colour
- // moves like soft silk bands sliding over each other
- vec2 q=p+.32*vec2(sin(p.y*2.3+t*1.1),cos(p.x*1.9-t*.9));
- q+=.18*vec2(sin(q.y*3.1-t*.7+1.3),cos(q.x*2.7+t*.6+.4));
- float v1=.5+.5*sin(q.x*1.5+q.y*1.1+t*.8);
- float v2=.5+.5*sin(-q.x*1.2+q.y*1.9-t*.6+2.4);
+ float t=T*.11;
  vec3 base=vec3(.975,.975,.968);
- // two colours plus white: the colour bands are narrower, so white space stays open around them
- float m1=smoothstep(.66,1.,v1)*.82, m2=smoothstep(.72,1.,v2)*.74;
- vec3 col=mix(base,C1,m1);
- col=mix(col,C2,m2);
- float amt=clamp(m1+m2,0.,1.);
+ // Shapes keep changing on their own slow clocks: a round glow stretches into a long oval,
+ // bends into a swoosh, splits into two lobes, then gathers back into a round glow.
+ float s1=.5+.5*sin(t*.37), s2=.5+.5*sin(t*.29+2.1), s3=.5+.5*sin(t*.23+4.2);
+ // main glow (bends when s2 is high, so it reads as a curve rather than an oval)
+ vec2 c1=vec2(a*(.32+.16*sin(t*.9)), .42+.18*sin(t*.67+1.2));
+ vec2 q1=p; q1.y-=s2*.18*sin((p.x-c1.x)*2.6+t*.8);
+ float f1=glow(q1,c1,.30+.14*(1.-s1),-.5+.6*sin(t*.31),1.+2.2*s1);
+ // second glow: sometimes a small round spot, sometimes a wide soft field
+ vec2 c2=vec2(a*(.72+.16*cos(t*.71+2.)), .60+.20*cos(t*.83+.4));
+ float f2=glow(p,c2,.22+.22*s3,.8+.5*cos(t*.43),1.+1.4*(1.-s3));
+ // third: a lobe that buds off the main glow and drifts away again (two-lobed shapes)
+ vec2 c3=c1+vec2(cos(t*.5),sin(t*.6))*(.15+.35*s3)*vec2(a*.5,1.);
+ float fs=glow(p,c3,.16+.10*s2,t*.2,1.+.8*s1)*.9;
+ // the whole page carries a faint tint of the first colour, so white is never flat
+ vec3 col=mix(base,C1,.10);
+ col=mix(col,C1,smoothstep(.05,.8,f2)*.70);
+ col=mix(col,C1,smoothstep(.04,.6,f1)*.92);
+ col=mix(col,C2,smoothstep(.40,1.,f1)*.95);
+ col=mix(col,C2,smoothstep(.05,.9,fs)*.80);
+ float amt=clamp(max(max(f1,f2*.8),fs),0.,1.);
  col+=vec3(.025)*L;
- // film grain: dense where the colour is, fading out toward the white
- float g=h(floor(gl_FragCoord.xy))-.5;   // still grain (no flicker), like paper texture
- col+=g*(.02+.06*amt);   // grain gathers in the colour and loosens toward the white
+ // still grain (no flicker), gathered in the colour and fading toward the white
+ float g=h(floor(gl_FragCoord.xy))-.5;
+ col+=g*(.035+.045*amt);   // fine grain over everything, a bit denser in the colour
  gl_FragColor=vec4(col,1.);
 }`;
 
