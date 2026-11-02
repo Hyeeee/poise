@@ -55,10 +55,13 @@ const SHAPES = {
     });
   },
   // A double helix, two strands wound together: health, life.
+  // A double helix, two strands wound together: health, life.
+  // Only about two thirds of the dots show here (the rest fade out and ride along), so the spacing matches the other shapes.
   dna(n) {
+    const m = Math.ceil(n * .64);
     return Array.from({ length: n }, (_, i) => {
-      const s = i % 2, t = Math.floor(i / 2) / Math.ceil(n / 2), a = t * TAU * 1.6 + s * Math.PI;
-      return [Math.cos(a) * .5, -.86 + t * 1.72, Math.sin(a) * .5];
+      const j = i % m, s = j % 2, t = Math.floor(j / 2) / Math.ceil(m / 2), a = t * TAU * 1.6 + s * Math.PI;
+      return [Math.cos(a) * .5, -.86 + t * 1.72, Math.sin(a) * .5, i >= m ? 0 : 1];
     });
   },
 };
@@ -105,7 +108,7 @@ class Agent {
     this.dot = Number(host.dataset.dot) || Math.max(1, this.size / (small ? 16 : 72));
     this.shapeIndex = 0;
     this.target = this.build(host.dataset.shape || ORDER[this.shapeIndex]);
-    this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU, ring: false, ink: (r => [inkBlob(r), inkBlob(r)])(Math.random() * TAU) }));
+    this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU, vis: 1, ring: false, ink: (r => [inkBlob(r), inkBlob(r)])(Math.random() * TAU) }));
     this.spin = Math.random() * TAU;
     this.next = performance.now() + 9000;
     this.scale = 1; this.energy = 0;
@@ -116,7 +119,7 @@ class Agent {
     this.shape = name;
     const pts = SHAPES[name](this.n);
     // Order points by angle so morphs travel around the form instead of crossing it.
-    return pts.map(p => ({ p, k: Math.round((p[1] + 1) * 6) * 10 + (Math.atan2(p[2], p[0]) + Math.PI) })).sort((a, b) => a.k - b.k).map(o => o.p);
+    return pts.map(p => ({ p, k: (p[3] === 0 ? 1e4 : 0) + Math.round((p[1] + 1) * 6) * 10 + (Math.atan2(p[2], p[0]) + Math.PI) })).sort((a, b) => a.k - b.k).map(o => o.p);
   }
   morph(name) { if (name && name !== this.shape) this.target = this.build(name); }
   resize() {
@@ -188,7 +191,9 @@ class Agent {
       if (d2 < reach * reach && !reduced && !pinned) { const d = Math.sqrt(d2) || 1, f = (1 - d / reach) * R * .07; nx += dx / d * f; ny += dy / d * f; }
       p.x = (nx - cx) / R; p.y = (ny - cy) / R; p.z += (z2 - p.z) * k;
       const depth = (p.z + 1) / 2;
-      ctx.globalAlpha = .35 + .65 * (1 - depth * .8);   // front dots full ink, back ones fainter
+      p.vis += ((t[3] ?? 1) - p.vis) * Math.min(1, dt * 2.5);   // dots a formation doesn't use fade away
+      if (p.vis < .02) continue;
+      ctx.globalAlpha = (.35 + .65 * (1 - depth * .8)) * p.vis;   // front dots full ink, back ones fainter
       const r = this.dot * .82 * (.75 + (1 - depth) * .45);
       // Each dot slowly melts between two of its hand-drawn outlines (no flicker), and floats a hair on its own.
       const w = reduced ? 0 : .5 + .5 * Math.sin(now / 1900 + p.seed);
