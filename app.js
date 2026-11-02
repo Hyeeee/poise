@@ -1819,3 +1819,32 @@ async function togglePip() {
   pipWin.addEventListener('pagehide', () => { clearInterval(pipTimer); pipWin = null; $('pip').classList.remove('on'); });
 }
 $('pip').onclick = togglePip;
+
+// ---------- Logo colour follows what is behind it ----------
+// Twice a second, sample the camera image under the logo (top-left corner, mirrored like the view)
+// and switch the logo to white on a dark background, back to ink on a light one.
+{
+  const lc = document.createElement('canvas'), lx = lc.getContext('2d', { willReadFrequently: true });
+  lc.width = 32; lc.height = 18;
+  let dark = false;
+  setInterval(() => {
+    const logo = $('home');
+    if (!logo || $('studio').hidden) return;
+    if (!active || !camera.videoWidth) { if (dark) { dark = false; logo.classList.remove('on-dark'); } return; }
+    const r = logo.getBoundingClientRect(), vw = innerWidth, vh = innerHeight;
+    // The video fills the screen (cover) and is mirrored, so map the logo box into video pixels.
+    const vr = camera.videoWidth / camera.videoHeight, sr = vw / vh;
+    const scale = vr > sr ? vh / camera.videoHeight : vw / camera.videoWidth;
+    const ox = (vw - camera.videoWidth * scale) / 2, oy = (vh - camera.videoHeight * scale) / 2;
+    const sx = camera.videoWidth - ((r.right - ox) / scale), sy = (r.top - oy) / scale;
+    const sw = r.width / scale, sh = r.height / scale;
+    try {
+      lx.drawImage(camera, Math.max(0, sx), Math.max(0, sy), sw, sh, 0, 0, 32, 18);
+      const d = lx.getImageData(0, 0, 32, 18).data; let s = 0;
+      for (let i = 0; i < d.length; i += 4) s += .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2];
+      const luma = s / (d.length / 4) / 255;
+      const next = dark ? luma < .52 : luma < .42;          // a little hysteresis so it doesn't flicker
+      if (next !== dark) { dark = next; logo.classList.toggle('on-dark', dark); }
+    } catch {}
+  }, 500);
+}
