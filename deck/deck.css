@@ -327,3 +327,13 @@ body.on-end .progress { opacity: 0; pointer-events: none; }
 :root { --m: max(calc(var(--s) * 64), 20px); --padx: var(--m); --bottom: var(--m); --top: calc(var(--m) + max(calc(var(--s) * 150), 72px)); }
 .progress { top: var(--m); left: var(--m); right: var(--m); }
 .cover { padding: var(--m); }
+
+/* Cover → content: no sliding sheet. The colour softens into frosted glass (blur and white
+   fade in together) while the backdrop sinks back a touch, then the content rises onto the glass. */
+.sheet { clip-path: none !important; opacity: 0; backdrop-filter: blur(0px) saturate(1); -webkit-backdrop-filter: blur(0px) saturate(1);
+  transition: opacity 1.1s cubic-bezier(.4,0,.2,1), backdrop-filter 1.3s cubic-bezier(.4,0,.2,1), -webkit-backdrop-filter 1.3s cubic-bezier(.4,0,.2,1); }
+body.paper .sheet { opacity: 1; backdrop-filter: blur(60px) saturate(1.05); -webkit-backdrop-filter: blur(60px) saturate(1.05); }
+.paint-live { transition: transform 1.6s cubic-bezier(.22,.7,.2,1); transform-origin: 50% 50%; }
+body.paper .paint-live { transform: scale(.94); }
+/* Leaving the cover, its content gently recedes instead of sliding up */
+.cover.leaving [data-in] { transform: scale(.97); filter: blur(10px); opacity: 0; transition: opacity .6s ease, transform .9s cubic-bezier(.22,.7,.2,1), filter .6s ease; }
