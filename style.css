@@ -1775,3 +1775,17 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
   100% { --g1x: 60%; --g1y: 10%; --g2x: 80%; --g2y: 75%; }
 }
 .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before { animation-duration: 16s !important; }
+
+/* Focus card uses exactly the Break card wash: same layers, same drift. Its two colours come from
+   the posture signal, the second one leaning teal like the Break card's mint. */
+#work-panel::before {
+  --card-glow: color-mix(in srgb, var(--signal) 78%, white);
+  --card-glow-2: color-mix(in srgb, var(--signal) 45%, #b3dfda);
+  inset: -16% 0 0 0 !important; transform: none;
+  background:
+    radial-gradient(60% 34% at var(--g1x) var(--g1y), var(--card-glow), transparent 72%),
+    radial-gradient(55% 32% at var(--g2x) var(--g2y), var(--card-glow-2), transparent 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--card-glow) 60%, white) 0%, color-mix(in srgb, var(--card-glow) 30%, white) 50%, color-mix(in srgb, var(--card-glow) 18%, white) 100%) !important;
+  filter: blur(10px) saturate(1.1) !important; opacity: .9;
+  animation: glowDrift 16s ease-in-out infinite alternate !important; }
+@media (prefers-reduced-motion: reduce) { #work-panel::before { animation: none !important; } }
