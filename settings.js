@@ -15,7 +15,7 @@ const DEFAULT_WORK = [
 ];
 const DEFAULT_BREAK = [
   { id: 'stretch', name: 'Stretch along', style: 'stretch', count: 10, minutes: 4, auto: true, preset: true },
-  { id: 'breathe', name: 'Reset',         style: 'breathe', count: 3, minutes: 2, auto: true, preset: true },
+  { id: 'breathe', name: 'Reset',         style: 'breathe', count: 3, minutes: .5, auto: true, preset: true },
   { id: 'game',    name: 'Reach & pop',   style: 'game',    count: 5, minutes: 1, auto: true, preset: true },
 ];
 
@@ -101,10 +101,10 @@ export function patchMode(kind, patch) {
 }
 
 export function describeWork(m) {
-  return `${m.focus} min focus, ${SENSITIVITY[m.sensitivity].label.toLowerCase()} cues after ${m.delay}s${m.eyes ? ', eye care on' : ''}`;
+  return `${m.focus} min focus, ${SENSITIVITY[m.sensitivity].label.toLowerCase()} cues after ${m.delay}s`;
 }
 export function describeBreak(m) {
-  if (m.style === 'breathe') return `${m.minutes} min reset: shoulder-drop breathing + eye rest`;
+  if (m.style === 'breathe') return `${m.minutes < 1 ? m.minutes * 60 + ' sec' : m.minutes + ' min'} of slow breathing and eye rest`;
   if (m.style === 'game') return `${m.minutes} min movement game`;
   return `${m.count} guided stretch${m.count > 1 ? 'es' : ''}`;
 }

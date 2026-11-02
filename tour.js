@@ -1,19 +1,13 @@
 // Guided tour: highlights one part of the studio at a time and dims the rest.
 const $ = id => document.getElementById(id);
 
+// Grouped after playtesting: 12 single stops became 4, one per area of the screen.
+// A step can point at several elements; the highlight wraps all of them.
 const WORK_STEPS = [
-  { sel: '.state', title: 'Your posture', text: 'Sit the way you want to stay, then press Set reference. This card tells you when you drift from it.' },
-  { sel: '#calibrate', title: 'Set reference', text: 'Saves your current position as “good”. Press it again any time to reset.' },
-  { sel: '#state-agent', title: 'Poise, at a glance', text: 'These dots react to you: calm when you’re aligned, restless when you drift.' },
-  { sel: '.session', title: 'Focus timer', text: 'Starts when you set a reference. When it ends, your break begins.' },
-  { sel: '#end-session', title: 'End session', text: 'Finish whenever you like to see how your posture went, what pulled you out of position, and how fast you corrected.' },
-  { sel: '#work-mode-name', title: 'Focus mode', text: 'Tap the name to switch modes or change length and sensitivity.' },
-  { sel: '.topbar .segmented', title: 'Focus and Break', text: 'Switch between working and resting yourself, whenever you like.' },
-  { sel: '#connect', title: 'Light bar', text: 'Connect the light bar over USB so it glows with your posture.' },
-  { sel: '#stop', title: 'Camera', text: 'Turn the camera on or off. Video stays on this device.' },
-  { sel: '.tools .music-btn', title: 'Music', text: 'Calm background sound. Tap to turn it on or off.' },
-  { sel: '#open-modes', title: 'Modes and settings', text: 'Create your own focus and break modes, and set voice and music.' },
-  { sel: '#ask-form', title: 'Ask Poise', text: 'Type or speak to change anything. Try “focus 40 minutes”, “less sensitive” or “take a break”.' },
+  { sel: ['.state'], title: 'Your posture', text: 'This card compares you to your reference. Set reference saves how you sit now, and the dots stay calm while you are aligned.' },
+  { sel: ['.session'], title: 'Your session', text: 'The timer starts when you set a reference. Tap the mode name to change length or sensitivity, and end the session any time to see your report.' },
+  { sel: ['.topbar .segmented', '.tools'], title: 'Controls', text: 'Switch between Focus and Break, connect the light bar, turn the camera on or off, open a mini window, and change modes, voice and music.' },
+  { sel: ['#ask-form'], title: 'Ask Poise', text: 'Type or speak to change anything. Try “focus 40 minutes”, “less sensitive” or “take a break”.' },
 ];
 
 const BREAK_STEPS = {
@@ -27,7 +21,6 @@ const BREAK_STEPS = {
     { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, a calm reset and a movement game any time.' },
     { sel: '#reel-player', title: 'Follow the figure', text: 'Watch the sketch, then copy the stretch in front of your camera.' },
     { sel: '.match', title: 'Match score', text: 'How close you are to the figure. Get near it for half a second and the next stretch begins.' },
-    { sel: '#reel-progress', title: 'Your stretches', text: 'Each dot is one stretch. Skip any you can’t do.' },
     { sel: '#end-break', title: 'End break', text: 'Finish any time to see how long you rested and how much you followed.' },
   ],
   breathe: [
@@ -41,9 +34,18 @@ const BREAK_STEPS = {
 let STEPS = WORK_STEPS;
 let i = 0, onDone = null;
 
+const shown = e => e && e.offsetParent !== null ? e : null;
+// First visible element of a step (a step's sel can be one selector or a list).
 function el(sel) {
-  const e = document.querySelector(sel);
-  return e && e.offsetParent !== null ? e : null;
+  for (const s of [].concat(sel)) { const e = shown(document.querySelector(s)); if (e) return e; }
+  return null;
+}
+// One box around every visible element of the step.
+function rectOf(sel) {
+  const rs = [].concat(sel).map(s => shown(document.querySelector(s))).filter(Boolean).map(e => e.getBoundingClientRect());
+  const left = Math.min(...rs.map(r => r.left)), top = Math.min(...rs.map(r => r.top));
+  const right = Math.max(...rs.map(r => r.right)), bottom = Math.max(...rs.map(r => r.bottom));
+  return { left, top, right, bottom, width: right - left, height: bottom - top, many: rs.length > 1 };
 }
 
 function place() {
@@ -51,11 +53,11 @@ function place() {
   const spot = $('tour-spot'), card = $('tour-card');
   if (!target) return i + 1 < STEPS.length ? go(1, true) : end();
   target.scrollIntoView({ block: 'nearest' });
-  const r = target.getBoundingClientRect(), pad = 8;
+  const r = rectOf(step.sel), pad = 8;
   Object.assign(spot.style, { left: r.left - pad + 'px', top: r.top - pad + 'px', width: r.width + pad * 2 + 'px', height: r.height + pad * 2 + 'px' });
   // Match the highlight's corners to the element's own rounding (plus the padding around it).
   const radius = parseFloat(getComputedStyle(target).borderTopLeftRadius) || 0;
-  spot.style.setProperty('--spot-r', (radius > 0 ? Math.min(radius, r.height / 2) + pad : 12) + 'px');
+  spot.style.setProperty('--spot-r', (r.many ? 20 : radius > 0 ? Math.min(radius, r.height / 2) + pad : 12) + 'px');
   card.classList.remove('swap'); void card.offsetWidth; card.classList.add('swap');
   $('tour-title').textContent = step.title;
   $('tour-text').textContent = step.text;

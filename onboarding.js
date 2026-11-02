@@ -15,26 +15,26 @@ const QUESTIONS = [
     key: 'nudge',
     say: 'When your posture starts to drift, how should I let you know?',
     options: [
-      { label: 'Gently, after 10 seconds', value: { sensitivity: 'gentle', delay: 10 } },
-      { label: 'Clearly, after 5 seconds', value: { sensitivity: 'balanced', delay: 5 } },
-      { label: 'Right away, with a chime', value: { sensitivity: 'firm', delay: 3, chime: true } },
+      { label: 'Gently', sub: 'After 10 seconds', icon: 'gentle', value: { sensitivity: 'gentle', delay: 10 } },
+      { label: 'Clearly', sub: 'After 5 seconds', icon: 'clear', value: { sensitivity: 'balanced', delay: 5 } },
+      { label: 'Right away', sub: 'After 3 seconds', icon: 'chime', value: { sensitivity: 'firm', delay: 3 } },
     ],
   },
   {
     key: 'rest',
     say: 'And when it is time to rest, what helps you reset?',
     options: [
-      { label: 'Guided stretches', value: { style: 'stretch', count: 10 } },
-      { label: 'A calm reset: breathing + eye rest', value: { style: 'breathe', minutes: 2 } },
-      { label: 'A quick movement game', value: { style: 'game', minutes: 1 } },
+      { label: 'Stretch', sub: 'Follow a figure', icon: 'stretch', value: { style: 'stretch', count: 10 } },
+      { label: 'Breathe', sub: 'Slow and calm', icon: 'breathe', value: { style: 'breathe', minutes: .5 } },
+      { label: 'Game', sub: 'Move to play', icon: 'game', value: { style: 'game', minutes: 1 } },
     ],
   },
   {
     key: 'auto',
     say: 'Last one. When focus time ends, should I start your break for you?',
     options: [
-      { label: 'Start it for me', value: true },
-      { label: 'Ask me first', value: false },
+      { label: 'Start it for me', sub: 'No need to tap', icon: 'auto', value: true },
+      { label: 'Ask me first', sub: 'I’ll check first', icon: 'ask', value: false },
     ],
   },
 ];
@@ -83,6 +83,30 @@ function matchVoice() {
 let currentAudio = null;
 // Speak a line. Uses a natural pre-recorded voice when one exists for this exact text,
 // otherwise falls back to the browser's built-in speech.
+// Small line icons for the voice cards.
+const VOICE_ICON = {
+  ava: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M6 18l1.4-1.4M16.6 7.4 18 6"/></svg>',
+  sonia: '<svg viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>',
+  andrew: '<svg viewBox="0 0 24 24"><path d="M3 9c2.5-2 4.5-2 7 0s4.5 2 7 0 3-1.5 4-1"/><path d="M3 15c2.5-2 4.5-2 7 0s4.5 2 7 0 3-1.5 4-1"/></svg>',
+  off: '<svg viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg>',
+};
+const OPT_ICON = {
+  gentle: '<svg viewBox="0 0 24 24"><path d="M4 15c3-4 5-4 8 0s5 4 8 0"/></svg>',
+  clear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/></svg>',
+  chime: '<svg viewBox="0 0 24 24"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 1.5H5z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>',
+  stretch: '<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M6 3.5 10 9h4l4-5.5M12 9v6M9 21l3-6 3 6"/></svg>',
+  breathe: '<svg viewBox="0 0 24 24"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 13h15a3 3 0 1 1-3 3"/><path d="M3 17h7"/></svg>',
+  game: '<svg viewBox="0 0 24 24"><circle cx="9" cy="10" r="4.5"/><circle cx="17" cy="15" r="3"/><circle cx="7" cy="18" r="1.5"/></svg>',
+  auto: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>',
+  ask: '<svg viewBox="0 0 24 24"><path d="M5 5h14v10H10l-4 4v-4H5z"/><path d="M10 9.5a2 2 0 1 1 2.5 2V12"/></svg>',
+};
+// Stop whatever is speaking right now.
+export function stopVoice(orb) {
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  orb?.classList.remove('speaking'); ambient.duck(false);
+}
+
 export function speak(text, orb, lang = 'en') {
   if (!store.state.voice) return;
   if ('speechSynthesis' in window) speechSynthesis.cancel();
@@ -117,13 +141,16 @@ function reducedMotion() { return matchMedia('(prefers-reduced-motion: reduce)')
 // Words drift in one after another, softly, instead of typing letter by letter.
 function typeLine(el, text, token) {
   return new Promise(resolve => {
-    if (reducedMotion()) { el.textContent = text; return resolve(); }
+    if (reducedMotion()) { el.innerHTML = ''; text.replace('Poise. A ', 'Poise.\nA ').replace(' First, ', '\nFirst, ').split('\n').forEach((t, i) => { if (i) el.append(document.createElement('br')); el.append(t); }); return resolve(); }
     el.innerHTML = '';
+    el.classList.toggle('lines', / First, /.test(text));   // intro: fixed line breaks, no extra wrapping
     const words = text.split(' ');
     words.forEach((w, i) => {
       const s = document.createElement('span');
       s.className = 'word'; s.textContent = w + (i < words.length - 1 ? ' ' : '');
       s.style.animationDelay = `${i * 70}ms`;
+      // The voice ask in the intro starts on its own line (display only; the spoken text is unchanged).
+      if ((w === 'First,' || (w === 'A' && words[i - 1] === 'Poise.')) && i > 0) el.append(document.createElement('br'));
       el.append(s);
     });
     setTimeout(() => resolve(), words.length * 70 + 350);
@@ -180,45 +207,40 @@ export function runOnboarding() {
     }
 
     // Minutes picker: type a number, nudge it with − / +, or tap a quick chip.
+    // Focus length: one slider. The value reads above it in the app's number style, small marks
+    // under the track jump to common lengths. No text field (people rarely typed a number).
     function minutesPicker(q) {
       let value = answers[q.key] ?? q.start;
-      const clampV = v => Math.max(q.min, Math.min(q.max, Math.round(v) || q.start));
+      const clampV = v => Math.max(q.min, Math.min(q.max, Math.round(v / q.step) * q.step || q.start));
+      const MARKS = [15, 30, 45, 60, 90, 120];
+      const pct = m => (m - q.min) / (q.max - q.min) * 100;
+      const short = m => m < 60 ? `${m}m` : m % 60 ? `${(m / 60).toFixed(1)}h` : `${m / 60}h`;
       const wrap = document.createElement('div');
-      wrap.className = 'min-picker';
+      wrap.className = 'len-slider';
       wrap.innerHTML = `
-        <div class="min-field">
-          <label class="min-box"><span class="roll" aria-hidden="true"></span><input type="number" inputmode="numeric" min="${q.min}" max="${q.max}" step="1" value="${value}" aria-label="Focus minutes"><span class="min-unit">min</span></label>
-          <input type="range" class="min-range" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Focus minutes slider">
-          <div class="min-scale"><span>${q.min} min</span><span>${q.max / 60} hours</span></div>
+        <div class="ls-value"><b aria-hidden="true"></b><span></span></div>
+        <div class="ls-track">
+          <div class="ls-rail"><i class="ls-fill"></i>${MARKS.map(m => `<i class="ls-tick" style="left:${pct(m)}%"></i>`).join('')}</div>
+          <input type="range" min="${q.min}" max="${q.max}" step="${q.step}" value="${value}" aria-label="Focus length in minutes">
         </div>
+        <div class="ls-ends"><span>${short(q.min)}</span><span>${short(q.max)}</span></div>
         <div class="quick">${q.quick.map(m => `<button type="button" class="quick-chip" data-m="${m}">${m >= 60 ? m / 60 + ' hour' : m + ' min'}</button>`).join('')}</div>`;
-      const input = wrap.querySelector('input[type=number]'); let range;
-      // Rolling digits (like Toss): each digit is a column of 0-9 that slides to the new value.
-      const rollEl = wrap.querySelector('.roll');
-      const roll = n => {
-        const digits = String(n).split('');
-        while (rollEl.children.length < digits.length) {
-          const col = document.createElement('span'); col.className = 'roll-col';
-          col.innerHTML = '<span>' + [...'0123456789'].join('</span><span>') + '</span>';
-          rollEl.prepend(col);
-        }
-        while (rollEl.children.length > digits.length) rollEl.firstChild.remove();
-        [...rollEl.children].forEach((col, i) => { col.style.transform = `translateY(${-digits[i] * 10}%)`; });
-        input.style.width = digits.length + 'ch';
-      };
+      const range = wrap.querySelector('input'), b = wrap.querySelector('.ls-value b'), u = wrap.querySelector('.ls-value span');
       const set = v => {
-        value = clampV(v); input.value = value; roll(value); if (range) { range.value = value; range.style.setProperty('--p', ((value - q.min) / (q.max - q.min) * 100) + '%'); }
-        wrap.querySelectorAll('.quick-chip').forEach(c => c.classList.toggle('on', +c.dataset.m === value));
+        value = clampV(v); range.value = value;
+        const h = Math.floor(value / 60), m = value % 60;
+        b.textContent = value < 60 ? value : m ? `${h}h ${m}` : h;
+        u.textContent = value < 60 ? 'min' : m ? 'min' : h > 1 ? 'hours' : 'hour';
+        range.setAttribute('aria-valuetext', `${value} minutes`);
+        wrap.style.setProperty('--p', pct(value) + '%');
+        wrap.querySelectorAll('.quick-chip').forEach(x => x.classList.toggle('on', +x.dataset.m === value));
+        wrap.querySelectorAll('.ls-tick').forEach((t, i) => t.classList.toggle('past', MARKS[i] <= value));
       };
-      range = wrap.querySelector('.min-range');
       range.oninput = () => set(+range.value);
-      wrap.querySelectorAll('.quick-chip').forEach(c => c.onclick = () => set(+c.dataset.m));
-      input.onchange = () => set(+input.value);
-      input.oninput = () => { input.style.width = Math.max(1, input.value.length) + 'ch'; const v = +input.value; if (v >= q.min && v <= q.max) { range.value = v; range.style.setProperty('--p', ((v - q.min) / (q.max - q.min) * 100) + '%'); } };
-      input.onkeydown = e => { if (e.key === 'Enter') { set(+input.value); go.click(); } };
+      wrap.querySelectorAll('.quick-chip').forEach(x => x.onclick = () => set(+x.dataset.m));
       const go = document.createElement('button');
       go.className = 'choice next'; go.textContent = 'Continue';
-      go.onclick = () => { set(+input.value); answers[q.key] = value; go.classList.add('picked'); setTimeout(next, 220); };
+      go.onclick = () => { answers[q.key] = value; go.classList.add('picked'); setTimeout(next, 220); };
       choices.append(wrap, go);
       set(value);
     }
@@ -232,13 +254,17 @@ export function runOnboarding() {
       const q = QUESTIONS[index];
       show(q.say, () => {
         if (q.input === 'minutes') return minutesPicker(q);
+        // Each answer is a card like the voice cards: icon tile, label, one short line.
+        const row = document.createElement('div');
+        row.className = 'opt-cards'; row.style.setProperty('--n', q.options.length);
         q.options.forEach(opt => {
           const b = document.createElement('button');
-          b.className = 'choice';
-          b.textContent = opt.label;
-          b.onclick = () => { answers[q.key] = opt.value; b.classList.add('picked'); setTimeout(next, 220); };
-          choices.append(b);
+          b.type = 'button'; b.className = 'voice-opt opt-card';
+          b.innerHTML = `<span class="vo-icon" aria-hidden="true">${OPT_ICON[opt.icon] || ''}</span><b>${opt.label}</b><small>${opt.sub || ''}</small>`;
+          b.onclick = () => { answers[q.key] = opt.value; row.querySelectorAll('.opt-card').forEach(x => x.classList.toggle('on', x === b)); setTimeout(next, 260); };
+          row.append(b);
         });
+        choices.append(row);
       });
     }
 
@@ -272,7 +298,7 @@ export function runOnboarding() {
           <div class="summary">
             <div class="sum-card"><h3>Focus</h3>
               ${row('focus', 'Focus length', `${work.focus} min`)}
-              ${row('nudge', 'Posture cues', `${SENS_WORD[work.sensitivity]}, after ${work.delay}s${work.chime ? ' + chime' : ''}`)}
+              ${row('nudge', 'Posture cues', `${SENS_WORD[work.sensitivity]}, after ${work.delay}s`)}
             </div>
             <div class="sum-card"><h3>Break</h3>
               ${row('rest', 'Break type', rest.style === 'breathe' ? 'Calm reset' : rest.style === 'game' ? 'Movement game' : `${rest.count} stretches`)}
@@ -299,26 +325,44 @@ export function runOnboarding() {
     }
 
     function intro() {
-      const hello = 'Hi, I am Poise. A few quick questions, so your focus and breaks fit the way you work.';
+      const hello = 'Hi, I’m Poise. A few questions to fit how you work. First, pick a voice.';
       show(hello, () => {
         const pick = document.createElement('div');
         pick.className = 'voice-pick';
         pick.setAttribute('role', 'radiogroup'); pick.setAttribute('aria-label', 'Voice');
-        const current = store.state.voiceId || 'ava';
-        VOICES.forEach(v => {
+        // Three voices plus "No voice". Each card: a small icon tile, the name, and a one-line feel.
+        const current = store.state.voice === false ? 'off' : (store.state.voiceId || 'ava');
+        const OPTS = [...VOICES, { id: 'off', name: 'No voice', vibe: 'Text only' }];
+        OPTS.forEach(v => {
           const o = document.createElement('button');
-          o.type = 'button'; o.className = 'voice-opt' + (v.id === current ? ' on' : '');
+          o.type = 'button'; o.className = 'voice-opt' + (v.id === current ? ' on' : '') + (v.id === 'off' ? ' off-opt' : '');
           o.setAttribute('role', 'radio'); o.setAttribute('aria-checked', v.id === current);
-          o.innerHTML = `<b>${v.name}</b><small>${v.vibe}</small>`;
+          // Top-right play mark says "tap to hear" without a label; it turns into moving bars while that voice speaks.
+          const play = v.id === 'off' ? '' : '<span class="vo-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 7.5v9l7.5-4.5z"/></svg><i></i><i></i><i></i></span>';
+          o.innerHTML = `<span class="vo-icon" aria-hidden="true">${VOICE_ICON[v.id] || ''}</span>${play}<b>${v.name}</b><small>${v.vibe}</small>`;
+          if (v.id !== 'off') o.setAttribute('aria-label', `${v.name}, ${v.vibe}. Plays a sample.`);
           o.onclick = () => {
-            store.update(s => { s.voiceId = v.id; s.voice = true; });
+            if (v.id === 'off') {
+              store.update(s => { s.voice = false; });
+              if ('speechSynthesis' in window) speechSynthesis.cancel();
+              stopVoice(orb);
+            } else {
+              store.update(s => { s.voiceId = v.id; s.voice = true; });
+              speak(hello, orb);
+            }
             pick.querySelectorAll('.voice-opt').forEach(x => { x.classList.toggle('on', x === o); x.setAttribute('aria-checked', x === o); });
-            speak(hello, orb);
+            syncVoiceButton();
           };
           pick.append(o);
         });
-        const label = document.createElement('p');
-        label.className = 'voice-label'; label.textContent = 'Choose a voice';
+        const label = document.createElement('div');
+        label.className = 'voice-label';
+        // After the intro, one short line asks for a voice before moving on.
+        label.hidden = true;   // the intro line already asks for a voice
+        // Bars play on the selected card for as long as Poise is speaking.
+        const syncPlaying = () => pick.querySelectorAll('.voice-opt').forEach(x => x.classList.toggle('playing', x.classList.contains('on') && orb.classList.contains('speaking')));
+        new MutationObserver(syncPlaying).observe(orb, { attributes: true, attributeFilter: ['class'] });
+        syncPlaying();
         const b = document.createElement('button');
         b.className = 'choice next';
         b.textContent = "Let's start";

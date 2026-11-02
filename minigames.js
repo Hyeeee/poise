@@ -1,5 +1,6 @@
 import { safeArea } from './safearea.js';
 import { sfx } from './sfx.js';
+import { drawFigure } from './figure.js';
 // Seated movement games played inside the white stage box on the Game card.
 // Each game reads the pose (MediaPipe landmarks) and draws into a small canvas.
 //   boat   — Paper Boat: lean left/right to steer a boat down a stream (side bends)
@@ -13,10 +14,10 @@ const vis = (p, i) => p && p[i] && (p[i].visibility ?? 1) > .4;
 const ink = '#141412', paper = '#fbfaf6';
 
 export const GAMES = {
-  bubbles: { chip: 'Bubbles', title: 'Pop the bubbles', tip: 'Reach up, out and down to pop them with your hands. Gold ones are for your head, so lean over to touch them.' },
-  boat: { chip: 'Boat', title: 'Sail the stream', tip: 'Lean your upper body left and right to steer the paper boat. Miss the stones, catch the drops.' },
-  bells: { chip: 'Bells', title: 'Ring the bells', tip: 'Lift both shoulders up toward your ears, hold for a beat, then let them drop. Each full lift rings a bell.' },
-  seeds: { chip: 'Seeds', title: 'Follow the seeds', tip: 'Turn and tilt your head to bring the circle onto a drifting seed, then hold it there.' },
+  bubbles: { chip: 'Bubbles', title: 'Pop the bubbles', tip: 'Reach out with your hands to pop them.' },
+  boat: { chip: 'Boat', title: 'Sail the stream', tip: 'Lean left and right to catch the drops.' },
+  bells: { chip: 'Bells', title: 'Ring the bells', tip: 'Lift your shoulders, then drop to ring.' },
+  seeds: { chip: 'Seeds', title: 'Follow the seeds', tip: 'Move your head to reach the seed.' },
 };
 
 export class MiniGame {
@@ -91,10 +92,15 @@ export class MiniGame {
     let label = !this.pose ? 'Sit so your head and shoulders are in view.' : !this.base ? 'Sit still for a moment…' : '';
     this.lw = 1;                      // games set lineWidth = this.lw; replay turns it into 3 screen px
     this[this.kind](R, gw, gh, dt, now, c);
-    const play = (cx2, s, ox, oy) => {
+    const play = (cx2, s, ox, oy, helper = false) => {
       cx2.save(); cx2.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
+      let skip = false;
       for (const [key, v] of rec) {
-        if (key[0] === '=') cx2[key.slice(1)] = key === '=lineWidth' ? 3 * v / s : v;
+        if (key === 'helperSkip') { skip = helper && v[0]; continue; }   // parts only meant for the camera view
+        if (skip) continue;
+        // Camera view: 3 px lines. Side box: 1.5 px, about the weight of the ink figure.
+        // Camera view: 3 px lines. Side box: exactly the ink figure's line weight (2.4 figure units).
+        if (key[0] === '=') cx2[key.slice(1)] = key === '=lineWidth' ? (helper ? 2.4 * this.figScale(gw, gh) * v : 3 * v / s) : v;
         else cx2[key](...v);
       }
       cx2.restore();
@@ -108,11 +114,59 @@ export class MiniGame {
       if (hp.width !== Math.round(hw * dpr) || hp.height !== Math.round(hh * dpr)) { hp.width = Math.round(hw * dpr); hp.height = Math.round(hh * dpr); }
       const h = hp.getContext('2d'); h.setTransform(1, 0, 0, 1, 0, 0); h.clearRect(0, 0, hp.width, hp.height);
       const pad = 16, s = Math.min((hw - pad * 2) / gw, (hh - pad * 2) / gh);
-      play(h, s, (hw - gw * s) / 2, (hh - gh * s) / 2);
+      // Figure size is set in SCREEN pixels so it matches the Bubbles figure exactly:
+      // 1 figure unit = (box − 32) / 300 px, waist 10 px above the bottom of the box.
+      this._hf = Math.min(hw - 32, hh - 32) / 300 / s;
+      this._hy = (hh - 10 - (hh - gh * s) / 2) / s;
+      play(h, s, (hw - gw * s) / 2, (hh - gh * s) / 2, true);
+      // The ink figure plays the game in the side box: it rides the boat, lifts its shoulders, follows the seed.
+      h.save(); h.setTransform(dpr * s, 0, 0, dpr * s, dpr * (hw - gw * s) / 2, dpr * (hh - gh * s) / 2);
+      this.actor(h, gw, gh, c, now);
+      h.restore();
     }
     if (this.hint && !label) label = this.hint;
     this.onTick?.({ score: this.s.score, left: Math.max(0, left), label });
     if (left <= 0) { this.stop(); this.onEnd?.(this.result()); }
+  }
+
+  // How big the figure is drawn in the side box, per game (game units per figure unit).
+  figScale(W, H) {
+    if (this._hf) return this._hf;
+    return Math.min(W / 300, H / 300);   // same size in every game (the Bells size)
+  }
+
+  // ---------- The figure in the side box ----------
+  actor(ctx, W, H, c, now) {
+    const base = { lean: 0, bend: 0, look: 0, head: 0, drop: 0, shrug: 0, breath: Math.sin(now / 700) * 1.2,
+      eL: [-58, -66], wL: [-40, -14], eR: [58, -66], wR: [40, -14] };
+    const tilt = c ? Math.max(-1, Math.min(1, c.tilt / .15)) : 0;
+    ctx.save();
+    if (this.kind === 'boat') {
+      // Same size and place as the other games; the figure sways with the boat and leans into the turn.
+      const f = this.figScale(W, H);
+      ctx.translate(W / 2 + this.boatX * W * .12, this._hy ?? H + 6); ctx.rotate(this.boatX * .12); ctx.scale(f, f);
+      drawFigure(ctx, { ...base, bend: this.boatX * .32, shTilt: -this.boatX * 10 + tilt * 6, head: this.boatX * .12,
+        eL: [-56, -70], wL: [-46, -22], eR: [56, -70], wR: [46, -22] }, { legs: false });
+      // paper boat around the waist
+      ctx.lineWidth = 2.4; ctx.strokeStyle = '#141412'; ctx.lineJoin = 'round';
+      ctx.fillStyle = '#fbfaf6'; ctx.beginPath(); ctx.moveTo(-96, -34); ctx.lineTo(96, -34); ctx.lineTo(66, 8); ctx.lineTo(-66, 8); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#e9a25a'; ctx.beginPath(); ctx.moveTo(-30, -34); ctx.lineTo(0, -8); ctx.lineTo(30, -34); ctx.closePath(); ctx.fill(); ctx.stroke();
+    } else if (this.kind === 'bells') {
+      // standing under the bell: shoulders rise toward the ears as you shrug
+      const f = this.figScale(W, H);
+      ctx.translate(W / 2, this._hy ?? H + 6); ctx.scale(f, f);
+      drawFigure(ctx, { ...base, shrug: this.lift * 24, head: 0, eL: [-60, -70 - this.lift * 14], wL: [-44, -16 - this.lift * 14], eR: [60, -70 - this.lift * 14], wR: [44, -16 - this.lift * 14] }, { legs: false });
+    } else if (this.kind === 'seeds') {
+      // the figure turns its head toward where you are looking, with a dotted line of sight
+      const f = this.figScale(W, H), hx = W / 2, hy = (this._hy ?? H + 6) - 162 * f;
+      const dx = this.cur[0] - hx, dy = this.cur[1] - hy;
+      const head = Math.max(-.5, Math.min(.5, Math.atan2(dx, -dy) * .45));
+      ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = 'rgba(20,20,18,.35)'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(this.cur[0], this.cur[1]); ctx.stroke(); ctx.restore();
+      ctx.translate(W / 2, this._hy ?? H + 6); ctx.scale(f, f);
+      drawFigure(ctx, { ...base, head, look: Math.max(-1, Math.min(1, dx / (W * .3))) }, { legs: false });
+    }
+    ctx.restore();
   }
 
   // ---------- Paper Boat ----------
@@ -148,13 +202,15 @@ export class MiniGame {
       }
     }
     this.items = this.items.filter(i => i.y < H + 20 && !i.done);
-    // boat (folded paper)
+    // boat (folded paper): camera view only; the side box draws the figure in a big boat
+    ctx.helperSkip(true);
     ctx.save(); ctx.translate(bx, by); ctx.rotate(this.boatX * .25);
     // paper boat, flat: white hull, pale sail fold, fine ink outline
     ctx.strokeStyle = ink; ctx.lineWidth = this.lw; ctx.lineJoin = 'round';
     ctx.fillStyle = '#fbfaf6'; ctx.beginPath(); ctx.moveTo(-26, 0); ctx.lineTo(26, 0); ctx.lineTo(17, 11); ctx.lineTo(-17, 11); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#e9a25a'; ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(0, -24); ctx.lineTo(12, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.restore();
+    ctx.helperSkip(false);
     this.hint = c ? (Math.abs(this.boatX) < .2 ? 'Lean left or right to steer.' : 'Nice, keep leaning.') : '';
   }
 
@@ -188,7 +244,8 @@ export class MiniGame {
     // sound rings expanding from the bell
     this.rings = this.rings.filter(t => now - t < 1400);
     for (const t of this.rings) { const k = (now - t) / 1400; ctx.strokeStyle = `rgba(30,31,28,${.4 * (1 - k)})`; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(cx, by + 24, 40 + k * W * .35, 0, TAU); ctx.stroke(); }
-    // lift meter: two shoulder marks that rise
+    // lift meter: two shoulder marks that rise (camera view only; in the side box the figure's shoulders show it)
+    ctx.helperSkip(true);
     const my = H * .82, mx = W * .3;
     ctx.strokeStyle = 'rgba(20,20,18,.18)'; ctx.lineWidth = this.lw; ctx.lineCap = 'round';
     for (const x of [cx - mx, cx + mx]) { ctx.beginPath(); ctx.moveTo(x, my); ctx.lineTo(x, my - H * .22); ctx.stroke(); }
@@ -213,6 +270,7 @@ export class MiniGame {
       ctx.fillText(phase === 'drop' ? 'DROP' : phase === 'hold' ? 'HOLD' : 'LIFT', cx, my - H * .02);
       ctx.restore();
     }
+    ctx.helperSkip(false);
     this.hint = !c ? '' : this.up ? 'Now let your shoulders drop.' : this.lift > .55 ? 'Hold it up there…' : 'Lift both shoulders up to your ears.';
   }
 
@@ -236,7 +294,7 @@ export class MiniGame {
     }
     // dandelion head in the middle
     ctx.strokeStyle = 'rgba(20,20,18,.2)'; ctx.lineWidth = this.lw;
-    for (let i = 0; i < 24; i++) { const a = i / 24 * TAU; ctx.beginPath(); ctx.moveTo(W / 2, H / 2); ctx.lineTo(W / 2 + Math.cos(a) * 18, H / 2 + Math.sin(a) * 18); ctx.stroke(); }
+    for (let i = 0; i < 24; i++) { const a = i / 24 * TAU; ctx.beginPath(); ctx.moveTo(W / 2, H / 2); ctx.lineTo(W / 2 + Math.cos(a) * 32, H / 2 + Math.sin(a) * 32); ctx.stroke(); }
     if (this.seed) {
       const s = this.seed;
       // gentle sway around where it landed (a few px), not a drift away, so you can hold your neck still
@@ -244,17 +302,17 @@ export class MiniGame {
       s.x = s.ox + Math.sin(now / 1400 + s.ph) * 4; s.y = s.oy + Math.cos(now / 1700 + s.ph) * 3;
       // seed: a tiny stem with a fluffy top
       ctx.strokeStyle = ink; ctx.lineWidth = this.lw;
-      ctx.beginPath(); ctx.moveTo(s.x, s.y + 4); ctx.lineTo(s.x, s.y + 14); ctx.stroke();
-      for (let i = 0; i < 9; i++) { const a = -Math.PI + i / 8 * Math.PI; ctx.beginPath(); ctx.moveTo(s.x, s.y + 4); ctx.lineTo(s.x + Math.cos(a) * 9, s.y + 4 + Math.sin(a) * 9); ctx.stroke(); }
-      const near = Math.hypot(this.cur[0] - s.x, this.cur[1] - s.y) < 34;
+      ctx.beginPath(); ctx.moveTo(s.x, s.y + 6); ctx.lineTo(s.x, s.y + 26); ctx.stroke();
+      for (let i = 0; i < 9; i++) { const a = -Math.PI + i / 8 * Math.PI; ctx.beginPath(); ctx.moveTo(s.x, s.y + 6); ctx.lineTo(s.x + Math.cos(a) * 17, s.y + 6 + Math.sin(a) * 17); ctx.stroke(); }
+      const near = Math.hypot(this.cur[0] - s.x, this.cur[1] - s.y) < 46;
       this.holdMs = near ? this.holdMs + dt : Math.max(0, this.holdMs - dt);
       if (this.holdMs > 1200) { sfx.seed(); this.s.score++; this.seed = null; this.holdMs = 0; this.onColor?.([255, 220, 0]); setTimeout(() => this.onColor?.(null), 400); }
-      if (s && near) { ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(s.x, s.y + 6, 22, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke(); }
+      if (s && near) { ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(s.x, s.y + 8, 34, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke(); }
     }
     // head cursor
     ctx.strokeStyle = ink; ctx.lineWidth = this.lw;
-    ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 14, 0, TAU); ctx.stroke();
-    ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 2.5, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 22, 0, TAU); ctx.stroke();
+    ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 4, 0, TAU); ctx.fill();
     this.hint = c ? 'Turn and tilt your head to reach the seed.' : '';
   }
 }

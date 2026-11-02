@@ -127,7 +127,10 @@ class Agent {
     this.scale += (wantScale - this.scale) * Math.min(1, dt * (cl.contains('in') ? .7 : 4));
     const wantEnergy = speaking ? 1 : thinking ? .7 : listening ? .5 : mood === 'amber' ? .45 : mood === 'red' ? .8 : .12;
     this.energy += (wantEnergy - this.energy) * Math.min(1, dt * 3);
-    this.spin += dt * (.12 + this.energy * (thinking ? 2.2 : .6));
+    // A pinned sphere has no shape changes to look alive, so it turns a bit faster and breathes.
+    const pinned = !!h.dataset.shape;
+    this.spin += dt * ((pinned ? .55 : .12) + this.energy * (thinking ? 2.2 : .6));
+    const breathe = pinned && !reduced ? 1 + .03 * Math.sin(now / 900) : 1;   // applied per frame, never stored
 
     const { ctx, w, hgt = this.h } = { ctx: this.ctx, w: this.w, hgt: this.h };
     ctx.clearRect(0, 0, w, hgt);
@@ -148,7 +151,7 @@ class Agent {
       let x = t[0] * cos + t[2] * sin, z = -t[0] * sin + t[2] * cos, y = t[1];
       const y2 = y * ct - z * st, z2 = y * st + z * ct;
       const wob = this.energy * .06 * Math.sin(now / 420 + y * 3) + speakPulse;
-      let tx = cx + x * R * this.scale * (1 + wob), ty = cy + y2 * R * this.scale * (1 + wob);
+      let tx = cx + x * R * this.scale * breathe * (1 + wob), ty = cy + y2 * R * this.scale * breathe * (1 + wob);
       // Drift.
       ty += Math.sin(now / 1600) * R * .02;
       // Spring toward target, with damping.
@@ -158,10 +161,10 @@ class Agent {
       let nx = px + p.vx * dt * 10, ny = py + p.vy * dt * 10;
       // Shy away from the pointer.
       const dx = nx - mx, dy = ny - my, d2 = dx * dx + dy * dy, reach = R * .45;
-      if (d2 < reach * reach && !reduced) { const d = Math.sqrt(d2) || 1, f = (1 - d / reach) * R * .07; nx += dx / d * f; ny += dy / d * f; }
+      if (d2 < reach * reach && !reduced && !pinned) { const d = Math.sqrt(d2) || 1, f = (1 - d / reach) * R * .07; nx += dx / d * f; ny += dy / d * f; }
       p.x = (nx - cx) / R; p.y = (ny - cy) / R; p.z += (z2 - p.z) * k;
       const depth = (p.z + 1) / 2;
-      ctx.globalAlpha = .35 + .65 * (1 - depth * .7);
+      ctx.globalAlpha = .3 + .7 * (1 - depth * .8);   // front dots full ink, back ones fainter
       ctx.beginPath();
       ctx.arc(nx, ny, this.dot * .78 * (.75 + (1 - depth) * .45), 0, TAU);
       ctx.fill();

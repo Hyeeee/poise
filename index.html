@@ -8,7 +8,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Patrick+Hand&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -58,7 +58,7 @@
   <div id="lightbar" aria-hidden="true"></div>
 
   <header class="topbar">
-    <button id="home" class="brand" aria-label="Back to start"><span class="agent mini" data-shape="sphere" data-dots="44" data-dot="0.75" aria-hidden="true"></span>poise</button>
+    <button id="home" class="brand" aria-label="Back to start">poise</button>
     <nav class="segmented glass" aria-label="Mode">
       <button id="work" class="active">Focus</button>
       <button id="break">Break</button>
@@ -71,62 +71,82 @@
       <button id="stop" class="icon-btn glass" aria-label="Turn camera on" title="Camera">
         <svg viewBox="0 0 24 24"><rect x="3" y="6.5" width="13" height="11" rx="3"/><path d="m16 10.5 5-3v9l-5-3"/></svg>
       </button>
-      <button id="open-modes" class="icon-btn glass" aria-label="Modes and settings" title="Modes">
+      <button id="pip" class="icon-btn glass" aria-label="Open mini window" title="Mini window">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><rect x="11" y="10" width="6.5" height="5.5" rx="1.3"/></svg>
+      </button>
+      <button id="open-modes" class="icon-btn glass" aria-label="Settings" title="Settings">
         <svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
       </button>
     </div>
   </header>
 
-  <div id="empty-camera" class="empty card">
-    <p class="say"><b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span></p>
-    <button class="primary" id="enable">Turn on camera</button>
+  <div id="empty-camera" class="empty card pop" data-tone="mint">
+    <div class="pop-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="6.5" width="13" height="11" rx="3"/><path d="m16 10.5 5-3v9l-5-3"/></svg></div>
+    <p class="say"><b>Turn on your camera</b> <span>I watch your posture through it. The video stays on this device and is never saved or sent.</span></p>
+    <div class="pop-actions"><button class="ghost" id="cam-off-sensor">Use sensor</button><button class="primary" id="enable">Turn on camera</button></div>
+    <div class="pop-steps" aria-hidden="true"></div>
     <button class="ghost" id="sensor-mode" hidden>Use the distance sensor instead</button>
   </div>
 
   <span id="tracking" class="chip glass">Camera off</span>
+  <span id="silent-chip" class="chip glass silent-chip" hidden>Silent test · light and voice off</span>
+
+  <div id="cam-notice" class="empty card pop" data-tone="mint" role="dialog" aria-labelledby="cam-notice-title" hidden>
+    <div class="pop-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5 5 6v5.5c0 4.2 3 7.6 7 9 4-1.4 7-4.8 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg></div>
+    <p class="say"><b id="cam-notice-title">Camera on</b> <span>Video is processed on this device. It is never saved or sent.</span></p>
+    <div class="pop-actions"><button class="ghost" id="cam-notice-sensor">Use sensor</button><button class="primary" id="cam-notice-ok">Got it</button></div>
+    <div class="pop-steps" aria-hidden="true"></div>
+  </div>
   <span id="sensor-chip" class="chip glass sensor-chip" hidden>— cm</span>
 
-  <div id="bar-prompt" class="empty card" hidden>
-    <p class="say"><b>Connect your light bar.</b> <span>Plug it in over USB, then connect it here so it can glow with your posture.</span></p>
-    <div class="row"><button class="primary" id="bar-connect">Connect light bar</button><button class="text-btn" id="bar-skip">Skip for now</button></div>
+  <div id="bar-prompt" class="empty card pop" data-tone="peach" role="dialog" hidden>
+    <div class="pop-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="4" rx="2"/><path d="M8 15h8M12 11v8"/></svg></div>
+    <p class="say"><b>Connect your light bar</b> <span>Plug it in over USB so it can glow with your posture.</span></p>
+    <div class="pop-actions"><button class="ghost" id="bar-skip">Skip for now</button><button class="primary" id="bar-connect">Connect</button></div>
+    <div class="pop-steps" aria-hidden="true"></div>
   </div>
 
-  <div id="ref-prompt" class="empty card" hidden>
-    <p class="say"><b>Set your reference.</b> <span>Sit the way you want to stay, with your back tall and shoulders soft, then save it. Poise compares everything to this.</span></p>
-    <button class="primary" id="ref-set">Set reference</button>
+  <div id="ref-prompt" class="empty card pop" data-tone="lilac" role="dialog" hidden>
+    <div class="pop-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><path d="M12 8v7M7.5 10.5 12 9l4.5 1.5M9.5 21l2.5-6 2.5 6"/></svg></div>
+    <p class="say"><b>Set your reference</b> <span>Sit the way you want to stay, back tall and shoulders soft. Poise compares everything to this.</span></p>
+    <div class="pop-actions"><button class="primary" id="ref-set">Set reference</button></div>
+    <div class="pop-steps" aria-hidden="true"></div>
   </div>
 
   <aside class="panel" aria-label="Session">
     <!-- Focus -->
     <div id="work-panel" class="stack">
       <section class="card state">
-        <p class="say"><b id="posture-state">Set a reference</b> <span id="posture-hint">Sit the way you want to stay, then save it.</span></p>
-        <div class="meter"><div id="deviation-bar"></div></div>
-        <div class="card-foot">
-          <div class="agent glyph" id="state-agent" data-mood="idle" aria-hidden="true" hidden></div>
-          <span class="stat"><b id="deviation">—</b><small id="dev-label">% shift</small></span>
-          <span class="stat" id="sensor-row" hidden><b id="sensor-dist">—</b><small>cm</small></span>
-          <button class="ghost" id="calibrate">Set reference</button>
+        <div class="fc-head">
+          <b id="posture-state">Set a reference</b>
+          <button class="ghost" id="calibrate" title="Save how you sit now as your reference">Set</button>
         </div>
+        <p id="posture-hint">Sit how you want to stay.</p>
+        <div class="avatar-box" id="avatar-box">
+          <span class="avatar-key"><i class="k-you"></i>You <i class="k-ref"></i>Reference</span>
+        </div>
+        <span class="dev-cap" hidden><b id="deviation">—</b><small id="dev-label">% off your reference</small></span>
+        <span class="stat sensor-stat" id="sensor-row" hidden><b id="sensor-dist">—</b><small>cm from screen</small></span>
+        <div class="meter" hidden><div id="deviation-bar"></div></div>
+        <div class="agent glyph" id="state-agent" data-mood="idle" aria-hidden="true" hidden></div>
       </section>
       <section class="card session">
-        <button class="mode-name" id="work-mode-name" title="Change focus mode"></button>
-        <div class="timer">
-          <span id="timer">25:00</span>
-          <div class="timer-btns"><button id="pause" class="round" aria-label="Start timer"></button></div>
+        <div class="fc-time">
+          <div class="timer"><span id="timer">25</span><span class="timer-unit" id="timer-unit">min left</span></div>
+          <button id="pause" class="round" aria-label="Start timer"></button>
         </div>
-        <div class="meter thin"><div id="timer-bar"></div></div>
-        <p class="sub" id="next-break"></p>
+        <div class="fc-sub"><button class="mode-name" id="work-mode-name" title="Change focus mode"></button><span class="sub" id="next-break"></span></div>
+        <div class="meter thin" hidden><div id="timer-bar"></div></div>
         <button id="end-session" class="ghost end-wide" hidden>End session</button>
       </section>
       <section class="card stats" hidden>
         <div id="eye-stat"><b id="blinks">—</b><small>blinks/min</small></div>
-        <div id="dist-stat"><b id="distance">—</b><small>distance</small></div>
+        <div id="dist-stat"><b id="distance">—</b><small>screen distance</small></div>
       </section>
     </div>
 
     <nav id="break-switch" class="segmented glass break-switch" aria-label="Break type" hidden>
-      <button data-style="stretch">Stretch</button><button data-style="breathe">Reset</button><button data-style="game">Game</button>
+      <button data-style="stretch">Stretch</button><button data-style="breathe">Breathe</button><button data-style="game">Game</button>
     </nav>
 
     <!-- Break: movement game -->
@@ -134,7 +154,7 @@
       <div class="stage-box"><canvas id="game-map"></canvas></div>
       <div class="game-chips" id="game-chips"><button data-g="bubbles">Bubbles</button><button data-g="boat">Boat</button><button data-g="bells">Bells</button><button data-g="seeds">Seeds</button></div>
       <h2 id="game-title">Pop the bubbles</h2>
-      <p class="sub" id="game-tip">Reach up, out and down to pop them with your hands. Gold ones are for your head, so lean over to touch them.</p>
+      <p class="sub" id="game-tip">Reach out with your hands to pop them.</p>
       <div class="match"><span><b id="game-score">0</b> <span id="game-unit">points</span></span><span id="game-left" class="sub">1:00</span></div>
       <div class="meter"><div id="game-bar"></div></div>
       <p id="game-label" class="sub">Step back so your arms fit in the frame.</p>
@@ -143,11 +163,11 @@
 
     <!-- Break: stretch -->
     <div id="break-panel" class="card" hidden>
-      <div class="reel-head">
-        <div class="reel-progress" id="reel-progress" aria-label="Stretch progress"></div>
-        <span id="round" class="sub">1 / 5</span>
-      </div>
       <div class="reel-video">
+        <div class="reel-head">
+          <div class="reel-progress" id="reel-progress" aria-label="Stretch progress"></div>
+          <span id="round" class="sub" hidden>1 / 5</span>
+        </div>
         <div id="reel-player"></div>
         <div class="reel-ctrl">
           <button id="prev-pose" class="icon-btn" aria-label="Previous stretch" title="Previous"><svg viewBox="0 0 24 24"><path d="M18 6l-8 6 8 6z" fill="currentColor" stroke="none"/><path d="M7 6v12"/></svg></button>
@@ -197,7 +217,7 @@
       <div class="suggest" id="suggest"></div>
     </div>
     <form class="askbar glass" id="ask-form" autocomplete="off">
-      <span class="agent mini" id="ask-orb" aria-hidden="true"></span>
+      <span class="agent mini" id="ask-orb" data-shape="sphere" data-dots="40" data-dot="1.1" aria-hidden="true"></span>
       <input id="ask-input" aria-label="Ask Poise" placeholder="Ask Poise to change anything">
       <button type="button" id="mic" class="icon-btn" aria-label="Speak instead" hidden>
         <svg viewBox="0 0 24 24"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v3"/></svg>
@@ -212,9 +232,9 @@
 </section>
 
 <!-- Modes -->
-<dialog id="modes" class="sheet">
+<dialog id="modes" class="sheet drawer" aria-labelledby="modes-title">
   <header class="sheet-head">
-    <h2>Modes</h2>
+    <h2 id="modes-title">Settings</h2>
     <button class="icon-btn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
     </button>
@@ -226,28 +246,36 @@
   <div class="mode-list" id="mode-list"></div>
   <div class="editor" id="editor"></div>
   <footer class="prefs">
+    <h3 class="drawer-h">Voice and light</h3>
     <div class="pref-group">
-      <label class="pref-row"><span>Voice guidance<small>Spoken posture cues and summaries</small></span><span class="toggle"><input type="checkbox" id="pref-voice"></span></label>
-      <div class="pref-row" id="pref-voice-pick"><span>Voice</span><nav class="segmented" id="voice-seg"><button data-v="ava">Ava</button><button data-v="sonia">Sonia</button><button data-v="andrew">Andrew</button></nav></div>
-      <div class="pref-row" id="pref-bright"><span>Light bar brightness<small>How bright the light bar glows</small></span><nav class="segmented" id="bright-seg"><button data-b="25">Low</button><button data-b="50">Soft</button><button data-b="75">Medium</button><button data-b="100">Full</button></nav></div>
+      <label class="pref-row"><span>Voice guidance<small>Spoken cues and summaries</small></span><span class="toggle"><input type="checkbox" id="pref-voice"></span></label>
+      <div class="pref-row" id="pref-voice-pick"><span>Voice</span><div class="dd" id="voice-seg"><button type="button" class="dd-btn" aria-haspopup="menu" aria-expanded="false"><b>Ava</b><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button><div class="dd-menu" role="menu" hidden><button type="button" class="dd-item" data-v="ava">Ava</button><button type="button" class="dd-item" data-v="sonia">Sonia</button><button type="button" class="dd-item" data-v="andrew">Andrew</button></div></div></div>
+      <div class="pref-row" id="pref-bright"><span>Brightness<small>Light bar</small></span><div class="dd" id="bright-seg"><button type="button" class="dd-btn" aria-haspopup="menu" aria-expanded="false"><b>Full</b><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button><div class="dd-menu" role="menu" hidden><button type="button" class="dd-item" data-v="25">Low</button><button type="button" class="dd-item" data-v="50">Soft</button><button type="button" class="dd-item" data-v="75">Medium</button><button type="button" class="dd-item" data-v="100">Full</button></div></div></div>
       <label class="pref-row"><span>Background music</span><span class="toggle"><input type="checkbox" id="pref-music"></span></label>
     </div>
-    <label class="toggle"><input type="checkbox" id="pref-joints"><span>Show joints</span></label>
-    <button class="text-btn" id="pref-tour">Show tour</button>
-    <button class="text-btn" id="pref-setup">Run setup again</button>
+    <h3 class="drawer-h">Testing</h3>
+    <div class="pref-group">
+      <label class="pref-row"><span>Silent test<small>Tracks quietly, no light or voice</small></span><span class="toggle"><input type="checkbox" id="pref-silent"></span></label>
+      <label class="pref-row"><span>Show joints<small>Lines over the camera</small></span><span class="toggle"><input type="checkbox" id="pref-joints"></span></label>
+    </div>
+    <h3 class="drawer-h">Help</h3>
+    <div class="pref-group">
+      <button class="pref-row link" id="pref-tour"><span>Show tour</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      <button class="pref-row link" id="pref-setup"><span>Run setup again</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
   </footer>
 </dialog>
 
 <!-- Session report -->
 <div id="report" class="report" hidden>
-  <div class="report-card" role="dialog" aria-labelledby="report-title">
+  <div class="report-card pop" id="report-card" data-tone="mint" role="dialog" aria-labelledby="report-title">
     <div class="report-head">
-      <div class="agent glyph" data-shape="sphere" aria-hidden="true"></div>
+      <div class="agent glyph" data-shape="sphere" data-dots="40" data-dot="1" aria-hidden="true"></div>
       <span id="report-len" class="sub"></span>
     </div>
     <p class="say report-say"><b id="report-title"></b> <span id="report-line"></span></p>
     <div id="report-chart" class="report-chart"></div>
-    <div class="report-legend" id="report-legend"><span><i style="background:var(--aligned)"></i>Aligned</span><span><i style="background:var(--drift)"></i>Drifting</span><span><i style="background:var(--reset)"></i>Reset</span><span class="sub">line = how far you moved from your reference</span></div>
+    <div class="report-legend" id="report-legend"><span><i style="background:var(--aligned)"></i>Aligned</span><span><i style="background:var(--drift)"></i>Drifting</span><span><i style="background:var(--reset)"></i>Reset</span></div>
     <div class="report-stats">
       <div><b id="rep-aligned">—</b><small id="rep-aligned-l">in good posture</small></div>
       <div><b id="rep-recover">—</b><small id="rep-recover-l">average time to correct</small></div>
@@ -268,7 +296,7 @@
 <!-- Guided tour -->
 <div id="tour" class="tour" hidden>
   <div id="tour-spot" class="tour-spot"></div>
-  <div id="tour-card" class="tour-card" role="dialog" aria-live="polite" aria-labelledby="tour-title">
+  <div id="tour-card" class="tour-card pop" data-tone="sky" role="dialog" aria-live="polite" aria-labelledby="tour-title">
     <div class="tour-head"><span id="tour-count" class="tiny"></span></div>
     <p class="say"><b id="tour-title"></b> <span id="tour-text"></span></p>
     <div class="tour-actions"><button id="tour-skip" class="text-btn">Skip tour</button><span class="tour-gap"></span><button id="tour-back" class="ghost">Back</button><button id="tour-next" class="primary">Next</button></div>

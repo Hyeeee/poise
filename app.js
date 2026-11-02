@@ -23,6 +23,8 @@ mountPainting();
   document.body.classList.add('enter');
 })();
 import { startTour } from './tour.js';
+import { PostureAvatar } from './avatar.js';
+import { BreathFigure, drawFigure } from './figure.js';
 import { session as posture, showReport, breakLog, showBreakReport, POSTURE_SAY } from './report.js';
 
 const $ = id => document.getElementById(id);
@@ -36,6 +38,7 @@ const ICON = {
 const colors = { green: '#4fbf73', amber: '#f0a020', red: '#e5483d', idle: '#b3c2d8', white: '#e9e7df' };
 
 // ---------- State ----------
+const breathState = { mode: 'idle', level: 0 };   // Reset card figure: how full the breath is
 let session = 0, screen = 'work', stream, pose, face, loading = false, active = false;
 let landmarks = null, reference = null, lastFrame = -1, lastDetect = 0, lastFace = 0;
 let driftSince = 0, nearSince = 0, recoverAt = 0, lastState = 'idle', blinkTimes = [], eyesClosed = false, faceStart = 0;
@@ -50,8 +53,17 @@ const strongDelay = () => store.work().delay * 1000;
 // state: green | amber | red | idle | white. rgb (optional) sends an exact blended color to the bar.
 // Light bar presets as RGB (same values the board uses), so brightness can scale them too.
 const PRESET_RGB = { white: [140, 140, 130], green: [0, 255, 30], amber: [255, 130, 0], red: [255, 0, 0], idle: [40, 45, 50] };
-function light(state, rgb, fast) {
-  document.documentElement.style.setProperty('--signal', rgb ? `rgb(${rgb.join(',')})` : colors[state]);
+const silent = () => !!store.state.silent && screen === 'work';
+// tone (optional): the colour the SCREEN shows. It is kept separate from the LED colour because
+// LED mixes (dim white → orange) look muddy on screen; the screen fades through a pale yellow instead.
+function light(state, rgb, fast, tone) {
+  // Silent test: keep tracking, but send no cue. The bar goes dark and the screen stays neutral.
+  if (silent()) { state = 'idle'; rgb = [0, 0, 0]; fast = undefined; tone = null; }
+  const screenColor = tone ? `rgb(${tone.join(',')})` : silent() ? colors.idle : rgb ? `rgb(${rgb.join(',')})` : colors[state];
+  document.documentElement.style.setProperty('--signal', screenColor);
+  // Break cards glow only on a real cue; in games, any colour the game sends (bubble colour, a ring, a catch) glows too.
+  const playful = screen === 'break' && (store.brk().style === 'game' ? rgb && rgb.some(v => v > 40) : store.brk().style === 'breathe' && !!tone);
+  document.documentElement.dataset.cue = playful ? 'game' : state;
   // Brightness setting (25-100%): every colour is scaled down before it is sent to the board.
   const bright = (store.state.brightness ?? 100) / 100;
   if (bright < 1) rgb = (rgb || PRESET_RGB[state] || PRESET_RGB.idle).map(v => Math.round(v * bright));
@@ -61,13 +73,89 @@ function light(state, rgb, fast) {
     serialBusy = true;
     writer.write(new TextEncoder().encode(msg + '\n'))
       .then(() => { lastSerial = msg; lastSerialTime = performance.now(); })
-      .catch(() => { writer = null; $('connect').classList.remove('on'); toast('Light bar disconnected'); })
+      .catch(() => { writer = null; $('connect').classList.remove('on'); toast('The light bar got disconnected.'); })
       .finally(() => { serialBusy = false; });
   }
 }
+// Feedback appears as a speech bubble next to the figure in the side panel, as if it were talking to you.
+// When no figure is on screen (welcome, camera off), it falls back to the small toast at the top.
+function bubbleHost() {
+  for (const sel of ['#work-panel:not([hidden]) #avatar-box', '#break-panel:not([hidden]) .reel-video', '#breathe-panel:not([hidden]) .breath-stage', '#game-panel:not([hidden]) .stage-box']) {
+    const el = document.querySelector(sel);
+    if (el && el.offsetParent !== null && el.offsetHeight > 0) return el;
+  }
+  return null;
+}
 function toast(msg) {
-  text('toast', msg); $('toast').hidden = false;
-  clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { $('toast').hidden = true; }, 4000);
+  const host = bubbleHost();
+  if (!host) {
+    text('toast', msg); $('toast').hidden = false;
+    clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { $('toast').hidden = true; }, 4000);
+    return;
+  }
+  $('toast').hidden = true;
+  let b = host.querySelector('.say-bubble');
+  if (!b) {
+    b = document.createElement('div'); b.className = 'say-bubble'; b.setAttribute('role', 'status');
+    // Ink-drawn tail, same line weight as the figure.
+    // Body and tail are ONE ink path, so the tail joins the bubble without a seam.
+    b.innerHTML = '<svg class="sb-shape" aria-hidden="true"><path/></svg><span class="sb-text"></span>';
+    host.append(b);
+  }
+  b.querySelector('.sb-text').textContent = msg;
+  b._shape = null;   // redraw the outline for the new text size
+  b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+  clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('show'), 3200);
+  followHead(host, b);
+}
+// Hand-drawn bubble outline: rounded body with a short curved tail at a bottom corner.
+function drawBubble(b, w, h, flip) {
+  const r = Math.min(14, h / 2), x0 = 16, svg = b.querySelector('.sb-shape');
+  const d = `M${r},0 H${w - r} Q${w},0 ${w},${r} V${h - r} Q${w},${h} ${w - r},${h} H${x0 + 13} Q${x0 + 6},${h + 3} ${x0 - 4},${h + 11} Q${x0 + 1},${h + 4} ${x0},${h} H${r} Q0,${h} 0,${h - r} V${r} Q0,0 ${r},0 Z`;
+  svg.setAttribute('viewBox', `-2 -2 ${w + 4} ${h + 16}`);
+  svg.setAttribute('width', w + 4); svg.setAttribute('height', h + 16);
+  const path = svg.querySelector('path'); path.setAttribute('d', d);
+  path.setAttribute('transform', flip ? `translate(${w},0) scale(-1,1)` : '');
+}
+// Keep the bubble just above and beside the figure's head, easing after it as the figure moves.
+function followHead(host, b) {
+  if (b._follow) return;
+  const step = () => {
+    if (!b.isConnected || !b.classList.contains('show')) { b._follow = 0; return; }
+    b._follow = requestAnimationFrame(step);
+    const cv = [...host.querySelectorAll('canvas')].find(c => c._head && performance.now() - c._head.at < 1000);
+    if (!cv) return;
+    const k = cv.getBoundingClientRect().width / cv.width, hr = host.getBoundingClientRect(), cr = cv.getBoundingClientRect();
+    const hx = cr.left - hr.left + cv._head.x * k, hy = cr.top - hr.top + cv._head.y * k, r = cv._head.r * k;
+    const bw = b.offsetWidth, bh = b.offsetHeight;
+    // Pick a side once (with a little hysteresis) so the bubble doesn't flip back and forth.
+    const roomR = hr.width - hx - r, roomL = hx - r;
+    if (b._side == null || (b._side === 'r' && roomL > roomR + 40) || (b._side === 'l' && roomR > roomL + 40)) b._side = roomR >= roomL ? 'r' : 'l';
+    const right = b._side === 'r';
+    // Always beside the head (never over the face). Narrow, so long lines wrap to 3–4 rows.
+    const room = (right ? roomR : roomL) - r * .25 - 6;
+    const mw = Math.max(78, Math.min(132, room));
+    if (b._mw !== mw || b._txt !== b.textContent) {
+      b._mw = mw; b._txt = b.textContent;
+      b.style.width = ''; b.style.setProperty('max-width', mw + 'px', 'important');
+      // Shrink-wrap: after the text wraps, make the bubble only as wide as its longest line.
+      const r = document.createRange(); r.selectNodeContents(b.querySelector('.sb-text'));
+      const widest = Math.max(...[...r.getClientRects()].map(x => x.width));
+      if (widest > 0) b.style.setProperty('width', Math.ceil(widest) + 26 + 'px', 'important');
+    }
+    let x = right ? hx + r * 1.2 : hx - r * 1.2 - bw, y = hy - r * .55 - bh;
+    x = Math.max(6, Math.min(hr.width - bw - 6, x)); y = Math.max(6, y);
+    b.classList.toggle('flip', !right);
+    const key = `${bw}x${bh}${right}`;
+    if (b._shape !== key) { b._shape = key; drawBubble(b, bw, bh, !right); }
+    // Outline weight = the figure's ink weight at its current size (2.4 figure units; head radius is 24).
+    const sw = Math.max(1, Math.min(3, r / 10)).toFixed(2);
+    const path = b.querySelector('.sb-shape path'); if (path && path.getAttribute('stroke-width') !== sw) path.setAttribute('stroke-width', sw);
+    const cur = b._pos || [x, y], e = b._pos ? .18 : 1;
+    b._pos = [cur[0] + (x - cur[0]) * e, cur[1] + (y - cur[1]) * e];
+    b.style.transform = `translate(${b._pos[0]}px, ${b._pos[1]}px)`;
+  };
+  b._follow = requestAnimationFrame(step);
 }
 let audio;
 function chime() {
@@ -125,7 +213,6 @@ async function start() {
     active = true; lastFrame = -1; faceStart = performance.now();
     setTimeout(maybeStartGame, 300);
     if (sensorRef) { sensorRef = false; showSensorCard(); }
-    $('empty-camera').hidden = true;
     syncRef();
     $('stop').classList.add('on'); $('stop').setAttribute('aria-label', 'Turn camera off');
     text('start-status', '');
@@ -144,20 +231,82 @@ async function start() {
 }
 
 function stop() {
+  hideCamNotice();
   session++; active = false;
   stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null;
   landmarks = null; reference = null; if (!sensorRef) timerRunning = false; holdStart = 0; driftSince = 0; nearSince = 0; blinkTimes = []; eyesClosed = false;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  $('empty-camera').hidden = false;
   syncRef();
   $('stop').classList.remove('on'); $('stop').setAttribute('aria-label', 'Turn camera on');
   setChip('Camera off');
   text('deviation', '—'); text('blinks', '—'); text('distance', '—'); text('match-score', '—');
-  text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); text('calibrate', 'Set reference');
+  text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay.'); text('calibrate', 'Set');
   $('hold-bar').style.width = '0'; $('deviation-bar').style.width = '0';
   renderPause(); light('idle');
   if (sensor.live && !sensorRef) calibrateSensor(); else showSensorCard();   // camera off + sensor: straight to sensor mode
 }
+
+// Said up front every time the camera turns on (playtest: people worried about being watched).
+// It is step 1 of the start flow: notice, then light bar, then reference. One card at a time.
+let flowSteps = [], noticeOpen = false, flowStep = null;
+function showCamNotice() {
+  flowSteps = ['cam', ...(needBar() ? ['bar'] : []), 'ref'];
+  noticeOpen = true; flowStep = null;
+  syncRef();
+}
+function hideCamNotice() {
+  if (!noticeOpen) return;
+  noticeOpen = false;
+  syncRef();
+}
+// Show or hide a start card with a short slide: forward steps come in from the right,
+// going back comes in from the left. The leaving card fades out the other way.
+const POP_FOR = { cam: 'empty-camera', bar: 'bar-prompt', ref: 'ref-prompt' };
+function setPop(id, show, dir = 1) {
+  const el = $(id);
+  if (show) {
+    if (!el.hidden && !el.classList.contains('leaving')) return;
+    clearTimeout(el._leave);
+    el.classList.remove('leaving'); el.dataset.dir = dir === 0 ? 'enter' : dir > 0 ? 'next' : 'back';
+    el.hidden = false;
+    el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+  } else if (!el.hidden && dir !== 0) {
+    // Between steps: swap at once. Two glass cards stacked during a cross-fade looked whiter
+    // than one, so the surface flashed white; now there is only ever one surface on screen.
+    clearTimeout(el._leave); el.classList.remove('leaving'); el.hidden = true;
+  } else if (!el.hidden && !el.classList.contains('leaving')) {
+    el.dataset.dir = dir === 0 ? 'enter' : dir > 0 ? 'next' : 'back';
+    el.classList.add('leaving');
+    el._leave = setTimeout(() => { el.hidden = true; el.classList.remove('leaving'); }, 420);
+  }
+}
+// Small dots under each start card. The new card starts with the previous dot lit,
+// then the pill slides over, so the dots feel like one control moving along.
+function renderSteps(id, step, from) {
+  const box = $(id).querySelector('.pop-steps'); if (!box) return;
+  const i = flowSteps.indexOf(step), f = from >= 0 ? from : i;
+  box.hidden = i < 0 || flowSteps.length < 2;
+  box.innerHTML = flowSteps.map((st, n) => `<button type="button" data-step="${st}" class="${n === f ? 'on' : ''}" aria-label="Step ${n + 1} of ${flowSteps.length}"${n === i ? ' aria-current="step"' : ''}></button>`).join('');
+  if (f !== i) requestAnimationFrame(() => requestAnimationFrame(() =>
+    box.querySelectorAll('button').forEach((b, n) => b.classList.toggle('on', n === i))));
+}
+// Tap a dot to jump back (or ahead) to that step.
+function goStep(step) {
+  if (step === 'cam') return;   // going back to step 1 would mean turning the camera off
+  if (step === 'bar') barSkipped = false;
+  if (step === 'ref') barSkipped = true;
+  syncRef();
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.pop-steps button[data-step]');
+  if (b && !b.classList.contains('on')) goStep(b.dataset.step);
+});
+$('cam-notice-ok').onclick = hideCamNotice;
+$('cam-notice-sensor').onclick = () => {
+  hideCamNotice();
+  if (sensor.live) stop();   // camera off + sensor connected: Poise switches to sensor mode on its own
+  else toast('Connect the light bar first. Its distance sensor works without the camera.');
+};
 
 function setChip(label, live = false) { text('tracking', label); $('tracking').classList.toggle('live', live); }
 
@@ -195,10 +344,10 @@ function checkScene(p) {
     g.drawImage(camera, 0, 0, 32, 18);
     const px = g.getImageData(0, 0, 32, 18).data;
     let sum = 0; for (let i = 0; i < px.length; i += 4) sum += px[i] * .3 + px[i + 1] * .59 + px[i + 2] * .11;
-    if (sum / (px.length / 4) < 55) issue = 'It’s a bit dark. Add some light in front of you';
+    if (sum / (px.length / 4) < 55) issue = 'A bit dark here.';
   } catch {}
-  if (!issue && p && [11, 12].some(i => p[i].x < .04 || p[i].x > .96 || p[i].y > .97)) issue = 'Move back so both shoulders are in view';
-  if (!issue && p && !visible(p, [7, 8]) && visible(p, [0, 11, 12])) issue = 'Face the camera so both ears show';
+  if (!issue && p && [11, 12].some(i => p[i].x < .04 || p[i].x > .96 || p[i].y > .97)) issue = 'Move back a little.';
+  if (!issue && p && !visible(p, [7, 8]) && visible(p, [0, 11, 12])) issue = 'Face the camera.';
   if (issue !== sceneIssue) { sceneIssue = issue; if (issue && !issue.startsWith('Face')) toast(issue); }
   if (issue) setChip(issue);
 }
@@ -219,18 +368,50 @@ function cue(p) {
   return { x: (hx - mx) / w, y: (hy - my) / w, tilt: (a.y - b.y) / w, roll, width: w, ears, sy: my };
 }
 
+// Joint colour flips with what is behind the lines: dark lines on light clothes or walls,
+// white lines on dark ones. We sample a tiny copy of the video along the skeleton twice a second.
+const lumaCanvas = document.createElement('canvas'), lumaCtx = lumaCanvas.getContext('2d', { willReadFrequently: true });
+lumaCanvas.width = 64; lumaCanvas.height = 36;
+let jointLuma = 0.4, jointDark = false, lumaAt = 0;
+function jointInk(p) {
+  const now = performance.now();
+  if (now - lumaAt > 500 && camera.videoWidth) {
+    lumaAt = now;
+    lumaCtx.drawImage(camera, 0, 0, 64, 36);
+    const px = lumaCtx.getImageData(0, 0, 64, 36).data;
+    const pts = [];
+    for (const [a, b] of [[11, 12], [11, 13], [12, 14], [11, 23], [12, 24]]) {
+      if (!visible(p, [a, b])) continue;
+      for (const t of [0, .25, .5, .75, 1]) pts.push([p[a].x + (p[b].x - p[a].x) * t, p[a].y + (p[b].y - p[a].y) * t]);
+    }
+    let sum = 0, n = 0;
+    for (const [x, y] of pts) {
+      const X = Math.round(x * 63), Y = Math.round(y * 35);
+      if (X < 0 || Y < 0 || X > 63 || Y > 35) continue;
+      const i = (Y * 64 + X) * 4;
+      sum += (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255; n++;
+    }
+    if (n) jointLuma = jointLuma * .6 + (sum / n) * .4;
+    // Gap between the two thresholds stops it flickering on mid-grey clothes.
+    if (!jointDark && jointLuma > .62) jointDark = true;
+    else if (jointDark && jointLuma < .5) jointDark = false;
+  }
+  return jointDark ? 'rgba(13,13,13,.9)' : 'rgba(255,255,255,.95)';
+}
+
 function draw(p) {
   const w = canvas.clientWidth, h = canvas.clientHeight;
   canvas.width = w; canvas.height = h;
   if (!store.state.joints) return;
   const scale = Math.max(w / camera.videoWidth, h / camera.videoHeight), vw = camera.videoWidth * scale, vh = camera.videoHeight * scale, ox = (w - vw) / 2, oy = (h - vh) / 2;
   const xy = a => [a.x * vw + ox, a.y * vh + oy];
-  ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.fillStyle = '#fff'; ctx.lineWidth = 1.5; ctx.shadowBlur = 12; ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--signal');
+  const ink = jointInk(p);
+  ctx.strokeStyle = ink; ctx.fillStyle = ink; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.shadowBlur = 0;
   for (const [a, b] of [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [24, 26]]) {
     if (!visible(p, [a, b])) continue;
     ctx.beginPath(); ctx.moveTo(...xy(p[a])); ctx.lineTo(...xy(p[b])); ctx.stroke();
   }
-  for (const i of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26]) if (visible(p, [i])) { ctx.beginPath(); ctx.arc(...xy(p[i]), 3.5, 0, Math.PI * 2); ctx.fill(); }
+  for (const i of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26]) if (visible(p, [i])) { ctx.beginPath(); ctx.arc(...xy(p[i]), 5, 0, Math.PI * 2); ctx.fill(); }
 }
 
 // Which part of the shift is largest → a specific message.
@@ -248,24 +429,24 @@ function shiftCause(delta, widthRatio = 1) {
   if (size < .05) return null;
   shiftCause.key = key;
   return {
-    close: ['Too close to the screen', 'Sit back a little, about an arm’s length away.'],
-    far: ['Too far from the screen', 'Move a little closer so you don’t lean in to read.'],
-    forward: ['Leaning forward', 'Bring your head back over your shoulders.'],
-    side: ['Tilting to one side', 'Center your head between your shoulders.'],
+    close: ['Too close', 'Sit back an arm’s length.'],
+    far: ['Too far', 'Come a little closer.'],
+    forward: ['Leaning forward', 'Head back over your shoulders.'],
+    side: ['Tilting', 'Bring your head back to center.'],
     shoulders: ['Uneven shoulders', 'Let both shoulders drop evenly.'],
-    slouch: ['Slouching back', 'Sit up and bring your shoulders back up to where they were.'],
+    slouch: ['Slouching', 'Sit up a little taller.'],
   }[key];
 }
 
 const STATE_COPY = {
   white: ['Aligned', 'Close to your reference.'],
   green: ['Back in balance', 'Nice correction.'],
-  amber: ['Drifting', 'A small shift. Settle back when you can.'],
-  red: ['Reset your posture', 'You have been out of position for a while.'],
+  amber: ['Drifting', 'Settle back when you can.'],
+  red: ['Time to reset', 'You’ve been off for a while.'],
 };
 
 function updateWork(p, now) {
-  if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); return; }
+  if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay.'); return; }
   const c = cue(p);
   // If the ears were visible when the reference was saved but aren't now (or the other way round),
   // the head point moved source, so take a fresh baseline for the head.
@@ -302,7 +483,13 @@ function sensorShift() {
 //  4. Back in position for 1 s → green for a moment, then white again.
 const GRACE_MS = () => Math.max(5000, strongDelay());
 const FADE_MS = 6000, RED_AFTER_MS = 20000, SETTLE_MS = 1000;
-const WHITE = [140, 140, 130], YELLOW = [255, 130, 0], RED = [255, 0, 0];
+const WHITE = [140, 140, 130], PALE = [255, 205, 60], YELLOW = [255, 130, 0], RED = [255, 0, 0];
+// Screen versions of the same steps: neutral → pale yellow → warm yellow → soft red.
+// On screen, sitting well is a soft green (the LED stays white), so the card always shows your state.
+const S_WHITE = [150, 214, 165], S_PALE = [255, 238, 168], S_YELLOW = [250, 200, 95], S_RED = [242, 128, 112], S_GREEN = [105, 204, 138];
+// Two-stop fade so the first thing you see is a pale yellow, never a dim, muddy one.
+const toWarm = (k, a, b, c) => k < .5 ? mix(a, b, k * 2) : mix(b, c, (k - .5) * 2);
+let lastTone = null;
 const mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
 let alignedSince = 0, cueShown = false, lastRgb = null;
 function applyPosture(d, now, delta, widthRatio) {
@@ -310,21 +497,26 @@ function applyPosture(d, now, delta, widthRatio) {
   // Counted as a shift too (20% closer or farther ≈ 45% shift).
   // Ignore the first ~12% of size change (normal shifting in the chair), then count it more gently.
   if (widthRatio) d = Math.max(d, Math.min(100, Math.round(Math.max(0, Math.abs(Math.log(widthRatio)) - .12) * 200)));
-  text('deviation', d); $('deviation-bar').style.width = d + '%';
-  let state, rgb = null;
+  live.d = live.d == null ? d : live.d * .6 + d * .4;
+  if (!silent()) avatar.set(delta, widthRatio || 1);
+  // The number updates twice a second at most, so it reads calmly.
+  if (now - (applyPosture.shown || 0) > 500) { applyPosture.shown = now; text('deviation', d); }
+  $('deviation-bar').style.width = d + '%';
+  let state, rgb = null, tone = null;
   if (d > threshold()) {
     alignedSince = 0;
     if (!driftSince) driftSince = now;
     const held = now - driftSince, grace = GRACE_MS();
     if (held < grace) {
       state = cueShown ? lastState : 'white';          // still within grace: no change
-      if (cueShown) rgb = lastRgb;
+      if (cueShown) { rgb = lastRgb; tone = lastTone; }
     } else {
       cueShown = true;
       const toYellow = Math.min(1, (held - grace) / FADE_MS);
       const redStart = d >= 80 ? grace + FADE_MS : grace + RED_AFTER_MS;
       const toRed = Math.max(0, Math.min(1, (held - redStart) / FADE_MS));
-      rgb = toRed > 0 ? mix(YELLOW, RED, toRed) : mix(WHITE, YELLOW, toYellow);
+      rgb = toRed > 0 ? mix(YELLOW, RED, toRed) : toWarm(toYellow, WHITE, PALE, YELLOW);
+      tone = toRed > 0 ? mix(S_YELLOW, S_RED, toRed) : toWarm(toYellow, S_WHITE, S_PALE, S_YELLOW);
       state = toRed >= 1 ? 'red' : toYellow > .5 ? 'amber' : 'white';
     }
     recoverAt = 0;
@@ -336,30 +528,38 @@ function applyPosture(d, now, delta, widthRatio) {
       driftSince = 0; cueShown = false;
     }
     state = recoverAt && now - recoverAt < 1500 ? 'green' : driftSince ? lastState : 'white';
-    if (driftSince && state !== 'green') rgb = lastRgb;
+    if (driftSince && state !== 'green') { rgb = lastRgb; tone = lastTone; }
+    if (state === 'green') tone = S_GREEN;
   }
-  if (state === 'red' && lastState !== 'red') {
-    if (store.work().chime) chime();
+  if (state === 'red' && lastState !== 'red' && !silent()) {
     // Say what's going on, once per red, in the chosen voice.
-    if (store.state.voice) { shiftCause.key = null; shiftCause(delta, widthRatio); setTimeout(() => speak(POSTURE_SAY(shiftCause.key), $('state-agent')), store.work().chime ? 700 : 0); }
+    if (store.state.voice) { shiftCause.key = null; shiftCause(delta, widthRatio); setTimeout(() => speak(POSTURE_SAY(shiftCause.key), $('state-agent')), 0); }
   }
-  lastState = state; lastRgb = rgb;
-  light(state, rgb);
+  lastState = state; lastRgb = rgb; lastTone = tone;
+  light(state, rgb, undefined, tone || (state === 'white' ? S_WHITE : null));
   // Say WHAT moved, not just that something did: the biggest part of the shift wins.
   let [title, hint] = STATE_COPY[state];
   // The % label names what moved most: forward, tilt, closer, back, slouch…
   shiftCause.key = null; shiftCause(delta, widthRatio);
   const DEV_LABEL = { close: '% closer', far: '% farther', forward: '% forward', side: '% tilted', shoulders: '% uneven', slouch: '% slouched' };
-  text('dev-label', d < 6 ? '% shift' : DEV_LABEL[shiftCause.key] || '% shift');
-  if (state === 'amber' || state === 'red') {
+  text('dev-label', d < 6 ? '% off your reference' : DEV_LABEL[shiftCause.key] || '% off your reference');
+  // Name the shift as soon as it is visible, not only once the light has changed.
+  // Shown from half the cue threshold; hides again below a third, so it doesn't flicker at the edge.
+  const thr = threshold();
+  if (d > thr * .5) applyPosture.naming = true; else if (d < thr * .35) applyPosture.naming = false;
+  if (state !== 'green' && applyPosture.naming) {
     const c = shiftCause(delta, widthRatio);
-    if (c) { title = c[0]; hint = state === 'red' ? `${c[1]} You've been like this for a while.` : c[1]; }
+    if (c) {
+      title = c[0];
+      hint = c[1];   // one short line; how long it's been shows in the colour, not in more words
+    }
   }
+  if (silent()) { title = 'Silent test'; hint = 'Tracking quietly, light and voice off.'; text('deviation', '—'); $('deviation-bar').style.width = '0'; }
   text('posture-state', title); text('posture-hint', hint);
   // Session analysis (only while the focus timer runs).
   if (timerRunning) posture.record(now, d, state, delta, widthRatio);
   else posture.pause();
-  if (store.work().eyes) {
+  if (false) {   // eye care removed
     if (widthRatio > 1.25) { if (!nearSince) nearSince = now; text('distance', now - nearSince > 3000 ? 'Too close' : 'Close'); }
     else { nearSince = 0; text('distance', 'Good'); }
   }
@@ -367,7 +567,7 @@ function applyPosture(d, now, delta, widthRatio) {
 
 
 function updateFace(now) {
-  if (!face || !store.work().eyes) return;
+  return;   // eye care removed
   const r = face.detectForVideo(camera, now), s = r.faceBlendshapes?.[0]?.categories;
   if (!s) { text('blinks', '—'); return; }
   const l = s.find(x => x.categoryName === 'eyeBlinkLeft')?.score || 0, rgt = s.find(x => x.categoryName === 'eyeBlinkRight')?.score || 0;
@@ -390,7 +590,8 @@ function loop(now) {
         draw(landmarks);
         if (!sceneIssue) setChip('Tracking', true);
         camGoneSince = 0;
-        if (camAway) { camAway = false; if (camPaused) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back'); } camPaused = false; }
+        avatar.setPresent(true);
+        if (camAway) { camAway = false; if (camPaused) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back.'); } camPaused = false; }
         if (screen === 'work') updateWork(landmarks, now);
         else if (store.brk().style === 'stretch') updateGame(landmarks, now);
         else if (store.brk().style === 'game') { moveGame.update(landmarks); mini.update(landmarks); }
@@ -403,8 +604,10 @@ function loop(now) {
         if (!camGoneSince) camGoneSince = now;
         if (!camAway && now - camGoneSince > 3000 && screen === 'work') {
           camAway = true; camPaused = timerRunning; timerRunning = false; renderPause(); light('idle');
+          toast(screen === 'work' ? 'I can’t see you, so I paused the timer.' : 'I can’t see you. Step back into view.');
           setChip('Away from desk');
         }
+        avatar.setPresent(false);
         if (screen === 'work') { text('posture-state', camAway ? 'Away' : 'Paused'); text('posture-hint', camAway ? 'Paused until you sit back down.' : 'Move back into the frame to continue.'); text('deviation', '—'); }
         text('match-score', '—'); $('hold-bar').style.width = '0';
         if (!(screen === 'break' && store.brk().style === 'breathe')) light('idle');
@@ -412,32 +615,43 @@ function loop(now) {
       if (now - lastFace > 120) { updateFace(now); lastFace = now; }
     }
   } catch (e) {
-    stop(); toast('Tracking stopped. Turn the camera on to try again.'); return;
+    stop(); toast('Tracking stopped. Turn the camera back on to try again.'); return;
   }
   requestAnimationFrame(loop);
 }
 
 // Before a reference exists: the side panel is hidden and the main screen asks for one.
 let barSkipped = false;
+const needBar = () => !writer && !barSkipped && ('serial' in navigator);
 const hasRef = () => !!reference || sensorRef;
 function syncRef() {
+  avatar.setActive(hasRef());
   $('studio').classList.toggle('no-ref', !hasRef() && screen === 'work');
   $('end-session').hidden = !hasRef();
   $('sensor-mode').hidden = true;
-  const needBar = !writer && !barSkipped && ('serial' in navigator);
-  $('bar-prompt').hidden = !!reference || !active || screen !== 'work' || !needBar;
-  $('ref-prompt').hidden = !!reference || !active || screen !== 'work' || needBar;
+  const bar = needBar(), open = !!reference || !active || screen !== 'work' ? false : true;
+  // Step 1 is the camera card (camera starts OFF; you turn it on), then light bar, then reference.
+  const step = !active ? 'cam' : !open ? null : bar ? 'bar' : 'ref';
+  if (step === 'cam' && flowStep !== 'cam') flowSteps = ['cam', ...(needBar() ? ['bar'] : []), 'ref'];
+  if (step !== flowStep) {
+    const from = flowSteps.indexOf(flowStep), to = flowSteps.indexOf(step);
+    // 0 = first card or closing the flow (whole card fades); ±1 = moving between steps (only the content moves).
+    const dir = from < 0 || to < 0 ? 0 : to >= from ? 1 : -1;
+    for (const [k, id] of Object.entries(POP_FOR)) setPop(id, k === step, dir);
+    if (step) renderSteps(POP_FOR[step], step, flowStep ? from : -1);
+    flowStep = step;
+  }
 }
 function calibrate() {
   if (!active && sensor.live && sensor.cm > 0) return calibrateSensor();
-  if (!active || !visible(landmarks, [0, 11, 12])) { toast('Keep your head and both shoulders in view'); return false; }
+  if (!active || !visible(landmarks, [0, 11, 12])) { toast('Keep your head and both shoulders in view, then try again.'); return false; }
   reference = cue(landmarks); driftSince = 0; nearSince = 0;
   sensorRef = false;
   if (sensor.live && sensor.cm > 0) sensor.base = sensor.cm;
   syncRef();
   if (!posture.active) posture.reset();
-  text('calibrate', 'Reset reference');
-  toast('Reference saved');
+  text('calibrate', 'Reset');
+  toast('Got it. That’s your reference now.');
   timerRunning = true; timerLast = performance.now(); renderPause();
   maybeTour();
   return true;
@@ -447,16 +661,16 @@ function calibrate() {
 // Each target matches the visible direction and movement in its video segment.
 const poses = [
   // Standing stretches, chosen so the arms never cover each other: the camera sees every joint.
-  { name: 'Side reach, left', tip: 'Stand tall. Raise both arms overhead and lean gently to the left of your mirror.', type: 'side', side: 'left' },
-  { name: 'Side reach, right', tip: 'Now the other way. Arms overhead, lean to the right of your mirror.', type: 'side', side: 'right' },
-  { name: 'Neck release, right', tip: 'Soften your shoulders. Tip your head right and slightly forward.', type: 'neck', target: 18 },
-  { name: 'Neck release, left', tip: 'Now to the left. Stay within a comfortable range.', type: 'neck', target: -18 },
-  { name: 'Overhead reach', tip: 'Stand tall and reach both arms straight up. Grow taller through your fingertips.', type: 'reach' },
-  { name: 'T-arms', tip: 'Open both arms straight out to the sides at shoulder height. Keep your shoulders low.', type: 'tee' },
-  { name: 'Shoulder shrug', tip: 'Lift both shoulders up toward your ears, hold, then let them drop.', type: 'shrug' },
-  { name: 'Look left', tip: 'Keep your shoulders still and turn your head slowly to the left of your mirror.', type: 'turn', side: 'left' },
-  { name: 'Look right', tip: 'Now turn your head slowly to the right of your mirror.', type: 'turn', side: 'right' },
-  { name: 'Chest opener', tip: 'Elbows out at shoulder height, hands up like a goalpost. Squeeze your shoulder blades together.', type: 'wings' },
+  { name: 'Side reach, left', tip: 'Arms up, lean gently to the left.', type: 'side', side: 'left' },
+  { name: 'Side reach, right', tip: 'Arms up, lean gently to the right.', type: 'side', side: 'right' },
+  { name: 'Neck release, right', tip: 'Tip your head gently to the right.', type: 'neck', target: 18 },
+  { name: 'Neck release, left', tip: 'Tip your head gently to the left.', type: 'neck', target: -18 },
+  { name: 'Overhead reach', tip: 'Reach both arms straight up.', type: 'reach' },
+  { name: 'T-arms', tip: 'Arms out to the sides, shoulders low.', type: 'tee' },
+  { name: 'Shoulder shrug', tip: 'Lift your shoulders, then let them drop.', type: 'shrug' },
+  { name: 'Look left', tip: 'Turn your head slowly to the left.', type: 'turn', side: 'left' },
+  { name: 'Look right', tip: 'Turn your head slowly to the right.', type: 'turn', side: 'right' },
+  { name: 'Chest opener', tip: 'Hands up like a goalpost, chest open.', type: 'wings' },
 ];
 let holdAcc = 0, holdLast = 0;
 let queue = [], round = 0, points = 0, perfect = 0, holdStart = 0, missingSince = 0, betweenUntil = 0, gameDone = false, guidePlaying = false, poseStarted = 0;
@@ -496,7 +710,7 @@ function showPose() {
 function advance(passed = false) {
   if (gameDone) return;
   if (passed) breakLog.matched(); else breakLog.skipped();
-  if (passed) { points += 100; perfect++; toast('Perfect  +100'); light('green'); }
+  if (passed) { points += 100; perfect++; toast('Perfect! That’s 100 points.'); light('green'); }
   round++; betweenUntil = performance.now() + 1500; showPose(); text('points', `${points} points`);
 }
 // Position-based estimates, normalized by shoulder width. No video is uploaded.
@@ -563,7 +777,7 @@ function updateGame(p, now) {
     holdStart = 0; $('hold-bar').style.width = '0'; text('match-score', '—'); light('idle');
     if (!missingSince) missingSince = now;
     text('hold-label', ['neck', 'shrug', 'turn'].includes(target.type) ? 'Keep your face and shoulders in view.' : 'Step back so your arms fit in the frame.');
-    if (now - missingSince > 6000) { toast('Arms out of view. Skipped.'); advance(); }
+    if (now - missingSince > 6000) { toast('I lost your arms, so let’s skip this one.'); advance(); }
     return;
   }
   missingSince = 0;
@@ -608,16 +822,17 @@ function updateReset(p) {
 }
 function startBreathe() {
   stopBreathe();
-  const total = Math.max(1, store.brk().minutes) * 60 * 1000, began = performance.now(), eyesAt = total * 2 / 3;
+  const total = Math.max(.5, store.brk().minutes) * 60 * 1000, began = performance.now(), eyesAt = total * 2 / 3;
   breakLog.start('breathe');
   resetShoulder = { base: null, now: null, best: 0, samples: [] };
   const orb = $('breath-orb');
+  breathState.mode = 'breathe'; breathState.level = 0;
   let inhale = true, phaseStart = 0, phaseEnd = 0, eyeStep = -1, breaths = 0;
   text('reset-cm', '—'); $('reset-bar').style.width = '0';
   const EYES = [
-    ['Look far away', 'Find something at least 6 m (20 ft) away and rest your eyes on it.'],
-    ['Blink slowly', 'Close your eyes fully, then open. Do it slowly, a few times.'],
-    ['Look around', 'Look up, down, left and right without moving your head.'],
+    ['Look far away', 'Rest your eyes on something far away.'],
+    ['Blink slowly', 'Close your eyes fully, a few times.'],
+    ['Look around', 'Move only your eyes, all around.'],
   ];
   const tick = () => {
     const now = performance.now(), t = now - began, left = Math.max(0, total - t);
@@ -641,18 +856,22 @@ function startBreathe() {
       const k = Math.min(1, (now - phaseStart) / (phaseEnd - phaseStart));
       const level = inhale ? k : 1 - k;                      // 0 dim … 1 bright
       const lv = .5 - .5 * Math.cos(level * Math.PI);        // ease in and out
-      light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)], 15);
+      breathState.level = lv;
+      // While you breathe along (camera on), the card glows green and swells with each breath.
+      const follow = active && landmarks;
+      light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)], 15, follow ? mix([235, 245, 236], [120, 205, 145], lv) : null);
       const s = resetShoulder;
       const drop = s.base != null && s.now != null ? Math.max(0, (s.now - s.top) * SHOULDER_CM) : 0;
-      text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Breathe out and let your shoulders sink down, away from your ears.');
+      text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Breathe out and let your shoulders sink.');
       // Same layout as stretching: big number = how far your shoulders have relaxed, bar = toward a 2 cm goal.
       text('reset-cm', s.base == null ? '—' : drop.toFixed(1));
       text('reset-count', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}`);
       $('reset-bar').style.width = Math.min(100, drop / 1.5 * 100) + '%';
-      text('breath-metric', !active ? 'Turn on the camera to see your shoulders relax.' : s.base == null ? 'Sit still for a moment…' : inhale ? 'Breathing in: shoulders rise a little. This is the starting point.' : drop >= 1.5 ? 'Lovely. Your shoulders came down a long way from the top of your breath.' : 'Breathing out: let your shoulders sink. The number shows how far they come down.');
+      text('breath-metric', !active ? 'Turn on the camera to track it.' : s.base == null ? 'Sit still for a moment…' : inhale ? 'Shoulders rise a little as you breathe in.' : drop >= 1.5 ? 'Lovely, your shoulders dropped a lot.' : 'Let your shoulders sink as you breathe out.');
     } else {
       // Part 2: eye rest. Gentle steady glow on the bar.
       const step = Math.min(EYES.length - 1, Math.floor((t - eyesAt) / ((total - eyesAt) / EYES.length)));
+      breathState.mode = 'eyes';
       if (step !== eyeStep) { eyeStep = step; orb.classList.remove('in'); text('breath-cue', EYES[step][0]); text('breath-tip', EYES[step][1]); }
       light('idle', [90, 100, 85]);
       text('reset-count', 'Eye rest'); text('breath-metric', `${Math.ceil(left / 1000)}s left`);
@@ -660,7 +879,9 @@ function startBreathe() {
   };
   tick(); breathTimer = setInterval(tick, 120);
 }
-function stopBreathe() { clearInterval(breathTimer); breathTimer = null; }
+function stopBreathe() { clearInterval(breathTimer); breathTimer = null; breathState.mode = 'idle'; }
+// Reset card: the same figure breathes with you instead of the dot orb.
+new BreathFigure(document.querySelector('#breathe-panel .breath-stage'), { level: () => breathState.level, mode: () => breathState.mode });
 
 // ---------- Screens ----------
 let breakToured = null;
@@ -697,7 +918,11 @@ function setScreen(next) {
 
 function renderTimer() {
   const total = store.work().focus * 60;
-  text('timer', `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(Math.floor(remaining % 60)).padStart(2, '0')}`);
+  // Minutes only, so the timer changes once a minute and the posture number is the only thing moving.
+  // The last minute counts seconds.
+  const secs = Math.max(0, Math.ceil(remaining));
+  text('timer', secs >= 60 ? Math.ceil(secs / 60) : secs);
+  text('timer-unit', secs >= 60 ? 'min left' : 'sec left');
   $('timer-bar').style.width = (1 - remaining / total) * 100 + '%';
 }
 function renderPause() {
@@ -717,13 +942,21 @@ setInterval(() => {
   timerLast = now;
 }, 200);
 
+// ---------- Avatar ----------
+// Upper-body figure that copies how you sit, over a dashed outline of your reference.
+const avatar = new PostureAvatar($('avatar-box'));
+const live = { d: null };
+
 // Keep panel text in sync with the current modes.
 function syncUI() {
   const work = store.work(), brk = store.brk();
   if (work.focus !== lastFocus) { lastFocus = work.focus; remaining = work.focus * 60; }
   text('work-mode-name', work.name);
-  text('next-break', `Then ${brk.name.toLowerCase()}: ${describeBreak(brk)}`);
-  $('eye-stat').hidden = !work.eyes; $('dist-stat').hidden = !work.eyes;
+  // Plain, spoken-style line about what comes after the focus block.
+  text('next-break', brk.style === 'breathe' ? `Up next, a ${brk.minutes < 1 ? brk.minutes * 60 + '-second' : brk.minutes + '-minute'} breathing break`
+    : brk.style === 'game' ? `Up next, a ${brk.minutes}-minute movement game`
+    : `Up next, ${brk.count} easy stretch${brk.count > 1 ? 'es' : ''}`);
+  $('eye-stat').hidden = true; $('dist-stat').hidden = true;
   document.querySelector('.card.stats').hidden = true;
   renderTimer(); renderPause();
   if (screen === 'break') {
@@ -738,7 +971,7 @@ let tab = 'work';
 function openModes(kind = tab) { tab = kind; renderModes(); if (!$('modes').open) $('modes').showModal(); }
 function renderModes() {
   document.querySelectorAll('#modes-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  $('pref-voice').checked = store.state.voice; syncVoicePick(); $('pref-music').checked = store.state.music; $('pref-joints').checked = store.state.joints;
+  $('pref-voice').checked = store.state.voice; syncVoicePick(); $('pref-silent').checked = !!store.state.silent; $('pref-music').checked = store.state.music; $('pref-joints').checked = store.state.joints;
   renderModeList(); renderEditor();
 }
 function renderModeList() {
@@ -764,41 +997,103 @@ function segmented(name, options, value) {
   return `<div class="segmented" role="group" data-seg="${name}">${options.map(([v, l]) => `<button type="button" data-v="${v}" class="${v === value ? 'active' : ''}">${l}</button>`).join('')}</div>`;
 }
 function toggle(name, checked) { return `<label class="toggle"><input type="checkbox" data-k="${name}" ${checked ? 'checked' : ''}></label>`; }
+// Settings editor. Every choice is the same control: a segmented row of a few sensible values.
+// The mode itself is picked, added, renamed and deleted from one dropdown at the top.
+const CHOICES = {
+  focus: [[15, '15 min'], [25, '25 min'], [30, '30 min'], [45, '45 min'], [60, '1 hour'], [90, '1.5 hours'], [120, '2 hours']],
+  delay: [[3, '3 sec'], [5, '5 sec'], [10, '10 sec'], [20, '20 sec']],
+  count: [[3, '3 stretches'], [5, '5 stretches'], [10, '10 stretches']],
+  breathe: [[.5, '30 sec'], [1, '1 min'], [2, '2 min'], [5, '5 min']],
+  game: [[1, '1 min'], [2, '2 min'], [3, '3 min']],
+};
+function numSeg(key, opts, value, label) {
+  const list = opts.some(([v]) => v === value) ? opts : [...opts, [value, label(value)]].sort((a, b) => a[0] - b[0]);
+  return ddHTML('n:' + key, list, value);
+}
+const CHEV = '<svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg>';
+// One dropdown for every choice in Settings: a small button showing the value, a menu with a check on the current one.
+function ddHTML(key, opts, value) {
+  const cur = opts.find(([v]) => String(v) === String(value)) || opts[0];
+  return `<div class="dd" data-dd="${key}"><button type="button" class="dd-btn" aria-haspopup="menu" aria-expanded="false"><b>${cur[1]}</b>${CHEV}</button>
+    <div class="dd-menu" role="menu" hidden>${opts.map(([v, l]) => `<button type="button" role="menuitemradio" data-v="${v}" aria-checked="${String(v) === String(value)}" class="dd-item${String(v) === String(value) ? ' on' : ''}">${l}</button>`).join('')}</div></div>`;
+}
+function wireDD(dd, pick) {
+  const btn = dd.querySelector('.dd-btn'), menu = dd.querySelector('.dd-menu');
+  btn.onclick = e => { e.stopPropagation(); const show = menu.hidden; closeDDs(); menu.hidden = !show; dd.classList.toggle('open', show); btn.setAttribute('aria-expanded', show); };
+  menu.addEventListener('click', e => { const it = e.target.closest('.dd-item[data-v]'); if (!it) return; closeDDs(); pick(it.dataset.v, it); });
+}
+function setDD(dd, value) {
+  dd.querySelectorAll('.dd-item[data-v]').forEach(it => { const on = it.dataset.v === String(value); it.classList.toggle('on', on); it.setAttribute('aria-checked', on); if (on) dd.querySelector('.dd-btn b').textContent = it.textContent; });
+}
+function closeDDs() { document.querySelectorAll('.dd').forEach(d => { d.classList.remove('open'); const m = d.querySelector('.dd-menu'); if (m) m.hidden = true; d.querySelector('.dd-btn')?.setAttribute('aria-expanded', 'false'); }); }
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.dd')) closeDDs(); });
 function renderEditor() {
   const ed = $('editor');
   const m = tab === 'work' ? store.work() : store.brk();
-  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-  let html = field('Name', `<input type="text" data-k="name" maxlength="32" value="${esc(m.name)}">`);
+  const list = tab === 'work' ? store.state.works : store.state.breaks;
+  const current = m.id;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  let html = `<div class="field mode-row"><span>Mode</span>
+    <div class="dd" id="mode-dd">
+      <button type="button" class="dd-btn" aria-haspopup="menu" aria-expanded="false"><b>${esc(m.name)}</b>${CHEV}</button>
+      <input type="text" class="dd-name" maxlength="32" value="${esc(m.name)}" aria-label="Mode name" hidden>
+      <div class="dd-menu" role="menu" hidden>
+        ${list.map(x => `<button type="button" role="menuitemradio" aria-checked="${x.id === current}" data-id="${x.id}" class="dd-item${x.id === current ? ' on' : ''}">${esc(x.name)}</button>`).join('')}
+        <i class="dd-sep"></i>
+        <button type="button" role="menuitem" class="dd-item act" data-act="new">New mode</button>
+        <button type="button" role="menuitem" class="dd-item act" data-act="rename">Rename</button>
+        ${list.length > 1 ? '<button type="button" role="menuitem" class="dd-item act danger-item" data-act="delete">Delete this mode</button>' : ''}
+      </div>
+    </div></div>`;
   if (tab === 'work') {
-    html += field('Focus length', `<input type="range" data-k="focus" min="5" max="90" step="5" value="${m.focus}">`, `<output>${m.focus} min</output>`);
-    html += field('Sensitivity', segmented('sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
-    html += field('Strong cue after', `<input type="range" data-k="delay" min="2" max="20" step="1" value="${m.delay}">`, `<output>${m.delay}s</output>`);
-    html += field('Eye care', toggle('eyes', m.eyes));
-    html += field('Chime', toggle('chime', m.chime));
+    html += field('Focus length', numSeg('focus', CHOICES.focus, m.focus, v => v + ' min'));
+    html += field('Sensitivity', ddHTML('s:sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
+    html += field('Strong cue after', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
   } else {
-    html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Reset'], ['game', 'Game']], m.style));
-    html += m.style === 'stretch'
-      ? field('Stretches', `<input type="range" data-k="count" min="1" max="10" step="1" value="${m.count}">`, `<output>${m.count}</output>`)
-      : field('Length', `<input type="range" data-k="minutes" min="1" max="10" step="1" value="${m.minutes}">`, `<output>${m.minutes} min</output>`);
+    html += field('Style', ddHTML('s:style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
+    html += m.style === 'stretch' ? field('Stretches', numSeg('count', CHOICES.count, m.count, v => v + ' stretches'))
+      : field('Length', numSeg('minutes', CHOICES[m.style], m.minutes, v => v < 1 ? v * 60 + ' sec' : v + ' min'));
     html += field('Start automatically', toggle('auto', m.auto));
   }
-  const list = tab === 'work' ? store.state.works : store.state.breaks;
-  html += `<div class="editor-foot"><span class="sub">${tab === 'work' ? describeWork(m) : describeBreak(m)}</span>${list.length > 1 ? '<button type="button" class="danger" id="delete-mode">Delete</button>' : ''}</div>`;
-  ed.innerHTML = html;
+  ed.innerHTML = `<div class="group">${html}</div>`;
 
-  ed.querySelectorAll('input[type=range]').forEach(inp => inp.oninput = () => {
-    const v = Number(inp.value); patchMode(tab, { [inp.dataset.k]: v });
-    const unit = { focus: ' min', minutes: ' min', delay: 's', count: '' }[inp.dataset.k];
-    inp.parentElement.querySelector('output').textContent = v + unit;
-    ed.querySelector('.editor-foot .sub').textContent = tab === 'work' ? describeWork(store.work()) : describeBreak(store.brk());
-  });
   ed.querySelectorAll('input[type=checkbox]').forEach(inp => inp.onchange = () => patchMode(tab, { [inp.dataset.k]: inp.checked }));
-  ed.querySelector('input[type=text]').oninput = e => patchMode(tab, { name: e.target.value.trim() || 'Untitled' });
   ed.querySelectorAll('[data-seg] button').forEach(b => b.onclick = () => { patchMode(tab, { [b.parentElement.dataset.seg]: b.dataset.v }); renderEditor(); });
-  const del = $('delete-mode');
-  if (del) del.onclick = () => { deleteMode(tab, m.id); renderModes(); };
+  ed.querySelectorAll('.dd[data-dd]').forEach(dd => wireDD(dd, v => {
+    const [kind, key] = dd.dataset.dd.split(':');
+    patchMode(tab, { [key]: kind === 'n' ? Number(v) : v }); renderEditor();
+  }));
+
+  // Mode dropdown
+  const dd = $('mode-dd'), btn = dd.querySelector('.dd-btn'), menu = dd.querySelector('.dd-menu'), name = dd.querySelector('.dd-name');
+  const open = on => { menu.hidden = !on; btn.setAttribute('aria-expanded', on); dd.classList.toggle('open', on); };
+  btn.onclick = e => { e.stopPropagation(); const show = menu.hidden; closeDDs(); open(show); };
+  menu.onclick = e => {
+    const it = e.target.closest('.dd-item'); if (!it) return;
+    open(false);
+    if (it.dataset.id) { store.update(s => { if (tab === 'work') s.workId = it.dataset.id; else s.breakId = it.dataset.id; }); renderEditor(); return; }
+    if (it.dataset.act === 'new') { createMode(tab, ''); patchMode(tab, { name: 'New mode' }); renderModes(); startRename(); }
+    if (it.dataset.act === 'rename') startRename();
+    if (it.dataset.act === 'delete') { deleteMode(tab, m.id); renderModes(); }
+  };
+  function startRename() {
+    const d = $('mode-dd'), b = d.querySelector('.dd-btn'), n = d.querySelector('.dd-name');
+    n.style.width = Math.max(140, b.offsetWidth) + 'px';   // same size as the button it replaces
+    b.hidden = true; n.hidden = false; n.focus(); n.select();
+    const done = () => { patchMode(tab, { name: n.value.trim() || 'Untitled' }); renderEditor(); };
+    n.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); n.blur(); } if (e.key === 'Escape') { n.value = m.name; n.blur(); } };
+    n.onblur = done;
+  }
 }
 document.querySelectorAll('#modes-tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; renderModes(); });
+$('pref-silent').onchange = e => {
+  store.update(s => { s.silent = e.target.checked; });
+  if (e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
+  syncSilent(); lastSerial = ''; light(lastState === 'idle' ? 'idle' : 'white');
+  toast(e.target.checked ? 'Silent test is on. The light and voice stay off.' : 'Silent test is off.');
+};
+function syncSilent() { $('silent-chip').hidden = !store.state.silent; }
+syncSilent();
 $('pref-voice').onchange = e => {
   store.update(s => { s.voice = e.target.checked; });
   if (!e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
@@ -806,8 +1101,10 @@ $('pref-voice').onchange = e => {
 };
 function syncVoicePick() {
   $('pref-voice-pick').classList.toggle('dim', !store.state.voice);
-  document.querySelectorAll('#voice-seg button').forEach(b => b.classList.toggle('active', b.dataset.v === (store.state.voiceId || 'ava')));
+  setDD($('voice-seg'), store.state.voiceId || 'ava');
 }
+wireDD($('voice-seg'), () => {});        // picks are handled by the click listener below
+wireDD($('bright-seg'), () => {});
 $('voice-seg').addEventListener('click', e => {
   const b = e.target.closest('button[data-v]'); if (!b) return;
   store.update(s => { s.voiceId = b.dataset.v; s.voice = true; });
@@ -816,19 +1113,28 @@ $('voice-seg').addEventListener('click', e => {
 });
 // Light bar brightness: pick a level, the light updates on its next message (within a frame).
 function syncBright() {
-  document.querySelectorAll('#bright-seg button').forEach(b => b.classList.toggle('active', +b.dataset.b === (store.state.brightness ?? 100)));
+  setDD($('bright-seg'), store.state.brightness ?? 100);
 }
 $('bright-seg').addEventListener('click', e => {
-  const b = e.target.closest('button[data-b]'); if (!b) return;
-  store.update(s => { s.brightness = +b.dataset.b; }); syncBright();
+  const b = e.target.closest('.dd-item[data-v]'); if (!b) return;
+  store.update(s => { s.brightness = +b.dataset.v; }); syncBright();
   lastSerial = null;                                   // force the new level to be sent right away
 });
 syncBright();
 $('pref-joints').onchange = e => setJoints(e.target.checked);
-$('pref-setup').onclick = () => { $('modes').close(); rerunSetup(); };
-$('pref-tour').onclick = () => { $('modes').close(); setScreen('work'); startTour(); };
-document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
-$('modes').addEventListener('click', e => { if (e.target === $('modes')) $('modes').close(); });
+// Settings drawer slides out before it closes.
+function closeModes(then) {
+  const d = $('modes');
+  if (!d.open) { then?.(); return; }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { d.close(); then?.(); return; }
+  d.classList.add('closing');
+  setTimeout(() => { d.classList.remove('closing'); d.close(); then?.(); }, 320);
+}
+$('pref-setup').onclick = () => closeModes(rerunSetup);
+$('pref-tour').onclick = () => closeModes(() => { setScreen('work'); startTour(); });
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => closeModes());
+$('modes').addEventListener('click', e => { if (e.target === $('modes')) closeModes(); });
+$('modes').addEventListener('cancel', e => { e.preventDefault(); closeModes(); });
 
 function setJoints(v) {
   store.update(s => { s.joints = v; });
@@ -837,12 +1143,15 @@ function setJoints(v) {
 
 async function rerunSetup() {
   const wasBreak = screen === 'break';
+  // Setup is a full-screen page of its own: hide the studio (camera, panel, toolbar) underneath it.
+  $('studio').hidden = true; closeThread();
   await runOnboarding();
+  $('studio').hidden = false;
   if (wasBreak) setScreen('work'); else syncUI();
 }
 
 // ---------- Ask Poise ----------
-const SUGGEST = ['Focus 40 minutes', 'Less sensitive', 'Breaks with breathing', 'How am I doing?'];
+const SUGGEST = ['Focus 40 min', 'Less sensitive', 'Breathing breaks', 'How am I doing?'];
 function addMessage(who, msg) {
   const el = document.createElement('div');
   el.className = `msg ${who}`; el.textContent = msg;
@@ -850,8 +1159,9 @@ function addMessage(who, msg) {
   $('messages').scrollTop = $('messages').scrollHeight;
 }
 function openThread(suggestions = SUGGEST) {
+  $('thread').classList.remove('closing');
   $('thread').hidden = false; $('studio').classList.add('chatting');
-  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, eye care, your breaks, or a new mode.');
+  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, your breaks, or a new mode.');
   $('suggest').innerHTML = '';
   suggestions.forEach(s => {
     const b = document.createElement('button'); b.type = 'button'; b.textContent = s;
@@ -859,7 +1169,14 @@ function openThread(suggestions = SUGGEST) {
     $('suggest').append(b);
   });
 }
-function closeThread() { $('thread').hidden = true; $('studio').classList.remove('chatting'); }
+// Thread slides down out of view before it hides.
+function closeThread() {
+  const t = $('thread'); if (t.hidden) return;
+  $('studio').classList.remove('chatting');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { t.hidden = true; return; }
+  t.classList.add('closing');
+  setTimeout(() => { t.classList.remove('closing'); t.hidden = true; }, 260);
+}
 
 const assistantCtx = {
   work: () => store.work(), brk: () => store.brk(),
@@ -880,7 +1197,7 @@ const assistantCtx = {
     const sum = posture.summary();
     const share = sum ? sum.aligned : null;
     const mins = Math.ceil(remaining / 60);
-    const blinks = store.work().eyes && active ? blinkTimes.length : null;
+    const blinks = null;
     return {
       en: [share !== null ? `You've been aligned ${share}% of this session.` : 'Set a reference and start the timer to see how you are doing.',
         `${mins} min left in ${store.work().name}.`, blinks !== null ? `${blinks} blinks in the last minute.` : ''].join(' ').trim(),
@@ -907,22 +1224,86 @@ function send(message) {
     if ($('modes').open) renderEditor();
   }, 380);
 }
-$('ask-form').onsubmit = e => { e.preventDefault(); send($('ask-input').value); };
+$('ask-form').onsubmit = e => { e.preventDefault(); window.setSpeechLang?.($('ask-input').value); send($('ask-input').value); };
 $('ask-input').onfocus = () => openThread();
 document.addEventListener('pointerdown', e => { if (!$('ask').contains(e.target) && !$('thread').hidden) closeThread(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('thread').hidden) { closeThread(); $('ask-input').blur(); } });
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (Recognition) {
+  // Hands-free conversation: tap the mic once, talk as many times as you like, tap again to stop.
+  // Recognition pauses while Poise is speaking (so it doesn't hear itself) and resumes right after.
   const rec = new Recognition();
-  rec.lang = navigator.languages?.some(l => l.startsWith('ko')) ? 'ko-KR' : 'en-US';
-  rec.interimResults = false;
+  // One recognition language at a time (a browser limit). English by default, since Poise speaks English;
+  // typing a message in Korean switches listening to Korean, and typing in English switches it back.
+  rec.lang = store.state.speechLang || 'en-US';
+  window.setSpeechLang = text => {
+    const lang = /[가-힣]/.test(text) ? 'ko-KR' : /[a-z]/i.test(text) ? 'en-US' : null;
+    if (!lang || lang === rec.lang) return;
+    rec.lang = lang; store.update(st => { st.speechLang = lang; });
+    if (on && running) { try { rec.abort(); } catch {} }      // restarts in the new language
+  };
+  rec.interimResults = true;
+  rec.continuous = true;
   $('mic').hidden = false;
-  rec.onresult = e => { spoken = true; send(e.results[0][0].transcript); };
-  rec.onend = rec.onerror = () => { $('mic').classList.remove('listening'); $('ask-orb').classList.remove('listening'); };
+  $('mic').insertAdjacentHTML('beforeend', '<span class="mic-bars" aria-hidden="true"><i></i><i></i><i></i></span>');
+  let on = false, running = false, restartT = 0;
+  const input = $('ask-input'), placeholder = input.placeholder;
+  const setUI = v => {
+    $('mic').classList.toggle('listening', v); $('ask-orb').classList.toggle('listening', v); $('ask-form').classList.toggle('listening', v);
+    $('mic').setAttribute('aria-label', v ? 'Stop listening' : 'Speak instead');
+    input.placeholder = v ? 'Listening…' : placeholder;
+  };
+  const begin = () => { if (!on || running || $('ask-orb').classList.contains('speaking')) return; try { rec.start(); running = true; } catch {} };
+  const later = (ms = 250) => { clearTimeout(restartT); restartT = setTimeout(begin, ms); };
+  rec.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript.trim();
+      if (e.results[i].isFinal) { if (t) { input.value = ''; spoken = true; send(t); } }
+      else interim += t;
+    }
+    if (interim) input.value = interim;            // you can see it hearing you
+  };
+  rec.onend = () => { running = false; if (on) later(); };
+  rec.onerror = e => { running = false; if (e.error === 'not-allowed' || e.error === 'service-not-allowed') stopListening(); };
+  // Pause while Poise talks, then listen again.
+  new MutationObserver(() => {
+    if (!on) return;
+    if ($('ask-orb').classList.contains('speaking')) { clearTimeout(restartT); if (running) rec.abort(); }
+    else later(400);
+  }).observe($('ask-orb'), { attributes: true, attributeFilter: ['class'] });
+
+  // Mic level: the three bars in the mic button move with your voice, so you know it hears you.
+  let audioStream, raf;
+  async function startLevel() {
+    try {
+      audioStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      const ac = new (window.AudioContext || window.webkitAudioContext)(), an = ac.createAnalyser();
+      an.fftSize = 256; ac.createMediaStreamSource(audioStream).connect(an);
+      const data = new Uint8Array(an.frequencyBinCount), bars = [...$('mic').querySelectorAll('.mic-bars i')];
+      const tick = () => {
+        if (!on) { ac.close(); return; }
+        an.getByteTimeDomainData(data);
+        let sum = 0; for (const v of data) sum += (v - 128) ** 2;
+        const lvl = Math.min(1, Math.sqrt(sum / data.length) / 28);
+        // Same mark as the voice cards: a gentle idle wave, taller when you speak.
+        const t = performance.now() / 1000;
+        bars.forEach((b, i) => { const idle = .35 + .2 * (Math.sin(t * 6 + i * 1.1) + 1) / 2; b.style.transform = `scaleY(${Math.min(1, idle + lvl * [0.6, .8, .7][i])})`; });
+        raf = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch {}
+  }
+  function stopListening() {
+    on = false; clearTimeout(restartT); cancelAnimationFrame(raf);
+    try { rec.abort(); } catch {} running = false;
+    audioStream?.getTracks().forEach(t => t.stop()); audioStream = null;
+    setUI(false);
+  }
   $('mic').onclick = () => {
-    if ($('mic').classList.contains('listening')) { rec.stop(); return; }
-    try { rec.start(); $('mic').classList.add('listening'); $('ask-orb').classList.add('listening'); openThread(); } catch {}
+    if (on) { stopListening(); return; }
+    on = true; setUI(true); openThread(); begin(); startLevel();
   };
 }
 
@@ -935,7 +1316,10 @@ async function endSession(reason) {
   const r = posture.summary();
   posture.clear();
   if (reason === 'end') { light('idle'); }
-  const choice = r ? await showReport(r, line => speak(line, $('ask-orb'))) : 'break';
+  // Always say out loud that the session is over (works with the mini window open, too).
+  // The report's lines are pre-recorded ("Great session. Here is how your posture went." …), so they play in the natural voice.
+  const say = line => speak(line, $('ask-orb'));
+  const choice = r ? await showReport(r, say) : (say('Session ended. Here is your summary.'), 'break');
   ending = false;
   remaining = store.work().focus * 60; renderTimer();
   if (choice === 'break') { setScreen('break'); if (!active) toast('Turn on your camera to follow the stretches'); }
@@ -979,7 +1363,7 @@ async function begin(withCamera, skipSetup = false) {
   setScreen('work');
   enter();
   tourPending = ALWAYS_ONBOARD || !store.state.toured;
-  if (withCamera) start();
+  // The camera stays off until you turn it on from the first card.
 }
 // The studio guide waits until the first reference is set, so people can start right away.
 let tourPending = false;
@@ -996,6 +1380,7 @@ async function maybeTour() {
 $('start').onclick = () => begin(true);
 $('preview').onclick = () => begin(true, true);
 $('enable').onclick = start;
+$('cam-off-sensor').onclick = () => { if (sensor.live) calibrateSensor(); else toast('Connect the light bar first. Its distance sensor works without the camera.'); };
 $('stop').onclick = () => (active ? stop() : start());
 $('home').onclick = () => { reel.stop(); stopBreathe(); stop(); closeThread(); $('studio').hidden = true; $('welcome').hidden = false; };
 $('work').onclick = () => setScreen('work');
@@ -1021,29 +1406,37 @@ function drawGameMap(g) {
   const dpr = Math.min(2, devicePixelRatio || 1), W = cv.offsetWidth, H = cv.offsetHeight;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
   const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
-  const cx = W / 2, cy = H * .5, u = W * .11;               // u = one shoulder-width on the map
-  // figure
-  c.strokeStyle = '#141412'; c.lineWidth = 3; c.lineCap = 'round'; c.fillStyle = '#141412';
-  c.beginPath(); c.arc(cx, cy - u * 1.05, u * .32, 0, Math.PI * 2); c.stroke();
-  c.beginPath(); c.moveTo(cx - u * .5, cy - u * .5); c.lineTo(cx + u * .5, cy - u * .5); c.lineTo(cx + u * .38, cy + u * .55); c.lineTo(cx - u * .38, cy + u * .55); c.closePath(); c.fill();
-  c.beginPath(); c.moveTo(cx - u * .25, cy + u * .55); c.lineTo(cx - u * .3, cy + u * 1.9); c.moveTo(cx + u * .25, cy + u * .55); c.lineTo(cx + u * .3, cy + u * 1.9); c.stroke();
+  // Upper body only, same size and place as the figure in the other games.
+  const fs0 = Math.min(W - 32, H - 32) / 300, fy0 = H - 10;
+  const cx = W / 2, u = 80 * fs0, cy = fy0 - 116 * fs0 + u * .5;   // u = one shoulder-width on the map
+  // You: the same ink figure, with its arms following yours so you can see yourself reach for a bubble.
   const b = g.body;
-  if (!b) { c.fillStyle = '#6a6b64'; c.font = '500 13px Geist, sans-serif'; c.textAlign = 'center'; c.fillText(active ? 'Step back so your arms fit in view' : 'Bubbles will appear around you', cx, H - 22); return; }
+  const fs = fs0, fy = fy0;
   const aspect = (camera.videoWidth / camera.videoHeight) || 16 / 9;
-  const map = (x, y) => [cx - (x - b.cx) / b.w * u, cy - u * .5 + (y - b.cy) / b.w / aspect * u];   // mirrored like the camera
+  const map = b ? (x, y) => [cx - (x - b.cx) / b.w * u, cy - u * .5 + (y - b.cy) / b.w / aspect * u] : null;   // mirrored like the camera
+  const P = { eL: [-60, -66], wL: [-46, -8], eR: [60, -66], wR: [46, -8] };
+  if (b) {
+    const toFig = i => { const [x, y] = map(b.p[i].x, b.p[i].y); return [(x - cx) / fs, (y - fy) / fs]; };
+    if (b.ok(13)) P.eL = toFig(13); if (b.ok(15)) P.wL = toFig(15);
+    if (b.ok(14)) P.eR = toFig(14); if (b.ok(16)) P.wR = toFig(16);
+  }
+  c.save(); c.translate(cx, fy); c.scale(fs, fs);
+  drawFigure(c, { lean: 0, bend: 0, look: 0, head: 0, drop: 0, shrug: 0, ...P }, { legs: false });
+  c.restore();
+  if (!b) { c.fillStyle = '#6a6b64'; c.font = '500 13px -apple-system, Inter, sans-serif'; c.textAlign = 'center'; c.fillText(active ? 'Step back so your arms fit in view' : 'Bubbles will appear around you', cx, H - 22); return; }
   // hands
   for (const i of [15, 16]) if (b.ok(i)) { const [x, y] = map(b.p[i].x, b.p[i].y); c.fillStyle = '#141412'; c.beginPath(); c.arc(x, y, 4, 0, Math.PI * 2); c.fill(); }
   const now = performance.now();
   for (const bub of g.bubbles) {
     const [x, y] = map(bub.x, bub.y), [r, gg, bl] = bub.color, age = (now - bub.born) / bub.life;
-    c.fillStyle = `rgba(${r},${gg},${bl},.22)`; c.strokeStyle = `rgba(${r},${gg},${bl},.9)`; c.lineWidth = 3;
+    c.fillStyle = `rgba(${r},${gg},${bl},.22)`; c.strokeStyle = `rgba(${r},${gg},${bl},.9)`; c.lineWidth = 2.4 * fs;
     c.beginPath(); c.arc(x, y, u * .38, 0, Math.PI * 2); c.fill(); c.stroke();
-    c.beginPath(); c.arc(x, y, u * .38 + 5, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - age)); c.stroke();
+    c.lineWidth = 1.6 * fs; c.beginPath(); c.arc(x, y, u * .38 + 4, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - age)); c.stroke();
   }
   for (const p of g.pops) {
     const k = (now - p.t) / 800; if (k > 1) continue;
     const [x, y] = map(p.x, p.y), [r, gg, bl] = p.color;
-    c.strokeStyle = `rgba(${r},${gg},${bl},${1 - k})`; c.lineWidth = 2;
+    c.strokeStyle = `rgba(${r},${gg},${bl},${1 - k})`; c.lineWidth = 1.6 * fs;
     c.beginPath(); c.arc(x, y, u * (.38 + k * .5), 0, Math.PI * 2); c.stroke();
   }
 }
@@ -1123,7 +1516,7 @@ $('break-switch').addEventListener('click', e => {
   store.update(s => {
     let m = pick;
     if (!m) {   // older saved settings may be missing this type: add it
-      const defs = { stretch: { name: 'Stretch along', count: 10, minutes: 4 }, breathe: { name: 'Reset', count: 3, minutes: 2 }, game: { name: 'Reach & pop', count: 5, minutes: 1 } };
+      const defs = { stretch: { name: 'Stretch along', count: 10, minutes: 4 }, breathe: { name: 'Reset', count: 3, minutes: .5 }, game: { name: 'Reach & pop', count: 5, minutes: 1 } };
       m = { id: style === 'breathe' ? 'breathe' : style, style, auto: true, preset: true, ...defs[style] };
       s.breaks = s.breaks.filter(x => x.id !== m.id); s.breaks.push(m);
     }
@@ -1161,8 +1554,8 @@ function calibrateSensor() {
   sensor.base = sensor.cm > 0 ? sensor.cm : 65; sensorRef = true; reference = null; driftSince = 0;
   syncRef();
   if (!posture.active) posture.reset();
-  text('calibrate', 'Reset reference');
-  toast('Sensor mode: tracking with the distance sensor');
+  text('calibrate', 'Reset');
+  toast('The distance sensor is keeping track now.');
   timerRunning = true; timerLast = performance.now(); renderPause();
   showSensorCard();
   setChip(`Sensor mode · ${sensor.cm} cm`, true);
@@ -1174,8 +1567,8 @@ function showSensorCard() {
   const on = sensorRef && !active;
   $('empty-camera').classList.toggle('sensor-on', on);
   $('empty-camera').querySelector('.say').innerHTML = on
-    ? `<b>Sensor mode.</b> <span>The camera is off, so the distance sensor is keeping an eye on how far you sit.</span>`
-    : '<b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span>';
+    ? `<b>Sensor mode</b> <span>The camera is off, so the distance sensor is keeping an eye on how far you sit.</span>`
+    : '<b>Turn on your camera</b> <span>I watch your posture through it. The video stays on this device and is never saved or sent.</span>';
   $('enable').textContent = on ? 'Use the camera instead' : 'Turn on camera';
   $('enable').classList.add('primary'); $('enable').classList.remove('ghost'); $('enable').classList.toggle('end-wide', on);
 }
@@ -1183,7 +1576,7 @@ $('sensor-mode').onclick = () => { if (screen !== 'work') setScreen('work'); cal
 sensor.on(() => {
   const now = performance.now();
   $('sensor-chip').hidden = false;
-  text('sensor-chip', sensor.cm > 0 ? `${sensor.cm} cm` : '— cm');
+  text('sensor-chip', sensor.cm > 0 ? `Distance from screen ${sensor.cm} cm` : 'Distance from screen');
   if (now - lastSensorTick > 180) { lastSensorTick = now; sensorTick(now); }
   sensorTap(now);
   // Camera off: switch to sensor mode on its own, so the bar and the session keep working.
@@ -1200,18 +1593,18 @@ function sensorTick(now) {
   if (isFar) { backSince = 0; if (!awaySince) awaySince = now; }
   else { awaySince = 0; if (!backSince) backSince = now; }
   if (!away && awaySince && now - awaySince > 3000) {
-    away = true;
+    away = true; avatar.setPresent(false);
     if (screen === 'work') {
       pausedByAway = timerRunning; timerRunning = false; renderPause(); posture.pause(); light('idle');
       text('posture-state', 'Away'); text('posture-hint', 'Paused until you sit back down.');
-      toast('You stepped away, so I paused for you');
+      toast('You stepped away, so I paused for you.');
     }
     setChip('Away from desk');
   }
   if (away) { if (screen === 'break') breakAwayMs += 180; }
   if (away && backSince && now - backSince > 1500) {
-    away = false;
-    if (screen === 'work' && pausedByAway) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back'); }
+    away = false; avatar.setPresent(true);
+    if (screen === 'work' && pausedByAway) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back.'); }
     pausedByAway = false;
     setChip(active ? 'Tracking' : `Sensor mode · ${sensor.cm} cm`, true);
   }
@@ -1235,10 +1628,10 @@ function onSensorTap() {
     const style = store.brk().style;
     if (style === 'game' && !gameRunning()) maybeStartGame();
     else if (style === 'stretch') advance();
-    else toast('Wave noticed');
+    else toast('I saw your wave.');
   } else if (hasRef()) {
     timerRunning = !timerRunning; timerLast = performance.now(); renderPause();
-    toast(timerRunning ? 'Timer on (sensor tap)' : 'Timer paused (sensor tap)');
+    toast(timerRunning ? 'You tapped the sensor, so the timer is running.' : 'You tapped the sensor, so I paused the timer.');
   }
 }
 
@@ -1274,3 +1667,88 @@ renderPause();
 mountAgents();
 syncRef();
 
+
+
+// ---------- Mini window ----------
+// Playtest: while working nobody looks at the Poise tab, so a small always-on-top window
+// shows posture and time left. Uses Document Picture-in-Picture (Chrome and Edge on desktop).
+let pipWin = null, pipTimer = 0;
+async function togglePip() {
+  if (pipWin && !pipWin.closed) { pipWin.close(); return; }
+  if (!('documentPictureInPicture' in window)) { toast('The mini window works in Chrome or Edge on a computer'); return; }
+  try { pipWin = await documentPictureInPicture.requestWindow({ width: 360, height: 166 }); }
+  catch { toast('Could not open the mini window'); return; }
+  // Mini window: the same little figure on the left, the state in words on the right. Sans serif.
+  const d = pipWin.document;
+  d.head.innerHTML = `<style>
+    *{box-sizing:border-box;margin:0}
+    html,body{height:100%}
+    body{font:14px/1.35 -apple-system,BlinkMacSystemFont,'SF Pro Text',Inter,'Segoe UI',sans-serif;letter-spacing:-.011em;color:#0d0d0d;
+      background:#fff;display:flex;gap:16px;align-items:center;padding:18px 20px;position:relative;overflow:hidden}
+    body::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,var(--sig) 0%,rgba(255,255,255,0) 75%);opacity:.55;transition:background 1.2s}
+    .fig{flex:none;width:96px;height:100%;max-height:126px;border-radius:14px;background:rgba(255,255,255,.75);overflow:hidden}
+    canvas{display:block;width:100%;height:100%}
+    .txt{min-width:0;display:flex;flex-direction:column;gap:3px}
+    b{font-size:16px;font-weight:600;letter-spacing:-.022em;line-height:1.2}
+    .hint{color:#5d5d5d;font-size:13px;line-height:1.35}
+    .txt{flex:1;min-width:0;height:calc(100vh - 36px);display:flex;flex-direction:column;overflow:hidden;padding:0}
+    .fig{height:calc(100vh - 36px)!important;width:calc(100vh - 36px)!important;max-height:none!important}
+    .tm{margin-top:4px}
+    .foot{margin-top:auto!important}
+    #live-foot{align-items:stretch}
+    #end{margin-left:0;width:100%}
+    .tm{font-size:12px;color:#8f8f8f}
+    .foot{margin-top:8px;display:flex;align-items:center;gap:8px}
+    button{font:inherit;font-size:13px;font-weight:500;letter-spacing:-.01em;border:0;cursor:pointer;height:30px;padding:0 10px;white-space:nowrap;flex:1;min-width:0;border-radius:10px;
+      background:rgba(13,13,13,.07);color:#0d0d0d;transition:background .4s}
+    button:hover{background:rgba(13,13,13,.13)}
+    button.pri{background:#0d0d0d;color:#fff} button.pri:hover{background:#333}
+    #end{margin-left:auto}
+    [hidden]{display:none!important}
+  </style>`;
+  d.body.innerHTML = '<div class="fig"><canvas id="fig"></canvas></div><div class="txt"><b id="st"></b><span class="hint" id="hint"></span>'
+    + '<span class="tm" id="tm"></span><div class="foot" id="live-foot"><button class="pri" id="end">End session</button></div>'
+    + '<div class="foot" id="done-foot" hidden><button class="pri" id="go-break">Take a break</button></div></div>';
+  // Bring the main Poise tab forward (needs the click that just happened in the mini window).
+  const toMain = () => { try { window.focus(); } catch {} };
+  d.getElementById('end').onclick = () => $('end-session').click();
+  d.getElementById('go-break').onclick = () => { if (!$('report').hidden) $('report-break').click(); else setScreen('break'); toMain(); };
+  const cv = d.getElementById('fig'), pctx = cv.getContext('2d');
+  const frame = now => {
+    if (!pipWin || pipWin.closed) return;
+    const r = cv.getBoundingClientRect(), dpr = Math.min(2, pipWin.devicePixelRatio || 1);
+    if (cv.width !== Math.round(r.width * dpr) || cv.height !== Math.round(r.height * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); }
+    pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    avatar.step(performance.now());
+    avatar.render(pctx, r.width, r.height, { fit: [165, 205] });
+    pipWin.requestAnimationFrame(frame);
+  };
+  pipWin.requestAnimationFrame(frame);
+  const tick = () => {
+    if (!pipWin || pipWin.closed) return;
+    const q = id => d.getElementById(id);
+    q('st').textContent = $('posture-state').textContent;
+    q('hint').textContent = $('posture-hint').textContent;
+    q('tm').textContent = `${$('timer').textContent} ${$('timer-unit').textContent}`;
+    // Session over: the report is open in the main tab, so offer the next step here.
+    const done = !$('report').hidden;
+    if (done) { q('st').textContent = 'Session done'; q('hint').textContent = $('report-title').textContent + ' ' + $('report-line').textContent; }
+    q('live-foot').hidden = done;
+    q('end').hidden = screen !== 'work' || $('end-session').hidden;
+    q('done-foot').hidden = !done;
+    q('tm').hidden = done;
+    // Never cut the text: if it doesn't fit, step the text size down until it does.
+    const txt = d.querySelector('.txt');
+    for (const [t, h] of [[16, 13], [15, 12.5], [14, 12], [13, 11.5]]) {
+      q('st').style.fontSize = t + 'px'; q('hint').style.fontSize = h + 'px';
+      if (txt.scrollHeight <= txt.clientHeight + 1) break;
+    }
+    if (!done && screen !== 'work') q('tm').textContent = '';
+    const c = getComputedStyle(document.documentElement).getPropertyValue('--signal').trim() || '#c9ccd1';
+    d.body.style.setProperty('--sig', c);
+  };
+  tick(); clearInterval(pipTimer); pipTimer = setInterval(tick, 500);
+  $('pip').classList.add('on');
+  pipWin.addEventListener('pagehide', () => { clearInterval(pipTimer); pipWin = null; $('pip').classList.remove('on'); });
+}
+$('pip').onclick = togglePip;

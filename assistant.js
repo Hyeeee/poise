@@ -45,8 +45,8 @@ export function respond(message, ctx) {
     const c = raw.toLowerCase();
 
     if (/help|what can you|how do i|뭐\s?(할|해)|도움|도와|기능/.test(c)) {
-      say('Try things like "focus 40 minutes", "less sensitive", "turn off eye care", "breaks with breathing", "make a mode called Study", or "take a break".',
-        '"집중 40분", "덜 민감하게", "눈 추적 꺼줘", "휴식은 호흡으로", "\'공부\' 모드 만들어줘", "지금 쉬자" 처럼 말해보세요.');
+      say('Try things like "focus 40 minutes", "less sensitive", "breaks with breathing", "make a mode called Study", or "take a break".',
+        '"집중 40분", "덜 민감하게", "휴식은 호흡으로", "\'공부\' 모드 만들어줘", "지금 쉬자" 처럼 말해보세요.');
       continue;
     }
 
@@ -134,14 +134,6 @@ export function respond(message, ctx) {
     }
 
     // Toggles
-    if (/eye|blink|눈|깜빡/.test(c)) {
-      const v = toggleValue(c);
-      if (v !== null) { ctx.patchWork({ eyes: v }); say(v ? 'Eye care is on.' : 'Eye care is off.', v ? '눈 건강 추적을 켰어요.' : '눈 건강 추적을 껐어요.'); }
-    }
-    if (/sound|chime|beep|소리|알림음|효과음|띵/.test(c)) {
-      const v = toggleValue(c);
-      if (v !== null) { ctx.patchWork({ chime: v }); say(v ? 'Chime is on.' : 'Chime is off.', v ? '알림음을 켰어요.' : '알림음을 껐어요.'); }
-    }
     if (/joint|skeleton|bones|관절|스켈레톤|뼈/.test(c)) {
       const v = toggleValue(c);
       if (v !== null) { ctx.setJoints(v); say(v ? 'Showing joints.' : 'Joints hidden.', v ? '관절을 보여드릴게요.' : '관절 표시를 숨겼어요.'); }
@@ -182,8 +174,8 @@ export function respond(message, ctx) {
     return {
       changed: false,
       reply: t(lang,
-        'I can change focus length, how sensitive cues are, eye care, break style, and your modes. Try "focus 40 minutes" or "less sensitive".',
-        '집중 시간, 알림 민감도, 눈 추적, 휴식 방식, 모드를 바꿀 수 있어요. "집중 40분" 이나 "덜 민감하게" 처럼 말해보세요.'),
+        'I can change focus length, how sensitive cues are, break style, and your modes. Try "focus 40 minutes" or "less sensitive".',
+        '집중 시간, 알림 민감도, 휴식 방식, 모드를 바꿀 수 있어요. "집중 40분" 이나 "덜 민감하게" 처럼 말해보세요.'),
     };
   }
   return { changed: true, reply: out.join(' ') };
