@@ -1626,3 +1626,5 @@ body .say-bubble { font-weight: 600 !important; }
 body .say-bubble, body .say-bubble .sb-text { font-weight: 700 !important; }
 html[data-cue="game"] .studio .panel #game-panel::before { opacity: .95 !important; }
 .studio .panel #game-panel::before { --card-glow: color-mix(in srgb, var(--signal) 75%, white); --card-glow-2: color-mix(in srgb, var(--signal) 50%, white); }
+html[data-cue="game"] .studio .panel #breathe-panel::before { opacity: .95 !important; }
+.studio .panel #breathe-panel::before { --card-glow: color-mix(in srgb, var(--signal) 80%, white); --card-glow-2: color-mix(in srgb, var(--signal) 55%, white); transition: opacity .8s ease, background .3s linear !important; }

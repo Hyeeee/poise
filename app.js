@@ -62,7 +62,8 @@ function light(state, rgb, fast, tone) {
   const screenColor = tone ? `rgb(${tone.join(',')})` : silent() ? colors.idle : rgb ? `rgb(${rgb.join(',')})` : colors[state];
   document.documentElement.style.setProperty('--signal', screenColor);
   // Break cards glow only on a real cue; in games, any colour the game sends (bubble colour, a ring, a catch) glows too.
-  document.documentElement.dataset.cue = rgb && screen === 'break' && store.brk().style === 'game' && rgb.some(v => v > 40) ? 'game' : state;
+  const playful = screen === 'break' && (store.brk().style === 'game' ? rgb && rgb.some(v => v > 40) : store.brk().style === 'breathe' && !!tone);
+  document.documentElement.dataset.cue = playful ? 'game' : state;
   // Brightness setting (25-100%): every colour is scaled down before it is sent to the board.
   const bright = (store.state.brightness ?? 100) / 100;
   if (bright < 1) rgb = (rgb || PRESET_RGB[state] || PRESET_RGB.idle).map(v => Math.round(v * bright));
@@ -856,7 +857,9 @@ function startBreathe() {
       const level = inhale ? k : 1 - k;                      // 0 dim … 1 bright
       const lv = .5 - .5 * Math.cos(level * Math.PI);        // ease in and out
       breathState.level = lv;
-      light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)], 15);
+      // While you breathe along (camera on), the card glows green and swells with each breath.
+      const follow = active && landmarks;
+      light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)], 15, follow ? mix([235, 245, 236], [120, 205, 145], lv) : null);
       const s = resetShoulder;
       const drop = s.base != null && s.now != null ? Math.max(0, (s.now - s.top) * SHOULDER_CM) : 0;
       text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Breathe out and let your shoulders sink.');
