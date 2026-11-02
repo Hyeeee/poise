@@ -36,23 +36,24 @@ export class PostureAvatar {
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
   // delta: cue minus reference, in shoulder widths. widthRatio: shoulder width now / at reference.
+  // Limits keep the whole figure inside the box, even in the small mini window, however far you lean.
   set(delta, widthRatio = 1) {
     if (!delta) { this.goal = { ...ZERO }; return; }
     const E = 1.8;                                                   // exaggeration
     // Leaning sideways tilts the whole upper body around the waist (shoulders, arms and head together),
     // instead of only dropping one shoulder. Positive bend raises the screen-left shoulder.
-    const bend = clamp(-(delta.tilt || 0) * 2, -.4, .4);
+    const bend = clamp(-(delta.tilt || 0) * 1.6, -.28, .28);
     // The head's own tilt is measured in the camera, so take the body's lean out of it.
     const headAbs = -Math.atan2(delta.roll || 0, .35) * 1.6;
     this.goal = {
       // Camera image is mirrored on screen, so sideways values flip.
       bend,
-      bx: clamp(-(delta.sx || 0) * 80 * E, -36, 36),                // whole body slides sideways
-      head: clamp(headAbs - bend, -.6, .6),
-      hx: clamp(-(delta.x || 0) * 80 * E, -40, 40),
+      bx: clamp(-(delta.sx || 0) * 80 * 1.2, -16, 16),               // whole body slides sideways (kept small so it stays in frame)
+      head: clamp(headAbs - bend, -.45, .45),
+      hx: clamp(-(delta.x || 0) * 80 * E, -24, 24),
       fwd: clamp((delta.y || 0) * 7, 0, 1),
       drop: clamp((delta.sink || 0) * 80 * 1.5, 0, 26),
-      zoom: clamp(1 + (widthRatio - 1) * 1.6, .78, 1.3),
+      zoom: clamp(1 + (widthRatio - 1) * 1.6, .82, 1.16),
     };
   }
   // Arms copy yours straight from the camera (not compared with the reference), so lifting a hand,
