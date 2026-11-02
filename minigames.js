@@ -333,12 +333,18 @@ export class MiniGame {
       const near = Math.hypot(this.cur[0] - s.x, this.cur[1] - s.y) < 46;
       this.holdMs = near ? this.holdMs + dt : Math.max(0, this.holdMs - dt);
       if (this.holdMs > 1200) { sfx.seed(); this.s.score++; this.seed = null; this.holdMs = 0; this.onColor?.([255, 220, 0]); }
-      if (s && near) { ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(s.x, s.y + 8, 34, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke(); }
+      if (s && near) for (const [only, k] of [[false, 1], [true, HELPER_BIG]]) {   // hold ring, sized to the seed in each view
+        ctx.helperSkip(!only); ctx.helperOnly(only);
+        ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(s.x, s.y + 8 * k, 34 * k, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke();
+        ctx.helperSkip(false); ctx.helperOnly(false);
+      }
     }
-    // head cursor
+    // head cursor (camera view only: in the side box the figure's turning head and dotted line of sight show it)
+    ctx.helperSkip(true);
     ctx.strokeStyle = ink; ctx.lineWidth = this.lw;
     ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 22, 0, TAU); ctx.stroke();
     ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(this.cur[0], this.cur[1], 4, 0, TAU); ctx.fill();
+    ctx.helperSkip(false);
     this.hint = c ? 'Turn and tilt your head to reach the seed.' : '';
   }
 }

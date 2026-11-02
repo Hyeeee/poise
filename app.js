@@ -151,7 +151,7 @@ function followHead(host, b) {
     const right = b._side === 'r';
     // Always beside the head (never over the face). Narrow, so long lines wrap to 3–4 rows.
     const room = (right ? roomR : roomL) - r * .25 - 6;
-    const mw = Math.max(78, Math.min(132, room));
+    const mw = Math.max(90, Math.min(158, room));   // a little wider for the handwriting font
     if (b._mw !== mw || b._txt !== b.textContent) {
       b._mw = mw; b._txt = b.textContent;
       b.style.width = ''; b.style.setProperty('max-width', mw + 'px', 'important');
