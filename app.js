@@ -1351,6 +1351,18 @@ $('pref-music').onchange = e => { store.update(s => { s.music = e.target.checked
 // first click or key press, ambient.js starts it at that moment.
 if (store.state.music) ambient.start();
 syncMusic();
+// Several Poise tabs or windows each play their own music. When the music is switched in one,
+// the others hear about it through localStorage and follow, so turning it off really silences it.
+addEventListener('storage', e => {
+  if (e.key !== 'poise.settings.v2' || !e.newValue) return;
+  try {
+    const on = !!JSON.parse(e.newValue).music;
+    if (on === !!store.state.music) return;
+    store.state.music = on;
+    on ? ambient.start() : ambient.stop();
+    syncMusic();
+  } catch {}
+});
 
 // ---------- Wiring ----------
 const ALWAYS_ONBOARD = true; // set to false after testing
