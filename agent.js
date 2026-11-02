@@ -107,7 +107,7 @@ class Agent {
     this.dot = Number(host.dataset.dot) || Math.max(1, this.size / (small ? 16 : 72));
     this.shapeIndex = 0;
     this.target = this.build(host.dataset.shape || ORDER[this.shapeIndex]);
-    this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU, ring: Math.random() < .35, ink: [inkBlob(), inkBlob(), inkBlob()] }));
+    this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU, ring: false, ink: [inkBlob(), inkBlob(), inkBlob()] }));
     this.spin = Math.random() * TAU;
     this.next = performance.now() + 9000;
     this.scale = 1; this.energy = 0;
