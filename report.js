@@ -14,6 +14,57 @@ const CAUSES = {
 
 let s = null;
 
+// For the report's hover card: which part moved the most at that moment, and which way.
+// The camera view is mirrored like a mirror, so left and right are your own left and right.
+function whatMoved(d, delta, widthRatio = 1) {
+  if (!delta || d < 6) return {};
+  const parts = {
+    close: widthRatio > 1 ? Math.max(0, Math.log(widthRatio) - .12) * 2 : 0,
+    far: widthRatio < 1 ? Math.max(0, -Math.log(widthRatio) - .12) * 2 : 0,
+    forward: Math.max(0, delta.y || 0),
+    side: Math.abs(delta.x || 0) + Math.abs(delta.roll || 0) * .6,
+    shoulders: Math.abs(delta.tilt || 0),
+    slouch: (delta.sink || 0) * 1.2,
+  };
+  const [cause, size] = Object.entries(parts).sort((a, b) => b[1] - a[1])[0];
+  if (size < .03) return {};
+  const dir = cause === 'side' ? ((delta.x || 0) + (delta.roll || 0) * .3 > 0 ? 'left' : 'right')
+    : cause === 'shoulders' ? ((delta.tilt || 0) > 0 ? 'left' : 'right') : null;
+  return { cause, dir };
+}
+const MOVED = {
+  forward: () => 'Leaning forward', slouch: () => 'Slouching back', close: () => 'Too close to the screen', far: () => 'Too far from the screen',
+  side: dir => `Head tilting ${dir}`, shoulders: dir => `${dir === 'left' ? 'Left' : 'Right'} shoulder lower`,
+};
+const STATE_NAME = { white: 'Aligned', green: 'Aligned', amber: 'Drifting', red: 'Time to reset' };
+const STATE_DOT = { white: 'var(--aligned)', green: 'var(--aligned)', amber: 'var(--drift)', red: 'var(--reset)' };
+const clock = ms => { const t = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
+
+// Hover card on a report chart, like a stock chart: a thin line and a dot follow the pointer,
+// and a small card says what was happening at that moment.
+// items: [{ x: 0..1, d: value on the chart's scale, html }]; scale: the chart's { H, top, bottom, ymax }.
+function hoverChart(host, items, { H, top, bottom, ymax }) {
+  const plot = host.querySelector('.rc-plot'); if (!plot || !items.length) return;
+  plot.insertAdjacentHTML('beforeend', '<i class="rc-vline" hidden></i><i class="rc-dot" hidden></i><div class="rc-tip" hidden></div>');
+  const vline = plot.querySelector('.rc-vline'), dot = plot.querySelector('.rc-dot'), tip = plot.querySelector('.rc-tip');
+  const show = on => { vline.hidden = dot.hidden = tip.hidden = !on; };
+  const move = e => {
+    const r = plot.getBoundingClientRect(), fx = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    let best = items[0];
+    for (const it of items) if (Math.abs(it.x - fx) < Math.abs(best.x - fx)) best = it;
+    const xPx = best.x * r.width, yPx = (top + Math.min(best.d, ymax) / ymax * (H - top - bottom)) / H * r.height;
+    vline.style.left = dot.style.left = xPx + 'px'; dot.style.top = yPx + 'px';
+    tip.innerHTML = best.html; show(true);
+    // Card above the dot, flipped below when there is no room, and kept inside the chart on both sides.
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    tip.style.left = Math.min(r.width - tw, Math.max(0, xPx - tw / 2)) + 'px';
+    tip.style.top = (yPx - th - 12 < -6 ? yPx + 14 : yPx - th - 12) + 'px';
+  };
+  plot.addEventListener('pointermove', move);
+  plot.addEventListener('pointerdown', move);
+  plot.addEventListener('pointerleave', () => show(false));
+}
+
 export const session = {
   reset() {
     s = { start: performance.now(), samples: [], time: { good: 0, amber: 0, red: 0 }, drifts: 0, reds: 0,
@@ -39,7 +90,7 @@ export const session = {
       const top = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
       s.causes[top]++;
     }
-    if (now - s.lastSample > 1000) { s.samples.push({ t: now - s.start, d, state }); s.lastSample = now; }
+    if (now - s.lastSample > 1000) { s.samples.push({ t: now - s.start, d, state, ...whatMoved(d, delta, widthRatio) }); s.lastSample = now; }
     s.prev = state;
   },
   pause() { if (s) s.lastT = 0; },
@@ -105,6 +156,7 @@ function timeline(samples) {
   const pts = bucket(samples.map(p => ({ x: (p.t - t0) / span, d: p.d, state: p.state })), 220);
   const ymax = Math.max(30, Math.min(100, Math.max(...pts.map(p => p.d)) * 1.1));
   const c = postureChart(pts, { W: 560, H: 140, top: 14, bottom: 10, ymax, cue: 0.0001 });
+  timeline.scale = { H: 140, top: 14, bottom: 10, ymax };
   const color = { white: 'var(--aligned)', green: 'var(--aligned)', amber: 'var(--drift)', red: 'var(--reset)' };
   let strip = '';
   for (let i = 0; i < samples.length - 1; i++) {
@@ -123,6 +175,16 @@ export function showReport(r, speak) {
     $('report-title').textContent = h.title;
     $('report-line').textContent = h.en.replace(/^[^.]+\. /, '');
     $('report-chart').innerHTML = timeline(r.samples);
+    if (r.samples.length >= 2) {
+      const t0 = r.samples[0].t, span = (r.samples.at(-1).t - t0) || 1;
+      hoverChart($('report-chart'), r.samples.map(p => ({
+        x: (p.t - t0) / span, d: p.d,
+        html: `<span class="rt-time">${clock(p.t - t0)}</span>`
+          + `<span class="rt-state"><i style="background:${STATE_DOT[p.state] || STATE_DOT.white}"></i>${(p.state === 'white' || !p.state) && p.d >= 12 ? 'Just shifted, light not changed yet' : STATE_NAME[p.state] || 'Aligned'}</span>`
+          + (p.cause && p.d >= 6 ? `<b>${MOVED[p.cause](p.dir)}</b><span class="rt-sub">${Math.round(p.d)}% off your reference</span>`
+            : `<b>On your reference</b>${p.d >= 1 ? `<span class="rt-sub">${Math.round(p.d)}% off, within the normal wobble</span>` : ''}`),
+      })), timeline.scale);
+    }
     $('rep-causes-h').hidden = true; $('rep-causes').hidden = true;   // the chart and numbers say enough
     $('report-len').textContent = r.minutes < 1 ? 'Under a minute' : `${r.minutes} min session`;
     $('rep-aligned').textContent = r.aligned == null ? '—' : r.aligned + '%';
@@ -231,6 +293,12 @@ export function showBreakReport(r, speak) {
       title = !total ? 'Break ended.' : done.length === total ? 'Great stretch.' : done.length >= total / 2 ? 'Nice stretch.' : 'A light stretch.';
       line = total ? `In ${len}, you followed ${done.length} of ${total} stretches.` : `You rested ${len}.`;
       $('report-chart').hidden = false; $('report-chart').innerHTML = bars(r.poses); legend.hidden = true;
+      if (r.poses.length >= 2) hoverChart($('report-chart'), r.poses.map((p, i) => ({
+        x: i / (r.poses.length - 1), d: 100 - Math.round(p.best),
+        html: `<span class="rt-time">Stretch ${i + 1} of ${r.poses.length}</span>`
+          + `<span class="rt-state"><i style="background:${p.matched ? 'var(--aligned)' : p.best > 30 ? 'var(--drift)' : 'var(--reset)'}"></i>${p.matched ? 'Followed' : p.skipped ? 'Skipped' : 'Partly'}</span>`
+          + `<b>${p.name}</b><span class="rt-sub">Best match ${Math.round(p.best)}%${p.matched && p.took ? `, in ${Math.max(1, Math.round(p.took / 1000))}s` : ''}</span>`,
+      })), { H: 140, top: 14, bottom: 10, ymax: 100 });
       set('rep-aligned', len); set('rep-aligned-l', 'rested');
       set('rep-recover', `${done.length}/${total}`); set('rep-recover-l', 'stretches followed');
       set('rep-drifts', total ? avg + '%' : '—'); set('rep-drift-note', 'average best match');

@@ -1844,3 +1844,16 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
 .toast { bottom: 90px !important; } @media (max-width: 640px) { .toast { bottom: 78px !important; } }
 /* Lighter tile: soft grey square with a dark line icon. */
 .toast .t-tile { background: rgba(13,13,13,.07) !important; color: var(--ink) !important; }
+
+/* Report chart hover: a thin guide line, a dot on the line, and a small card (like a stock chart). */
+.rc-plot { cursor: crosshair; touch-action: pan-y; }
+.rc-vline { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed rgba(13,13,13,.25); pointer-events: none; }
+.rc-dot { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--live-line, #3d6b4a); box-shadow: 0 0 0 3px #fff, 0 2px 6px rgba(13,13,13,.2); pointer-events: none; }
+.rc-tip { position: absolute; z-index: 2; min-width: 150px; max-width: 220px; padding: 9px 12px 10px; border-radius: 12px; pointer-events: none;
+  background: rgba(255,255,255,.88); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: 0 0 0 1px rgba(13,13,13,.06), 0 10px 26px -12px rgba(13,13,13,.35); display: flex; flex-direction: column; gap: 2px; font-size: 12px; line-height: 1.35; color: var(--ink-2); }
+.rc-tip .rt-time { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.rc-tip .rt-state { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+.rc-tip .rt-state i { width: 7px; height: 7px; border-radius: 2px; flex: none; }
+.rc-tip b { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-top: 3px; letter-spacing: -.01em; }
+.rc-tip .rt-sub { font-size: 12px; color: var(--ink-3); }
