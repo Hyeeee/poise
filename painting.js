@@ -10,7 +10,7 @@ float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 // a soft glow: an oval that is round near its core and stretches out into a long soft band
 float glow(vec2 p,vec2 c,float r,float ang,float st){
  vec2 d=p-c; float cs=cos(ang),sn=sin(ang); d=vec2(cs*d.x+sn*d.y,-sn*d.x+cs*d.y);
- d.x/=r*st; d.y/=r; return exp(-dot(d,d));
+ d.x/=r*st; d.y/=r; return exp(-dot(d,d)*.8);   // wider tail
 }
 void main(){
  vec2 uv=gl_FragCoord.xy/R; float a=R.x/R.y; vec2 p=vec2(uv.x*a,uv.y);
@@ -36,13 +36,13 @@ void main(){
  vec3 H=C1, K=C2;
  // the whole page carries a faint tint of the first colour, so white is never flat
  vec3 col=mix(base,H,.10);
- col=mix(col,H,smoothstep(.05,.8,f2)*.70);
- col=mix(col,H,smoothstep(.04,.6,f1)*.92);
+ col=mix(col,H,pow(f2,.75)*.62);   // soft, wide falloff: no visible edge
+ col=mix(col,H,pow(f1,.7)*.85);
  // core colour sits off-centre inside the band and slides along it, so it never reads as a target
  vec2 cc=c1+vec2(a*.12*sin(t*.7),.06*cos(t*.9));
  vec2 qc=q1; float fc=glow(qc,cc,(.14+.06*s3)+.24*BAL,-.3+.5*sin(t*.31),1.5+1.2*s1)*smoothstep(.05,.5,f1);
- col=mix(col,K,smoothstep(.15,.9,fc)*.95);
- col=mix(col,K,smoothstep(.05,.9,fs)*(.35+.55*BAL));
+ col=mix(col,K,pow(fc,.9)*.85);
+ col=mix(col,K,pow(fs,.9)*(.3+.5*BAL));
  float amt=clamp(max(max(f1,f2*.8),fs),0.,1.);
  col+=vec3(.025)*L;
  // still grain (no flicker), gathered in the colour and fading toward the white
