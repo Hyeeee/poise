@@ -1909,3 +1909,16 @@ body .pop.pop::after, .studio .panel .card::after {
 @keyframes rollOut { to { transform: translateY(calc(var(--d) * -100%)); opacity: 0; } }
 @keyframes rollShrink { to { width: 0; } }
 @media (prefers-reduced-motion: reduce) { .roll-ch { animation: none !important; } .roll-ch.roll-out { display: none; } }
+/* Popups: keep the drift running even right after a step change (the glow fade-in used to replace it),
+   move faster and further, and a visible grain. */
+body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]):not([hidden])::before {
+  animation: glowIn .6s ease both, popDrift 8s ease-in-out infinite alternate !important; }
+@keyframes popDrift {
+  0%   { --p1x: 22%; --p1y: 20%; --p2x: 78%; --p2y: 28%; }
+  25%  { --p1x: 60%; --p1y: 75%; --p2x: 28%; --p2y: 15%; }
+  50%  { --p1x: 80%; --p1y: 30%; --p2x: 35%; --p2y: 82%; }
+  75%  { --p1x: 30%; --p1y: 55%; --p2x: 75%; --p2y: 65%; }
+  100% { --p1x: 50%; --p1y: 18%; --p2x: 55%; --p2y: 45%; }
+}
+body .pop.pop::after { opacity: .6 !important; }
+@media (prefers-reduced-motion: reduce) { body .pop.pop::before, .studio .pop.empty::before { animation: none !important; } }
