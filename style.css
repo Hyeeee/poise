@@ -1819,3 +1819,6 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
   #setup, #studio, #report, #tour, #modes, .welcome .cta, #start-status, .welcome .privacy { display: none !important; }
   .mobile-note { display: block; margin-top: 24px; max-width: 320px; font-size: 16px; line-height: 1.5; color: var(--ink-2, #55564f); text-align: center; }
 }
+
+/* Light bar button when connected: just the dark filled state, no coloured ring or glow around it. */
+#connect.on { box-shadow: none !important; outline: none !important; }
