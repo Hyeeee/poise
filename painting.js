@@ -18,7 +18,9 @@ void main(){
  vec3 base=vec3(.975,.975,.968);
  // Shapes keep changing on their own slow clocks: a round glow stretches into a long oval,
  // bends into a swoosh, splits into two lobes, then gathers back into a round glow.
- float s1=.5+.5*sin(t*.37), s2=.5+.5*sin(t*.29+2.1), s3=.5+.5*sin(t*.23+4.2);
+ float s1=.5+.5*sin(t*1.1), s2=.5+.5*sin(t*.87+2.1), s3=.5+.5*sin(t*.69+4.2);
+ // bend space with slow waves so every outline is soft and irregular, and keeps changing
+ p+=vec2(.07*sin(p.y*3.1+t*1.3)+.04*sin(p.y*5.3-t*.9), .07*cos(p.x*2.7-t*1.1)+.04*cos(p.x*4.9+t*.8));
  // main glow (bends when s2 is high, so it reads as a curve rather than an oval)
  // wander across the whole screen: two waves per axis at different speeds, so the path never repeats
  vec2 c1=vec2(a*(.5+.32*sin(t*.9)+.12*sin(t*1.7+1.)), .5+.34*sin(t*.67+1.2)+.10*cos(t*1.43));
