@@ -63,7 +63,7 @@ const SHAPES = {
   },
 };
 // The sphere is home: Poise moves through five symbols, then returns to it and loops.
-const ORDER = ['sphere', 'spring', 'hourglass', 'wave', 'dna', 'pebble'];
+const ORDER = ['sphere', 'spring', 'hourglass', 'dna', 'pebble'];   // 'wave' (rippling rings) taken out
 const MOOD_SHAPE = { green: 'sphere', amber: 'spring', red: 'hourglass' };
 
 const agents = new Set();
