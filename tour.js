@@ -21,7 +21,6 @@ const BREAK_STEPS = {
     { sel: '#break-switch', title: 'Choose your break', text: 'Switch between stretching, a calm reset and a movement game any time.' },
     { sel: '#reel-player', title: 'Follow the figure', text: 'Watch the sketch, then copy the stretch in front of your camera.' },
     { sel: '.match', title: 'Match score', text: 'How close you are to the figure. Get near it for half a second and the next stretch begins.' },
-    { sel: '#reel-progress', title: 'Your stretches', text: 'Each dot is one stretch. Skip any you can’t do.' },
     { sel: '#end-break', title: 'End break', text: 'Finish any time to see how long you rested and how much you followed.' },
   ],
   breathe: [
