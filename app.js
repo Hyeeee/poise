@@ -702,7 +702,9 @@ function showPose() {
   holdStart = 0; holdAcc = 0; holdLast = 0; missingSince = 0; poseStarted = performance.now(); guidePlaying = false;
   const p = queue[round];
   $('reel-progress').innerHTML = queue.map((_, i) => `<span class="${i < round ? 'done' : i === round ? 'current' : ''}"></span>`).join('');
-  $('reel-complete').hidden = !!p; $('pose-actions').hidden = !p;
+  // When the stretches are done, the break report popup offers the next step, so the card shows
+  // no buttons of its own behind it (no Again / Back to focus row, no End break).
+  $('reel-complete').hidden = true; $('pose-actions').hidden = !p; $('end-break').hidden = !p;
   if (!p) {
     gameDone = true; reel.stop();
     setTimeout(() => endBreak(), 900);
