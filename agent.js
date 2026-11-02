@@ -66,14 +66,12 @@ const SHAPES = {
 const ORDER = ['sphere', 'spring', 'hourglass', 'dna', 'pebble'];   // 'wave' (rippling rings) taken out
 const MOOD_SHAPE = { green: 'sphere', amber: 'spring', red: 'hourglass' };
 
-// Hand-drawn dots. Every dot gets three slightly different wobbly outlines, like the same
-// circle inked three times. The drawing flips between them a few times a second ("line boil"),
-// which is how hand-drawn animation looks alive even when nothing moves.
-const BOIL_MS = 150;
-function inkBlob() {
-  const n = 7 + Math.floor(Math.random() * 3), sq = .82 + Math.random() * .3, rot = Math.random() * TAU;
+// Hand-drawn dots. Every dot gets a few slightly different, nearly round outlines, like the same
+// circle inked more than once, and slowly melts between them so it feels drawn and alive.
+function inkBlob(rot = Math.random() * TAU) {
+  const n = 8, sq = .93 + Math.random() * .14;
   return Array.from({ length: n }, (_, i) => {
-    const a = i / n * TAU, r = 1 + (Math.random() - .5) * .34;
+    const a = i / n * TAU, r = 1 + (Math.random() - .5) * .14;
     const x = Math.cos(a) * r * sq, y = Math.sin(a) * r / sq;
     return [x * Math.cos(rot) - y * Math.sin(rot), x * Math.sin(rot) + y * Math.cos(rot)];
   });
@@ -107,7 +105,7 @@ class Agent {
     this.dot = Number(host.dataset.dot) || Math.max(1, this.size / (small ? 16 : 72));
     this.shapeIndex = 0;
     this.target = this.build(host.dataset.shape || ORDER[this.shapeIndex]);
-    this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU, ring: false, ink: [inkBlob(), inkBlob(), inkBlob()] }));
+    this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU, ring: false, ink: (r => [inkBlob(r), inkBlob(r)])(Math.random() * TAU) }));
     this.spin = Math.random() * TAU;
     this.next = performance.now() + 9000;
     this.scale = 1; this.energy = 0;
@@ -167,7 +165,6 @@ class Agent {
     const ink = getComputedStyle(h).color || '#2b2c29';
     ctx.fillStyle = ink; ctx.strokeStyle = ink; ctx.lineJoin = 'round';
     const paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f7f5ef';
-    const boil = reduced ? 0 : Math.floor(now / BOIL_MS);
 
     const speakPulse = speaking ? .06 * Math.sin(now / 90) + .05 * Math.sin(now / 37) : 0;
     const k = reduced ? 1 : Math.min(1, dt * 1.6);
@@ -193,8 +190,11 @@ class Agent {
       const depth = (p.z + 1) / 2;
       ctx.globalAlpha = .35 + .65 * (1 - depth * .8);   // front dots full ink, back ones fainter
       const r = this.dot * .82 * (.75 + (1 - depth) * .45);
-      const shape = p.ink[(boil + i) % 3];               // each dot boils on its own beat
-      blobPath(ctx, shape, nx, ny, r);
+      // Each dot slowly melts between two of its hand-drawn outlines (no flicker), and floats a hair on its own.
+      const w = reduced ? 0 : .5 + .5 * Math.sin(now / 1900 + p.seed);
+      const a = p.ink[0], b = p.ink[1], shape = a.map((q, j) => { const o = b[j % b.length]; return [q[0] + (o[0] - q[0]) * w, q[1] + (o[1] - q[1]) * w]; });
+      const fx = reduced ? 0 : Math.sin(now / 2300 + p.seed * 3) * r * .35, fy = reduced ? 0 : Math.cos(now / 2700 + p.seed * 2) * r * .35;
+      blobPath(ctx, shape, nx + fx, ny + fy, r);
       // Some dots are inked rings (pale inside, like the avatar's limbs); the rest are solid ink.
       if (p.ring && r > 2.2) {
         ctx.fillStyle = paper; ctx.fill(); ctx.fillStyle = ink;
