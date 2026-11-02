@@ -363,3 +363,4 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .progress { top: var(--m); bottom: auto; }
 .seg span { font-size: max(calc(var(--s) * 13), 9px); }
 :root { --top: calc(var(--m) + max(calc(var(--s) * 110), 56px)); --bottom: var(--c); }
+.progress { top: max(calc(var(--s) * 22), 10px); }   /* bar sits closer to the top edge; content stays where it is */
