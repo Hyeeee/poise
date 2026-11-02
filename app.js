@@ -1469,7 +1469,7 @@ function drawGameMap(g) {
   c.save(); c.translate(cx, fy); c.scale(fs, fs);
   drawFigure(c, { lean: 0, bend: 0, look: 0, head: 0, drop: 0, shrug: 0, ...P }, { legs: false });
   c.restore();
-  if (!b) { c.fillStyle = '#6a6b64'; c.font = '500 13px -apple-system, Inter, sans-serif'; c.textAlign = 'center'; c.fillText(active ? 'Step back so your arms fit in view' : 'Bubbles will appear around you', cx, H - 22); return; }
+  if (!b) { c.fillStyle = '#6a6b64'; c.font = "500 13px 'Hanken Grotesk', -apple-system, sans-serif"; c.textAlign = 'center'; c.fillText(active ? 'Step back so your arms fit in view' : 'Bubbles will appear around you', cx, H - 22); return; }
   // hands
   for (const i of [15, 16]) if (b.ok(i)) { const [x, y] = map(b.p[i].x, b.p[i].y); c.fillStyle = '#141412'; c.beginPath(); c.arc(x, y, 4, 0, Math.PI * 2); c.fill(); }
   const now = performance.now();
@@ -1728,10 +1728,10 @@ async function togglePip() {
   catch { toast('Could not open the mini window'); return; }
   // Mini window: the same little figure on the left, the state in words on the right. Sans serif.
   const d = pipWin.document;
-  d.head.innerHTML = `<style>
+  d.head.innerHTML = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap"><style>
     *{box-sizing:border-box;margin:0}
     html,body{height:100%}
-    body{font:14px/1.35 -apple-system,BlinkMacSystemFont,'SF Pro Text',Inter,'Segoe UI',sans-serif;letter-spacing:-.011em;color:#0d0d0d;
+    body{font:14px/1.35 'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:-.005em;color:#141413;
       background:#fff;display:flex;gap:16px;align-items:center;padding:18px 20px;position:relative;overflow:hidden}
     /* Same drifting wash as the Focus and Break cards. */
     @property --sig{syntax:'<color>';inherits:true;initial-value:#96d6a5}
