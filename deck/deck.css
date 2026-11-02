@@ -358,3 +358,4 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 /* Content gets its own, roomier frame; the progress bar stays near the edge at --m */
 :root { --c: max(calc(var(--s) * 96), 28px); --padx: var(--c); --top: var(--c); --bottom: calc(var(--m) + max(calc(var(--s) * 120), 60px)); }
 .cover { padding: var(--m); }   /* cover keeps the edge margin */
+.cover { padding: max(calc(var(--s) * 44), 20px) max(calc(var(--s) * 64), 20px) max(calc(var(--s) * 48), 28px); }   /* cover margins as before the shared-margin change */
