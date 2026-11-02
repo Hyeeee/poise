@@ -1638,3 +1638,6 @@ html[data-cue="game"] .studio .panel #breathe-panel::before { opacity: .95 !impo
   font-variant-numeric: proportional-nums !important; font-feature-settings: "tnum" 0 !important; letter-spacing: -.035em !important; }
 /* Speech bubble: a calm handwritten face, to match the ink figure */
 body .say-bubble, body .say-bubble .sb-text { font-family: 'Patrick Hand', 'Segoe Print', 'Comic Sans MS', cursive !important; font-weight: 400 !important; font-size: 14.5px !important; line-height: 1.2 !important; letter-spacing: .01em !important; }
+/* Reports: no sphere header; the title starts at the top */
+.report-card .report-head { display: none !important; }
+.report-card .report-say { margin-top: 0 !important; }
