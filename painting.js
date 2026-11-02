@@ -24,8 +24,8 @@ void main(){
  float amt=clamp(m1+m2,0.,1.);
  col+=vec3(.025)*L;
  // film grain: dense where the colour is, fading out toward the white
- float g=h(floor(gl_FragCoord.xy)+fract(T*7.)*57.)-.5;
- col+=g*(.025+.075*amt);   // grain gathers in the colour and loosens toward the white
+ float g=h(floor(gl_FragCoord.xy))-.5;   // still grain (no flicker), like paper texture
+ col+=g*(.02+.06*amt);   // grain gathers in the colour and loosens toward the white
  gl_FragColor=vec4(col,1.);
 }`;
 
