@@ -1810,3 +1810,12 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
     radial-gradient(70% 42% at var(--g2x) var(--g2y), color-mix(in srgb, var(--card-glow-2) 88%, white), transparent 80%),
     linear-gradient(180deg, color-mix(in srgb, var(--card-glow) 55%, white) 0%, color-mix(in srgb, var(--card-glow) 22%, white) 45%, color-mix(in srgb, var(--card-glow) 6%, white) 85%, white 100%) !important;
   filter: blur(18px) saturate(1.05) !important; }
+
+/* Phones and tablets: show only the welcome screen with a note to use a computer */
+.mobile-note { display: none; }
+@media (max-width: 820px), (hover: none) and (pointer: coarse) {
+  #welcome, #welcome[hidden] { display: grid !important; }
+  .welcome-main { width: 100%; max-width: 360px; }
+  #setup, #studio, #report, #tour, #modes, .welcome .cta, #start-status, .welcome .privacy { display: none !important; }
+  .mobile-note { display: block; margin-top: 24px; max-width: 320px; font-size: 16px; line-height: 1.5; color: var(--ink-2, #55564f); text-align: center; }
+}
