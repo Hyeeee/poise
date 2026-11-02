@@ -41,6 +41,7 @@ function go(i) {
   cur = i;
   document.body.classList.toggle('paper', next.classList.contains('paper'));
   document.body.classList.toggle('on-cover', i === 0);
+  document.body.classList.toggle('on-end', i === slides.length - 1);   // no progress on the thank you slide
   // each part fills by how far you are into it; the current part's name is darker
   segs.forEach(({ el, start, n }) => {
     const k = Math.max(0, Math.min(1, (i - start + 1) / n));

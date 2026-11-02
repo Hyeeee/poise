@@ -320,3 +320,4 @@ body.sheet-moving { --wait: 520ms; }
 .seg.now span { color: var(--ink); font-weight: 500; }
 body.on-cover .progress { opacity: 0; pointer-events: none; }
 .progress { transition: opacity .6s var(--ease); }
+body.on-end .progress { opacity: 0; pointer-events: none; }
