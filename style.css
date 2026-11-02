@@ -1961,3 +1961,17 @@ body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]
   100% { --p1w: 36%; --p1h: 26%; --p2w: 48%; --p2h: 52%; --p3x: 60%; --p3y: 20%; }
 }
 #work-panel::before, .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before { animation-duration: 16s !important; }
+/* Side cards: the same free-form glows as the popups (ovals that stretch and squash while they drift). */
+#work-panel::before, .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before {
+  background:
+    radial-gradient(var(--p1w) var(--p1h) at var(--g1x) var(--g1y), color-mix(in srgb, var(--card-glow) 88%, white), transparent 82%),
+    radial-gradient(var(--p2w) var(--p2h) at var(--g2x) var(--g2y), color-mix(in srgb, var(--card-glow-2) 88%, white), transparent 82%),
+    linear-gradient(180deg, color-mix(in srgb, var(--card-glow) 50%, white) 0%, color-mix(in srgb, var(--card-glow) 20%, white) 45%, color-mix(in srgb, var(--card-glow) 6%, white) 85%, white 100%) !important;
+  animation: glowDrift 16s ease-in-out infinite alternate, cardShape 11s ease-in-out infinite alternate !important; }
+@keyframes cardShape {
+  0%   { --p1w: 90%; --p1h: 30%; --p2w: 45%; --p2h: 55%; }
+  33%  { --p1w: 50%; --p1h: 60%; --p2w: 95%; --p2h: 28%; }
+  66%  { --p1w: 100%; --p1h: 42%; --p2w: 55%; --p2h: 40%; }
+  100% { --p1w: 60%; --p1h: 34%; --p2w: 80%; --p2h: 60%; }
+}
+@media (prefers-reduced-motion: reduce) { #work-panel::before, .studio .panel .card::before { animation: none !important; } }
