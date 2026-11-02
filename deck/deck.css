@@ -77,7 +77,7 @@ body.sheet-moving { --wait: 520ms; }
 .cover-main { margin: auto 0; display: flex; justify-content: space-between; align-items: center; gap: calc(var(--s) * 48); }
 .cover-title { font-weight: 500; font-size: max(calc(var(--s) * 96), 38px); line-height: 1.04; letter-spacing: -.04em; max-width: 14ch; }
 .cover-sub { font-size: var(--t-m); line-height: 1.45; color: rgba(20,20,18,.7); max-width: 34ch; }
-.facts { margin-top: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.facts { margin-top: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .facts > div { padding-right: calc(var(--s) * 28); }
 .facts dt { font-size: var(--t-xs); color: rgba(20,20,18,.55); margin-bottom: calc(var(--s) * 8); }
 .facts dd { font-size: var(--t-s); font-weight: 500; }
