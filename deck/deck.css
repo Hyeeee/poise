@@ -49,8 +49,9 @@ body.paper .sheet { clip-path: inset(0 0 0 0 round 0); }
 .round svg { width: 42%; height: 42%; }
 body.on-cover .chrome { opacity: 0; transform: translateY(-12px); pointer-events: none; }
 body.on-cover .chrome > * { pointer-events: none; }
-.progress { position: fixed; z-index: 10; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(20,20,18,.05); }
-.progress i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .9s var(--swoop); }
+/* Progress: a thin full-width bar along the top edge, the same as the app's onboarding */
+.progress { position: fixed; z-index: 30; left: 0; right: 0; top: 0; height: 3px; background: rgba(13,13,13,.08); }
+.progress i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .6s var(--ease); }
 
 /* ---------- Slides and transitions ---------- */
 .deck { position: fixed; inset: 0; }

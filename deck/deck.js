@@ -7,7 +7,6 @@ const deck = document.getElementById('deck');
 const slides = [...deck.querySelectorAll('.slide')];
 const progress = document.getElementById('progress');
 const pad = n => String(n).padStart(2, '0');
-document.getElementById('page-all').textContent = pad(slides.length);
 
 // Stagger: each [data-in] element on a slide gets its own delay index; the 11 survey dots pop in one by one.
 slides.forEach(sl => sl.querySelectorAll('[data-in]').forEach((el, i) => el.style.setProperty('--i', i)));
@@ -30,14 +29,11 @@ function go(i) {
   cur = i;
   document.body.classList.toggle('paper', next.classList.contains('paper'));
   document.body.classList.toggle('on-cover', i === 0);
-  document.getElementById('page-now').textContent = pad(i + 1);
   progress.style.width = ((i + 1) / slides.length * 100) + '%';
   history.replaceState(null, '', '#' + (i + 1));
 }
 
-// Round arrows, keys, clicks (right two thirds forward, left third back), wheel, and #number in the URL.
-document.getElementById('prev').onclick = e => { e.stopPropagation(); go(cur - 1); };
-document.getElementById('next').onclick = e => { e.stopPropagation(); go(cur + 1); };
+// Keys, clicks (right two thirds forward, left third back), wheel, and #number in the URL.
 addEventListener('keydown', e => {
   if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
   else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
