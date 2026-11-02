@@ -32,9 +32,9 @@
       <p class="cover-logo">poise</p>
       <p class="cover-tag">A posture companion<br>for people who work at a desk</p>
     </div>
-    <div class="agent cover-orb" data-in></div>
     <div class="cover-main">
       <h1 class="cover-title" data-in>Notice when your posture drifts, without stopping your work.</h1>
+      <div class="agent cover-orb" data-in></div>
     </div>
     <dl class="facts" data-in>
       <div><dt>Timeline</dt><dd>5 weeks, fall 2026</dd></div>
@@ -44,7 +44,24 @@
     </dl>
   </section>
 
-  <!-- 2 · Problem -->
+  <!-- 2 · Contents -->
+  <section class="slide paper" data-title="Contents">
+    <div class="toc">
+      <div class="head">
+        <p class="pill" data-in>Contents</p>
+        <h2 class="title" data-in>Here’s what I’ll <span>walk you through.</span></h2>
+      </div>
+      <ol class="toc-list">
+        <li data-in><i>01</i><b>The problem</b><span>Why we drift, and what people told me</span></li>
+        <li data-in><i>02</i><b>Version one</b><span>A light on your monitor and an app that work together</span></li>
+        <li data-in><i>03</i><b>What I heard</b><span>A playtest with real people</span></li>
+        <li data-in><i>04</i><b>Version two</b><span>Five fixes, one for each problem</span></li>
+        <li data-in><i>05</i><b>What I learned</b><span>And what I’d do next</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3 · Problem -->
   <section class="slide paper" data-title="The problem">
     <div class="head">
       <p class="pill" data-in>01 · The problem</p>
@@ -70,10 +87,10 @@
     </div>
   </section>
 
-  <!-- 3 · Interviews -->
+  <!-- 4 · Interviews -->
   <section class="slide paper" data-title="What people told me">
     <div class="head">
-      <p class="pill" data-in>02 · What people told me</p>
+      <p class="pill" data-in>01 · What people told me</p>
       <h2 class="title" data-in>I asked how people work. <span>Most only noticed when it hurt.</span></h2>
     </div>
     <div class="cards c-4-4-4">
@@ -98,42 +115,168 @@
       </div>
     </div>
     <div class="stats" data-in>
-      <div><b>3</b><span>interviews with a lawyer, a designer and an engineer</span></div>
-      <div><b>11</b><span>people answered the survey</span></div>
+      <div class="mini-quote"><p>“When I catch myself sliding too far, I fix my posture.”</p><span>Lawyer</span></div>
+      <div class="mini-quote"><p>“I also bought an ergonomic chair and a motion desk.”</p><span>Designer</span></div>
       <div><b>10/11</b><span>feel it at least once a week</span></div>
       <div><b>0</b><span>had tried a posture app or wearable</span></div>
     </div>
   </section>
 
-  <!-- 4 · Chapter -->
-  <section class="slide chapter-slide" data-title="Version two">
-    <div class="agent chapter-orb" data-in></div>
-    <div class="chapter-main">
-      <p class="pill glass" data-in>Part two</p>
-      <h2 class="chapter-title" data-in>Then I put it in front of people.</h2>
-      <p class="chapter-sub" data-in>Five problems came back. Each of the next slides fixes one.</p>
+  <!-- 5 · Market -->
+  <section class="slide paper" data-title="Market research">
+    <div class="head">
+      <p class="pill" data-in>01 · The problem</p>
+      <h2 class="title" data-in>Most posture tools make you look away. <span>The best status updates don’t.</span></h2>
     </div>
+    <div class="cards c-6-6">
+      <div class="card muted" data-in>
+        <div class="card-copy"><h3>Posture tools</h3><p>They pop up on the screen you are working on, so you have to stop to read them.</p></div>
+        <div class="chips">
+          <span>Nekoze</span><span>Posture Pal</span><span>Apple Screen Distance</span><span>Amio</span><span>CRIX</span>
+        </div>
+        <p class="verdict"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Interrupts your work</p>
+      </div>
+      <div class="card tint-green" data-in>
+        <div class="card-copy"><h3>Status updates</h3><p>A glance tells you where things stand, without opening anything.</p></div>
+        <div class="chips">
+          <span>DoorDash</span><span>Uber</span><span>Starbucks Live Activities</span><span>HidrateSpark light</span>
+        </div>
+        <p class="verdict ok"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Read at a glance</p>
+      </div>
+    </div>
+    <p class="takeaway" data-in>Poise does what the right side does, on your desk.</p>
   </section>
 
-  <!-- 5 · Work mode -->
-  <section class="slide paper" data-title="Work mode">
+  <!-- 6 · Hypothesis -->
+  <section class="slide paper" data-title="Hypothesis">
     <div class="head">
-      <p class="pill" data-in>03 · Work mode</p>
-      <h2 class="title" data-in>While you work, <span>the light does the talking.</span></h2>
+      <p class="pill" data-in>01 · The problem</p>
+      <h2 class="title wide" data-in>How might we help people notice when their posture drifts, <span>without pulling them out of their work?</span></h2>
+    </div>
+    <div class="cards c-6-6">
+      <div class="card" data-in>
+        <span class="icon-dot"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M8 20h8M12 16.5V20"/></svg></span>
+        <div class="card-copy"><h3>Software</h3><p>Remembers your own reference posture. Reacts only to a change that lasts, not a quick stretch. Shows your pattern when you finish.</p></div>
+      </div>
+      <div class="card photo-card" data-in>
+        <img class="cover-img" src="img/desk.webp" alt="Poise light bar glowing on top of a monitor at a desk">
+        <div class="card-copy on-photo"><h3>Hardware</h3><p>People already buy monitor light bars. A light at the edge of your view tells you without looking at the screen.</p></div>
+      </div>
+    </div>
+    <p class="takeaway" data-in>If the screen learns your posture and a light tells you quietly, you’ll catch it sooner and stay aligned longer. <em>It notices a change from your own reference. It doesn’t diagnose.</em></p>
+  </section>
+
+  <!-- 7 · Version one -->
+  <section class="slide paper" data-title="Version one">
+    <div class="head">
+      <p class="pill" data-in>02 · Version one</p>
+      <h2 class="title" data-in>Version one. <span>A light on your monitor and an app that work together.</span></h2>
     </div>
     <div class="cards c-4-4-4">
-      <div class="card shot" data-in><div class="card-copy"><h3>Aligned</h3><p>Close to your reference.</p></div><img class="bleed" src="img/focus-aligned.webp" alt="Focus card, aligned, green"></div>
-      <div class="card shot" data-in><div class="card-copy"><h3>Drifting</h3><p>A change that stays.</p></div><img class="bleed" src="img/focus-drifting.webp" alt="Focus card, drifting, yellow"></div>
-      <div class="card shot" data-in><div class="card-copy"><h3>Time to reset</h3><p>Drifted for a while.</p></div><img class="bleed" src="img/focus-reset.webp" alt="Focus card, time to reset, red"></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Welcome</h3><p>Sit well without thinking about it.</p></div><img class="screen-img" src="img/v1-welcome.webp" alt="Version one welcome screen"></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Start</h3><p>Camera, light bar and reference.</p></div><img class="screen-img" src="img/v1-camera.webp" alt="Version one start screen with the camera"></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Work</h3><p>The light follows your posture.</p></div><img class="screen-img" src="img/v1-aligned.webp" alt="Version one work mode, aligned"></div>
     </div>
-    <div class="features" data-in>
-      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span><h4>A slow fade</h4><p>Red in one second felt like being scolded, so a change has to last.</p></div>
-      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="4" rx="2"/><path d="M8 15h8M12 11v8"/></svg></span><h4>Light on the monitor</h4><p>The bar shows the same colour, so you never look away from your work.</p></div>
-      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v4h4"/></svg></span><h4>Back to white</h4><p>Sit back and it returns to calm white within a few seconds.</p></div>
+    <ol class="flow" data-in>
+      <li>Onboarding</li><li>Reference</li><li>Tour</li><li>Work</li><li>Break</li><li>Report</li>
+    </ol>
+  </section>
+
+  <!-- 8 · V1 setup -->
+  <section class="slide paper" data-title="Version one setup">
+    <div class="head">
+      <p class="pill" data-in>02 · Version one</p>
+      <h2 class="title" data-in>It asks how you work, <span>then learns what good looks like for you.</span></h2>
+    </div>
+    <div class="cards c-8-4">
+      <div class="card" data-in>
+        <div class="card-copy"><h3>A few plain questions</h3><p>Focus length, how to be nudged, how to rest.</p></div>
+        <div class="thumbs">
+          <img src="img/v1-q1.webp" alt="Onboarding question one"><img src="img/v1-q2.webp" alt="Onboarding question two"><img src="img/v1-q3.webp" alt="Onboarding question three"><img src="img/v1-summary.webp" alt="Onboarding summary">
+        </div>
+      </div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Your reference</h3><p>Sit the way you want to stay, then save it.</p></div><img class="screen-img" src="img/v1-ref.webp" alt="Saving the reference posture"></div>
+    </div>
+    <div class="decision-row" data-in><span>Decision</span><p>A few plain questions over a settings page. People know how they work, not which settings to pick.</p></div>
+  </section>
+
+  <!-- 9 · V1 work mode -->
+  <section class="slide paper" data-title="Version one work mode">
+    <div class="head">
+      <p class="pill" data-in>02 · Version one</p>
+      <h2 class="title" data-in>While you work, <span>the light does the talking.</span></h2>
+    </div>
+    <div class="cards c-5-7">
+      <div class="card screen" data-in><div class="card-copy"><h3>On screen</h3><p>Aligned, drifting, and how far you moved.</p></div><img class="screen-img" src="img/v1-drifting.webp" alt="Version one work mode, drifting"></div>
+      <div class="card photos" data-in>
+        <div class="card-copy"><h3>On your desk</h3><p>The light warms slowly as the drift lasts.</p></div>
+        <div class="photo-strip">
+          <figure><img src="img/light-white.webp" alt="Light bar white while sitting well"><figcaption>White</figcaption></figure>
+          <figure><img src="img/light-warm.webp" alt="Light bar warming"><figcaption>Warming</figcaption></figure>
+          <figure><img src="img/light-orange.webp" alt="Light bar orange"><figcaption>Orange</figcaption></figure>
+          <figure><img src="img/light-red.webp" alt="Light bar red"><figcaption>Red</figcaption></figure>
+        </div>
+      </div>
+    </div>
+    <div class="decision-row" data-in><span>Decision</span><p>A slow fade over an instant alert. My first version turned red in one second, and it felt like being scolded.</p></div>
+  </section>
+
+  <!-- 10 · V1 break and report -->
+  <section class="slide paper" data-title="Version one break and report">
+    <div class="head">
+      <p class="pill" data-in>02 · Version one</p>
+      <h2 class="title" data-in>Breaks you actually move in, <span>and a report at the end.</span></h2>
+    </div>
+    <div class="cards c-3-3-3-3">
+      <div class="card screen" data-in><div class="card-copy"><h3>Stretch</h3></div><img class="screen-img" src="img/v1-stretch.webp" alt="Version one stretch break"></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Breathe</h3></div><img class="screen-img" src="img/v1-breathe.webp" alt="Version one breathing break"></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Game</h3></div><img class="screen-img" src="img/v1-game.webp" alt="Version one bubble game"></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Report</h3></div><img class="screen-img" src="img/v1-report.webp" alt="Version one session report"></div>
+    </div>
+    <div class="decision-row" data-in><span>Decision</span><p>Flow over precision. A break that keeps saying try again isn’t a break.</p></div>
+  </section>
+
+  <!-- 11 · Playtest -->
+  <section class="slide chapter-slide heard" data-title="What I heard">
+    <div class="heard-head">
+      <p class="pill glass" data-in>03 · What I heard</p>
+      <h2 class="chapter-title small" data-in>Then I put it in front of people.</h2>
+    </div>
+    <div class="heard-grid">
+      <div class="glass-card" data-in>
+        <h3>What worked</h3>
+        <ul class="ticks">
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>It caught posture changes people didn’t notice</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>People liked the break modes</li>
+        </ul>
+      </div>
+      <div class="glass-card" data-in>
+        <h3>What didn’t</h3>
+        <ol class="problems">
+          <li><i>1</i>Worried the camera was watching them</li>
+          <li><i>2</i>Too much showed up at once</li>
+          <li><i>3</i>Nobody knew what the percent meant</li>
+          <li><i>4</i>Feedback was easy to miss</li>
+          <li><i>5</i>While working, nobody looks at the app</li>
+        </ol>
+      </div>
     </div>
   </section>
 
-  <!-- 6 · One thing at a time -->
+  <!-- 12 · V2 camera -->
+  <section class="slide paper" data-title="Trust first">
+    <div class="head">
+      <p class="pill" data-in>04 · Fix 1 of 5</p>
+      <h2 class="title" data-in>Trust comes <span>before the camera turns on.</span></h2>
+    </div>
+    <div class="cards c-6-6">
+      <div class="card muted screen" data-in><div class="card-copy"><h3>Before</h3><p>The camera turned on first, the explanation came after.</p></div><img class="screen-img" src="img/v1-camera.webp" alt="Version one, camera on straight away"></div>
+      <div class="card tint-green" data-in><div class="card-copy"><h3>After</h3><p>Camera off at the start. The first card says what it does, then you choose. Or use the distance sensor instead.</p></div><img class="bleed" src="img/camera-card.webp" alt="Version two camera card, turn on camera or use sensor"></div>
+    </div>
+    <p class="learned-row" data-in><span>What I learned</span>Explaining after the fact felt like an excuse.</p>
+  </section>
+
+  <!-- 13 · One thing at a time -->
   <section class="slide paper" data-title="One thing at a time">
     <div class="head">
       <p class="pill" data-in>04 · Fix 2 of 5</p>
@@ -161,10 +304,10 @@
     </div>
   </section>
 
-  <!-- 7 · Number to figure (live) -->
+  <!-- 14 · Number to figure (live) -->
   <section class="slide paper" data-title="Number to figure">
     <div class="head">
-      <p class="pill" data-in>05 · Fix 3 of 5</p>
+      <p class="pill" data-in>04 · Fix 3 of 5</p>
       <h2 class="title" data-in>People didn’t read the number. <span>They read themselves.</span></h2>
     </div>
     <div class="cards c-4-8">
@@ -182,6 +325,88 @@
       <div><span class="icon-dot"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8"/></svg></span><h4>A chart first</h4><p>A live graph was still hard to read at a glance.</p></div>
       <div><span class="icon-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg></span><h4>Then a figure</h4><p>It follows you, so you see which way you lean.</p></div>
       <div><span class="icon-dot"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8" ry="9" stroke-dasharray="3 3"/></svg></span><h4>Your outline</h4><p>The gap to the dashed outline says more than any number.</p></div>
+    </div>
+  </section>
+
+  <!-- 15 · Feedback where you look -->
+  <section class="slide paper" data-title="Feedback where you look">
+    <div class="head">
+      <p class="pill" data-in>04 · Fix 4 of 5</p>
+      <h2 class="title" data-in>Feedback belongs <span>where you’re already looking.</span></h2>
+    </div>
+    <div class="cards c-4-8">
+      <div class="card muted screen" data-in><div class="card-copy"><h3>Before</h3><p>A toast at the top of the screen, far from your eyes.</p></div><img class="screen-img" src="img/v1-game.webp" alt="Version one, feedback at the top of the screen"></div>
+      <div class="card tint-green" data-in><div class="card-copy"><h3>After</h3><p>A handwritten speech bubble next to the figure’s head, following it as you move. The top of the card takes the colour of your state.</p></div><img class="bleed" src="img/bubble.webp" alt="Ink figure with a handwritten speech bubble saying got it, that is your reference now"></div>
+    </div>
+    <p class="learned-row" data-in><span>What I learned</span>A message far from your eyes is a message missed.</p>
+  </section>
+
+  <!-- 16 · Next to your work -->
+  <section class="slide paper" data-title="Next to your work">
+    <div class="head">
+      <p class="pill" data-in>04 · Fix 5 of 5</p>
+      <h2 class="title" data-in>Poise has to live next to your work, <span>not in front of it.</span></h2>
+    </div>
+    <div class="cards c-4-8">
+      <div class="card muted screen" data-in><div class="card-copy"><h3>Before</h3><p>To check your state you had to switch back to the Poise tab.</p></div><img class="screen-img" src="img/v1-aligned.webp" alt="Version one, the full Poise tab"></div>
+      <div class="card photo-card top" data-in>
+        <img class="cover-img" src="img/mini-corner.webp" alt="The Poise mini window floating over another app on a laptop">
+        <div class="card-copy on-photo dark"><h3>After</h3><p>A small window over any app with the same figure, one line of state and End session.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 · V1 vs V2 -->
+  <section class="slide paper" data-title="Same app, two versions">
+    <div class="head">
+      <p class="pill" data-in>04 · Version two</p>
+      <h2 class="title" data-in>Same app, <span>two versions.</span></h2>
+    </div>
+    <div class="cards c-12">
+      <div class="card" data-in><img class="contain-img" src="img/v1v2.webp" alt="Start, work, break and report screens in version one next to version two"></div>
+    </div>
+    <div class="stats" data-in>
+      <div><b>12 → 4</b><span>tour steps</span></div>
+      <div><b>2 → 1</b><span>popup at a time</span></div>
+      <div><b>% → figure</b><span>how your posture is shown</span></div>
+      <div><b>List → 3</b><span>numbers and a graph in the report</span></div>
+    </div>
+  </section>
+
+  <!-- 18 · Learned -->
+  <section class="slide paper" data-title="What I learned">
+    <div class="head">
+      <p class="pill" data-in>05 · What I learned</p>
+      <h2 class="title" data-in>People don’t want one right signal. <span>They want the one that fits them.</span></h2>
+    </div>
+    <ol class="lessons">
+      <li data-in><i>01</i><b>Every person wants a different signal</b><span>Some loved the voice, some turned it off. Light, voice, both or none should be a choice.</span></li>
+      <li data-in><i>02</i><b>A nudge works when it doesn’t interrupt</b><span>Feedback helps most when you can keep working while you get it.</span></li>
+      <li data-in><i>03</i><b>You read yourself faster than a number</b><span>The figure and its outline beat the percent and the chart.</span></li>
+    </ol>
+    <p class="aside-row" data-in>AI widened my options and sped up building. People decided what stayed.</p>
+  </section>
+
+  <!-- 19 · Next -->
+  <section class="slide paper" data-title="What I’d do next">
+    <div class="head">
+      <p class="pill" data-in>05 · What I learned</p>
+      <h2 class="title" data-in>What I’d <span>do next.</span></h2>
+    </div>
+    <div class="cards c-4-4-4 short">
+      <div class="card" data-in><span class="icon-dot"><svg viewBox="0 0 24 24"><path d="M4 7h10M4 12h16M4 17h7"/><circle cx="17" cy="7" r="2"/><circle cx="14" cy="17" r="2"/></svg></span><div class="card-copy push"><h3>Personal feedback</h3><p>Light, voice, both, or off, set per person and per moment.</p></div></div>
+      <div class="card" data-in><span class="icon-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></svg></span><div class="card-copy push"><h3>Better tracking</h3><p>Make the pose detection steadier in low light and at odd angles.</p></div></div>
+      <div class="card" data-in><span class="icon-dot"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span><div class="card-copy push"><h3>Longer testing</h3><p>Weeks of real use, to see if people really stay aligned longer.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 20 · Thank you -->
+  <section class="slide chapter-slide end" data-title="Thank you">
+    <div class="agent chapter-orb" data-in></div>
+    <div class="chapter-main">
+      <p class="pill glass" data-in>Thank you</p>
+      <h2 class="chapter-title" data-in>Sit well without thinking about it.</h2>
+      <a class="end-link" href="https://poise-lightbar.netlify.app" data-in>poise-lightbar.netlify.app</a>
     </div>
   </section>
 
