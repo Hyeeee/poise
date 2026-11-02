@@ -1684,3 +1684,48 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
   100% { --g1x: 20%; --g2x: 82%; --g1y: 55%; }
 }
 @media (prefers-reduced-motion: reduce) { .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before { animation: none; } }
+
+/* Focus wash v4: the drift has to read. Fewer flat layers, stronger blobs with a pale gap between them,
+   wider travel and a quicker cycle (about 12 s), so you can see colour moving across the card. */
+#work-panel::before {
+  background:
+    radial-gradient(55% 40% at var(--w1x) var(--w1y), color-mix(in srgb, var(--signal) 95%, white), transparent 70%),
+    radial-gradient(50% 38% at var(--w2x) var(--w2y), color-mix(in srgb, var(--signal) 70%, #e9f6ff), transparent 70%),
+    radial-gradient(40% 30% at var(--w3x) 22%, rgba(255,255,255,.85), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--signal) 30%, white) 0%, color-mix(in srgb, var(--signal) 14%, white) 50%, color-mix(in srgb, var(--signal) 5%, white) 80%, rgba(255,255,255,0) 98%) !important;
+  filter: blur(10px) saturate(1.15) !important;
+  animation: washDrift 12s ease-in-out infinite alternate !important; }
+@keyframes washDrift {
+  0%   { --w1x: 10%; --w1y: 2%;  --w2x: 90%; --w2y: 20%; --w3x: 60%; }
+  33%  { --w1x: 55%; --w1y: 18%; --w2x: 30%; --w2y: 4%;  --w3x: 15%; }
+  66%  { --w1x: 85%; --w1y: 6%;  --w2x: 12%; --w2y: 26%; --w3x: 80%; }
+  100% { --w1x: 35%; --w1y: 24%; --w2x: 70%; --w2y: 0%;  --w3x: 40%; }
+}
+
+/* v5: the washes also rise and fall. Blob centres travel down the card and back, and the whole
+   layer breathes up and down a little, so the motion reads as a slow tide, not only a side sway. */
+@property --w2y2 { syntax: '<percentage>'; inherits: false; initial-value: 10%; }
+@keyframes washDrift {
+  0%   { --w1x: 12%; --w1y: 0%;  --w2x: 88%; --w2y: 30%; --w3x: 60%; transform: scale(1.08) translateY(-4%); }
+  25%  { --w1x: 45%; --w1y: 34%; --w2x: 55%; --w2y: 2%;  --w3x: 20%; transform: scale(1.08) translateY(6%); }
+  50%  { --w1x: 80%; --w1y: 12%; --w2x: 15%; --w2y: 42%; --w3x: 75%; transform: scale(1.08) translateY(-2%); }
+  75%  { --w1x: 30%; --w1y: 44%; --w2x: 40%; --w2y: 8%;  --w3x: 35%; transform: scale(1.08) translateY(8%); }
+  100% { --w1x: 60%; --w1y: 4%;  --w2x: 80%; --w2y: 36%; --w3x: 55%; transform: scale(1.08) translateY(0%); }
+}
+#work-panel::before { animation: washDrift 14s ease-in-out infinite alternate !important; }
+
+@property --g2y { syntax: '<percentage>'; inherits: false; initial-value: 58%; }
+.studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before {
+  --card-glow: #b4e4b2; --card-glow-2: #b3dfda;
+  background: radial-gradient(50% 42% at var(--g1x) var(--g1y), var(--card-glow), transparent 72%),
+              radial-gradient(48% 40% at var(--g2x) var(--g2y), var(--card-glow-2), transparent 72%) !important;
+  opacity: .9 !important; animation: glowDrift 14s ease-in-out infinite alternate !important; }
+@keyframes glowDrift {
+  0%   { --g1x: 25%; --g1y: 48%; --g2x: 78%; --g2y: 70%; transform: translateY(-4%); }
+  25%  { --g1x: 50%; --g1y: 80%; --g2x: 55%; --g2y: 45%; transform: translateY(8%); }
+  50%  { --g1x: 75%; --g1y: 55%; --g2x: 20%; --g2y: 85%; transform: translateY(0%); }
+  75%  { --g1x: 35%; --g1y: 88%; --g2x: 70%; --g2y: 50%; transform: translateY(12%); }
+  100% { --g1x: 20%; --g1y: 60%; --g2x: 85%; --g2y: 78%; transform: translateY(2%); }
+}
+/* Layer starts above the card so the up-down breathing never leaves a bare strip at the top. */
+#work-panel::before { inset: -16% 0 0 0 !important; }
