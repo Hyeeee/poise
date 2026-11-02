@@ -337,3 +337,15 @@ body.paper .sheet { opacity: 1; backdrop-filter: blur(60px) saturate(1.05); -web
 body.paper .paint-live { transform: scale(.94); }
 /* Leaving the cover, its content gently recedes instead of sliding up */
 .cover.leaving [data-in] { transform: scale(.97); filter: blur(10px); opacity: 0; transition: opacity .6s ease, transform .9s cubic-bezier(.22,.7,.2,1), filter .6s ease; }
+/* v2: no edge showing (the backdrop zooms in slightly instead of shrinking), and the blur leads:
+   the colour melts into a soft blur first, then the white glass settles in over it. */
+body.paper .paint-live { transform: scale(1.08); }
+.sheet { background: rgba(250,250,247,.8); transition: opacity 1.2s cubic-bezier(.4,0,.2,1) .25s, backdrop-filter .9s cubic-bezier(.3,0,.2,1), -webkit-backdrop-filter .9s cubic-bezier(.3,0,.2,1); }
+body.paper .sheet { backdrop-filter: blur(90px) saturate(1.05); -webkit-backdrop-filter: blur(90px) saturate(1.05); }
+/* the sheet is see-through while it blurs, so the blur alone carries the first half */
+.sheet::before { content: ""; position: absolute; inset: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); transition: inherit; }
+.cover.leaving [data-in] { filter: blur(16px); transform: scale(1.02); }
+
+.sheet { opacity: 1 !important; background: rgba(250,250,247,0); transition: background 1.2s cubic-bezier(.4,0,.2,1) .2s, backdrop-filter 1s cubic-bezier(.3,0,.2,1), -webkit-backdrop-filter 1s cubic-bezier(.3,0,.2,1); }
+body.paper .sheet { background: rgba(250,250,247,.8); }
+.sheet::before { display: none; }
