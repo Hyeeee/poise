@@ -1837,3 +1837,8 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
 @keyframes toastUp { from { opacity: 0; transform: translate(-50%, 8px); } }
 @media (max-width: 640px) { .toast { bottom: 72px !important; } }
 .toast:not([hidden]) { display: inline-flex !important; }
+/* Toast icon sits in its own rounded square, like the top bar buttons (dark tile, white line icon). */
+.toast { height: 46px !important; padding: 0 18px 0 7px !important; gap: 11px !important; }
+.toast .t-tile { width: 32px; height: 32px; flex: none; border-radius: 10px; background: rgba(30,31,28,.86); color: #fff; display: grid; place-items: center; }
+.toast .t-tile .t-ic { width: 17px; height: 17px; opacity: 1; stroke-width: 1.8; }
+.toast { bottom: 90px !important; } @media (max-width: 640px) { .toast { bottom: 78px !important; } }

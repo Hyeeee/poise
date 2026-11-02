@@ -101,7 +101,7 @@ function toast(msg) {
   if (!host) {
     // A small line icon that says what the message is about, then the text.
     const t = $('toast');
-    t.innerHTML = `<svg class="t-ic" viewBox="0 0 24 24" aria-hidden="true">${toastIcon(msg)}</svg><span class="t-tx"></span>`;
+    t.innerHTML = `<span class="t-tile" aria-hidden="true"><svg class="t-ic" viewBox="0 0 24 24">${toastIcon(msg)}</svg></span><span class="t-tx"></span>`;
     t.querySelector('.t-tx').textContent = msg;
     t.hidden = false; t.style.animation = 'none'; void t.offsetWidth; t.style.animation = '';
     clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { $('toast').hidden = true; }, 4000);
