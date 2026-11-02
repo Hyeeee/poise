@@ -7,9 +7,11 @@ import { drawFigure } from './figure.js';
 //   bells  — Shoulder Bells: shrug both shoulders up, then drop them, to ring a bell
 //   seeds  — Dandelion: turn and tilt your head to follow drifting seeds (neck)
 // Interface: start(seconds), stop(), update(landmarks), running, result()
-// Callbacks: onTick({score,left,label}), onEnd(result), onColor([r,g,b]|null)
+// Callbacks: onTick({score,left,label}), onEnd(result), onColor([r,g,b]) — the colour stays until the next catch
 
 const TAU = Math.PI * 2;
+// Side box: the figure is drawn large there, so drops, stones, seeds and the bell are drawn this much bigger.
+const HELPER_BIG = 2.2;
 const vis = (p, i) => p && p[i] && (p[i].visibility ?? 1) > .4;
 const ink = '#141412', paper = '#fbfaf6';
 
@@ -94,10 +96,11 @@ export class MiniGame {
     this[this.kind](R, gw, gh, dt, now, c);
     const play = (cx2, s, ox, oy, helper = false) => {
       cx2.save(); cx2.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
-      let skip = false;
+      let skip = false, only = false;
       for (const [key, v] of rec) {
         if (key === 'helperSkip') { skip = helper && v[0]; continue; }   // parts only meant for the camera view
-        if (skip) continue;
+        if (key === 'helperOnly') { only = !helper && v[0]; continue; }  // parts only meant for the side box
+        if (skip || only) continue;
         // Camera view: 3 px lines. Side box: 1.5 px, about the weight of the ink figure.
         // Camera view: 3 px lines. Side box: exactly the ink figure's line weight (2.4 figure units).
         if (key[0] === '=') cx2[key.slice(1)] = key === '=lineWidth' ? (helper ? 2.4 * this.figScale(gw, gh) * v : 3 * v / s) : v;
@@ -118,11 +121,13 @@ export class MiniGame {
       // 1 figure unit = (box − 32) / 300 px, waist 10 px above the bottom of the box.
       this._hf = Math.min(hw - 32, hh - 32) / 300 / s;
       this._hy = (hh - 10 - (hh - gh * s) / 2) / s;
-      play(h, s, (hw - gw * s) / 2, (hh - gh * s) / 2, true);
+      this._htop = -((hh - gh * s) / 2) / s;   // top edge of the side box, in game units (the game area may not reach it)
       // The ink figure plays the game in the side box: it rides the boat, lifts its shoulders, follows the seed.
+      // It is drawn first so drops, seeds and the bell sit on top of it instead of hiding behind it.
       h.save(); h.setTransform(dpr * s, 0, 0, dpr * s, dpr * (hw - gw * s) / 2, dpr * (hh - gh * s) / 2);
       this.actor(h, gw, gh, c, now);
       h.restore();
+      play(h, s, (hw - gw * s) / 2, (hh - gh * s) / 2, true);
     }
     if (this.hint && !label) label = this.hint;
     this.onTick?.({ score: this.s.score, left: Math.max(0, left), label });
@@ -144,7 +149,9 @@ export class MiniGame {
     if (this.kind === 'boat') {
       // Same size and place as the other games; the figure sways with the boat and leans into the turn.
       const f = this.figScale(W, H);
-      ctx.translate(W / 2 + this.boatX * W * .12, this._hy ?? H + 6); ctx.rotate(this.boatX * .12); ctx.scale(f, f);
+      // Raised a little and kept inside the box, so a hard lean never tips the hull past the bottom or the sides.
+      const sway = Math.max(-1, Math.min(1, this.boatX)) * Math.max(0, W / 2 - 104 * f) * .5;
+      ctx.translate(W / 2 + sway, (this._hy ?? H + 6) - 26 * f); ctx.rotate(this.boatX * .12); ctx.scale(f, f);
       drawFigure(ctx, { ...base, bend: this.boatX * .32, shTilt: -this.boatX * 10 + tilt * 6, head: this.boatX * .12,
         eL: [-56, -70], wL: [-46, -22], eR: [56, -70], wR: [46, -22] }, { legs: false });
       // paper boat around the waist
@@ -190,16 +197,22 @@ export class MiniGame {
       if (!it.done && Math.abs(it.y - by) < 16 && Math.abs(x - bx) < 26) {
         it.done = true;
         if (it.kind === 'drop') { sfx.drop(); this.s.score++; this.onColor?.([40, 180, 255]); } else { sfx.thud(); this.s.b++; this.onColor?.([255, 130, 0]); }
-        setTimeout(() => this.onColor?.(null), 500);
       }
       if (it.done) continue;
-      // flat illustration: soft colour fill + fine ink outline
-      ctx.strokeStyle = ink; ctx.lineWidth = this.lw; ctx.lineJoin = 'round';
-      if (it.kind === 'drop') {
-        ctx.fillStyle = '#8fb6e0'; ctx.beginPath(); ctx.moveTo(x, it.y - 10); ctx.bezierCurveTo(x + 2, it.y - 4, x + 7, it.y - 1, x + 7, it.y + 3); ctx.arc(x, it.y + 3, 7, 0, Math.PI); ctx.bezierCurveTo(x - 7, it.y - 1, x - 2, it.y - 4, x, it.y - 10); ctx.fill(); ctx.stroke();
-      } else {
-        ctx.fillStyle = '#cfc8ba'; ctx.beginPath(); ctx.ellipse(x, it.y, 13, 9, .25, 0, TAU); ctx.fill(); ctx.stroke();
+      // flat illustration: soft colour fill + fine ink outline. Drawn at full size over the camera,
+      // and HELPER_BIG times larger in the side box, where the big figure would otherwise dwarf them.
+      for (const [only, k] of [[false, 1], [true, HELPER_BIG]]) {
+        ctx.helperSkip(!only); ctx.helperOnly(only);
+        ctx.save(); ctx.translate(x, it.y); ctx.scale(k, k);
+        ctx.strokeStyle = ink; ctx.lineWidth = this.lw / k; ctx.lineJoin = 'round';
+        if (it.kind === 'drop') {
+          ctx.fillStyle = '#8fb6e0'; ctx.beginPath(); ctx.moveTo(0, -10); ctx.bezierCurveTo(2, -4, 7, -1, 7, 3); ctx.arc(0, 3, 7, 0, Math.PI); ctx.bezierCurveTo(-7, -1, -2, -4, 0, -10); ctx.fill(); ctx.stroke();
+        } else {
+          ctx.fillStyle = '#cfc8ba'; ctx.beginPath(); ctx.ellipse(0, 0, 13, 9, .25, 0, TAU); ctx.fill(); ctx.stroke();
+        }
+        ctx.restore();
       }
+      ctx.helperSkip(false); ctx.helperOnly(false);
     }
     this.items = this.items.filter(i => i.y < H + 20 && !i.done);
     // boat (folded paper): camera view only; the side box draws the figure in a big boat
@@ -222,7 +235,7 @@ export class MiniGame {
     this.lift += (lift - this.lift) * Math.min(1, dt / 120);
     if (this.lift > .55) { this.upMs += dt; this.s.a += dt; if (!this.up && this.upMs > 300) this.up = true; }
     else if (this.lift < .3) {
-      if (this.up) { sfx.bell(); this.s.score++; this.rings.push(now); this.swing = 1; this.onColor?.([255, 200, 60]); setTimeout(() => this.onColor?.(null), 450); }
+      if (this.up) { sfx.bell(); this.s.score++; this.rings.push(now); this.swing = 1; this.onColor?.([255, 200, 60]); }
       else if (this.upMs > 120) this.s.b++;
       this.up = false; this.upMs = 0;
     }
@@ -230,20 +243,29 @@ export class MiniGame {
     // rope from the top, bell hangs from it; the rope is pulled up as you lift
     const cx = W / 2, top = 0, by = H * .2 - this.lift * H * .08;   // bell hangs high, off your face
     const rot = Math.sin(now / 110) * .45 * this.swing;
-    // thin cord
-    ctx.strokeStyle = ink; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(cx, by); ctx.stroke();
-    ctx.save(); ctx.translate(cx, by); ctx.rotate(rot);
-    // flat bell in the stretch-illustration style: ochre fill, fine ink outline
-    ctx.strokeStyle = ink; ctx.lineWidth = this.lw; ctx.lineJoin = 'round';
-    ctx.beginPath(); ctx.arc(0, -3, 4, 0, TAU); ctx.stroke();
-    const bell = new Path2D('M0 1 C-11 1 -15 10 -16 22 C-17 32 -19 38 -26 43 L26 43 C19 38 17 32 16 22 C15 10 11 1 0 1 Z');
-    ctx.fillStyle = '#e8c95a'; ctx.fill(bell); ctx.stroke(bell);
-    ctx.beginPath(); ctx.moveTo(-18, 36); ctx.lineTo(18, 36); ctx.stroke();
-    ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(-rot * 16, 48, 3.5, 0, TAU); ctx.fill();
-    ctx.restore();
-    // sound rings expanding from the bell
+    // The bell is drawn twice: over the camera as before, and in the side box bigger and hung
+    // above the big figure's head (the figure's head would otherwise cover it).
+    const f = this.figScale(W, H), headTop = (this._hy ?? H + 6) - 205 * f;
+    const drawBell = (bx0, byy, k, cordTop = top) => {
+      // thin cord
+      ctx.strokeStyle = ink; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.moveTo(bx0, cordTop); ctx.lineTo(bx0, byy); ctx.stroke();
+      ctx.save(); ctx.translate(bx0, byy); ctx.rotate(rot); ctx.scale(k, k);
+      // flat bell in the stretch-illustration style: ochre fill, fine ink outline
+      ctx.strokeStyle = ink; ctx.lineWidth = this.lw / k; ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.arc(0, -3, 4, 0, TAU); ctx.stroke();
+      const bell = new Path2D('M0 1 C-11 1 -15 10 -16 22 C-17 32 -19 38 -26 43 L26 43 C19 38 17 32 16 22 C15 10 11 1 0 1 Z');
+      ctx.fillStyle = '#e8c95a'; ctx.fill(bell); ctx.stroke(bell);
+      ctx.beginPath(); ctx.moveTo(-18, 36); ctx.lineTo(18, 36); ctx.stroke();
+      ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(-rot * 16, 48, 3.5, 0, TAU); ctx.fill();
+      ctx.restore();
+      // sound rings expanding from the bell
+      for (const t of this.rings) { const q = (now - t) / 1400; ctx.strokeStyle = `rgba(30,31,28,${.4 * (1 - q)})`; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(bx0, byy + 24 * k, 40 * k + q * W * .35, 0, TAU); ctx.stroke(); }
+    };
     this.rings = this.rings.filter(t => now - t < 1400);
-    for (const t of this.rings) { const k = (now - t) / 1400; ctx.strokeStyle = `rgba(30,31,28,${.4 * (1 - k)})`; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(cx, by + 24, 40 + k * W * .35, 0, TAU); ctx.stroke(); }
+    ctx.helperSkip(true); drawBell(cx, by, 1); ctx.helperSkip(false);
+    const boxTop = this._htop ?? 0, kH = HELPER_BIG * .85;
+    const byH = Math.max(boxTop + 16 * kH, headTop - 34 * f - 52 * kH - this.lift * 20 * f);   // rises as the shoulders lift
+    ctx.helperOnly(true); drawBell(cx, byH, kH, boxTop); ctx.helperOnly(false);
     // lift meter: two shoulder marks that rise (camera view only; in the side box the figure's shoulders show it)
     ctx.helperSkip(true);
     const my = H * .82, mx = W * .3;
@@ -300,13 +322,19 @@ export class MiniGame {
       // gentle sway around where it landed (a few px), not a drift away, so you can hold your neck still
       s.ox ??= s.x; s.oy ??= s.y;
       s.x = s.ox + Math.sin(now / 1400 + s.ph) * 4; s.y = s.oy + Math.cos(now / 1700 + s.ph) * 3;
-      // seed: a tiny stem with a fluffy top
-      ctx.strokeStyle = ink; ctx.lineWidth = this.lw;
-      ctx.beginPath(); ctx.moveTo(s.x, s.y + 6); ctx.lineTo(s.x, s.y + 26); ctx.stroke();
-      for (let i = 0; i < 9; i++) { const a = -Math.PI + i / 8 * Math.PI; ctx.beginPath(); ctx.moveTo(s.x, s.y + 6); ctx.lineTo(s.x + Math.cos(a) * 17, s.y + 6 + Math.sin(a) * 17); ctx.stroke(); }
+      // seed: a tiny stem with a fluffy top (bigger in the side box, on top of the figure)
+      for (const [only, k] of [[false, 1], [true, HELPER_BIG]]) {
+        ctx.helperSkip(!only); ctx.helperOnly(only);
+        ctx.save(); ctx.translate(s.x, s.y); ctx.scale(k, k);
+        ctx.strokeStyle = ink; ctx.lineWidth = this.lw / k;
+        ctx.beginPath(); ctx.moveTo(0, 6); ctx.lineTo(0, 26); ctx.stroke();
+        for (let i = 0; i < 9; i++) { const a = -Math.PI + i / 8 * Math.PI; ctx.beginPath(); ctx.moveTo(0, 6); ctx.lineTo(Math.cos(a) * 17, 6 + Math.sin(a) * 17); ctx.stroke(); }
+        ctx.restore();
+      }
+      ctx.helperSkip(false); ctx.helperOnly(false);
       const near = Math.hypot(this.cur[0] - s.x, this.cur[1] - s.y) < 46;
       this.holdMs = near ? this.holdMs + dt : Math.max(0, this.holdMs - dt);
-      if (this.holdMs > 1200) { sfx.seed(); this.s.score++; this.seed = null; this.holdMs = 0; this.onColor?.([255, 220, 0]); setTimeout(() => this.onColor?.(null), 400); }
+      if (this.holdMs > 1200) { sfx.seed(); this.s.score++; this.seed = null; this.holdMs = 0; this.onColor?.([255, 220, 0]); }
       if (s && near) { ctx.strokeStyle = 'rgba(20,20,18,.5)'; ctx.lineWidth = this.lw; ctx.beginPath(); ctx.arc(s.x, s.y + 8, 34, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, this.holdMs / 1200)); ctx.stroke(); }
     }
     // head cursor

@@ -63,7 +63,7 @@ function light(state, rgb, fast, tone) {
   const screenColor = tone ? `rgb(${tone.join(',')})` : silent() ? colors.idle : rgb ? `rgb(${rgb.join(',')})` : colors[state];
   document.documentElement.style.setProperty('--signal', screenColor);
   // Break cards glow only on a real cue; in games, any colour the game sends (bubble colour, a ring, a catch) glows too.
-  const playful = screen === 'break' && (store.brk().style === 'game' ? rgb && rgb.some(v => v > 40) : store.brk().style === 'breathe' && !!tone);
+  const playful = screen === 'break' && (store.brk().style === 'game' ? !!tone || (rgb && rgb.some(v => v > 40)) : store.brk().style === 'breathe' && !!tone);
   document.documentElement.dataset.cue = playful ? 'game' : state;
   // Brightness setting (25-100%): every colour is scaled down before it is sent to the board.
   const bright = (store.state.brightness ?? 100) / 100;
@@ -1509,7 +1509,8 @@ const mini = new MiniGame($('mini-canvas'), {
     if (gameFlash && fk < 1000) {
       // two soft pulses: brightness rises and falls like a breath (sin²), 0.5 s each
       const b = Math.pow(Math.sin(fk / 500 * Math.PI), 2) * .85 + .15;
-      light('idle', gameFlash.rgb.map(v => Math.round(v * b / 8) * 8), 35);
+      // Only the light bar pulses; the screen holds the full colour (tone), so it never dips back to green.
+      light('idle', gameFlash.rgb.map(v => Math.round(v * b / 8) * 8), 35, gameFlash.rgb);
     }
     else { gameFlash = null; gameRgb ? light('idle', gameRgb, 20) : light('idle'); }
     text('game-score', score); text('game-left', fmtClock(left));
