@@ -1707,7 +1707,7 @@ async function togglePip() {
     [hidden]{display:none!important}
   </style>`;
   d.body.innerHTML = '<div class="fig"><canvas id="fig"></canvas></div><div class="txt"><b id="st"></b><span class="hint" id="hint"></span>'
-    + '<span class="tm" id="tm"></span><div class="foot" id="live-foot"><button id="end">End session</button></div>'
+    + '<span class="tm" id="tm"></span><div class="foot" id="live-foot"><button class="pri" id="end">End session</button></div>'
     + '<div class="foot" id="done-foot" hidden><button class="pri" id="go-break">Take a break</button></div></div>';
   // Bring the main Poise tab forward (needs the click that just happened in the mini window).
   const toMain = () => { try { window.focus(); } catch {} };
