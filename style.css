@@ -1953,7 +1953,7 @@ body .pop.pop::before {
     radial-gradient(calc(var(--p2h) * 1.4) calc(var(--p1w) * .5) at var(--p3x) var(--p3y), color-mix(in srgb, var(--g1, #e6e6e6) 60%, var(--g2, #eee)), transparent 80%) !important;
   filter: blur(26px) saturate(1.25) !important; }
 body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]):not([hidden])::before {
-  animation: glowIn .6s ease both, popDrift 13s ease-in-out infinite alternate, popShape 9s ease-in-out infinite alternate !important; }
+  animation: glowIn .6s ease both, popDriftTop 20s ease-in-out infinite alternate, popShapeTop 14s ease-in-out infinite alternate !important; }
 @keyframes popShape {
   0%   { --p1w: 55%; --p1h: 22%; --p2w: 26%; --p2h: 44%; --p3x: 40%; --p3y: 85%; }
   33%  { --p1w: 30%; --p1h: 48%; --p2w: 58%; --p2h: 24%; --p3x: 75%; --p3y: 50%; }
@@ -1978,3 +1978,26 @@ body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]
 
 /* Camera popups: the same sea green as the backdrop behind them, a step lighter. */
 [data-tone="sea"] { --g1: #b3e3cf; --g2: #c8ecdd; --g-ink: #3a8668; }
+
+/* Popups v4: glows stay in the top two thirds and the colour is a step lighter. */
+body .pop.pop::before {
+  background:
+    radial-gradient(var(--p1w) var(--p1h) at var(--p1x) var(--p1y), color-mix(in srgb, var(--g1, #e6e6e6) 62%, white), transparent 80%),
+    radial-gradient(var(--p2w) var(--p2h) at var(--p2x) var(--p2y), color-mix(in srgb, var(--g2, #eee) 62%, white), transparent 80%),
+    radial-gradient(calc(var(--p2h) * 1.4) calc(var(--p1w) * .5) at var(--p3x) var(--p3y), color-mix(in srgb, color-mix(in srgb, var(--g1, #e6e6e6) 60%, var(--g2, #eee)) 62%, white), transparent 80%) !important;
+  filter: blur(26px) saturate(1.1) !important; }
+body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]):not([hidden])::before {
+  animation: glowIn .6s ease both, popDriftTop 20s ease-in-out infinite alternate, popShapeTop 14s ease-in-out infinite alternate !important; }
+@keyframes popDriftTop {
+  0%   { --p1x: 22%; --p1y: 14%; --p2x: 78%; --p2y: 22%; }
+  25%  { --p1x: 60%; --p1y: 50%; --p2x: 28%; --p2y: 10%; }
+  50%  { --p1x: 80%; --p1y: 24%; --p2x: 35%; --p2y: 54%; }
+  75%  { --p1x: 30%; --p1y: 42%; --p2x: 75%; --p2y: 46%; }
+  100% { --p1x: 50%; --p1y: 12%; --p2x: 55%; --p2y: 34%; }
+}
+@keyframes popShapeTop {
+  0%   { --p1w: 55%; --p1h: 20%; --p2w: 26%; --p2h: 34%; --p3x: 40%; --p3y: 52%; }
+  33%  { --p1w: 30%; --p1h: 36%; --p2w: 58%; --p2h: 22%; --p3x: 75%; --p3y: 38%; }
+  66%  { --p1w: 62%; --p1h: 30%; --p2w: 34%; --p2h: 26%; --p3x: 20%; --p3y: 24%; }
+  100% { --p1w: 36%; --p1h: 22%; --p2w: 48%; --p2h: 36%; --p3x: 60%; --p3y: 14%; }
+}
