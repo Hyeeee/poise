@@ -1866,3 +1866,8 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
 :root { --aligned: #6dbb85; --drift: #e2b04e; --reset: #dd7f6b; }
 .report-card .report-chart { --signal: #84d89d !important; }
 .report-card { --live-line: color-mix(in srgb, #5fb57b, #0d0d0d 20%); }
+
+/* No focus rings drawn outside components (they showed up after clicking a toggle, tab or button). */
+:focus, :focus-visible { outline: none !important; }
+input:focus, input:focus-visible, button:focus, button:focus-visible, select:focus, textarea:focus { outline: none !important; }
+.toggle input:focus-visible, .toggle input:focus { box-shadow: none !important; }

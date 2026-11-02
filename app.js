@@ -53,7 +53,8 @@ const strongDelay = () => store.work().delay * 1000;
 // state: green | amber | red | idle | white. rgb (optional) sends an exact blended color to the bar.
 // Light bar presets as RGB (same values the board uses), so brightness can scale them too.
 const PRESET_RGB = { white: [140, 140, 130], green: [0, 255, 30], amber: [255, 130, 0], red: [255, 0, 0], idle: [40, 45, 50] };
-const silent = () => !!store.state.silent && screen === 'work';
+// Silent test is no longer offered in settings, so it never applies (even if it was left on earlier).
+const silent = () => false;
 // tone (optional): the colour the SCREEN shows. It is kept separate from the LED colour because
 // LED mixes (dim white → orange) look muddy on screen; the screen fades through a pale yellow instead.
 function light(state, rgb, fast, tone) {
