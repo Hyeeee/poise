@@ -314,9 +314,7 @@ export class MiniGame {
       const dy = Math.sin(a) * H * .38 * r; this.seed = { x: W / 2 + Math.cos(a) * W * .4 * r, y: H / 2 + (dy > 0 ? dy * .3 : dy), born: now, ph: Math.random() * TAU };
       if (Math.abs(Math.cos(a)) > .6) this.s.a++; else this.s.b++;
     }
-    // dandelion head in the middle
-    ctx.strokeStyle = 'rgba(20,20,18,.2)'; ctx.lineWidth = this.lw;
-    for (let i = 0; i < 24; i++) { const a = i / 24 * TAU; ctx.beginPath(); ctx.moveTo(W / 2, H / 2); ctx.lineTo(W / 2 + Math.cos(a) * 32, H / 2 + Math.sin(a) * 32); ctx.stroke(); }
+    // (no dandelion head in the middle: only the floating seed shows)
     if (this.seed) {
       const s = this.seed;
       // gentle sway around where it landed (a few px), not a drift away, so you can hold your neck still
