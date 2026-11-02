@@ -1746,3 +1746,32 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
   75%  { --g1x: 30%; --g1y: 44%; --g2x: 40%; --g2y: 10%; transform: translateY(7%); }
   100% { --g1x: 60%; --g1y: 6%;  --g2x: 80%; --g2y: 36%; transform: translateY(0%); }
 }
+
+/* v6: the moving colour travels the whole card, top to bottom, not just the upper half. */
+#work-panel::before {
+  background:
+    radial-gradient(60% 34% at var(--w1x) var(--w1y), color-mix(in srgb, var(--signal) 90%, white), transparent 72%),
+    radial-gradient(55% 32% at var(--w2x) var(--w2y), color-mix(in srgb, var(--signal) 70%, #e9f6ff), transparent 72%),
+    radial-gradient(45% 26% at var(--w3x) 50%, rgba(255,255,255,.8), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--signal) 32%, white) 0%, color-mix(in srgb, var(--signal) 18%, white) 50%, color-mix(in srgb, var(--signal) 12%, white) 100%) !important; }
+@keyframes washDrift {
+  0%   { --w1x: 12%; --w1y: 4%;  --w2x: 88%; --w2y: 60%; --w3x: 60%; }
+  25%  { --w1x: 45%; --w1y: 55%; --w2x: 55%; --w2y: 92%; --w3x: 20%; }
+  50%  { --w1x: 80%; --w1y: 92%; --w2x: 15%; --w2y: 30%; --w3x: 75%; }
+  75%  { --w1x: 30%; --w1y: 40%; --w2x: 40%; --w2y: 6%;  --w3x: 35%; }
+  100% { --w1x: 60%; --w1y: 10%; --w2x: 80%; --w2y: 75%; --w3x: 55%; }
+}
+#work-panel::before { animation-duration: 16s !important; }
+.studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before {
+  background:
+    radial-gradient(60% 34% at var(--g1x) var(--g1y), var(--card-glow), transparent 72%),
+    radial-gradient(55% 32% at var(--g2x) var(--g2y), var(--card-glow-2), transparent 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--card-glow) 60%, white) 0%, color-mix(in srgb, var(--card-glow) 30%, white) 50%, color-mix(in srgb, var(--card-glow) 18%, white) 100%) !important; }
+@keyframes glowDrift {
+  0%   { --g1x: 12%; --g1y: 4%;  --g2x: 88%; --g2y: 60%; }
+  25%  { --g1x: 45%; --g1y: 55%; --g2x: 55%; --g2y: 92%; }
+  50%  { --g1x: 82%; --g1y: 92%; --g2x: 15%; --g2y: 30%; }
+  75%  { --g1x: 30%; --g1y: 40%; --g2x: 40%; --g2y: 6%;  }
+  100% { --g1x: 60%; --g1y: 10%; --g2x: 80%; --g2y: 75%; }
+}
+.studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before { animation-duration: 16s !important; }
