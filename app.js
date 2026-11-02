@@ -365,7 +365,7 @@ function cue(p) {
   const ears = visible(p, [7, 8]);
   const hx = ears ? (p[7].x + p[8].x) / 2 : p[0].x, hy = ears ? (p[7].y + p[8].y) / 2 : p[0].y;
   const roll = visible(p, [2, 5]) ? (p[2].y - p[5].y) / w : 0;
-  return { x: (hx - mx) / w, y: (hy - my) / w, tilt: (a.y - b.y) / w, roll, width: w, ears, sy: my };
+  return { x: (hx - mx) / w, y: (hy - my) / w, tilt: (a.y - b.y) / w, roll, width: w, ears, sy: my, sx: mx };
 }
 
 // Joint colour flips with what is behind the lines: dark lines on light clothes or walls,
@@ -446,6 +446,7 @@ const STATE_COPY = {
 };
 
 function updateWork(p, now) {
+  if (!silent()) avatar.setPose(p, (camera.videoWidth / camera.videoHeight) || 16 / 9);
   if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay.'); return; }
   const c = cue(p);
   // If the ears were visible when the reference was saved but aren't now (or the other way round),
@@ -461,7 +462,7 @@ function updateWork(p, now) {
   d = Math.min(100, d + Math.round(Math.max(0, sink - .03) * 90));
   // Sensor (camera on): only counts when you're really close, under the good range (55 cm), not small moves.
   if (sensor.live && sensor.cm > 0 && sensor.cm < SENSOR_GOOD[0] - 3) { widthRatio = Math.max(widthRatio, (SENSOR_GOOD[0] - 3) / sensor.cm); }
-  applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt, roll: c.roll - (reference.roll || 0), sink }, widthRatio);
+  applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt, roll: c.roll - (reference.roll || 0), sink, sx: reference.sx != null ? (c.sx - reference.sx) / reference.width : 0 }, widthRatio);
 }
 // How far you've leaned toward the screen, 0–100, from the sensor alone.
 // Sensor-only mode uses the same fixed range as the light bar: 55–80 cm is good.
