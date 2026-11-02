@@ -85,7 +85,7 @@ export function mountPainting() {
   // Pairs walk around the colour wheel, so each one shares a colour family with the last:
   // blue+yellow, yellow+green, green+orange, orange+red, red+yellow, yellow+blue ... and softer
   // in-family pairs in between.
-  const PAIRS = [['blue', 'butter'], ['yellow', 'green'], ['leaf', 'apricot'], ['green', 'orange'], ['orange', 'red'],
+  const PAIRS = [['green', 'blue'], ['blue', 'butter'], ['yellow', 'green'], ['leaf', 'apricot'], ['green', 'orange'], ['orange', 'red'],
     ['coral', 'yellow'], ['red', 'butter'], ['lemon', 'sky'], ['yellow', 'blue'], ['sky', 'mint'], ['blue', 'green'],
     ['mint', 'peach'], ['teal', 'yellow'], ['periwinkle', 'rose'], ['rose', 'apricot'], ['peach', 'sage'],
     ['sage', 'periwinkle'], ['apricot', 'teal']]
