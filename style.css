@@ -2012,3 +2012,5 @@ body .say-bubble, body .say-bubble .sb-text { font-family: 'Shantell Sans', 'Pat
 .ls-value { align-items: flex-end !important; }
 .ls-value b { line-height: 1.08 !important; }
 .ls-value > span { line-height: 1 !important; padding-bottom: .26em; }
+/* Unit label and slider ends: a deeper grey so they hold up on the strong backdrop colours. */
+.ls-value > span, .ls-ends { color: #55564f !important; }
