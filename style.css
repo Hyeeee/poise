@@ -1922,3 +1922,4 @@ body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]
 }
 body .pop.pop::after { opacity: .6 !important; }
 @media (prefers-reduced-motion: reduce) { body .pop.pop::before, .studio .pop.empty::before { animation: none !important; } }
+.studio .panel .card::after { opacity: .1 !important; }
