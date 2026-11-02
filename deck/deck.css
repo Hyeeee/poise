@@ -321,3 +321,9 @@ body.sheet-moving { --wait: 520ms; }
 body.on-cover .progress { opacity: 0; pointer-events: none; }
 .progress { transition: opacity .6s var(--ease); }
 body.on-end .progress { opacity: 0; pointer-events: none; }
+
+/* One margin all round (--m). The progress bar sits one margin from the top; content starts
+   well below it so the bar has room to breathe. */
+:root { --m: max(calc(var(--s) * 64), 20px); --padx: var(--m); --bottom: var(--m); --top: calc(var(--m) + max(calc(var(--s) * 150), 72px)); }
+.progress { top: var(--m); left: var(--m); right: var(--m); }
+.cover { padding: var(--m); }
