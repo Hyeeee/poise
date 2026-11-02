@@ -217,7 +217,7 @@ async function start() {
     $('stop').classList.add('on'); $('stop').setAttribute('aria-label', 'Turn camera off');
     text('start-status', '');
     setChip('Find your frame', false);
-    requestAnimationFrame(loop);
+    scheduleLoop();
   } catch (e) {
     stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null; active = false;
     const msg = e.name === 'NotAllowedError' ? 'Camera access is blocked. Allow it in your browser settings, then try again.'
@@ -579,6 +579,17 @@ function updateFace(now) {
   text('blinks', now - faceStart < 15000 ? '…' : blinkTimes.length);
 }
 
+// Next tracking step. Browsers stop animation frames in a hidden tab, which would stop posture
+// tracking while you work somewhere else. So in the background it runs on a timer (about 4 times
+// a second), and switching tabs restarts the chain in the right mode. loopGen drops stale callbacks
+// so there is never more than one loop running.
+let loopGen = 0;
+function scheduleLoop() {
+  const g = ++loopGen;
+  if (document.hidden) setTimeout(() => { if (g === loopGen) loop(performance.now()); }, 250);
+  else requestAnimationFrame(t => { if (g === loopGen) loop(t); });
+}
+document.addEventListener('visibilitychange', () => { if (active) scheduleLoop(); });
 function loop(now) {
   if (!active) return;
   try {
@@ -618,7 +629,7 @@ function loop(now) {
   } catch (e) {
     stop(); toast('Tracking stopped. Turn the camera back on to try again.'); return;
   }
-  requestAnimationFrame(loop);
+  scheduleLoop();
 }
 
 // Before a reference exists: the side panel is hidden and the main screen asks for one.
@@ -919,11 +930,10 @@ function setScreen(next) {
 
 function renderTimer() {
   const total = store.work().focus * 60;
-  // Minutes only, so the timer changes once a minute and the posture number is the only thing moving.
-  // The last minute counts seconds.
+  // Minutes and seconds (25:00), like the first version, so the time left is always exact.
   const secs = Math.max(0, Math.ceil(remaining));
-  text('timer', secs >= 60 ? Math.ceil(secs / 60) : secs);
-  text('timer-unit', secs >= 60 ? 'min left' : 'sec left');
+  text('timer', `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`);
+  text('timer-unit', 'left');
   $('timer-bar').style.width = (1 - remaining / total) * 100 + '%';
 }
 function renderPause() {
@@ -932,7 +942,9 @@ function renderPause() {
 }
 setInterval(() => {
   const now = performance.now();
-  if (timerRunning && (active || sensorRef) && !away && screen === 'work' && !document.hidden) {
+  // Keeps counting while you work in another tab or app: that is the normal way to use Poise.
+  // It still pauses when you step away from the desk or pause it yourself.
+  if (timerRunning && (active || sensorRef) && !away && screen === 'work') {
     remaining = Math.max(0, remaining - (now - timerLast) / 1000);
     renderTimer();
     if (!remaining) {
