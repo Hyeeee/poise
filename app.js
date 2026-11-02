@@ -1686,7 +1686,26 @@ async function togglePip() {
     html,body{height:100%}
     body{font:14px/1.35 -apple-system,BlinkMacSystemFont,'SF Pro Text',Inter,'Segoe UI',sans-serif;letter-spacing:-.011em;color:#0d0d0d;
       background:#fff;display:flex;gap:16px;align-items:center;padding:18px 20px;position:relative;overflow:hidden}
-    body::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,var(--sig) 0%,rgba(255,255,255,0) 75%);opacity:.55;transition:background 1.2s}
+    /* Same drifting wash as the Focus and Break cards. */
+    @property --sig{syntax:'<color>';inherits:true;initial-value:#96d6a5}
+    @property --g1x{syntax:'<percentage>';inherits:false;initial-value:12%}
+    @property --g1y{syntax:'<percentage>';inherits:false;initial-value:4%}
+    @property --g2x{syntax:'<percentage>';inherits:false;initial-value:88%}
+    @property --g2y{syntax:'<percentage>';inherits:false;initial-value:60%}
+    body{transition:--sig 1.4s ease}
+    body::before{content:"";position:absolute;inset:-16% -8% -10% -8%;z-index:-1;pointer-events:none;
+      --c1:color-mix(in srgb,var(--sig) 78%,white);--c2:color-mix(in srgb,var(--sig) 45%,#b3dfda);
+      background:radial-gradient(60% 34% at var(--g1x) var(--g1y),var(--c1),transparent 72%),
+        radial-gradient(55% 32% at var(--g2x) var(--g2y),var(--c2),transparent 72%),
+        linear-gradient(180deg,color-mix(in srgb,var(--c1) 60%,white) 0%,color-mix(in srgb,var(--c1) 30%,white) 50%,color-mix(in srgb,var(--c1) 18%,white) 100%);
+      filter:blur(10px) saturate(1.1);opacity:.9;animation:glowDrift 16s ease-in-out infinite alternate}
+    @keyframes glowDrift{
+      0%{--g1x:12%;--g1y:4%;--g2x:88%;--g2y:60%}
+      25%{--g1x:45%;--g1y:55%;--g2x:55%;--g2y:92%}
+      50%{--g1x:82%;--g1y:92%;--g2x:15%;--g2y:30%}
+      75%{--g1x:30%;--g1y:40%;--g2x:40%;--g2y:6%}
+      100%{--g1x:60%;--g1y:10%;--g2x:80%;--g2y:75%}}
+    @media (prefers-reduced-motion:reduce){body::before{animation:none}}
     .fig{flex:none;width:96px;height:100%;max-height:126px;border-radius:14px;background:rgba(255,255,255,.75);overflow:hidden}
     canvas{display:block;width:100%;height:100%}
     .txt{min-width:0;display:flex;flex-direction:column;gap:3px}
