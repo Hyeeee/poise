@@ -1,37 +1,44 @@
-// Poise case study deck. Uses the app's own living backdrop, dot orb and posture figure.
+// Poise case study. Uses the app's own living backdrop, dot orb and posture figure.
 import { mountPainting } from '../painting.js';
 import { mountAgents } from '../agent.js';
 import { PostureAvatar } from '../avatar.js';
 
-const stage = document.getElementById('stage');
-const slides = [...stage.querySelectorAll('.slide')];
-const dots = document.getElementById('dots'), count = document.getElementById('count');
+const deck = document.getElementById('deck');
+const slides = [...deck.querySelectorAll('.slide')];
+const chapter = document.getElementById('chapter'), progress = document.getElementById('progress');
+const pad = n => String(n).padStart(2, '0');
+document.getElementById('page-all').textContent = pad(slides.length);
 
-// Scale the 1920×1080 stage to fit the window, centred.
-const fit = () => {
-  const s = Math.min(innerWidth / 1920, innerHeight / 1080);
-  stage.style.transform = `scale(${s}) translate(-50%, -50%)`;
-};
-fit(); addEventListener('resize', fit);
-
-// Stagger: each [data-in] element on a slide gets its own delay index.
+// Stagger: each [data-in] element on a slide gets its own delay index; the 11 survey dots pop in one by one.
 slides.forEach(sl => sl.querySelectorAll('[data-in]').forEach((el, i) => el.style.setProperty('--i', i)));
+document.querySelectorAll('.dots-11 i').forEach((d, i) => d.style.setProperty('--d', i));
 
-// Navigation: arrows, space, page keys, click left or right half, #slide number in the URL.
-let cur = 0;
-slides.forEach((sl, i) => {
-  const b = document.createElement('button');
-  b.setAttribute('aria-label', `Slide ${i + 1}: ${sl.dataset.title}`);
-  b.onclick = e => { e.stopPropagation(); go(i); };
-  dots.append(b);
-});
+// Going to a slide: the old one lifts away, the new one rises in. The white sheet rises over the
+// colour when you move onto a content slide and drops away on the cover and chapter slides.
+let cur = -1, leaveTimer = 0, sheetTimer = 0;
 function go(i) {
-  cur = Math.max(0, Math.min(slides.length - 1, i));
-  slides.forEach((sl, k) => sl.classList.toggle('open', k === cur));
-  [...dots.children].forEach((b, k) => b.classList.toggle('on', k === cur));
-  count.textContent = `${cur + 1} / ${slides.length}`;
-  history.replaceState(null, '', '#' + (cur + 1));
+  i = Math.max(0, Math.min(slides.length - 1, i));
+  if (i === cur) return;
+  const prev = slides[cur], next = slides[i];
+  document.body.classList.toggle('back', i < cur);
+  const sheetMoves = !!prev && prev.classList.contains('paper') !== next.classList.contains('paper');
+  document.body.classList.toggle('sheet-moving', sheetMoves);
+  clearTimeout(sheetTimer); sheetTimer = setTimeout(() => document.body.classList.remove('sheet-moving'), 1400);
+  slides.forEach(s => s.classList.remove('leaving'));
+  if (prev) { prev.classList.remove('open'); prev.classList.add('leaving'); clearTimeout(leaveTimer); leaveTimer = setTimeout(() => prev.classList.remove('leaving'), 700); }
+  next.classList.add('open');
+  cur = i;
+  document.body.classList.toggle('paper', next.classList.contains('paper'));
+  document.body.classList.toggle('on-cover', i === 0);
+  // chapter label in the header cross-fades
+  const label = next.dataset.chapter || '';
+  if (chapter.textContent !== label) { chapter.classList.add('swap'); setTimeout(() => { chapter.textContent = label; chapter.classList.remove('swap'); }, 250); }
+  document.getElementById('page-now').textContent = pad(i + 1);
+  progress.style.width = ((i + 1) / slides.length * 100) + '%';
+  history.replaceState(null, '', '#' + (i + 1));
 }
+
+// Keys, clicks (right two thirds forward, left third back), wheel or swipe, and #number in the URL.
 addEventListener('keydown', e => {
   if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
   else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
@@ -39,13 +46,16 @@ addEventListener('keydown', e => {
   else if (e.key === 'End') go(slides.length - 1);
   else if (e.key === 'f' || e.key === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
 });
-addEventListener('click', e => { if (e.target.closest('a, button')) return; go(cur + (e.clientX > innerWidth / 3 ? 1 : -1)); });
+const scrolling = () => getComputedStyle(document.body).overflowY === 'auto';   // narrow screens scroll instead
+addEventListener('click', e => { if (scrolling() || e.target.closest('a, button')) return; go(cur + (e.clientX > innerWidth / 3 ? 1 : -1)); });
+let wheelLock = 0;
+addEventListener('wheel', e => { if (scrolling() || Math.abs(e.deltaY) < 30 || performance.now() < wheelLock) return; wheelLock = performance.now() + 900; go(cur + Math.sign(e.deltaY)); }, { passive: true });
 const fromHash = () => go((parseInt(location.hash.slice(1), 10) || 1) - 1);
 fromHash(); addEventListener('hashchange', fromHash);
 
 // The app's living backdrop and the dot orbs.
 mountPainting();
-mountAgents(stage);
+mountAgents(deck);
 
 // Live figure: the real avatar, scripted to drift and come back, with the card colour following.
 const host = document.getElementById('live-figure');

@@ -2,178 +2,180 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Poise · Case study</title>
+<meta name="description" content="Poise, a light bar and web app that notice when your posture drifts. A case study by Marin Chung.">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Shantell+Sans:wght@500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="deck.css">
 </head>
-<body>
+<body class="on-cover">
 <!-- painting.js cycles its colours only while the app (#studio) is hidden -->
 <div id="studio" hidden></div>
 
-<main class="stage" id="stage">
+<!-- One white sheet for every content slide: it rises over the colour when you leave the cover
+     and drops away again on the cover and chapter slides. It always covers the whole window. -->
+<div class="sheet" aria-hidden="true"></div>
+
+<!-- Shared chrome: wordmark, the current chapter, the slide count and a hairline progress -->
+<header class="chrome">
+  <a class="mark" href="#1" aria-label="Poise, back to the cover">poise</a>
+  <p class="chapter" id="chapter"></p>
+  <p class="pager"><span id="page-now">01</span><i></i><span id="page-all">07</span></p>
+</header>
+<div class="progress" aria-hidden="true"><i id="progress"></i></div>
+
+<main class="deck" id="deck">
 
   <!-- 1 · Cover -->
   <section class="slide cover" data-title="Cover">
     <div class="cover-top" data-in>
-      <span>Poise · 2026</span>
       <span>Case study</span>
+      <span>Marin Chung</span>
     </div>
     <div class="agent cover-orb" data-in></div>
     <div class="cover-main">
-      <h1 class="display logo" data-in aria-label="Poise">poise</h1>
+      <h1 class="wordmark" data-in aria-label="Poise">poise</h1>
       <p class="cover-lede" data-in>A light bar and web app that notice when your posture drifts, and tell you quietly. I built it because long days at my desk kept ending with a sore neck.</p>
     </div>
-    <div class="cover-meta" data-in>
-      <div><span>Timeline</span><b>5 weeks, fall 2026</b></div>
-      <div><span>Role</span><b>Solo designer and builder</b></div>
-      <div><span>Scope</span><b>Research, UX/UI, hardware</b></div>
-      <div><span>Context</span><b>SVA Physical Computing</b></div>
-    </div>
+    <dl class="facts" data-in>
+      <div><dt>Timeline</dt><dd>5 weeks, fall 2026</dd></div>
+      <div><dt>Role</dt><dd>Solo designer and builder</dd></div>
+      <div><dt>Scope</dt><dd>Research, UX/UI, hardware</dd></div>
+      <div><dt>Context</dt><dd>SVA Physical Computing</dd></div>
+    </dl>
   </section>
 
   <!-- 2 · Problem -->
-  <section class="slide" data-title="The problem">
-    <div class="sheet"></div>
-    <div class="grid two">
-      <div class="col">
-        <p class="eyebrow" data-in>The problem</p>
-        <h2 class="h2 big" data-in>We drift without noticing.</h2>
-        <div class="fill"></div>
+  <section class="slide paper" data-title="The problem" data-chapter="01   The problem">
+    <div class="split">
+      <div class="lead">
+        <h2 class="title" data-in>We drift without noticing.</h2>
         <p class="body" data-in>Deep in focus we slide closer to the screen. Hours later the neck and back feel it.</p>
       </div>
-      <div class="col">
-        <div class="row three">
-          <div class="card stat" data-in><b>1 in 13</b><span>people live with low back pain</span></div>
-          <div class="card stat" data-in><b>78%</b><span>of college students report neck pain in some studies</span></div>
-          <div class="card stat" data-in><b>2×</b><span>the odds of neck pain when you sit poorly</span></div>
-        </div>
-        <div class="card quote glow" data-tone="green" data-in>
-          <p>“I slide down in my chair and get closer to the screen.”</p>
-          <span>Designer</span>
-        </div>
+      <div class="stack">
+        <ol class="figures">
+          <li data-in><b>1 in 13</b><span>people live with low back pain</span><em>WHO, 2023</em></li>
+          <li data-in><b>78%</b><span>of college students report neck pain in some studies</span><em>Gao et al., 2023</em></li>
+          <li data-in><b>2×</b><span>the odds of neck pain when you sit poorly</span><em>Gao et al., 2023</em></li>
+        </ol>
+        <blockquote class="pull glow" data-tone="green" data-in>
+          <p>I slide down in my chair and get closer to the screen.</p>
+          <cite>Designer, interview</cite>
+        </blockquote>
       </div>
     </div>
-    <p class="foot">WHO, 2023 · Gao et al., BMC Public Health, 2023</p>
   </section>
 
   <!-- 3 · Interviews -->
-  <section class="slide" data-title="What people told me">
-    <div class="sheet"></div>
-    <p class="eyebrow" data-in>What people told me</p>
-    <h2 class="h2 wide" data-in>I asked people how they work. Most only noticed when it hurt.</h2>
-    <div class="grid survey">
-      <div class="card glow tall" data-tone="green" data-in>
-        <span class="small">Survey of 11</span>
-        <div class="fill"></div>
-        <b class="huge">7 of 11</b>
-        <span class="body">barely notice posture changes, or notice only when it hurts</span>
-      </div>
-      <div class="col">
-        <div class="card quote" data-in>
-          <p>“Sometimes I just realize it, but sometimes if it hurts, that’s how I realize it.”</p>
-          <span>Engineer</span>
+  <section class="slide paper" data-title="What people told me" data-chapter="02   What people told me">
+    <h2 class="title wide" data-in>I asked people how they work. Most only noticed when it hurt.</h2>
+    <div class="survey">
+      <div class="headline-stat" data-in>
+        <div class="dots-11" role="img" aria-label="7 of 11 people">
+          <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i>
         </div>
-        <div class="row three">
-          <div class="card stat small-stat" data-in><b>10 of 11</b><span>feel it every week</span></div>
-          <div class="card stat small-stat" data-in><b>0</b><span>tried a posture app</span></div>
-          <div class="card stat small-stat" data-in><b>Neck</b><span>hurts most, then back</span></div>
-        </div>
+        <b>7 of 11</b>
+        <span>barely notice posture changes, or notice only when it hurts</span>
       </div>
+      <blockquote class="pull plain" data-in>
+        <p>Sometimes I just realize it, but sometimes if it hurts, that’s how I realize it.</p>
+        <cite>Engineer, interview</cite>
+      </blockquote>
     </div>
-    <p class="foot">The opening · a signal you notice without stopping your work</p>
+    <dl class="facts small" data-in>
+      <div><dt>Feel it weekly</dt><dd>10 of 11</dd></div>
+      <div><dt>Tried a posture app</dt><dd>0 of 11</dd></div>
+      <div><dt>Where it hurts</dt><dd>Neck 6, back 5, shoulders 3</dd></div>
+      <div><dt>The opening</dt><dd>A signal you notice without stopping your work</dd></div>
+    </dl>
   </section>
 
-  <!-- 4 · Divider -->
-  <section class="slide center" data-title="Version two">
-    <div class="agent divider-orb" data-in></div>
-    <p class="eyebrow dark" data-in>Version two</p>
-    <h2 class="display mid" data-in>Then I put it in front of people.</h2>
-    <p class="lede small" data-in>Five problems came back. Each of the next slides fixes one.</p>
+  <!-- 4 · Chapter -->
+  <section class="slide chapter-slide" data-title="Version two">
+    <div class="agent chapter-orb" data-in></div>
+    <div class="chapter-main">
+      <p class="chapter-num" data-in>Part two</p>
+      <h2 class="chapter-title" data-in>Then I put it in front of people.</h2>
+      <p class="chapter-sub" data-in>Five problems came back. Each of the next slides fixes one.</p>
+    </div>
   </section>
 
   <!-- 5 · Work mode -->
-  <section class="slide" data-title="Work mode">
-    <div class="sheet"></div>
-    <div class="grid side">
-      <div class="col">
-        <p class="eyebrow" data-in>Work mode</p>
-        <h2 class="h2" data-in>While you work, the light does the talking.</h2>
-        <div class="fill"></div>
-        <div class="card note" data-in>
-          <span class="small">The decision</span>
+  <section class="slide paper" data-title="Work mode" data-chapter="03   Work mode">
+    <div class="split narrow-lead">
+      <div class="lead">
+        <h2 class="title" data-in>While you work, the light does the talking.</h2>
+        <div class="decision" data-in>
+          <span>Decision</span>
           <p>A slow fade over an instant alert. Red in one second felt like being scolded.</p>
         </div>
       </div>
-      <div class="col">
-        <div class="row three shots">
-          <figure data-in><img src="img/focus-aligned.webp" alt="Focus card, aligned"><figcaption><b>Aligned</b><span>Close to your reference</span></figcaption></figure>
-          <figure data-in><img src="img/focus-drifting.webp" alt="Focus card, drifting"><figcaption><b>Drifting</b><span>A change that stays</span></figcaption></figure>
-          <figure data-in><img src="img/focus-reset.webp" alt="Focus card, time to reset"><figcaption><b>Time to reset</b><span>Drifted for a while</span></figcaption></figure>
+      <div class="stack">
+        <div class="trio">
+          <figure data-in><img src="img/focus-aligned.webp" alt="Focus card, aligned, green"><figcaption><i>01</i><b>Aligned</b><span>Close to your reference</span></figcaption></figure>
+          <figure data-in><img src="img/focus-drifting.webp" alt="Focus card, drifting, yellow"><figcaption><i>02</i><b>Drifting</b><span>A change that stays</span></figcaption></figure>
+          <figure data-in><img src="img/focus-reset.webp" alt="Focus card, time to reset, red"><figcaption><i>03</i><b>Time to reset</b><span>Drifted for a while</span></figcaption></figure>
         </div>
-        <div class="lightbar" data-in aria-label="The light bar fades from white to yellow to red, then back"><i></i></div>
+        <div class="bar-row" data-in>
+          <div class="lightbar" role="img" aria-label="The light bar fades from white to yellow to red, then back"><i></i></div>
+          <span>The light bar on your monitor follows the same colours</span>
+        </div>
       </div>
     </div>
-    <p class="foot">The light bar on the monitor follows the same colours, so you see it without looking at the screen</p>
   </section>
 
   <!-- 6 · One thing at a time -->
-  <section class="slide" data-title="One thing at a time">
-    <div class="sheet"></div>
-    <p class="eyebrow" data-in>Fix 2 of 5</p>
-    <h2 class="h2 big" data-in>One thing at a time.</h2>
-    <div class="grid compare">
-      <div class="card before" data-in>
-        <span class="small">Before</span>
-        <img src="img/before-bar.webp" alt="Version one, two popups at once">
-        <img class="short" src="img/before-tour.webp" alt="Version one tour, step 7 of 12">
-        <span class="body">Two popups at once, then a 12 step tour</span>
-      </div>
-      <div class="card glow after" data-tone="blue" data-in>
-        <span class="small tone">After</span>
-        <div class="row three steps">
-          <img src="img/after-camera.webp" alt="Start card 1, turn on your camera">
-          <img src="img/after-bar.webp" alt="Start card 2, connect your light bar">
-          <img src="img/after-ref.webp" alt="Start card 3, save your reference">
+  <section class="slide paper" data-title="One thing at a time" data-chapter="04   Fix 2 of 5">
+    <h2 class="title" data-in>One thing at a time.</h2>
+    <div class="ba">
+      <div class="ba-before" data-in>
+        <p class="tag">Before</p>
+        <div class="ba-shots">
+          <img src="img/before-bar.webp" alt="Version one, two popups at once">
+          <img src="img/before-tour.webp" alt="Version one tour, step 7 of 12">
         </div>
-        <span class="body">Three start cards, one at a time, then a 4 step tour</span>
+        <p class="note">Two popups at once, then a 12 step tour</p>
+      </div>
+      <div class="ba-after glow" data-tone="blue" data-in>
+        <p class="tag">After</p>
+        <div class="ba-steps">
+          <figure><img src="img/after-camera.webp" alt="Start card 1, turn on your camera"><figcaption>1</figcaption></figure>
+          <figure><img src="img/after-bar.webp" alt="Start card 2, connect your light bar"><figcaption>2</figcaption></figure>
+          <figure><img src="img/after-ref.webp" alt="Start card 3, save your reference"><figcaption>3</figcaption></figure>
+        </div>
+        <p class="note">Three start cards, one at a time, then a 4 step tour</p>
       </div>
     </div>
-    <p class="foot">Every extra card is one more reason to skip</p>
+    <p class="learned" data-in><span>What I learned</span>Every extra card is one more reason to skip.</p>
   </section>
 
   <!-- 7 · Number to figure (live) -->
-  <section class="slide" data-title="Number to figure">
-    <div class="sheet"></div>
-    <div class="grid side">
-      <div class="col">
-        <p class="eyebrow" data-in>Fix 3 of 5</p>
-        <h2 class="h2" data-in>People didn’t read the number. They read themselves.</h2>
-        <div class="fill"></div>
-        <p class="hand" data-in>The gap between you and your outline says more than any number.</p>
-        <p class="small muted" data-in>AI let me try a chart and a character in one evening. I picked the one people could read at a glance.</p>
+  <section class="slide paper" data-title="Number to figure" data-chapter="05   Fix 3 of 5">
+    <div class="split">
+      <div class="lead">
+        <h2 class="title" data-in>People didn’t read the number. They read themselves.</h2>
+        <div class="lead-foot">
+          <p class="hand" data-in>The gap between you and your outline says more than any number.</p>
+          <p class="aside" data-in>AI let me try a chart and a character in one evening. I picked the one people could read at a glance.</p>
+        </div>
       </div>
-      <div class="grid figure-compare">
-        <div class="card before" data-in>
-          <span class="small">Before</span>
+      <div class="figure-pair">
+        <div class="ba-before slim" data-in>
+          <p class="tag">Before</p>
           <img src="img/before-percent.webp" alt="Version one card with a percent shift number">
         </div>
-        <div class="card live" id="live-card" data-in>
-          <div class="live-head"><b id="live-state">Aligned</b><span id="live-hint">Close to your reference.</span></div>
+        <div class="live" id="live-card" data-in>
+          <div class="live-head"><p class="tag">After, live</p><b id="live-state">Aligned</b><span id="live-hint">Close to your reference.</span></div>
           <div class="live-figure" id="live-figure"></div>
-          <span class="small">After · live</span>
         </div>
       </div>
     </div>
   </section>
 
 </main>
-
-<nav class="dots" id="dots" aria-label="Slides"></nav>
-<p class="count" id="count"></p>
 
 <script type="module" src="deck.js"></script>
 </body>
