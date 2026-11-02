@@ -349,3 +349,4 @@ body.paper .sheet { backdrop-filter: blur(90px) saturate(1.05); -webkit-backdrop
 .sheet { opacity: 1 !important; background: rgba(250,250,247,0); transition: background 1.2s cubic-bezier(.4,0,.2,1) .2s, backdrop-filter 1s cubic-bezier(.3,0,.2,1), -webkit-backdrop-filter 1s cubic-bezier(.3,0,.2,1); }
 body.paper .sheet { background: rgba(250,250,247,.8); }
 .sheet::before { display: none; }
+.toc-list li, .toc-list li:first-child { border: 0; }
