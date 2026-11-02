@@ -1936,3 +1936,28 @@ body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]
 /* Logo turns white over a dark camera background. */
 .brand { transition: color .5s ease, text-shadow .5s ease; }
 .brand.on-dark { color: #fff !important; text-shadow: 0 1px 8px rgba(0,0,0,.25); }
+
+/* Popup glows v3: free-form shapes instead of circles. Each glow is an oval whose width and height
+   change on their own, plus a third soft glow, so the colour stretches, squashes and drifts.
+   Slower overall. */
+@property --p1w { syntax: '<percentage>'; inherits: false; initial-value: 40%; }
+@property --p1h { syntax: '<percentage>'; inherits: false; initial-value: 34%; }
+@property --p2w { syntax: '<percentage>'; inherits: false; initial-value: 40%; }
+@property --p2h { syntax: '<percentage>'; inherits: false; initial-value: 34%; }
+@property --p3x { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+@property --p3y { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+body .pop.pop::before {
+  background:
+    radial-gradient(var(--p1w) var(--p1h) at var(--p1x) var(--p1y), var(--g1, #e6e6e6), transparent 80%),
+    radial-gradient(var(--p2w) var(--p2h) at var(--p2x) var(--p2y), var(--g2, #eee), transparent 80%),
+    radial-gradient(calc(var(--p2h) * 1.4) calc(var(--p1w) * .5) at var(--p3x) var(--p3y), color-mix(in srgb, var(--g1, #e6e6e6) 60%, var(--g2, #eee)), transparent 80%) !important;
+  filter: blur(26px) saturate(1.25) !important; }
+body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]):not([hidden])::before {
+  animation: glowIn .6s ease both, popDrift 13s ease-in-out infinite alternate, popShape 9s ease-in-out infinite alternate !important; }
+@keyframes popShape {
+  0%   { --p1w: 55%; --p1h: 22%; --p2w: 26%; --p2h: 44%; --p3x: 40%; --p3y: 85%; }
+  33%  { --p1w: 30%; --p1h: 48%; --p2w: 58%; --p2h: 24%; --p3x: 75%; --p3y: 50%; }
+  66%  { --p1w: 62%; --p1h: 36%; --p2w: 34%; --p2h: 30%; --p3x: 20%; --p3y: 30%; }
+  100% { --p1w: 36%; --p1h: 26%; --p2w: 48%; --p2h: 52%; --p3x: 60%; --p3y: 20%; }
+}
+#work-panel::before, .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before { animation-duration: 16s !important; }
