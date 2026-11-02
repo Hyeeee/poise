@@ -180,7 +180,7 @@ export function showReport(r, speak) {
       hoverChart($('report-chart'), r.samples.map(p => ({
         x: (p.t - t0) / span, d: p.d,
         html: `<span class="rt-time">${clock(p.t - t0)}</span>`
-          + `<span class="rt-state"><i style="background:${STATE_DOT[p.state] || STATE_DOT.white}"></i>${(p.state === 'white' || !p.state) && p.d >= 12 ? 'Just shifted, light not changed yet' : STATE_NAME[p.state] || 'Aligned'}</span>`
+          + `<span class="rt-state"><i style="background:${STATE_DOT[p.state] || STATE_DOT.white}"></i>${(p.state === 'white' || !p.state) && p.d >= 12 ? 'Just shifted' : STATE_NAME[p.state] || 'Aligned'}</span>`
           + (p.cause && p.d >= 6 ? `<b>${MOVED[p.cause](p.dir)}</b><span class="rt-sub">${Math.round(p.d)}% off your reference</span>`
             : `<b>On your reference</b>${p.d >= 1 ? `<span class="rt-sub">${Math.round(p.d)}% off, within the normal wobble</span>` : ''}`),
       })), timeline.scale);
