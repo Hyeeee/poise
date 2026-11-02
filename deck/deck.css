@@ -355,3 +355,6 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .progress { top: auto; bottom: var(--m); }
 .seg { flex-direction: column-reverse; }
 :root { --top: var(--m); --bottom: calc(var(--m) + max(calc(var(--s) * 90), 48px)); }
+/* Content gets its own, roomier frame; the progress bar stays near the edge at --m */
+:root { --c: max(calc(var(--s) * 96), 28px); --padx: var(--c); --top: var(--c); --bottom: calc(var(--m) + max(calc(var(--s) * 120), 60px)); }
+.cover { padding: var(--m); }   /* cover keeps the edge margin */
