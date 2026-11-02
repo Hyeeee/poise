@@ -1789,3 +1789,15 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
   filter: blur(10px) saturate(1.1) !important; opacity: .9;
   animation: glowDrift 16s ease-in-out infinite alternate !important; }
 @media (prefers-reduced-motion: reduce) { #work-panel::before { animation: none !important; } }
+
+/* v7: the two moving blobs were too distinct. Bigger, softer edges and more blur,
+   so the colour reads as a wash that shifts, not two spots. Same for Focus and Break cards. */
+#work-panel::before, .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before {
+  background:
+    radial-gradient(95% 60% at var(--g1x) var(--g1y), color-mix(in srgb, var(--card-glow) 80%, white), transparent 88%),
+    radial-gradient(90% 58% at var(--g2x) var(--g2y), color-mix(in srgb, var(--card-glow-2) 80%, white), transparent 88%),
+    linear-gradient(180deg, color-mix(in srgb, var(--card-glow) 60%, white) 0%, color-mix(in srgb, var(--card-glow) 32%, white) 50%, color-mix(in srgb, var(--card-glow) 20%, white) 100%) !important;
+  filter: blur(26px) saturate(1.05) !important; }
+/* With the stronger blur the layer must overhang the card on every side, or the edges fade to white. */
+#work-panel::before, .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before {
+  inset: -18% -14% -14% -14% !important; left: -14% !important; right: -14% !important; top: -18% !important; bottom: -14% !important; height: auto !important; }

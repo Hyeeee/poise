@@ -1697,10 +1697,10 @@ async function togglePip() {
     body{transition:--sig 1.4s ease}
     body::before{content:"";position:absolute;inset:-16% -8% -10% -8%;z-index:-1;pointer-events:none;
       --c1:color-mix(in srgb,var(--sig) 78%,white);--c2:color-mix(in srgb,var(--sig) 45%,#b3dfda);
-      background:radial-gradient(60% 34% at var(--g1x) var(--g1y),var(--c1),transparent 72%),
-        radial-gradient(55% 32% at var(--g2x) var(--g2y),var(--c2),transparent 72%),
+      background:radial-gradient(95% 60% at var(--g1x) var(--g1y),color-mix(in srgb,var(--c1) 80%,white),transparent 88%),
+        radial-gradient(90% 58% at var(--g2x) var(--g2y),color-mix(in srgb,var(--c2) 80%,white),transparent 88%),
         linear-gradient(180deg,color-mix(in srgb,var(--c1) 60%,white) 0%,color-mix(in srgb,var(--c1) 30%,white) 50%,color-mix(in srgb,var(--c1) 18%,white) 100%);
-      filter:blur(10px) saturate(1.1);opacity:.9;animation:glowDrift 16s ease-in-out infinite alternate}
+      filter:blur(18px) saturate(1.05);opacity:.9;animation:glowDrift 16s ease-in-out infinite alternate}
     @keyframes glowDrift{
       0%{--g1x:12%;--g1y:4%;--g2x:88%;--g2y:60%}
       25%{--g1x:45%;--g1y:55%;--g2x:55%;--g2y:92%}
