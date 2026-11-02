@@ -209,6 +209,29 @@ export function runOnboarding() {
     // Minutes picker: type a number, nudge it with − / +, or tap a quick chip.
     // Focus length: one slider. The value reads above it in the app's number style, small marks
     // under the track jump to common lengths. No text field (people rarely typed a number).
+    // Toss-style rolling number: each character sits in its own slot, and a changed digit
+    // slides in (from below when the number goes up, from above when it goes down) while the
+    // old one slides out the other way. Unchanged digits stay still.
+    function rollText(el, text, dir) {
+      const old = el._chars || [];
+      if (!dir || !el._chars) { el.innerHTML = [...text].map(c => `<span class="roll-slot"><span class="roll-ch">${c}</span></span>`).join(''); el._chars = [...text]; return; }
+      const next = [...text];
+      // right-align old and new so the ones digit lines up with the ones digit
+      const pad = Math.max(next.length, old.length), o = Array(pad - old.length).fill('').concat(old), n = Array(pad - next.length).fill('').concat(next);
+      el.innerHTML = '';
+      n.forEach((c, i) => {
+        if (!c && !o[i]) return;
+        const slot = document.createElement('span'); slot.className = 'roll-slot';
+        if (c === o[i]) { slot.innerHTML = `<span class="roll-ch">${c}</span>`; }
+        else {
+          if (o[i]) { const out = document.createElement('span'); out.className = 'roll-ch roll-out'; out.textContent = o[i]; out.style.setProperty('--d', dir); slot.append(out); }
+          if (c) { const inn = document.createElement('span'); inn.className = 'roll-ch roll-in'; inn.textContent = c; inn.style.setProperty('--d', dir); slot.append(inn); }
+          else slot.classList.add('roll-gone');
+        }
+        el.append(slot);
+      });
+      el._chars = next;
+    }
     function minutesPicker(q) {
       let value = answers[q.key] ?? q.start;
       const clampV = v => Math.max(q.min, Math.min(q.max, Math.round(v / q.step) * q.step || q.start));
@@ -229,7 +252,8 @@ export function runOnboarding() {
       const set = v => {
         value = clampV(v); range.value = value;
         const h = Math.floor(value / 60), m = value % 60;
-        b.textContent = value < 60 ? value : m ? `${h}h ${m}` : h;
+        const prev = set.last; set.last = value;
+        rollText(b, String(value < 60 ? value : m ? `${h}h ${m}` : h), prev == null ? 0 : Math.sign(value - prev));
         u.textContent = value < 60 ? 'min' : m ? 'min' : h > 1 ? 'hours' : 'hour';
         range.setAttribute('aria-valuetext', `${value} minutes`);
         wrap.style.setProperty('--p', pct(value) + '%');

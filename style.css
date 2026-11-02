@@ -1897,3 +1897,15 @@ body .pop.pop::after, .studio .panel .card::after {
   opacity: .32; mix-blend-mode: soft-light;   /* grain without greying the white */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.4 -.2 0 0 0 1.4 -.2 0 0 0 1.4 -.2 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
+
+/* Rolling digits for the focus length number (Toss style). */
+.ls-value b { display: inline-flex; overflow: hidden; }
+.roll-slot { position: relative; display: inline-flex; flex-direction: column; overflow: hidden; height: 1.08em; line-height: 1.08; }
+.roll-slot.roll-gone { animation: rollShrink .32s cubic-bezier(.2,.8,.2,1) forwards; }
+.roll-ch { display: block; }
+.roll-ch.roll-out { position: absolute; left: 0; animation: rollOut .32s cubic-bezier(.2,.8,.2,1) forwards; }
+.roll-ch.roll-in { animation: rollIn .32s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes rollIn { from { transform: translateY(calc(var(--d) * 100%)); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rollOut { to { transform: translateY(calc(var(--d) * -100%)); opacity: 0; } }
+@keyframes rollShrink { to { width: 0; } }
+@media (prefers-reduced-motion: reduce) { .roll-ch { animation: none !important; } .roll-ch.roll-out { display: none; } }
