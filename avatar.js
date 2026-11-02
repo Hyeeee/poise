@@ -39,6 +39,10 @@ export class PostureAvatar {
   // Limits keep the whole figure inside the box, even in the small mini window, however far you lean.
   set(delta, widthRatio = 1) {
     if (!delta) { this.goal = { ...ZERO }; return; }
+    // Same small wobble the posture check ignores (0.04 shoulder widths per part): inside it the
+    // figure sits right on the outline, so "Aligned" always looks aligned.
+    const dz = (v, d = .04) => Math.sign(v || 0) * Math.max(0, Math.abs(v || 0) - d);
+    delta = { ...delta, x: dz(delta.x), y: dz(delta.y), tilt: dz(delta.tilt), roll: dz(delta.roll), sx: dz(delta.sx, .1) };
     const E = 1.8;                                                   // exaggeration
     // Leaning sideways tilts the whole upper body around the waist (shoulders, arms and head together),
     // instead of only dropping one shoulder. Positive bend raises the screen-left shoulder.
@@ -55,6 +59,17 @@ export class PostureAvatar {
       drop: clamp((delta.sink || 0) * 80 * 1.5, 0, 26),
       zoom: clamp(1 + (widthRatio - 1) * 1.6, .82, 1.16),
     };
+    // Keep the head inside the box: where it ends up is the body slide + the head shift + the lean
+    // (the lean swings the head about 150 units around the waist). If that is too far, scale the
+    // slides down so the whole figure stays in view, even in the small mini window.
+    const g = this.goal, headX = g.bx + g.hx * .65 + 150 * Math.sin(g.bend);
+    if (Math.abs(headX) > 44) {
+      const lean = 150 * Math.sin(g.bend), room = 44 * Math.sign(headX) - lean;
+      const slide = g.bx + g.hx * .65;
+      const k = slide && Math.sign(room) === Math.sign(slide) ? Math.min(1, Math.abs(room) / Math.abs(slide)) : 0;
+      g.bx *= k; g.hx *= k;
+      if (Math.abs(lean) > 44) g.bend = Math.asin(44 * Math.sign(lean) / 150);
+    }
   }
   // Arms copy yours straight from the camera (not compared with the reference), so lifting a hand,
   // reaching for a mug or crossing your arms shows up on the figure. Each arm segment keeps its real
