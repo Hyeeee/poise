@@ -1448,7 +1448,8 @@ const moveGame = new MoveGame($('game-canvas'), camera, {
     $('game-bar').style.width = (100 - left / (store.brk().minutes * 60000) * 100) + '%';
     text('game-label', !tracking ? 'Step back so your arms fit in the frame.' : combo > 2 ? `${combo} in a row` : 'Reach for the bubbles.');
   },
-  onColor(rgb) { gameRgb = rgb; },
+  // Keep the last bubble's colour until the next one, instead of snapping back to the default.
+  onColor(rgb) { if (rgb) gameRgb = rgb; },
   onFrame(g) { drawGameMap(g); },
   onEnd(r) { breakLog.game(r); endBreak(); },
 });
@@ -1470,7 +1471,8 @@ const mini = new MiniGame($('mini-canvas'), {
     $('game-bar').style.width = (100 - left / (store.brk().minutes * 60000) * 100) + '%';
     text('game-label', label);
   },
-  onColor(rgb) { if (rgb) gameFlash = { rgb, t: performance.now() }; },
+  // After the pulse, stay on that colour (the last catch) rather than snapping back to the default.
+  onColor(rgb) { if (rgb) { gameFlash = { rgb, t: performance.now() }; gameRgb = rgb; } },
   onEnd(r) { breakLog.game(r); endBreak(); },
 });
 let gameFlash = null;
