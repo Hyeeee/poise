@@ -5,7 +5,7 @@
 import { ambient } from './ambient.js';
 
 const FRAG = `precision highp float;
-uniform vec2 R; uniform float T; uniform vec3 C1; uniform vec3 C2; uniform vec3 C3; uniform float L;
+uniform vec2 R; uniform float T; uniform vec3 C1; uniform vec3 C2; uniform vec3 C3; uniform float L; uniform float BAL;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 // a soft glow: an oval that is round near its core and stretches out into a long soft band
 float glow(vec2 p,vec2 c,float r,float ang,float st){
@@ -31,15 +31,18 @@ void main(){
  // third: a big lobe that swells out of the main glow and folds back in (no small spots)
  vec2 c3=c1+vec2(cos(t*.45),sin(t*.55))*(.12+.22*s3)*vec2(a*.5,1.);
  float fs=glow(p,c3,.30+.08*s2,t*.2,1.+.8*s1)*.8;
+ // BAL changes how much room each colour gets: low = the first colour fills the shape with a small
+ // core of the second; high = the second spreads wide and the first is only a thin rim.
+ vec3 H=C1, K=C2;
  // the whole page carries a faint tint of the first colour, so white is never flat
- vec3 col=mix(base,C1,.10);
- col=mix(col,C1,smoothstep(.05,.8,f2)*.70);
- col=mix(col,C1,smoothstep(.04,.6,f1)*.92);
+ vec3 col=mix(base,H,.10);
+ col=mix(col,H,smoothstep(.05,.8,f2)*.70);
+ col=mix(col,H,smoothstep(.04,.6,f1)*.92);
  // core colour sits off-centre inside the band and slides along it, so it never reads as a target
  vec2 cc=c1+vec2(a*.12*sin(t*.7),.06*cos(t*.9));
- vec2 qc=q1; float fc=glow(qc,cc,.24+.06*s3,-.3+.5*sin(t*.31),1.5+1.2*s1)*smoothstep(.1,.6,f1);
- col=mix(col,C2,smoothstep(.15,.9,fc)*.95);
- col=mix(col,C2,smoothstep(.05,.9,fs)*.80);
+ vec2 qc=q1; float fc=glow(qc,cc,(.14+.06*s3)+.24*BAL,-.3+.5*sin(t*.31),1.5+1.2*s1)*smoothstep(.05,.5,f1);
+ col=mix(col,K,smoothstep(.15,.9,fc)*.95);
+ col=mix(col,K,smoothstep(.05,.9,fs)*(.35+.55*BAL));
  float amt=clamp(max(max(f1,f2*.8),fs),0.,1.);
  col+=vec3(.025)*L;
  // still grain (no flicker), gathered in the colour and fading toward the white
@@ -65,7 +68,7 @@ export function mountPainting() {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   const u = k => gl.getUniformLocation(pr, k);
-  const uR = u('R'), uT = u('T'), uC = [u('C1'), u('C2'), u('C3')], uL = u('L');
+  const uR = u('R'), uT = u('T'), uC = [u('C1'), u('C2'), u('C3')], uL = u('L'), uB = u('BAL');
   document.querySelector('svg.paint')?.remove();
   // Colours: the light bar's family, soft but saturated enough to read as colour (like the references).
   // Several shades in each family the light bar uses, so the pairs keep changing in new ways.
@@ -79,9 +82,13 @@ export function mountPainting() {
   const pal = Object.values(P).map(c => c.map(v => v / 255));
   const calm = [P.green, P.mint, P.blue].map(c => c.map(v => v / 255));
   // Two colours at a time. The pair holds for a while, then slowly turns into the next pair.
-  const PAIRS = [['green', 'blue'], ['butter', 'apricot'], ['mint', 'periwinkle'], ['peach', 'coral'], ['leaf', 'yellow'],
-    ['sky', 'teal'], ['apricot', 'rose'], ['sage', 'sky'], ['lemon', 'orange'], ['teal', 'blue'], ['rose', 'butter'],
-    ['mint', 'leaf'], ['coral', 'yellow'], ['periwinkle', 'sky'], ['orange', 'red'], ['green', 'butter']]
+  // Pairs walk around the colour wheel, so each one shares a colour family with the last:
+  // blue+yellow, yellow+green, green+orange, orange+red, red+yellow, yellow+blue ... and softer
+  // in-family pairs in between.
+  const PAIRS = [['blue', 'butter'], ['yellow', 'green'], ['leaf', 'apricot'], ['green', 'orange'], ['orange', 'red'],
+    ['coral', 'yellow'], ['red', 'butter'], ['lemon', 'sky'], ['yellow', 'blue'], ['sky', 'mint'], ['blue', 'green'],
+    ['mint', 'peach'], ['teal', 'yellow'], ['periwinkle', 'rose'], ['rose', 'apricot'], ['peach', 'sage'],
+    ['sage', 'periwinkle'], ['apricot', 'teal']]
     .map(pr => pr.map(k => P[k].map(v => v / 255)));
   const STEP = 16;                                   // seconds per pair: 10 s held, 6 s blending
   const mix = (a, b, k) => a.map((v, i) => v + (b[i] - v) * k);
@@ -103,6 +110,8 @@ export function mountPainting() {
       for (let j = 0; j < 3; j++) cur[i][j] += (goal[j] - cur[i][j]) * .03;
       gl.uniform3f(uC[i], ...cur[i]);
     }
+    // balance between the pair's two colours drifts on its own, so one or the other takes the lead
+    gl.uniform1f(uB, still ? .3 : Math.min(1, Math.max(0, .5 + .55 * Math.sin(secs * .19) + .25 * Math.sin(secs * .53 + 1.3))));
     const a = ambient.level(); lv += (Math.min(1, a[1] * 3) - lv) * .05;
     gl.uniform2f(uR, cv.width, cv.height);
     gl.uniform1f(uT, secs + 10); gl.uniform1f(uL, lv);
