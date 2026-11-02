@@ -1,44 +1,40 @@
-// Living backdrop: a grainy mesh gradient. Soft, shapeless blobs of green, blue, yellow,
-// orange and red drift on their own paths at their own speeds, so they keep overlapping
-// and mixing in new ways instead of taking turns. A fine film grain sits on top.
-// Inside the app the warm blobs fade back, so the backdrop never competes with the posture cue.
+// Living oil-painting backdrop: sage, cream and mist-blue strokes drawn in a WebGL shader.
+// Strokes drift slowly, swell with the background music, and the palette follows the time of day.
 import { ambient } from './ambient.js';
 
 const FRAG = `precision highp float;
-uniform vec2 R; uniform float T; uniform float K; uniform float L;
+uniform vec2 R; uniform float T; uniform vec3 L; uniform float D; uniform vec3 A; uniform vec3 B;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
  return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
-float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p=p*2.07+vec2(3.1,1.7);a*=.5;}return v;}
-// one soft blob: centre wanders on a Lissajous path, the edge is warped by noise so it has no clean shape
-float blob(vec2 p,vec2 c,float r){vec2 d=p-c;return exp(-dot(d,d)/(r*r));}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<6;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
 void main(){
- vec2 uv=gl_FragCoord.xy/R; float asp=R.x/R.y; vec2 p=vec2(uv.x*asp,uv.y);
- float t=T*.06;
- // warp space with slow noise, so every blob is irregular and they smear into each other
- vec2 w=p+vec2(fbm(p*1.3+vec2(t,-t*.7)),fbm(p*1.3+vec2(-t*.6,t)+5.))*.55-.27;
- float cx=asp*.5;
- vec3 base=vec3(.976,.972,.955);
- // colours: the light bar's family, softened
- vec3 G=vec3(.56,.82,.58), B=vec3(.52,.74,.90), Y=vec3(.98,.86,.46), O=vec3(.97,.64,.38), Rd=vec3(.94,.50,.45), C=vec3(.50,.80,.76);
- float warm=1.-K*.88;
- // different frequencies and phases per blob: they never line up into a repeating order
- float g =blob(w,vec2(cx+sin(t*1.1+0.)*asp*.42, .50+cos(t*.83+1.3)*.42), .42+.06*sin(t*.7));
- float b =blob(w,vec2(cx+sin(t*.77+2.1)*asp*.45, .48+sin(t*1.13+.4)*.44), .46+.06*cos(t*.9));
- float y =blob(w,vec2(cx+cos(t*.93+4.2)*asp*.40, .55+sin(t*.71+2.7)*.40), .36+.05*sin(t*1.2))*warm;
- float o =blob(w,vec2(cx+sin(t*1.27+5.0)*asp*.44, .45+cos(t*1.05+3.9)*.43), .32+.05*cos(t*.8))*warm;
- float r =blob(w,vec2(cx+cos(t*.61+1.0)*asp*.46, .52+sin(t*.89+5.2)*.45), .28+.04*sin(t*1.4))*warm;
- float c =blob(w,vec2(cx+sin(t*.53+3.3)*asp*.38, .50+cos(t*1.21+.8)*.38), .40);
- // weighted mix (mesh-gradient style): where blobs overlap their colours blend, empty space stays ivory
- float bw=.55;
- vec3 col=(base*bw+G*g+B*b+Y*y+O*o+Rd*r+C*c*.8)/(bw+g+b+y+o+r+c*.8);
- // a little lighter overall so text on top stays easy to read
- col=mix(col,base,.18+K*.12);
- col+=vec3(.03,.028,.02)*L;
- // film grain: fine, slightly animated, monochrome
- float gr=h(gl_FragCoord.xy+fract(T*13.)*91.)-.5;
- col+=gr*.055;
- gl_FragColor=vec4(col,1.);
+ vec2 uv=gl_FragCoord.xy/R; vec2 p=uv*vec2(R.x/R.y,1.);
+ float t=T*.1;
+ // brush direction: mostly horizontal, warped like loaded oil paint
+ vec2 q=vec2(fbm(p*vec2(1.2,3.)+t),fbm(p*vec2(1.,2.6)-t+4.));
+ vec2 w=p+(q-.5)*(.55+L.x*.5);
+ float bands=fbm(vec2(w.x*.6+t*.6,w.y*2.5)+q*2.);
+ float clouds=fbm(w*1.6-vec2(t,0.)+L.y*.4);
+ float y=uv.y+(bands-.5)*.22+(clouds-.5)*.12;
+ // Same tone as the cards: a near-white base with two soft pastel washes that drift.
+ // A and B are the two wash colours; JS walks them slowly through green, blue, yellow and red,
+ // the colours the light bar actually uses.
+ vec3 base=vec3(.975,.976,.968);
+ float f1=fbm(w*1.1+vec2(t*.8,-t*.5));
+ float f2=fbm(w*1.3-vec2(t*.6,t*.4)+7.);
+ float m1=smoothstep(.42,.78,f1+(y-.55)*.35);       // leans toward the top, like the cards
+ float m2=smoothstep(.45,.8,f2-(y-.45)*.25);
+ vec3 c=mix(base,mix(base,A,.75),.35+.15*(y));       // faint all-over tint
+ c=mix(c,A,m1*.8);
+ c=mix(c,B,m2*.6);
+ c=mix(c,vec3(.99,.99,.985),smoothstep(.6,.95,clouds)*.25);
+ // soft glow that breathes with the music
+ float g=exp(-6.*length((uv-vec2(.48+.12*sin(T*.07),.42+.08*sin(T*.05)))*vec2(R.x/R.y,1.)));
+ c+=vec3(.05,.05,.04)*g*(.6+L.y*1.6);
+ c+=(h(gl_FragCoord.xy+fract(T*.37))-.5)*.01;
+ c+=L.z*.03*bands;
+ gl_FragColor=vec4(c,1.);
 }`;
 
 export function mountPainting() {
@@ -58,21 +54,37 @@ export function mountPainting() {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   const u = k => gl.getUniformLocation(pr, k);
-  const uR = u('R'), uT = u('T'), uK = u('K'), uL = u('L');
+  const uR = u('R'), uT = u('T'), uL = u('L'), uD = u('D'), uA = u('A'), uB = u('B');
+  // Wash colours, pastel versions of the light bar's green, blue, yellow and red.
+  // Each holds for a while, then blends into the next over several seconds (one full loop ≈ 80 s).
+  // Inside the app (studio) it rests on green, so the background never competes with the posture cue.
+  const HUES = [[150, 214, 165], [160, 196, 236], [246, 214, 128], [242, 160, 146]].map(c => c.map(v => v / 255));
+  const TEAL = [179 / 255, 223 / 255, 218 / 255];
+  const mixc = (a, b, k) => a.map((v, i) => v + (b[i] - v) * k);
+  const ease = k => k * k * (3 - 2 * k);
+  const STEP = 20;               // seconds per colour
+  const curA = [...HUES[0]], curB = mixc(HUES[0], TEAL, .55);
   document.querySelector('svg.paint')?.remove();
-  // Full device resolution would make the grain too fine to see; this keeps it soft but visible.
-  const scale = Math.min(1, (devicePixelRatio || 1) * .6);
+  const scale = .75; // painted texture doesn't need full resolution
   const resize = () => { cv.width = innerWidth * scale; cv.height = innerHeight * scale; gl.viewport(0, 0, cv.width, cv.height); };
   resize(); addEventListener('resize', resize);
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const t0 = performance.now(); let k = 0, lv = 0;
+  const lv = [0, 0, 0], t0 = performance.now();
   const frame = now => {
-    const inApp = !document.getElementById('studio')?.hidden;
-    k += ((inApp ? 1 : 0) - k) * .015;                 // warm colours ease out over a few seconds in the app
-    const a = ambient.level(); lv += (Math.min(1, a[1] * 3) - lv) * .05;
+    const hr = new Date().getHours() + new Date().getMinutes() / 60;
+    const day = hr < 6 ? 1 : hr < 10 ? (hr - 6) / 12 : hr < 16 ? .33 : hr < 20 ? .33 + (hr - 16) / 12 : 1 - Math.max(0, 24 - hr) / 12;
+    const a = ambient.level();
+    for (let i = 0; i < 3; i++) lv[i] += (Math.min(1, a[i] * 3) - lv[i]) * .05;
     gl.uniform2f(uR, cv.width, cv.height);
-    gl.uniform1f(uT, still ? 20 : (now - t0) / 1000 + 20);
-    gl.uniform1f(uK, k); gl.uniform1f(uL, lv);
+    gl.uniform1f(uT, still ? 0 : (now - t0) / 1000);
+    gl.uniform3f(uL, lv[0], lv[1], lv[2]);
+    gl.uniform1f(uD, day);
+    const secs = still ? 0 : Math.max(0, (now - t0) / 1000), inApp = !document.getElementById('studio')?.hidden;
+    const i = Math.floor(secs / STEP) % 4, k = ease(Math.min(1, Math.max(0, (secs % STEP - STEP * .55) / (STEP * .45))));
+    const goalA = inApp ? HUES[0] : mixc(HUES[i], HUES[(i + 1) % 4], k);
+    const goalB = mixc(goalA, TEAL, .55);
+    for (let j = 0; j < 3; j++) { curA[j] += (goalA[j] - curA[j]) * .02; curB[j] += (goalB[j] - curB[j]) * .02; }
+    gl.uniform3f(uA, ...curA); gl.uniform3f(uB, ...curB);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (!still) requestAnimationFrame(frame);
   };

@@ -1871,33 +1871,3 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
 :focus, :focus-visible { outline: none !important; }
 input:focus, input:focus-visible, button:focus, button:focus-visible, select:focus, textarea:focus { outline: none !important; }
 .toggle input:focus-visible, .toggle input:focus { box-shadow: none !important; }
-
-/* =====================================================================
-   Type v4, after anthropic.com: a grotesk sans with a book serif, near-black ink #141413.
-   Anthropic's own typefaces (Anthropic Sans and Serif, before that Styrene and Tiempos)
-   are not free to use, so the closest open fonts stand in:
-   sans  Hanken Grotesk (for Styrene / Anthropic Sans)
-   serif Source Serif 4 (for Tiempos / Anthropic Serif)
-   Lead-ins pair the two the way anthropic.com does: bold sans, then the serif in the same ink.
-   ===================================================================== */
-:root {
-  --ui: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --brand-serif: 'Source Serif 4', 'Tiempos Text', Georgia, serif;
-  --ink: #141413;
-  --ink-2: #5e5d59;
-  --ink-3: #87867f;
-  --track-title: -0.015em;
-  --track-body: -0.005em;
-}
-body { color: var(--ink); }
-.brand, .lede, .lede *, .setup-line, .setup-line *, .summary-card, .summary-card b, .summary-card p, .sum-card h3 { letter-spacing: -.01em !important; }
-/* Welcome line, anthropic.com style: "Poise." in bold sans, the rest in serif, same size and ink. */
-.lede { color: var(--ink) !important; max-width: 20ch; }
-.lede b, .lede b * { font-family: var(--ui) !important; font-weight: 600 !important; letter-spacing: -.02em !important; color: var(--ink) !important; }
-.lede span, .lede span * { color: var(--ink) !important; }
-/* Onboarding questions: serif in full ink */
-.setup-line { color: var(--ink) !important; }
-/* Measured from anthropic.com: headings 700, -0.024em, line-height 1.12; serif body at 60% ink (#6a6a68) on ivory #faf9f5. */
-:root { --track-title: -0.024em; --ink-2: #6a6a68; }
-.lede b, .lede b * { font-weight: 700 !important; letter-spacing: -.024em !important; }
-.lede, .setup-line { line-height: 1.12 !important; }
