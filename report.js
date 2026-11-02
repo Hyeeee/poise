@@ -118,6 +118,7 @@ const SAY = {
   'Good session.': 'Good session. Here is how your posture went.',
   'Time to reset.': 'A tough one. A short break will help.',
   other: 'Session ended. Here is your summary.',
+  timeUp: 'Focus time is up.',
   'Great stretch.': 'Great stretch. Here is how your break went.',
   'Nice stretch.': 'Nice stretch. Here is how your break went.',
   'A light stretch.': 'A light stretch. Try again when you can.',

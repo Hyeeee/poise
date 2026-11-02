@@ -1342,6 +1342,8 @@ if (Recognition) {
 
 // ---------- End of a focus session ----------
 let ending = false;
+// Set while focus time is over but the report is waiting for you to come back to the Poise tab.
+let pendingReport = null;
 async function endSession(reason) {
   if (ending) return;
   ending = true;
@@ -1352,7 +1354,22 @@ async function endSession(reason) {
   // Always say out loud that the session is over (works with the mini window open, too).
   // The report's lines are pre-recorded ("Great session. Here is how your posture went." …), so they play in the natural voice.
   const say = line => speak(line, $('ask-orb'));
-  const choice = r ? await showReport(r, say) : (say('Session ended. Here is your summary.'), 'break');
+  let choice = null;
+  if (reason === 'timer') {
+    // Time is up: say so first. Then the report waits until you are looking at Poise again,
+    // so it is not sitting unseen behind the window you were working in.
+    await new Promise(res => { let done = false; const go = () => { if (!done) { done = true; res(); } }; speak('Focus time is up.', $('ask-orb'), 'en', go); setTimeout(go, 3000); });
+    if (document.hidden) {
+      choice = await new Promise(res => {
+        const finish = c => { document.removeEventListener('visibilitychange', onVis); pendingReport = null; res(c); };
+        const onVis = () => { if (!document.hidden) finish(null); };
+        // The mini window can skip straight to the break without opening the report.
+        pendingReport = { skip: c => finish(c) };
+        document.addEventListener('visibilitychange', onVis);
+      });
+    }
+  }
+  if (!choice) choice = r ? await showReport(r, say) : (say('Session ended. Here is your summary.'), 'break');
   ending = false;
   remaining = store.work().focus * 60; renderTimer();
   if (choice === 'break') { setScreen('break'); if (!active) toast('Turn on your camera to follow the stretches'); }
@@ -1778,7 +1795,7 @@ async function togglePip() {
   // Bring the main Poise tab forward (needs the click that just happened in the mini window).
   const toMain = () => { try { window.focus(); } catch {} };
   d.getElementById('end').onclick = () => $('end-session').click();
-  d.getElementById('go-break').onclick = () => { if (!$('report').hidden) $('report-break').click(); else setScreen('break'); toMain(); };
+  d.getElementById('go-break').onclick = () => { if (pendingReport) pendingReport.skip('break'); else if (!$('report').hidden) $('report-break').click(); else setScreen('break'); toMain(); };
   const cv = d.getElementById('fig'), pctx = cv.getContext('2d');
   const frame = now => {
     if (!pipWin || pipWin.closed) return;
@@ -1797,8 +1814,8 @@ async function togglePip() {
     q('hint').textContent = $('posture-hint').textContent;
     q('tm').textContent = `${$('timer').textContent} ${$('timer-unit').textContent}`;
     // Session over: the report is open in the main tab, so offer the next step here.
-    const done = !$('report').hidden;
-    if (done) { q('st').textContent = 'Session done'; q('hint').textContent = $('report-title').textContent + ' ' + $('report-line').textContent; }
+    const done = !$('report').hidden || !!pendingReport;
+    if (done) { q('st').textContent = 'Session done'; q('hint').textContent = pendingReport ? 'Focus time is up. Your report is waiting in Poise.' : $('report-title').textContent + ' ' + $('report-line').textContent; }
     q('live-foot').hidden = done;
     q('end').hidden = screen !== 'work' || $('end-session').hidden;
     q('done-foot').hidden = !done;

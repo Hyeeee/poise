@@ -107,12 +107,13 @@ export function stopVoice(orb) {
   orb?.classList.remove('speaking'); ambient.duck(false);
 }
 
-export function speak(text, orb, lang = 'en') {
-  if (!store.state.voice) return;
+// onEnd (optional) runs when the line has finished, or right away when the voice is off.
+export function speak(text, orb, lang = 'en', onEnd) {
+  if (!store.state.voice) { onEnd?.(); return; }
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   const begin = () => { orb?.classList.add('speaking'); ambient.duck(true); };
-  const end = () => { orb?.classList.remove('speaking'); ambient.duck(false); };
+  const end = () => { orb?.classList.remove('speaking'); ambient.duck(false); onEnd?.(); };
   const fallback = () => {
     if (!('speechSynthesis' in window)) return end();
     const u = new SpeechSynthesisUtterance(text);
