@@ -66,6 +66,31 @@ const SHAPES = {
 const ORDER = ['sphere', 'spring', 'hourglass', 'dna', 'pebble'];   // 'wave' (rippling rings) taken out
 const MOOD_SHAPE = { green: 'sphere', amber: 'spring', red: 'hourglass' };
 
+// Hand-drawn dots. Every dot gets three slightly different wobbly outlines, like the same
+// circle inked three times. The drawing flips between them a few times a second ("line boil"),
+// which is how hand-drawn animation looks alive even when nothing moves.
+const BOIL_MS = 150;
+function inkBlob() {
+  const n = 7 + Math.floor(Math.random() * 3), sq = .82 + Math.random() * .3, rot = Math.random() * TAU;
+  return Array.from({ length: n }, (_, i) => {
+    const a = i / n * TAU, r = 1 + (Math.random() - .5) * .34;
+    const x = Math.cos(a) * r * sq, y = Math.sin(a) * r / sq;
+    return [x * Math.cos(rot) - y * Math.sin(rot), x * Math.sin(rot) + y * Math.cos(rot)];
+  });
+}
+// Draw a closed, smooth outline through the midpoints of the wobbly polygon.
+function blobPath(ctx, pts, x, y, r) {
+  const m = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], n = pts.length;
+  ctx.beginPath();
+  let s = m(pts[n - 1], pts[0]);
+  ctx.moveTo(x + s[0] * r, y + s[1] * r);
+  for (let i = 0; i < n; i++) {
+    const c = pts[i], e = m(c, pts[(i + 1) % n]);
+    ctx.quadraticCurveTo(x + c[0] * r, y + c[1] * r, x + e[0] * r, y + e[1] * r);
+  }
+  ctx.closePath();
+}
+
 const agents = new Set();
 let raf = 0, pointer = { x: -1e4, y: -1e4 };
 addEventListener('pointermove', e => { pointer = { x: e.clientX, y: e.clientY }; }, { passive: true });
@@ -82,7 +107,7 @@ class Agent {
     this.dot = Number(host.dataset.dot) || Math.max(1, this.size / (small ? 16 : 72));
     this.shapeIndex = 0;
     this.target = this.build(host.dataset.shape || ORDER[this.shapeIndex]);
-    this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU }));
+    this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU, ring: Math.random() < .35, ink: [inkBlob(), inkBlob(), inkBlob()] }));
     this.spin = Math.random() * TAU;
     this.next = performance.now() + 9000;
     this.scale = 1; this.energy = 0;
@@ -140,7 +165,9 @@ class Agent {
     const cos = Math.cos(this.spin), sin = Math.sin(this.spin);
     const tilt = .38, ct = Math.cos(tilt), st = Math.sin(tilt);
     const ink = getComputedStyle(h).color || '#2b2c29';
-    ctx.fillStyle = ink;
+    ctx.fillStyle = ink; ctx.strokeStyle = ink; ctx.lineJoin = 'round';
+    const paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f7f5ef';
+    const boil = reduced ? 0 : Math.floor(now / BOIL_MS);
 
     const speakPulse = speaking ? .06 * Math.sin(now / 90) + .05 * Math.sin(now / 37) : 0;
     const k = reduced ? 1 : Math.min(1, dt * 1.6);
@@ -164,10 +191,15 @@ class Agent {
       if (d2 < reach * reach && !reduced && !pinned) { const d = Math.sqrt(d2) || 1, f = (1 - d / reach) * R * .07; nx += dx / d * f; ny += dy / d * f; }
       p.x = (nx - cx) / R; p.y = (ny - cy) / R; p.z += (z2 - p.z) * k;
       const depth = (p.z + 1) / 2;
-      ctx.globalAlpha = .3 + .7 * (1 - depth * .8);   // front dots full ink, back ones fainter
-      ctx.beginPath();
-      ctx.arc(nx, ny, this.dot * .78 * (.75 + (1 - depth) * .45), 0, TAU);
-      ctx.fill();
+      ctx.globalAlpha = .35 + .65 * (1 - depth * .8);   // front dots full ink, back ones fainter
+      const r = this.dot * .82 * (.75 + (1 - depth) * .45);
+      const shape = p.ink[(boil + i) % 3];               // each dot boils on its own beat
+      blobPath(ctx, shape, nx, ny, r);
+      // Some dots are inked rings (pale inside, like the avatar's limbs); the rest are solid ink.
+      if (p.ring && r > 2.2) {
+        ctx.fillStyle = paper; ctx.fill(); ctx.fillStyle = ink;
+        ctx.lineWidth = Math.max(1, r * .42); ctx.stroke();
+      } else ctx.fill();
     }
     ctx.globalAlpha = 1;
   }
