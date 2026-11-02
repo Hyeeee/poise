@@ -64,11 +64,20 @@ export function mountPainting() {
   const uR = u('R'), uT = u('T'), uC = [u('C1'), u('C2'), u('C3')], uL = u('L');
   document.querySelector('svg.paint')?.remove();
   // Colours: the light bar's family, soft but saturated enough to read as colour (like the references).
-  const P = { green: [128, 206, 150], mint: [150, 222, 200], blue: [120, 182, 222], yellow: [246, 214, 110], orange: [242, 150, 90], red: [236, 120, 110] }
+  // Several shades in each family the light bar uses, so the pairs keep changing in new ways.
+  const P = {
+    green: [128, 206, 150], sage: [170, 210, 160], leaf: [150, 214, 120], mint: [150, 222, 200], teal: [120, 200, 196],
+    blue: [120, 182, 222], sky: [160, 204, 236], periwinkle: [150, 168, 230],
+    yellow: [246, 214, 110], butter: [248, 226, 150], lemon: [236, 222, 96],
+    orange: [242, 150, 90], apricot: [246, 184, 120], peach: [246, 190, 160],
+    red: [236, 120, 110], coral: [240, 140, 120], rose: [236, 160, 168],
+  }
   const pal = Object.values(P).map(c => c.map(v => v / 255));
   const calm = [P.green, P.mint, P.blue].map(c => c.map(v => v / 255));
   // Two colours at a time. The pair holds for a while, then slowly turns into the next pair.
-  const PAIRS = [['green', 'blue'], ['yellow', 'orange'], ['mint', 'blue'], ['orange', 'red'], ['green', 'yellow'], ['blue', 'mint'], ['red', 'yellow']]
+  const PAIRS = [['green', 'blue'], ['butter', 'apricot'], ['mint', 'periwinkle'], ['peach', 'coral'], ['leaf', 'yellow'],
+    ['sky', 'teal'], ['apricot', 'rose'], ['sage', 'sky'], ['lemon', 'orange'], ['teal', 'blue'], ['rose', 'butter'],
+    ['mint', 'leaf'], ['coral', 'yellow'], ['periwinkle', 'sky'], ['orange', 'red'], ['green', 'butter']]
     .map(pr => pr.map(k => P[k].map(v => v / 255)));
   const STEP = 16;                                   // seconds per pair: 10 s held, 6 s blending
   const mix = (a, b, k) => a.map((v, i) => v + (b[i] - v) * k);

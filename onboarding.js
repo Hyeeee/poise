@@ -231,6 +231,7 @@ export function runOnboarding() {
         el.append(slot);
       });
       el._chars = next;
+      clearTimeout(el._rt); el._rt = setTimeout(() => el.querySelectorAll('.roll-out').forEach(x => x.remove()), 360);   // keep the text clean
     }
     function minutesPicker(q) {
       let value = answers[q.key] ?? q.start;
