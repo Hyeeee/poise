@@ -21,10 +21,10 @@ body { background: #f8f8f5; color: var(--ink); font-family: var(--ui); overflow:
 .slide.center { align-items: center; justify-content: center; text-align: center; gap: 28px; }
 .cover { padding: 96px 128px 104px; gap: 0; }
 .cover-top { display: flex; justify-content: space-between; font-size: 24px; color: rgba(30,31,28,.6); }
-.cover-main { margin-top: auto; display: flex; flex-direction: column; gap: 36px; max-width: 1180px; }
+.cover-main { margin-top: auto; display: flex; flex-direction: column; gap: 76px; max-width: 1180px; }
 .cover .display { font-size: 240px; letter-spacing: -.045em; line-height: .86; margin-left: -10px; }
 .cover-lede { font-family: var(--serif); font-size: 46px; line-height: 1.22; letter-spacing: -.012em; color: rgba(30,31,28,.72); max-width: 1080px; }
-.cover-meta { margin-top: 88px; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(30,31,28,.16); }
+.cover-meta { margin-top: 72px; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(30,31,28,.16); }
 .cover-meta div { display: flex; flex-direction: column; gap: 10px; padding: 26px 32px 0 0; }
 .cover-meta div + div { padding-left: 32px; border-left: 1px solid rgba(30,31,28,.16); }
 .cover-meta span { font-size: 22px; color: rgba(30,31,28,.55); }
