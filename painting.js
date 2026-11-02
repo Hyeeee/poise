@@ -7,7 +7,6 @@ import { ambient } from './ambient.js';
 const FRAG = `precision highp float;
 uniform vec2 R; uniform float T; uniform vec3 C1; uniform vec3 C2; uniform vec3 C3; uniform float L;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-// a soft glow: an oval that is round near its core and stretches out into a long soft band
 // One big soft shape: its size stays the same, but its outline keeps changing. The edge
 // radius is a circle plus a few slow ripples around it (2, 3 and 5 lobes), each turning at
 // its own speed, so the outline swells and dents smoothly in a different place each moment.
@@ -22,9 +21,9 @@ void main(){
  // big shape in the first colour, drifting slowly around the middle of the screen
  vec2 c1=vec2(a*(.5+.18*sin(t*.5)), .5+.16*cos(t*.43+1.));
  float f1=shape(p,c1,.62,t,0.);
- // a second, smaller shape in the second colour, moving inside and around the first
- vec2 c2=c1+vec2(a*.16*cos(t*.37+2.),.18*sin(t*.53));
- float f2=shape(p,c2,.36,t*1.1,4.);
+ // a second big shape in the second colour, overlapping the first and sliding around it (no small spots)
+ vec2 c2=c1+vec2(a*.22*cos(t*.37+2.),.22*sin(t*.53));
+ float f2=shape(p,c2,.52,t*1.1,4.);
  vec3 base=vec3(.975,.975,.968);
  vec3 col=mix(base,C1,f1*.88);
  col=mix(col,C2,f2*.85);
