@@ -14,7 +14,7 @@ float glow(vec2 p,vec2 c,float r,float ang,float st){
 }
 void main(){
  vec2 uv=gl_FragCoord.xy/R; float a=R.x/R.y; vec2 p=vec2(uv.x*a,uv.y);
- float t=T*.11;
+ float t=T*.2;
  vec3 base=vec3(.975,.975,.968);
  // Shapes keep changing on their own slow clocks: a round glow stretches into a long oval,
  // bends into a swoosh, splits into two lobes, then gathers back into a round glow.

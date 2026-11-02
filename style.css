@@ -1871,3 +1871,29 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
 :focus, :focus-visible { outline: none !important; }
 input:focus, input:focus-visible, button:focus, button:focus-visible, select:focus, textarea:focus { outline: none !important; }
 .toggle input:focus-visible, .toggle input:focus { box-shadow: none !important; }
+
+/* Popups: the two colour glows drift around the whole card, down to the buttons and back. */
+@property --p1x { syntax: '<percentage>'; inherits: false; initial-value: 34%; }
+@property --p1y { syntax: '<percentage>'; inherits: false; initial-value: 30%; }
+@property --p2x { syntax: '<percentage>'; inherits: false; initial-value: 66%; }
+@property --p2y { syntax: '<percentage>'; inherits: false; initial-value: 26%; }
+body .pop.pop::before {
+  left: -15% !important; right: -15% !important; top: -15% !important; height: 130% !important;
+  background:
+    radial-gradient(40% 34% at var(--p1x) var(--p1y), var(--g1, #e6e6e6), transparent 74%),
+    radial-gradient(40% 34% at var(--p2x) var(--p2y), var(--g2, #eee), transparent 74%) !important;
+  animation: popDrift 14s ease-in-out infinite alternate; }
+@keyframes popDrift {
+  0%   { --p1x: 30%; --p1y: 22%; --p2x: 70%; --p2y: 30%; }
+  33%  { --p1x: 55%; --p1y: 70%; --p2x: 35%; --p2y: 18%; }
+  66%  { --p1x: 72%; --p1y: 35%; --p2x: 40%; --p2y: 78%; }
+  100% { --p1x: 38%; --p1y: 62%; --p2x: 64%; --p2y: 40%; }
+}
+@media (prefers-reduced-motion: reduce) { body .pop.pop::before { animation: none; } }
+
+/* A light film grain on popups and the side cards (still, not flickering). */
+body .pop.pop::after, .studio .panel .card::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  opacity: .32; mix-blend-mode: soft-light;   /* grain without greying the white */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.4 -.2 0 0 0 1.4 -.2 0 0 0 1.4 -.2 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
