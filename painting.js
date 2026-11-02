@@ -1,40 +1,31 @@
-// Living oil-painting backdrop: sage, cream and mist-blue strokes drawn in a WebGL shader.
-// Strokes drift slowly, swell with the background music, and the palette follows the time of day.
+// Living backdrop: the same feel as the side cards' wash, at full screen. Three big soft
+// colour blobs drift slowly across a near-white page. Each blob holds its colour for a while,
+// then slowly turns into another, each on its own clock, so there are usually two or three
+// colours on screen and the mix keeps changing. A film grain on top gives it a rougher texture.
+// Inside the app the blobs settle into greens and teals, so the backdrop never competes with the posture cue.
 import { ambient } from './ambient.js';
 
 const FRAG = `precision highp float;
-uniform vec2 R; uniform float T; uniform vec3 L; uniform float D; uniform vec3 A; uniform vec3 B;
+uniform vec2 R; uniform float T; uniform vec3 C1; uniform vec3 C2; uniform vec3 C3; uniform float L;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
- return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
-float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<6;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
+float blob(vec2 p,vec2 c,vec2 r){vec2 d=(p-c)/r;return exp(-dot(d,d));}
 void main(){
- vec2 uv=gl_FragCoord.xy/R; vec2 p=uv*vec2(R.x/R.y,1.);
- float t=T*.1;
- // brush direction: mostly horizontal, warped like loaded oil paint
- vec2 q=vec2(fbm(p*vec2(1.2,3.)+t),fbm(p*vec2(1.,2.6)-t+4.));
- vec2 w=p+(q-.5)*(.55+L.x*.5);
- float bands=fbm(vec2(w.x*.6+t*.6,w.y*2.5)+q*2.);
- float clouds=fbm(w*1.6-vec2(t,0.)+L.y*.4);
- float y=uv.y+(bands-.5)*.22+(clouds-.5)*.12;
- // Same tone as the cards: a near-white base with two soft pastel washes that drift.
- // A and B are the two wash colours; JS walks them slowly through green, blue, yellow and red,
- // the colours the light bar actually uses.
- vec3 base=vec3(.975,.976,.968);
- float f1=fbm(w*1.1+vec2(t*.8,-t*.5));
- float f2=fbm(w*1.3-vec2(t*.6,t*.4)+7.);
- float m1=smoothstep(.42,.78,f1+(y-.55)*.35);       // leans toward the top, like the cards
- float m2=smoothstep(.45,.8,f2-(y-.45)*.25);
- vec3 c=mix(base,mix(base,A,.75),.35+.15*(y));       // faint all-over tint
- c=mix(c,A,m1*.8);
- c=mix(c,B,m2*.6);
- c=mix(c,vec3(.99,.99,.985),smoothstep(.6,.95,clouds)*.25);
- // soft glow that breathes with the music
- float g=exp(-6.*length((uv-vec2(.48+.12*sin(T*.07),.42+.08*sin(T*.05)))*vec2(R.x/R.y,1.)));
- c+=vec3(.05,.05,.04)*g*(.6+L.y*1.6);
- c+=(h(gl_FragCoord.xy+fract(T*.37))-.5)*.01;
- c+=L.z*.03*bands;
- gl_FragColor=vec4(c,1.);
+ vec2 uv=gl_FragCoord.xy/R; float a=R.x/R.y; vec2 p=vec2(uv.x*a,uv.y);
+ float t=T*.05;
+ vec3 base=vec3(.975,.975,.965);
+ // big, slow, wandering blobs (oval, each on its own path)
+ float b1=blob(p,vec2(a*(.25+.30*sin(t*1.0+.3)), .30+.32*sin(t*.73+1.1)), vec2(.62*a*.55,.55));
+ float b2=blob(p,vec2(a*(.75+.25*sin(t*.81+2.4)), .62+.30*cos(t*.64+.2)), vec2(.58*a*.55,.60));
+ float b3=blob(p,vec2(a*(.50+.38*cos(t*.57+4.0)), .48+.36*sin(t*.92+3.3)), vec2(.50*a*.55,.48));
+ vec3 col=base;
+ col=mix(col,C1,b1*.9);
+ col=mix(col,C2,b2*.85);
+ col=mix(col,C3,b3*.75);
+ col+=vec3(.025)*L;
+ // film grain, a little coarse
+ float g=h(floor(gl_FragCoord.xy)+fract(T*7.)*57.)-.5;
+ col+=g*.085;
+ gl_FragColor=vec4(col,1.);
 }`;
 
 export function mountPainting() {
@@ -54,37 +45,37 @@ export function mountPainting() {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   const u = k => gl.getUniformLocation(pr, k);
-  const uR = u('R'), uT = u('T'), uL = u('L'), uD = u('D'), uA = u('A'), uB = u('B');
-  // Wash colours, pastel versions of the light bar's green, blue, yellow and red.
-  // Each holds for a while, then blends into the next over several seconds (one full loop ≈ 80 s).
-  // Inside the app (studio) it rests on green, so the background never competes with the posture cue.
-  const HUES = [[150, 214, 165], [160, 196, 236], [246, 214, 128], [242, 160, 146]].map(c => c.map(v => v / 255));
-  const TEAL = [179 / 255, 223 / 255, 218 / 255];
-  const mixc = (a, b, k) => a.map((v, i) => v + (b[i] - v) * k);
-  const ease = k => k * k * (3 - 2 * k);
-  const STEP = 20;               // seconds per colour
-  const curA = [...HUES[0]], curB = mixc(HUES[0], TEAL, .55);
+  const uR = u('R'), uT = u('T'), uC = [u('C1'), u('C2'), u('C3')], uL = u('L');
   document.querySelector('svg.paint')?.remove();
-  const scale = .75; // painted texture doesn't need full resolution
+  // Colours: the light bar's family, soft but saturated enough to read as colour (like the references).
+  const P = { green: [128, 206, 150], mint: [150, 222, 200], blue: [120, 182, 222], yellow: [246, 214, 110], orange: [242, 150, 90], red: [236, 120, 110] }
+  const pal = Object.values(P).map(c => c.map(v => v / 255));
+  const calm = [P.green, P.mint, P.blue].map(c => c.map(v => v / 255));
+  // Each blob walks the palette on its own clock and offset, so the trio of colours keeps changing.
+  const clocks = [{ step: 17, off: 0 }, { step: 23, off: 2 }, { step: 29, off: 4 }];
+  const mix = (a, b, k) => a.map((v, i) => v + (b[i] - v) * k);
+  const ease = k => k * k * (3 - 2 * k);
+  const cur = clocks.map((c, i) => [...pal[c.off]]);
+  const scale = .6;                       // lower resolution keeps the grain visible and the shader cheap
   const resize = () => { cv.width = innerWidth * scale; cv.height = innerHeight * scale; gl.viewport(0, 0, cv.width, cv.height); };
   resize(); addEventListener('resize', resize);
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const lv = [0, 0, 0], t0 = performance.now();
+  const t0 = performance.now(); let lv = 0;
   const frame = now => {
-    const hr = new Date().getHours() + new Date().getMinutes() / 60;
-    const day = hr < 6 ? 1 : hr < 10 ? (hr - 6) / 12 : hr < 16 ? .33 : hr < 20 ? .33 + (hr - 16) / 12 : 1 - Math.max(0, 24 - hr) / 12;
-    const a = ambient.level();
-    for (let i = 0; i < 3; i++) lv[i] += (Math.min(1, a[i] * 3) - lv[i]) * .05;
+    const secs = still ? 0 : (now - t0) / 1000, inApp = !document.getElementById('studio')?.hidden;
+    clocks.forEach((c, i) => {
+      let goal;
+      if (inApp) goal = calm[i];
+      else {
+        const s = secs / c.step, n = Math.floor(s), k = ease(Math.min(1, Math.max(0, (s - n - .6) / .4)));   // hold 60%, blend 40%
+        goal = mix(pal[(n + c.off) % pal.length], pal[(n + 1 + c.off) % pal.length], k);
+      }
+      for (let j = 0; j < 3; j++) cur[i][j] += (goal[j] - cur[i][j]) * .03;
+      gl.uniform3f(uC[i], ...cur[i]);
+    });
+    const a = ambient.level(); lv += (Math.min(1, a[1] * 3) - lv) * .05;
     gl.uniform2f(uR, cv.width, cv.height);
-    gl.uniform1f(uT, still ? 0 : (now - t0) / 1000);
-    gl.uniform3f(uL, lv[0], lv[1], lv[2]);
-    gl.uniform1f(uD, day);
-    const secs = still ? 0 : Math.max(0, (now - t0) / 1000), inApp = !document.getElementById('studio')?.hidden;
-    const i = Math.floor(secs / STEP) % 4, k = ease(Math.min(1, Math.max(0, (secs % STEP - STEP * .55) / (STEP * .45))));
-    const goalA = inApp ? HUES[0] : mixc(HUES[i], HUES[(i + 1) % 4], k);
-    const goalB = mixc(goalA, TEAL, .55);
-    for (let j = 0; j < 3; j++) { curA[j] += (goalA[j] - curA[j]) * .02; curB[j] += (goalB[j] - curB[j]) * .02; }
-    gl.uniform3f(uA, ...curA); gl.uniform3f(uB, ...curB);
+    gl.uniform1f(uT, secs + 10); gl.uniform1f(uL, lv);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (!still) requestAnimationFrame(frame);
   };
