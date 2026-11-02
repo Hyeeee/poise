@@ -2005,3 +2005,6 @@ body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]
 /* Rolling digits sit in spans inside the number; keep them at the number's size and ink,
    not the small grey style meant for the "min" label next to it. */
 .ls-value b .roll-slot, .ls-value b .roll-ch { font: inherit !important; color: inherit !important; letter-spacing: inherit !important; }
+
+/* Speech bubble: a heavier, more natural handwriting that matches the avatar's thick ink line. */
+body .say-bubble, body .say-bubble .sb-text { font-family: 'Shantell Sans', 'Patrick Hand', 'Comic Sans MS', cursive !important; font-weight: 600 !important; font-size: 13.5px !important; line-height: 1.3 !important; letter-spacing: 0 !important; }
