@@ -1633,3 +1633,6 @@ html[data-cue="game"] .studio .panel #breathe-panel::before { opacity: .95 !impo
 #mic.listening { background: #fff !important; box-shadow: none !important; }
 #mic .mic-bars { width: auto; height: 14px; background: none !important; box-shadow: none !important; border-radius: 0 !important; gap: 3px; }
 #mic .mic-bars i { width: 3px; height: 14px; border-radius: 99px !important; opacity: 1; }
+/* Big numbers: proportional digits (tabular digits give "1" the width of a "0", which looked gappy) */
+#work-panel #timer, .card .match b, .report-card .report-stats b, .ls-value b, .len-card b, #breath-left-big {
+  font-variant-numeric: proportional-nums !important; font-feature-settings: "tnum" 0 !important; letter-spacing: -.035em !important; }
