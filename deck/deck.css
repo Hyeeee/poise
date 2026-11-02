@@ -351,3 +351,7 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .sheet::before { display: none; }
 .toc-list li, .toc-list li:first-child { border: 0; }
 :root { --m: max(calc(var(--s) * 40), 16px); }   /* tighter edges all round (was 64) */
+/* Progress at the bottom (labels above the bar), content starts right at the top margin */
+.progress { top: auto; bottom: var(--m); }
+.seg { flex-direction: column-reverse; }
+:root { --top: var(--m); --bottom: calc(var(--m) + max(calc(var(--s) * 90), 48px)); }
