@@ -1628,3 +1628,8 @@ html[data-cue="game"] .studio .panel #game-panel::before { opacity: .95 !importa
 .studio .panel #game-panel::before { --card-glow: color-mix(in srgb, var(--signal) 75%, white); --card-glow-2: color-mix(in srgb, var(--signal) 50%, white); }
 html[data-cue="game"] .studio .panel #breathe-panel::before { opacity: .95 !important; }
 .studio .panel #breathe-panel::before { --card-glow: color-mix(in srgb, var(--signal) 80%, white); --card-glow-2: color-mix(in srgb, var(--signal) 55%, white); transition: opacity .8s ease, background .3s linear !important; }
+/* Mic while listening: same size and corners as the send button; only the bars inside are rounded */
+#mic, .askbar .send { width: 38px !important; height: 38px !important; border-radius: 12px !important; }
+#mic.listening { background: #fff !important; box-shadow: none !important; }
+#mic .mic-bars { width: auto; height: 14px; background: none !important; box-shadow: none !important; border-radius: 0 !important; gap: 3px; }
+#mic .mic-bars i { width: 3px; height: 14px; border-radius: 99px !important; opacity: 1; }
