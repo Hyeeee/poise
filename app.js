@@ -530,7 +530,8 @@ function applyPosture(d, now, delta, widthRatio) {
     }
     state = recoverAt && now - recoverAt < 1500 ? 'green' : driftSince ? lastState : 'white';
     if (driftSince && state !== 'green') { rgb = lastRgb; tone = lastTone; }
-    if (state === 'green') tone = S_GREEN;
+    // Back in balance: the card still shows a moment of green, but the light bar goes straight back to white.
+    if (state === 'green') { tone = S_GREEN; rgb = WHITE; }
   }
   if (state === 'red' && lastState !== 'red' && !silent()) {
     // Say what's going on, once per red, in the chosen voice.

@@ -100,8 +100,8 @@ void handleMessage(String msg) {
 //   GOOD_MIN..GOOD_MAX cm  = good posture (soft white)
 //   closer than GOOD_MIN   = leaning in;  farther than GOOD_MAX = leaning back
 //  Outside the good range: the light warms right away (the farther out, the warmer),
-//  turns yellow after 7 s and red after 14 s. Back in range -> green for a moment, then white.
-//  Nothing in front for 3 s -> away: the strip dims. Sitting down again flashes green once.
+//  turns yellow after 7 s and red after 14 s. Back in range -> straight back to soft white.
+//  Nothing in front for 3 s -> away: the strip dims. Sitting down again -> soft white.
 //  Two sensors (left + right): if one side gets more than TILT_CM closer than the other,
 //  you're tilting to that side - same yellow/red rule.
 constexpr int GOOD_MIN = 50;         // <- tune to your desk (your sweet spot ~60-70 plus some room)
@@ -110,7 +110,7 @@ constexpr int SLACK    = 5;          // small moves past the edge are ignored
 constexpr int AWAY_CM  = 150;
 constexpr int TILT_CM  = 12;         // left/right difference above this = tilting to one side
 float smoothCm = -1, smoothTilt = 0;  // smoothed distance, and tilt = left minus right (cm)
-unsigned long goneSince = 0, outSince = 0, okUntil = 0;
+unsigned long goneSince = 0, outSince = 0;
 bool away = true;
 
 void mixTarget(uint8_t r1, uint8_t g1, uint8_t b1, uint8_t r2, uint8_t g2, uint8_t b2, float k) {
@@ -127,9 +127,8 @@ void sensorDemo() {
     return;
   }
   goneSince = 0;
-  if (away) { away = false; okUntil = now + 900; }    // you sat down: green flash
+  if (away) away = false;                             // you sat down: back to white below
   smoothCm = smoothCm < 0 ? distanceCm : smoothCm + (distanceCm - smoothCm) * 0.35;
-  if (now < okUntil) { fade = 0.25; setTarget(0, 255, 30); return; }
 
   // Tilt: leaning toward one side brings that side's sensor closer.
   if (leftCm > 0 && rightCm > 0) smoothTilt += ((leftCm - rightCm) - smoothTilt) * 0.35;
@@ -146,10 +145,9 @@ void sensorDemo() {
     else if (held < 14000) setTarget(255, 130, 0);                              // yellow
     else                   setTarget(255, 0, 0);                                // red
   } else {
-    if (outSince && now - outSince >= 7000) okUntil = now + 1200;               // corrected
     outSince = 0;
     fade = 0.12;
-    setTarget(140, 140, 130);                                                   // good: soft white
+    setTarget(140, 140, 130);                                                   // good (or just corrected): soft white, no green flash
   }
 }
 
