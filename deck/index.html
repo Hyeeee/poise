@@ -15,15 +15,17 @@
 <!-- painting.js cycles its colours only while the app (#studio) is hidden -->
 <div id="studio" hidden></div>
 
-<!-- One white sheet for every content slide: it rises over the colour when you leave the cover
-     and drops away again on the cover and chapter slides. It always covers the whole window. -->
+<!-- One white sheet for every content slide: it rises over the colour after the cover. -->
 <div class="sheet" aria-hidden="true"></div>
 
-<!-- Shared chrome: wordmark, the current chapter, the slide count and a hairline progress -->
+<!-- Shared chrome: logo, the current chapter, the slide count and round arrows -->
 <header class="chrome">
-  <a class="mark" href="#1" aria-label="Poise, back to the cover">poise</a>
-  <p class="chapter" id="chapter"></p>
-  <p class="pager"><span id="page-now">01</span><i></i><span id="page-all">07</span></p>
+  <a class="logo" href="#1" aria-label="Poise, back to the cover"><span class="agent logo-orb" data-dots="28"></span><span class="logo-word">poise</span></a>
+  <div class="nav">
+    <p class="pager"><span id="page-now">01</span> / <span id="page-all">07</span></p>
+    <button class="round" id="prev" aria-label="Previous slide"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+    <button class="round" id="next" aria-label="Next slide"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
 </header>
 <div class="progress" aria-hidden="true"><i id="progress"></i></div>
 
@@ -31,14 +33,14 @@
 
   <!-- 1 · Cover -->
   <section class="slide cover" data-title="Cover">
-    <div class="cover-top" data-in>
-      <span>Case study</span>
-      <span>Marin Chung</span>
+    <div class="cover-head" data-in>
+      <p class="cover-logo"><span class="agent logo-orb big" data-dots="40"></span><span>poise</span></p>
+      <p class="cover-tag">A posture companion<br>for people who work at a desk</p>
     </div>
     <div class="agent cover-orb" data-in></div>
     <div class="cover-main">
-      <h1 class="wordmark" data-in aria-label="Poise">poise</h1>
-      <p class="cover-lede" data-in>A light bar and web app that notice when your posture drifts, and tell you quietly. I built it because long days at my desk kept ending with a sore neck.</p>
+      <h1 class="cover-title" data-in>Notice when your posture drifts, without stopping your work.</h1>
+      <p class="cover-sub" data-in>A light bar and web app I designed and built. Long days at my desk kept ending with a sore neck.</p>
     </div>
     <dl class="facts" data-in>
       <div><dt>Timeline</dt><dd>5 weeks, fall 2026</dd></div>
@@ -49,129 +51,143 @@
   </section>
 
   <!-- 2 · Problem -->
-  <section class="slide paper" data-title="The problem" data-chapter="01   The problem">
-    <div class="split">
-      <div class="lead">
-        <h2 class="title" data-in>We drift without noticing.</h2>
-        <p class="body" data-in>Deep in focus we slide closer to the screen. Hours later the neck and back feel it.</p>
+  <section class="slide paper" data-title="The problem">
+    <div class="head">
+      <p class="pill" data-in>01 · The problem</p>
+      <h2 class="title" data-in>We drift <span>without noticing.</span></h2>
+    </div>
+    <div class="cards c-7-5">
+      <div class="card" data-in>
+        <div class="card-copy">
+          <h3>It happens in the middle of focus</h3>
+          <p>Deep in work we slide closer to the screen. Hours later the neck and back feel it.</p>
+        </div>
+        <blockquote class="quote-chip"><p>“I slide down in my chair and get closer to the screen.”</p><cite>Designer, interview</cite></blockquote>
       </div>
-      <div class="stack">
-        <ol class="figures">
-          <li data-in><b>1 in 13</b><span>people live with low back pain</span><em>WHO, 2023</em></li>
-          <li data-in><b>78%</b><span>of college students report neck pain in some studies</span><em>Gao et al., 2023</em></li>
-          <li data-in><b>2×</b><span>the odds of neck pain when you sit poorly</span><em>Gao et al., 2023</em></li>
-        </ol>
-        <blockquote class="pull glow" data-tone="green" data-in>
-          <p>I slide down in my chair and get closer to the screen.</p>
-          <cite>Designer, interview</cite>
-        </blockquote>
+      <div class="card art" data-in>
+        <div class="card-copy"><h3>Hours later</h3><p>Head forward, shoulders uneven.</p></div>
+        <img class="bleed" src="img/fig-lean.webp" alt="Ink figure leaning off its dashed outline">
       </div>
+    </div>
+    <div class="stats" data-in>
+      <div><b>1 in 13</b><span>people live with low back pain</span><em>WHO, 2023</em></div>
+      <div><b>78%</b><span>of college students report neck pain in some studies</span><em>Gao et al., 2023</em></div>
+      <div><b>2×</b><span>the odds of neck pain when you sit poorly</span><em>Gao et al., 2023</em></div>
     </div>
   </section>
 
   <!-- 3 · Interviews -->
-  <section class="slide paper" data-title="What people told me" data-chapter="02   What people told me">
-    <h2 class="title wide" data-in>I asked people how they work. Most only noticed when it hurt.</h2>
-    <div class="survey">
-      <div class="headline-stat" data-in>
-        <div class="dots-11" role="img" aria-label="7 of 11 people">
-          <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i>
-        </div>
-        <b>7 of 11</b>
-        <span>barely notice posture changes, or notice only when it hurts</span>
-      </div>
-      <blockquote class="pull plain" data-in>
-        <p>Sometimes I just realize it, but sometimes if it hurts, that’s how I realize it.</p>
-        <cite>Engineer, interview</cite>
-      </blockquote>
+  <section class="slide paper" data-title="What people told me">
+    <div class="head">
+      <p class="pill" data-in>02 · What people told me</p>
+      <h2 class="title" data-in>I asked how people work. <span>Most only noticed when it hurt.</span></h2>
     </div>
-    <dl class="facts small" data-in>
-      <div><dt>Feel it weekly</dt><dd>10 of 11</dd></div>
-      <div><dt>Tried a posture app</dt><dd>0 of 11</dd></div>
-      <div><dt>Where it hurts</dt><dd>Neck 6, back 5, shoulders 3</dd></div>
-      <div><dt>The opening</dt><dd>A signal you notice without stopping your work</dd></div>
-    </dl>
+    <div class="cards c-4-4-4">
+      <div class="card" data-in>
+        <div class="card-copy"><h3>Noticing late</h3><p>Barely notice, or notice only when it hurts.</p></div>
+        <div class="big-num"><b>7<small>/11</small></b>
+          <div class="dots-11" role="img" aria-label="7 of 11 people"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+        </div>
+      </div>
+      <div class="card accent" data-in>
+        <span class="icon-dot"><svg viewBox="0 0 24 24"><path d="M5 6h14v9H9l-4 4z"/></svg></span>
+        <p class="accent-quote">“Sometimes I just realize it, but sometimes if it hurts, that’s how I realize it.”</p>
+        <cite>Engineer, interview</cite>
+      </div>
+      <div class="card" data-in>
+        <div class="card-copy"><h3>Where it hurts</h3><p>Out of 11 people surveyed.</p></div>
+        <div class="bars">
+          <div><span>Neck</span><i style="--v:6"></i><b>6</b></div>
+          <div><span>Back</span><i style="--v:5"></i><b>5</b></div>
+          <div><span>Shoulders</span><i style="--v:3"></i><b>3</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="stats" data-in>
+      <div><b>3</b><span>interviews with a lawyer, a designer and an engineer</span></div>
+      <div><b>11</b><span>people answered the survey</span></div>
+      <div><b>10/11</b><span>feel it at least once a week</span></div>
+      <div><b>0</b><span>had tried a posture app or wearable</span></div>
+    </div>
   </section>
 
   <!-- 4 · Chapter -->
   <section class="slide chapter-slide" data-title="Version two">
     <div class="agent chapter-orb" data-in></div>
     <div class="chapter-main">
-      <p class="chapter-num" data-in>Part two</p>
+      <p class="pill glass" data-in>Part two</p>
       <h2 class="chapter-title" data-in>Then I put it in front of people.</h2>
       <p class="chapter-sub" data-in>Five problems came back. Each of the next slides fixes one.</p>
     </div>
   </section>
 
   <!-- 5 · Work mode -->
-  <section class="slide paper" data-title="Work mode" data-chapter="03   Work mode">
-    <div class="split narrow-lead">
-      <div class="lead">
-        <h2 class="title" data-in>While you work, the light does the talking.</h2>
-        <div class="decision" data-in>
-          <span>Decision</span>
-          <p>A slow fade over an instant alert. Red in one second felt like being scolded.</p>
-        </div>
-      </div>
-      <div class="stack">
-        <div class="trio">
-          <figure data-in><img src="img/focus-aligned.webp" alt="Focus card, aligned, green"><figcaption><i>01</i><b>Aligned</b><span>Close to your reference</span></figcaption></figure>
-          <figure data-in><img src="img/focus-drifting.webp" alt="Focus card, drifting, yellow"><figcaption><i>02</i><b>Drifting</b><span>A change that stays</span></figcaption></figure>
-          <figure data-in><img src="img/focus-reset.webp" alt="Focus card, time to reset, red"><figcaption><i>03</i><b>Time to reset</b><span>Drifted for a while</span></figcaption></figure>
-        </div>
-        <div class="bar-row" data-in>
-          <div class="lightbar" role="img" aria-label="The light bar fades from white to yellow to red, then back"><i></i></div>
-          <span>The light bar on your monitor follows the same colours</span>
-        </div>
-      </div>
+  <section class="slide paper" data-title="Work mode">
+    <div class="head">
+      <p class="pill" data-in>03 · Work mode</p>
+      <h2 class="title" data-in>While you work, <span>the light does the talking.</span></h2>
+    </div>
+    <div class="cards c-4-4-4">
+      <div class="card shot" data-in><div class="card-copy"><h3>Aligned</h3><p>Close to your reference.</p></div><img class="bleed" src="img/focus-aligned.webp" alt="Focus card, aligned, green"></div>
+      <div class="card shot" data-in><div class="card-copy"><h3>Drifting</h3><p>A change that stays.</p></div><img class="bleed" src="img/focus-drifting.webp" alt="Focus card, drifting, yellow"></div>
+      <div class="card shot" data-in><div class="card-copy"><h3>Time to reset</h3><p>Drifted for a while.</p></div><img class="bleed" src="img/focus-reset.webp" alt="Focus card, time to reset, red"></div>
+    </div>
+    <div class="features" data-in>
+      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span><h4>A slow fade</h4><p>Red in one second felt like being scolded, so a change has to last.</p></div>
+      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="4" rx="2"/><path d="M8 15h8M12 11v8"/></svg></span><h4>Light on the monitor</h4><p>The bar shows the same colour, so you never look away from your work.</p></div>
+      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v4h4"/></svg></span><h4>Back to white</h4><p>Sit back and it returns to calm white within a few seconds.</p></div>
     </div>
   </section>
 
   <!-- 6 · One thing at a time -->
-  <section class="slide paper" data-title="One thing at a time" data-chapter="04   Fix 2 of 5">
-    <h2 class="title" data-in>One thing at a time.</h2>
-    <div class="ba">
-      <div class="ba-before" data-in>
-        <p class="tag">Before</p>
-        <div class="ba-shots">
-          <img src="img/before-bar.webp" alt="Version one, two popups at once">
-          <img src="img/before-tour.webp" alt="Version one tour, step 7 of 12">
-        </div>
-        <p class="note">Two popups at once, then a 12 step tour</p>
+  <section class="slide paper" data-title="One thing at a time">
+    <div class="head">
+      <p class="pill" data-in>04 · Fix 2 of 5</p>
+      <h2 class="title" data-in>One thing <span>at a time.</span></h2>
+    </div>
+    <div class="cards c-4-8">
+      <div class="card muted" data-in>
+        <div class="card-copy"><h3>Before</h3><p>Two popups at once, then a 12 step tour.</p></div>
+        <div class="shots-col"><img src="img/before-bar.webp" alt="Version one, two popups at once"><img src="img/before-tour.webp" alt="Version one tour, step 7 of 12"></div>
       </div>
-      <div class="ba-after glow" data-tone="blue" data-in>
-        <p class="tag">After</p>
-        <div class="ba-steps">
+      <div class="card tint" data-in>
+        <div class="card-copy"><h3>After</h3><p>Three start cards, one at a time. The card stays put and only its inside changes.</p></div>
+        <div class="shots-row">
           <figure><img src="img/after-camera.webp" alt="Start card 1, turn on your camera"><figcaption>1</figcaption></figure>
           <figure><img src="img/after-bar.webp" alt="Start card 2, connect your light bar"><figcaption>2</figcaption></figure>
           <figure><img src="img/after-ref.webp" alt="Start card 3, save your reference"><figcaption>3</figcaption></figure>
         </div>
-        <p class="note">Three start cards, one at a time, then a 4 step tour</p>
       </div>
     </div>
-    <p class="learned" data-in><span>What I learned</span>Every extra card is one more reason to skip.</p>
+    <div class="stats" data-in>
+      <div><b>12 → 4</b><span>tour steps</span></div>
+      <div><b>2 → 1</b><span>popup on screen at a time</span></div>
+      <div><b>3</b><span>start cards in one fixed place</span></div>
+      <div class="note-stat"><span>What I learned</span><p>Every extra card is one more reason to skip.</p></div>
+    </div>
   </section>
 
   <!-- 7 · Number to figure (live) -->
-  <section class="slide paper" data-title="Number to figure" data-chapter="05   Fix 3 of 5">
-    <div class="split">
-      <div class="lead">
-        <h2 class="title" data-in>People didn’t read the number. They read themselves.</h2>
-        <div class="lead-foot">
-          <p class="hand" data-in>The gap between you and your outline says more than any number.</p>
-          <p class="aside" data-in>AI let me try a chart and a character in one evening. I picked the one people could read at a glance.</p>
-        </div>
+  <section class="slide paper" data-title="Number to figure">
+    <div class="head">
+      <p class="pill" data-in>05 · Fix 3 of 5</p>
+      <h2 class="title" data-in>People didn’t read the number. <span>They read themselves.</span></h2>
+    </div>
+    <div class="cards c-4-8">
+      <div class="card muted" data-in>
+        <div class="card-copy"><h3>Before</h3><p>A percent shift nobody could read.</p></div>
+        <img class="bleed narrow" src="img/before-percent.webp" alt="Version one card with a percent shift number">
       </div>
-      <div class="figure-pair">
-        <div class="ba-before slim" data-in>
-          <p class="tag">Before</p>
-          <img src="img/before-percent.webp" alt="Version one card with a percent shift number">
-        </div>
-        <div class="live" id="live-card" data-in>
-          <div class="live-head"><p class="tag">After, live</p><b id="live-state">Aligned</b><span id="live-hint">Close to your reference.</span></div>
-          <div class="live-figure" id="live-figure"></div>
-        </div>
+      <div class="card live" id="live-card" data-in>
+        <div class="card-copy"><h3 id="live-state">Aligned</h3><p id="live-hint">Close to your reference.</p></div>
+        <span class="live-tag">Live</span>
+        <div class="live-figure" id="live-figure"></div>
       </div>
+    </div>
+    <div class="features" data-in>
+      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8"/></svg></span><h4>A chart first</h4><p>A live graph was still hard to read at a glance.</p></div>
+      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg></span><h4>Then a figure</h4><p>It follows you, so you see which way you lean.</p></div>
+      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8" ry="9" stroke-dasharray="3 3"/></svg></span><h4>Your outline</h4><p>The gap to the dashed outline says more than any number.</p></div>
     </div>
   </section>
 

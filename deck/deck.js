@@ -5,7 +5,7 @@ import { PostureAvatar } from '../avatar.js';
 
 const deck = document.getElementById('deck');
 const slides = [...deck.querySelectorAll('.slide')];
-const chapter = document.getElementById('chapter'), progress = document.getElementById('progress');
+const progress = document.getElementById('progress');
 const pad = n => String(n).padStart(2, '0');
 document.getElementById('page-all').textContent = pad(slides.length);
 
@@ -30,15 +30,14 @@ function go(i) {
   cur = i;
   document.body.classList.toggle('paper', next.classList.contains('paper'));
   document.body.classList.toggle('on-cover', i === 0);
-  // chapter label in the header cross-fades
-  const label = next.dataset.chapter || '';
-  if (chapter.textContent !== label) { chapter.classList.add('swap'); setTimeout(() => { chapter.textContent = label; chapter.classList.remove('swap'); }, 250); }
   document.getElementById('page-now').textContent = pad(i + 1);
   progress.style.width = ((i + 1) / slides.length * 100) + '%';
   history.replaceState(null, '', '#' + (i + 1));
 }
 
-// Keys, clicks (right two thirds forward, left third back), wheel or swipe, and #number in the URL.
+// Round arrows, keys, clicks (right two thirds forward, left third back), wheel, and #number in the URL.
+document.getElementById('prev').onclick = e => { e.stopPropagation(); go(cur - 1); };
+document.getElementById('next').onclick = e => { e.stopPropagation(); go(cur + 1); };
 addEventListener('keydown', e => {
   if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
   else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
@@ -53,9 +52,9 @@ addEventListener('wheel', e => { if (scrolling() || Math.abs(e.deltaY) < 30 || p
 const fromHash = () => go((parseInt(location.hash.slice(1), 10) || 1) - 1);
 fromHash(); addEventListener('hashchange', fromHash);
 
-// The app's living backdrop and the dot orbs.
+// The app's living backdrop and the dot orbs (the big ones and the small logo marks).
 mountPainting();
-mountAgents(deck);
+mountAgents(document);
 
 // Live figure: the real avatar, scripted to drift and come back, with the card colour following.
 const host = document.getElementById('live-figure');
@@ -64,10 +63,10 @@ if (host) {
   av.setActive(true);
   const card = document.getElementById('live-card'), st = document.getElementById('live-state'), hint = document.getElementById('live-hint');
   const SCRIPT = [
-    [0, null, 'Aligned', 'Close to your reference.', '#bfe6cc'],
-    [3.5, { x: .05, y: .3, tilt: 0, roll: .04, sx: 0 }, 'Drifting', 'Your head is moving forward.', '#f3dc9c'],
-    [7.5, { x: -.2, y: .2, tilt: .16, roll: .2, sx: -.1 }, 'Drifting', 'You are leaning to one side.', '#f2c08c'],
-    [11, null, 'Aligned', 'Back in balance.', '#bfe6cc'],
+    [0, null, 'Aligned', 'Close to your reference.', '#cfeedb'],
+    [3.5, { x: .05, y: .3, tilt: 0, roll: .04, sx: 0 }, 'Leaning forward', 'Your head is moving toward the screen.', '#f5e1a6'],
+    [7.5, { x: -.2, y: .2, tilt: .16, roll: .2, sx: -.1 }, 'Tilting to one side', 'One shoulder has dropped.', '#f6caa0'],
+    [11, null, 'Back in balance', 'You are on your outline again.', '#cfeedb'],
   ];
   const LOOP = 14.5, t0 = performance.now();
   let last = -1;
