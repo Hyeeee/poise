@@ -1897,3 +1897,7 @@ body { color: var(--ink); }
 .lede span, .lede span * { color: var(--ink) !important; }
 /* Onboarding questions: serif in full ink */
 .setup-line { color: var(--ink) !important; }
+/* Measured from anthropic.com: headings 700, -0.024em, line-height 1.12; serif body at 60% ink (#6a6a68) on ivory #faf9f5. */
+:root { --track-title: -0.024em; --ink-2: #6a6a68; }
+.lede b, .lede b * { font-weight: 700 !important; letter-spacing: -.024em !important; }
+.lede, .setup-line { line-height: 1.12 !important; }
