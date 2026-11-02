@@ -11,7 +11,7 @@
   --ease: cubic-bezier(.22,.7,.2,1);
   --swoop: cubic-bezier(.76,0,.24,1);
   --padx: max(calc(var(--s) * 64), 20px);
-  --top: max(calc(var(--s) * 72), 48px);   /* no header now, so content starts higher */
+  --top: max(calc(var(--s) * 92), 56px);   /* no header now, so content starts higher */
   --bottom: max(calc(var(--s) * 48), 28px);
   --r: calc(var(--s) * 32);
   /* type scale */
@@ -310,3 +310,13 @@ body.sheet-moving { --wait: 520ms; }
 .pill, .pill.glass { height: auto; padding: 0; border: 0; border-radius: 0; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; font-size: var(--t-s); font-weight: 500; color: var(--ink-3); letter-spacing: .005em; }
 .chapter-slide .pill { color: rgba(20,20,18,.6); }
 .decision-row span, .learned-row span { background: none; padding: 0; border-radius: 0; color: var(--green-ink); font-size: var(--t-s); }
+
+/* Segmented progress: one segment per part of the contents, widths by slide count */
+.progress { position: fixed; z-index: 30; left: var(--padx); right: var(--padx); top: calc(var(--s) * 22); height: auto; background: none; display: flex; gap: calc(var(--s) * 8); }
+.seg { display: flex; flex-direction: column; gap: calc(var(--s) * 8); min-width: 0; padding: 0; text-align: left; cursor: pointer; }
+.progress .seg i { display: block; width: 100%; height: 3px; border-radius: 99px; background: rgba(13,13,13,.1); overflow: hidden; }
+.progress .seg b { display: block; height: 100%; width: 0; background: var(--ink); border-radius: inherit; transition: width .6s var(--ease); }
+.seg span { font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .3s; }
+.seg.now span { color: var(--ink); font-weight: 500; }
+body.on-cover .progress { opacity: 0; pointer-events: none; }
+.progress { transition: opacity .6s var(--ease); }

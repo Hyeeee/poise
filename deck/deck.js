@@ -6,6 +6,18 @@ import { PostureAvatar } from '../avatar.js';
 const deck = document.getElementById('deck');
 const slides = [...deck.querySelectorAll('.slide')];
 const progress = document.getElementById('progress');
+// The parts of the deck, in order, and how many slides each has (cover and contents come first).
+const PARTS = [['Intro', 2], ['The problem', 1], ['Research', 3], ['Version one', 4], ['Iteration', 1], ['Version two', 6], ['What I learned', 3]];
+let at = 0;
+const segs = PARTS.map(([name, n]) => {
+  const start = at; at += n;
+  const el = document.createElement('button');
+  el.className = 'seg'; el.style.flexGrow = n;
+  el.innerHTML = `<i><b></b></i><span>${name}</span>`;
+  el.onclick = e => { e.stopPropagation(); go(start); };
+  progress.append(el);
+  return { el, start, n };
+});
 const pad = n => String(n).padStart(2, '0');
 
 // Stagger: each [data-in] element on a slide gets its own delay index; the 11 survey dots pop in one by one.
@@ -29,7 +41,12 @@ function go(i) {
   cur = i;
   document.body.classList.toggle('paper', next.classList.contains('paper'));
   document.body.classList.toggle('on-cover', i === 0);
-  progress.style.width = ((i + 1) / slides.length * 100) + '%';
+  // each part fills by how far you are into it; the current part's name is darker
+  segs.forEach(({ el, start, n }) => {
+    const k = Math.max(0, Math.min(1, (i - start + 1) / n));
+    el.querySelector('b').style.width = (k * 100) + '%';
+    el.classList.toggle('now', i >= start && i < start + n);
+  });
   history.replaceState(null, '', '#' + (i + 1));
 }
 
