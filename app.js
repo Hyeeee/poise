@@ -96,8 +96,10 @@ const TOAST_ICONS = [
   [/got it|perfect|reference now|saw your wave/i, '<circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.2 2.4 2.4 4.6-4.8"/>'],
 ];
 const toastIcon = msg => (TOAST_ICONS.find(([re]) => re.test(msg)) || [0, '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>'])[1];
-function toast(msg) {
-  const host = bubbleHost();
+// device: true for connection messages (camera, light bar). They always use the bottom toast with
+// the device icon, never the figure's speech bubble.
+function toast(msg, { device = false } = {}) {
+  const host = device ? null : bubbleHost();
   if (!host) {
     // A small line icon that says what the message is about, then the text.
     const t = $('toast');
@@ -231,6 +233,7 @@ async function start() {
     $('stop').classList.add('on'); $('stop').setAttribute('aria-label', 'Turn camera off');
     text('start-status', '');
     setChip('Find your frame', false);
+    toast('Camera connected', { device: true });
     scheduleLoop();
   } catch (e) {
     stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null; active = false;
@@ -1694,7 +1697,7 @@ $('connect').onclick = async () => {
     await port.open({ baudRate: 115200 });
     writer = port.writable.getWriter(); lastSerial = '';
     $('connect').classList.add('on'); $('connect').setAttribute('aria-label', 'Disconnect light bar');
-    toast('Light bar connected'); light('idle');
+    toast('Light bar connected', { device: true }); light('idle');
     readSensor(port);
     syncRef();
   } catch (e) { if (e.name !== 'NotFoundError') toast('Check the USB connection. Another app may be using the port.'); }
