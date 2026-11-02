@@ -303,3 +303,10 @@ body.sheet-moving { --wait: 520ms; }
 .heard-grid { align-items: start; flex: 0 1 auto; }
 .glass-card { min-height: calc(var(--s) * 360); }
 .photo-card.top { justify-content: flex-start; }
+.toc-list li { padding: calc(var(--s) * 22) 0; }
+.toc-list b { font-size: max(calc(var(--s) * 44), 21px); }
+
+/* Section labels and Decision / What I learned labels: plain text, no chip */
+.pill, .pill.glass { height: auto; padding: 0; border: 0; border-radius: 0; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; font-size: var(--t-s); font-weight: 500; color: var(--ink-3); letter-spacing: .005em; }
+.chapter-slide .pill { color: rgba(20,20,18,.6); }
+.decision-row span, .learned-row span { background: none; padding: 0; border-radius: 0; color: var(--green-ink); font-size: var(--t-s); }
