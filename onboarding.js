@@ -235,7 +235,8 @@ export function runOnboarding() {
     }
     function minutesPicker(q) {
       let value = answers[q.key] ?? q.start;
-      const clampV = v => Math.max(q.min, Math.min(q.max, Math.round(v / q.step) * q.step || q.start));
+      // Under an hour it moves in 5 minute steps; past an hour in quarter hours, so it reads as 1.25, 1.5, 1.75 hours.
+      const clampV = v => { v = Math.max(q.min, Math.min(q.max, v)); return v > 60 ? Math.round(v / 15) * 15 : (Math.round(v / q.step) * q.step || q.start); };
       const MARKS = [15, 30, 45, 60, 90, 120];
       const pct = m => (m - q.min) / (q.max - q.min) * 100;
       const short = m => m < 60 ? `${m}m` : m % 60 ? `${(m / 60).toFixed(1)}h` : `${m / 60}h`;
@@ -254,8 +255,9 @@ export function runOnboarding() {
         value = clampV(v); range.value = value;
         const h = Math.floor(value / 60), m = value % 60;
         const prev = set.last; set.last = value;
-        rollText(b, String(value < 60 ? value : m ? `${h}h ${m}` : h), prev == null ? 0 : Math.sign(value - prev));
-        u.textContent = value < 60 ? 'min' : m ? 'min' : h > 1 ? 'hours' : 'hour';
+        const hrs = +(value / 60).toFixed(2);   // 90 becomes 1.5, 75 becomes 1.25
+        rollText(b, String(value < 60 ? value : hrs), prev == null ? 0 : Math.sign(value - prev));
+        u.textContent = value < 60 ? 'min' : hrs === 1 ? 'hour' : 'hours';
         range.setAttribute('aria-valuetext', `${value} minutes`);
         wrap.style.setProperty('--p', pct(value) + '%');
         wrap.querySelectorAll('.quick-chip').forEach(x => x.classList.toggle('on', +x.dataset.m === value));

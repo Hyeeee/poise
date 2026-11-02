@@ -2008,3 +2008,7 @@ body .pop.pop::before, .studio .pop.empty:is([data-dir="next"],[data-dir="back"]
 
 /* Speech bubble: a heavier, more natural handwriting that matches the avatar's thick ink line. */
 body .say-bubble, body .say-bubble .sb-text { font-family: 'Shantell Sans', 'Patrick Hand', 'Comic Sans MS', cursive !important; font-weight: 600 !important; font-size: 13.5px !important; line-height: 1.3 !important; letter-spacing: 0 !important; }
+/* Number and unit sit on one line no matter how many digits roll (a lone "2" used to jump up). */
+.ls-value { align-items: flex-end !important; }
+.ls-value b { line-height: 1.08 !important; }
+.ls-value > span { line-height: 1 !important; padding-bottom: .26em; }
