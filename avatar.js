@@ -63,7 +63,9 @@ export class PostureAvatar {
     const a = p[11], b = p[12];
     const fig = (x, y) => [-x * 80, y / aspect * 80];                  // mirrored, y in the same units as x
     const sw = Math.hypot(a.x - b.x, (a.y - b.y) / aspect) || .2;
-    const ang = Math.atan2(-(a.y - b.y) / aspect, a.x - b.x);           // real shoulder-line angle on screen
+    let ang = Math.atan2(-(a.y - b.y) / aspect, a.x - b.x);             // real shoulder-line angle on screen
+    // If the shoulders ever come in swapped, keep the angle within a quarter turn so arms never flip upside down.
+    if (ang > Math.PI / 2) ang -= Math.PI; else if (ang < -Math.PI / 2) ang += Math.PI;
     const rot = ([x, y]) => [x * Math.cos(-ang) - y * Math.sin(-ang), x * Math.sin(-ang) + y * Math.cos(-ang)];
     const seg = (i, j) => rot(fig((p[j].x - p[i].x) / sw, (p[j].y - p[i].y) / sw));
     const lim = ([x, y], max) => { const l = Math.hypot(x, y); return l > max ? [x / l * max, y / l * max] : [x, y]; };
