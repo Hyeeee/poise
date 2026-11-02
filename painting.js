@@ -20,14 +20,15 @@ void main(){
  // bends into a swoosh, splits into two lobes, then gathers back into a round glow.
  float s1=.5+.5*sin(t*.37), s2=.5+.5*sin(t*.29+2.1), s3=.5+.5*sin(t*.23+4.2);
  // main glow (bends when s2 is high, so it reads as a curve rather than an oval)
- vec2 c1=vec2(a*(.32+.16*sin(t*.9)), .42+.18*sin(t*.67+1.2));
+ // wander across the whole screen: two waves per axis at different speeds, so the path never repeats
+ vec2 c1=vec2(a*(.5+.32*sin(t*.9)+.12*sin(t*1.7+1.)), .5+.34*sin(t*.67+1.2)+.10*cos(t*1.43));
  vec2 q1=p; q1.y-=s2*.18*sin((p.x-c1.x)*2.6+t*.8);
  float f1=glow(q1,c1,.30+.14*(1.-s1),-.5+.6*sin(t*.31),1.+2.2*s1);
  // second glow: sometimes a small round spot, sometimes a wide soft field
- vec2 c2=vec2(a*(.72+.16*cos(t*.71+2.)), .60+.20*cos(t*.83+.4));
+ vec2 c2=vec2(a*(.5+.36*cos(t*.71+2.)+.10*sin(t*1.31)), .5+.36*cos(t*.83+.4)+.10*sin(t*1.57+2.));
  float f2=glow(p,c2,.22+.22*s3,.8+.5*cos(t*.43),1.+1.4*(1.-s3));
  // third: a lobe that buds off the main glow and drifts away again (two-lobed shapes)
- vec2 c3=c1+vec2(cos(t*.5),sin(t*.6))*(.15+.35*s3)*vec2(a*.5,1.);
+ vec2 c3=c1+vec2(cos(t*.7),sin(t*.9))*(.2+.4*s3)*vec2(a*.5,1.);
  float fs=glow(p,c3,.16+.10*s2,t*.2,1.+.8*s1)*.9;
  // the whole page carries a faint tint of the first colour, so white is never flat
  vec3 col=mix(base,C1,.10);
