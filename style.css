@@ -1636,3 +1636,5 @@ html[data-cue="game"] .studio .panel #breathe-panel::before { opacity: .95 !impo
 /* Big numbers: proportional digits (tabular digits give "1" the width of a "0", which looked gappy) */
 #work-panel #timer, .card .match b, .report-card .report-stats b, .ls-value b, .len-card b, #breath-left-big {
   font-variant-numeric: proportional-nums !important; font-feature-settings: "tnum" 0 !important; letter-spacing: -.035em !important; }
+/* Speech bubble: a calm handwritten face, to match the ink figure */
+body .say-bubble, body .say-bubble .sb-text { font-family: 'Patrick Hand', 'Segoe Print', 'Comic Sans MS', cursive !important; font-weight: 400 !important; font-size: 14.5px !important; line-height: 1.2 !important; letter-spacing: .01em !important; }
