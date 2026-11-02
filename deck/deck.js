@@ -9,15 +9,8 @@ const chapter = document.getElementById('chapter'), progress = document.getEleme
 const pad = n => String(n).padStart(2, '0');
 document.getElementById('page-all').textContent = pad(slides.length);
 
-// Headlines and quotes are split into words, each in its own mask, so they can rise one by one.
-document.querySelectorAll('[data-split]').forEach(el => {
-  const words = el.textContent.trim().split(/\s+/);
-  el.setAttribute('aria-label', el.textContent.trim());
-  el.innerHTML = words.map((w, k) => `<span class="w" aria-hidden="true"><span style="--wi:${k}">${w}</span></span>`).join(' ');
-});
-// Stagger: every animated thing on a slide gets its order (--i), so the slide builds top to bottom;
-// the 11 survey dots pop in one by one.
-slides.forEach(sl => sl.querySelectorAll('[data-in], [data-split], [data-reveal]').forEach((el, i) => el.style.setProperty('--i', i)));
+// Stagger: each [data-in] element on a slide gets its own delay index; the 11 survey dots pop in one by one.
+slides.forEach(sl => sl.querySelectorAll('[data-in]').forEach((el, i) => el.style.setProperty('--i', i)));
 document.querySelectorAll('.dots-11 i').forEach((d, i) => d.style.setProperty('--d', i));
 
 // Going to a slide: the old one lifts away, the new one rises in. The white sheet rises over the
@@ -43,19 +36,6 @@ function go(i) {
   document.getElementById('page-now').textContent = pad(i + 1);
   progress.style.width = ((i + 1) / slides.length * 100) + '%';
   history.replaceState(null, '', '#' + (i + 1));
-  next.querySelectorAll('[data-count]').forEach(countUp);
-}
-// Numbers count up from zero when their slide opens ("78%", "7 of 11", "1 in 13": the first number moves).
-function countUp(el) {
-  const text = el.dataset.text ??= el.textContent, m = text.match(/\d+/);
-  if (!m) return;
-  const to = +m[0], t0 = performance.now() + 450, dur = 1300;
-  const tick = now => {
-    const k = Math.min(1, Math.max(0, (now - t0) / dur)), e = 1 - Math.pow(1 - k, 4);
-    el.textContent = text.replace(m[0], Math.round(to * e));
-    if (k < 1) requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
 }
 
 // Keys, clicks (right two thirds forward, left third back), wheel or swipe, and #number in the URL.
