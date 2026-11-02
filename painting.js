@@ -7,30 +7,40 @@ import { ambient } from './ambient.js';
 const FRAG = `precision highp float;
 uniform vec2 R; uniform float T; uniform vec3 C1; uniform vec3 C2; uniform vec3 C3; uniform float L;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-// One big soft shape: its size stays the same, but its outline keeps changing. The edge
-// radius is a circle plus a few slow ripples around it (2, 3 and 5 lobes), each turning at
-// its own speed, so the outline swells and dents smoothly in a different place each moment.
-float shape(vec2 p,vec2 c,float R,float t,float seed){
- vec2 d=p-c; float ang=atan(d.y,d.x), dist=length(d);
- float r=R*(1.+.16*sin(2.*ang+t*.9+seed)+.10*sin(3.*ang-t*1.2+seed*2.)+.06*sin(5.*ang+t*1.6+seed*3.));
- return 1.-smoothstep(r*.15,r*1.25,dist);
+// a soft glow: an oval that is round near its core and stretches out into a long soft band
+float glow(vec2 p,vec2 c,float r,float ang,float st){
+ vec2 d=p-c; float cs=cos(ang),sn=sin(ang); d=vec2(cs*d.x+sn*d.y,-sn*d.x+cs*d.y);
+ d.x/=r*st; d.y/=r; return exp(-dot(d,d));
 }
 void main(){
  vec2 uv=gl_FragCoord.xy/R; float a=R.x/R.y; vec2 p=vec2(uv.x*a,uv.y);
- float t=T*.2;
- // big shape in the first colour, drifting slowly around the middle of the screen
- vec2 c1=vec2(a*(.5+.18*sin(t*.5)), .5+.16*cos(t*.43+1.));
- float f1=shape(p,c1,.62,t,0.);
- // a second big shape in the second colour, overlapping the first and sliding around it (no small spots)
- vec2 c2=c1+vec2(a*.22*cos(t*.37+2.),.22*sin(t*.53));
- float f2=shape(p,c2,.52,t*1.1,4.);
+ float t=T*.32;   // faster than before
  vec3 base=vec3(.975,.975,.968);
- vec3 col=mix(base,C1,f1*.88);
- col=mix(col,C2,f2*.85);
- float amt=clamp(max(f1,f2),0.,1.);
+ // Shapes keep changing on their own slow clocks: a round glow stretches into a long oval,
+ // bends into a swoosh, splits into two lobes, then gathers back into a round glow.
+ float s1=.5+.5*sin(t*.9), s2=.5+.5*sin(t*.73+2.1), s3=.5+.5*sin(t*.61+4.2);   // shape clocks: a change every few seconds
+ // main glow (bends when s2 is high, so it reads as a curve rather than an oval)
+ // wanders up, down and sideways across the screen
+ vec2 c1=vec2(a*(.42+.24*sin(t*.5)+.08*sin(t*1.3+1.)), .45+.25*sin(t*.41+1.2)+.06*cos(t*1.1));
+ vec2 q1=p; q1.y-=s2*.18*sin((p.x-c1.x)*2.6+t*.8);
+ float f1=glow(q1,c1,.36+.10*(1.-s1),-.5+.9*sin(t*.31),1.+1.8*s1);
+ // second big glow: always a large soft field, turning and stretching
+ vec2 c2=vec2(a*(.62+.22*cos(t*.43+2.)), .55+.24*cos(t*.37+.4));
+ float f2=glow(p,c2,.36+.10*s3,.8+.9*cos(t*.29),1.+1.4*(1.-s3));
+ // third: a big lobe that swells out of the main glow and folds back in (no small spots)
+ vec2 c3=c1+vec2(cos(t*.45),sin(t*.55))*(.12+.22*s3)*vec2(a*.5,1.);
+ float fs=glow(p,c3,.30+.08*s2,t*.2,1.+.8*s1)*.8;
+ // the whole page carries a faint tint of the first colour, so white is never flat
+ vec3 col=mix(base,C1,.10);
+ col=mix(col,C1,smoothstep(.05,.8,f2)*.70);
+ col=mix(col,C1,smoothstep(.04,.6,f1)*.92);
+ col=mix(col,C2,smoothstep(.40,1.,f1)*.95);
+ col=mix(col,C2,smoothstep(.05,.9,fs)*.80);
+ float amt=clamp(max(max(f1,f2*.8),fs),0.,1.);
  col+=vec3(.025)*L;
+ // still grain (no flicker), gathered in the colour and fading toward the white
  float g=h(floor(gl_FragCoord.xy))-.5;
- col+=g*(.03+.05*amt);
+ col+=g*(.035+.045*amt);   // fine grain over everything, a bit denser in the colour
  gl_FragColor=vec4(col,1.);
 }`;
 
