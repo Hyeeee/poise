@@ -350,3 +350,4 @@ body.paper .sheet { backdrop-filter: blur(90px) saturate(1.05); -webkit-backdrop
 body.paper .sheet { background: rgba(250,250,247,.8); }
 .sheet::before { display: none; }
 .toc-list li, .toc-list li:first-child { border: 0; }
+:root { --m: max(calc(var(--s) * 40), 16px); }   /* tighter edges all round (was 64) */
