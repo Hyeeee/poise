@@ -1860,3 +1860,9 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
 /* Hover card: every line stays on one line; the card grows to fit instead of wrapping. */
 .rc-tip { max-width: none !important; width: max-content; white-space: nowrap; }
 .rc-tip > * { white-space: nowrap; }
+
+/* Report colours one small step brighter and cleaner (less grey): aligned, drifting, reset,
+   the chart fill and its line. */
+:root { --aligned: #6dbb85; --drift: #e2b04e; --reset: #dd7f6b; }
+.report-card .report-chart { --signal: #84d89d !important; }
+.report-card { --live-line: color-mix(in srgb, #5fb57b, #0d0d0d 20%); }
