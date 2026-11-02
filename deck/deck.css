@@ -140,3 +140,5 @@ body:hover .dots { opacity: 1; }
 .count { position: fixed; right: 22px; bottom: 14px; font-size: 13px; color: rgba(30,31,28,.45); font-variant-numeric: tabular-nums; z-index: 5; }
 @media (prefers-reduced-motion: reduce) { [data-in] { transition: none; transform: none; } .card.glow::before, .lightbar i { animation: none; } }
 @media print { .dots, .count { display: none; } }
+/* The app's wordmark: lowercase Newsreader 500 with a hair of stroke, no full stop */
+.cover .display.logo { font-weight: 500; letter-spacing: -.035em; -webkit-text-stroke: 1.5px currentColor; }
