@@ -1842,3 +1842,5 @@ html[data-cue="game"] .studio .panel :is(#game-panel, #breathe-panel)::before { 
 .toast .t-tile { width: 32px; height: 32px; flex: none; border-radius: 10px; background: rgba(30,31,28,.86); color: #fff; display: grid; place-items: center; }
 .toast .t-tile .t-ic { width: 17px; height: 17px; opacity: 1; stroke-width: 1.8; }
 .toast { bottom: 90px !important; } @media (max-width: 640px) { .toast { bottom: 78px !important; } }
+/* Lighter tile: soft grey square with a dark line icon. */
+.toast .t-tile { background: rgba(13,13,13,.07) !important; color: var(--ink) !important; }
