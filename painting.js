@@ -9,7 +9,7 @@ uniform vec2 R; uniform float T; uniform vec3 C1; uniform vec3 C2; uniform vec3 
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 void main(){
  vec2 uv=gl_FragCoord.xy/R; float a=R.x/R.y; vec2 p=vec2(uv.x*a,uv.y);
- float t=T*.12;
+ float t=T*.2;
  // smooth flowing field (no cloud noise): space is bent by slow sine waves, so the colour
  // moves like soft silk bands sliding over each other
  vec2 q=p+.32*vec2(sin(p.y*2.3+t*1.1),cos(p.x*1.9-t*.9));
@@ -17,12 +17,15 @@ void main(){
  float v1=.5+.5*sin(q.x*1.5+q.y*1.1+t*.8);
  float v2=.5+.5*sin(-q.x*1.2+q.y*1.9-t*.6+2.4);
  vec3 base=vec3(.975,.975,.968);
- vec3 col=mix(base,C1,smoothstep(.30,.98,v1)*.88);
- col=mix(col,C2,smoothstep(.38,.98,v2)*.80);
+ // two colours plus white: the colour bands are narrower, so white space stays open around them
+ float m1=smoothstep(.66,1.,v1)*.82, m2=smoothstep(.72,1.,v2)*.74;
+ vec3 col=mix(base,C1,m1);
+ col=mix(col,C2,m2);
+ float amt=clamp(m1+m2,0.,1.);
  col+=vec3(.025)*L;
- // stronger film grain for a rougher, printed texture
+ // film grain: dense where the colour is, fading out toward the white
  float g=h(floor(gl_FragCoord.xy)+fract(T*7.)*57.)-.5;
- col+=g*.13;
+ col+=g*(.025+.075*amt);   // grain gathers in the colour and loosens toward the white
  gl_FragColor=vec4(col,1.);
 }`;
 
