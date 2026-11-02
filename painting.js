@@ -8,41 +8,32 @@ const FRAG = `precision highp float;
 uniform vec2 R; uniform float T; uniform vec3 C1; uniform vec3 C2; uniform vec3 C3; uniform float L;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 // a soft glow: an oval that is round near its core and stretches out into a long soft band
-float glow(vec2 p,vec2 c,float r,float ang,float st){
- vec2 d=p-c; float cs=cos(ang),sn=sin(ang); d=vec2(cs*d.x+sn*d.y,-sn*d.x+cs*d.y);
- d.x/=r*st; d.y/=r; return exp(-dot(d,d));
-}
 void main(){
  vec2 uv=gl_FragCoord.xy/R; float a=R.x/R.y; vec2 p=vec2(uv.x*a,uv.y);
  float t=T*.2;
+ // gently bend space so the outlines are never clean circles
+ p+=vec2(.06*sin(p.y*3.1+t*1.3)+.035*sin(p.y*5.3-t*.9), .06*cos(p.x*2.7-t*1.1)+.035*cos(p.x*4.9+t*.8));
+ // Six blobs, each on its own path and speed. Where they meet they merge into one shape,
+ // where they drift apart the shape splits, so the overall form keeps changing on its own.
+ float w1=0., w2=0.;
+ for(int i=0;i<6;i++){
+  float fi=float(i);
+  vec2 c=vec2(a*(.5+.38*sin(t*(.55+fi*.13)+fi*1.7)+.08*sin(t*1.9+fi)),
+              .5+.40*cos(t*(.47+fi*.11)+fi*2.3)+.07*cos(t*1.6+fi*1.3));
+  float r=.24+.09*sin(t*(.9+fi*.2)+fi);          // each blob breathes in size
+  vec2 d=(p-c)/vec2(r*(1.+.5*sin(t*.8+fi*1.9)),r*(1.+.5*cos(t*.7+fi*1.1)));   // and stretches
+  float f=exp(-dot(d,d));
+  if(mod(fi,2.)<1.) w1+=f; else w2+=f;
+ }
+ float F=w1+w2;
  vec3 base=vec3(.975,.975,.968);
- // Shapes keep changing on their own slow clocks: a round glow stretches into a long oval,
- // bends into a swoosh, splits into two lobes, then gathers back into a round glow.
- float s1=.5+.5*sin(t*1.1), s2=.5+.5*sin(t*.87+2.1), s3=.5+.5*sin(t*.69+4.2);
- // bend space with slow waves so every outline is soft and irregular, and keeps changing
- p+=vec2(.07*sin(p.y*3.1+t*1.3)+.04*sin(p.y*5.3-t*.9), .07*cos(p.x*2.7-t*1.1)+.04*cos(p.x*4.9+t*.8));
- // main glow (bends when s2 is high, so it reads as a curve rather than an oval)
- // wander across the whole screen: two waves per axis at different speeds, so the path never repeats
- vec2 c1=vec2(a*(.5+.32*sin(t*.9)+.12*sin(t*1.7+1.)), .5+.34*sin(t*.67+1.2)+.10*cos(t*1.43));
- vec2 q1=p; q1.y-=s2*.18*sin((p.x-c1.x)*2.6+t*.8);
- float f1=glow(q1,c1,.30+.14*(1.-s1),-.5+.6*sin(t*.31),1.+2.2*s1);
- // second glow: sometimes a small round spot, sometimes a wide soft field
- vec2 c2=vec2(a*(.5+.36*cos(t*.71+2.)+.10*sin(t*1.31)), .5+.36*cos(t*.83+.4)+.10*sin(t*1.57+2.));
- float f2=glow(p,c2,.22+.22*s3,.8+.5*cos(t*.43),1.+1.4*(1.-s3));
- // third: a lobe that buds off the main glow and drifts away again (two-lobed shapes)
- vec2 c3=c1+vec2(cos(t*.7),sin(t*.9))*(.2+.4*s3)*vec2(a*.5,1.);
- float fs=glow(p,c3,.16+.10*s2,t*.2,1.+.8*s1)*.9;
- // the whole page carries a faint tint of the first colour, so white is never flat
- vec3 col=mix(base,C1,.10);
- col=mix(col,C1,smoothstep(.05,.8,f2)*.70);
- col=mix(col,C1,smoothstep(.04,.6,f1)*.92);
- col=mix(col,C2,smoothstep(.40,1.,f1)*.95);
- col=mix(col,C2,smoothstep(.05,.9,fs)*.80);
- float amt=clamp(max(max(f1,f2*.8),fs),0.,1.);
+ vec3 tint=(C1*w1+C2*w2)/max(F,1e-4);              // colour follows whichever blobs are near
+ float amt=smoothstep(.0,1.3,F);
+ vec3 col=mix(base,tint,amt*.9);
  col+=vec3(.025)*L;
- // still grain (no flicker), gathered in the colour and fading toward the white
+ // still grain, gathered in the colour and fading toward the white
  float g=h(floor(gl_FragCoord.xy))-.5;
- col+=g*(.035+.045*amt);   // fine grain over everything, a bit denser in the colour
+ col+=g*(.03+.05*amt);
  gl_FragColor=vec4(col,1.);
 }`;
 
