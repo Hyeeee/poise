@@ -93,39 +93,6 @@ if (host) {
   }, 200);
 }
 
-// ---------- Live app frames ----------
-// Each .app-frame runs the real app (v1 = the playtest build, v2 = today) in demo mode,
-// scaled so the region in data-crop (x,y,w,h in the app's 1440×900) fills the frame.
-// Frames load when their slide is near and unload when it is far, to keep the deck light.
-const frames = [...document.querySelectorAll('.app-frame')];
-const fitFrame = f => {
-  const ifr = f.querySelector('iframe'); if (!ifr) return;
-  const [x, y, w, h] = (f.dataset.crop || '0,0,1440,900').split(',').map(Number);
-  const r = f.getBoundingClientRect(); if (!r.width) return;
-  const k = (f.dataset.fit === 'contain' ? Math.min : Math.max)(r.width / w, r.height / h);   // cover the frame with the crop (or fit it whole)
-  const ox = -x * k + (r.width - w * k) / 2, oy = -y * k + (f.dataset.fit === 'contain' ? (r.height - h * k) / 2 : 0)   // screens anchor at the top;
-  ifr.style.transform = `translate(${ox}px, ${oy}px) scale(${k})`;
-};
-const loadFrame = f => {
-  if (f.querySelector('iframe')) return;
-  const ifr = document.createElement('iframe');
-  ifr.setAttribute('tabindex', '-1'); ifr.setAttribute('aria-hidden', 'true'); ifr.loading = 'eager';
-  const base = f.dataset.app === 'v1' ? 'v1/' : '../';
-  ifr.src = `${base}?demo=${f.dataset.demo}${f.dataset.paint ? '&paint=1' : ''}`;
-  f.append(ifr); fitFrame(f);
-};
-const unloadFrame = f => { f.querySelector('iframe')?.remove(); f.classList.remove('ready'); };
-addEventListener('message', e => {
-  if (!e.data?.demoReady) return;
-  frames.forEach(f => { const ifr = f.querySelector('iframe'); if (ifr && ifr.contentWindow === e.source) f.classList.add('ready'); });
-});
-frames.forEach(f => new ResizeObserver(() => fitFrame(f)).observe(f));
-const slideOf = el => slides.indexOf(el.closest('.slide'));
-function syncFrames() {
-  frames.forEach(f => { const d = slideOf(f) - cur; if (d >= -1 && d <= 2) loadFrame(f); else if (d < -2 || d > 3) unloadFrame(f); });
-}
-setInterval(syncFrames, 600); syncFrames();
-
 // Slide 3: the real figure, leaning off its outline
 document.querySelectorAll('.live-avatar').forEach(el => {
   const av = new PostureAvatar(el); av.setActive(true);

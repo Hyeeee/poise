@@ -395,3 +395,14 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .slide { visibility: visible !important; }
 .slide:not(.open):not(.leaving) { opacity: 0; pointer-events: none; }
 .slide:not(.open):not(.leaving) * { pointer-events: none; }
+
+/* App pictures: crisp 3x renders of the real app. Whole screens fit the width; parts (a card,
+   a panel, a popup) are shown whole inside the space, never cut at the sides. */
+.shot { position: relative; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.shot img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; border-radius: calc(var(--s) * 14); box-shadow: 0 20px 40px -24px rgba(40,44,36,.3), 0 0 0 1px rgba(20,20,18,.05); }
+.shot.full img { width: 100%; height: 100%; object-fit: contain; object-position: center top; box-shadow: none; border-radius: 0; }
+.shot.full { align-items: flex-start; }
+.screen-img.shot { flex: 1; width: 100%; margin-top: auto; }
+.thumbs .shot, .shots-col .shot { height: 100%; }
+.shots-row figure .shot { width: 100%; flex: 1; }
+.card.screen { padding-bottom: calc(var(--s) * 36); }
