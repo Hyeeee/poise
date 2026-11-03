@@ -639,3 +639,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .story .pain-tag.back { left: -14%; }
 .story .pain-tag.disc { left: -14%; }
 .cover-title span { color: #a3a49d; }
+.cover-title span { color: rgba(20,20,18,.42); }   /* translucent ink: takes on the gradient behind it but stays readable */

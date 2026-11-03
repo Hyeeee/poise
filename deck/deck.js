@@ -184,7 +184,7 @@ if (story) {
     // Leaning back tips the upper body away around the waist; a little perspective makes what is farther look smaller.
     const cl = Math.cos(S.lean), sl = Math.sin(S.lean);
     const P = ([x, y0, z0]) => { const y = y0 * cl - z0 * sl, z = y0 * sl + z0 * cl;
-      const x1 = x * cb - y * sb, y1 = x * sb + y * cb, X = x1 * cy + z * sy, Z = -x1 * sy + z * cy, pf = 300 / (300 - Z);
+      const x1 = x * cb - y * sb, y1 = x * sb + y * cb, X = x1 * cy + z * sy, Z = -x1 * sy + z * cy, pf = 560 / (560 - Z);
       return [X * pf, y1 * pf, Z]; };
     const k = Math.min(r.width / 250, r.height / 232) * d * (1 - .16 * S.away);   // farther from the screen = smaller
     g.setTransform(k, 0, 0, k, cv.width / 2 - 22 * sy * k, cv.height * .97);
@@ -195,12 +195,12 @@ if (story) {
     // neck: 38 long like the app; slumped, it tips forward (turtle neck) and the head drops a little
     const NECK = [0, SH[1] - 8, SH[2]], na = s * .95, nl = 38 - s * 8;
     // chin in hand: the head slides and tips toward the propping hand (screen left)
-    const ch = S.chin, head = [-12 * ch, NECK[1] - Math.cos(na) * nl + 8 * ch, NECK[2] + Math.sin(na) * nl];
-    const neckTop = [0, NECK[1] + (head[1] - NECK[1]) * .55, NECK[2] + (head[2] - NECK[2]) * .55];
+    const ch = S.chin, head = [-12 * ch, NECK[1] - Math.cos(na) * nl + 8 * ch + 14 * s * (1 - Math.sin(yaw)), NECK[2] + Math.sin(na) * nl];
+    const neckTop = [head[0] * .55, NECK[1] + (head[1] - NECK[1]) * .55, NECK[2] + (head[2] - NECK[2]) * .55];
     // arms rest like the app (elbow out, hands in by the waist); slumped, the forearms reach forward to the desk
     const arm = side => { const sh = shoulder(side), el = [sh[0] + side * 18, sh[1] + 50, sh[2] + 4 + s * 12], hd = [el[0] - side * 18, el[1] + lerp(52, 30, s), el[2] + lerp(2, 46, s)];
       if (side < 0 && ch > .001) {   // propping arm: elbow down on the desk in front, hand under the chin
-        const E = [-34, sh[1] + 84, sh[2] + 30], H = [head[0] - 6, head[1] + 30, head[2] + 6];
+        const E = [-34, sh[1] + 84, sh[2] + 30], H = [head[0] - 2, head[1] + 19, head[2] + 2];
         for (let i = 0; i < 3; i++) { el[i] = lerp(el[i], E[i], ch); hd[i] = lerp(hd[i], H[i], ch); } }
       return [sh, el, hd]; };
     // tee: the app's shape (42 wide at the shoulders, 37 at the chest, 34 at the waist), 22 deep
@@ -255,7 +255,7 @@ if (story) {
     // As the body turns, the face slides toward the side it faces and the hair wraps round to the back.
     // chin in hand: the propping arm goes under the head, so the chin rests on the hand
     const propping = ch > .3 && sy <= .2; if (propping) drawArm(arms.find(a => a.side < 0).pts);
-    const hc = P(head), tilt = na * sy * .8 - .32 * ch, hs = 1 + s * .08;
+    const hc = P(head), tilt = na * sy * .8 - .42 * ch, hs = 1 + s * .08;
     g.save(); g.translate(hc[0], hc[1]); g.rotate(tilt); g.scale(hs, hs);
     g.fillStyle = PAPER; g.strokeStyle = INK; g.lineWidth = 2.4;
     g.beginPath(); g.ellipse(0, 0, 19, 23, 0, 0, Math.PI * 2); g.fill(); g.stroke();
@@ -323,8 +323,8 @@ if (story) {
     lastK = k;
     story.classList.toggle('intro', k === 0);
     // 3 and 10 min: sinking back into the chair, farther from the screen, with only a slight tilt
-    // 3 min: chin in hand, tilted toward it. 10 min: sunk back into the chair, farther from the screen.
-    const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.16, -.03, 0, 0, 0, 0], LE = [0, 0, .04, .5, 0, 0, 0, 0], AW = [0, 0, 0, 0, 0, 0, 0, 0], CH = [0, 0, 1, 0, 0, 0, 0, 0];
+    // 3 min: chin in hand, tilted hard toward it and leaning in. 10 min: leaning in close to the screen, head pushed forward (turtle neck).
+    const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.24, -.03, 0, 0, 0, 0], LE = [0, 0, -.2, -.5, 0, 0, 0, 0], AW = [0, 0, 0, 0, 0, 0, 0, 0], CH = [0, 0, 1, 0, 0, 0, 0, 0];
     Object.assign(goal, { yaw: k >= 4 ? Math.PI / 2 : 0, slump: SL[k], bend: BE[k], lean: LE[k], away: AW[k], chin: CH[k],
       neck: k >= 4 ? (k >= 7 ? .5 : 1) : 0, back: k >= 5 ? (k >= 7 ? .6 : 1) : 0, disc: k >= 6 ? (k >= 7 ? .6 : 1) : 0 });
     story.classList.toggle('paying', k === 7);
