@@ -568,3 +568,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .viz-bars p { display: flex; align-items: center; gap: calc(var(--s) * 14); }
 .viz-bars span { flex: 0 0 calc(var(--s) * 150); }
 .viz-bars i { flex: 0 0 calc(var(--w) * (100% - var(--s) * 230)); width: auto; }
+.toc { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: calc(var(--s) * 200); }
