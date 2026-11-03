@@ -746,3 +746,12 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .twin-num.pop { animation: numpop .5s cubic-bezier(.3,1.4,.5,1); }
 @keyframes numpop { 0% { transform: translateY(.12em); opacity: .3; } 100% { transform: none; opacity: 1; } }
 .big-stats div.viz-twin { margin-bottom: calc(var(--s) * 72) !important; }
+
+/* neck: 42% solid ink, up to 63% in half tone (the range across studies) */
+.vneck { --step: 12ms; }
+.shown .vneck circle.on.mid { fill: rgba(20,20,18,.45) !important; }
+/* spending: one dark dot in the middle, the condition that costs the most */
+.shown .vtop circle.on { transition-delay: .5s !important; }
+.big-stats > div > span { max-width: 26ch; }
+.big-stats > div > span { max-width: 31ch; }
+.big-stats { column-gap: calc(var(--s) * 150) !important; } .big-stats > div > span { max-width: 29ch; }
