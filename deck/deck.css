@@ -860,3 +860,14 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .c-bars .bar { fill: url(#hatch-light) !important; stroke: var(--ink) !important; stroke-width: 1.4 !important; }
 .c-bars .bar.hi { fill: url(#hatch-dense) !important; }
 .big-stats .viz-chart rect.bar { stroke: var(--ink) !important; stroke-width: 1.3 !important; }
+/* hand-drawn, avatar level: ink outlines over paper fill, solid ink for the point, round ends, the faintest wobble */
+.viz-chart .pie.dense { fill: var(--ink) !important; }
+.viz-chart .pie.light { fill: #c9c8c0 !important; }
+.viz-chart .pie-out { fill: #fbfaf6 !important; stroke-width: 2.6 !important; }
+.viz-chart .pie-edge { stroke-width: 2.6 !important; }
+.viz-chart .lead { stroke-width: 1.6 !important; }
+.big-stats .viz-chart rect.bar { fill: #fbfaf6 !important; stroke-width: 2.2 !important; }
+.big-stats .viz-chart rect.bar.hi { fill: var(--ink) !important; }
+.c-line .line { stroke-width: 3; stroke-linecap: round; }
+.c-line .pt { fill: #fbfaf6 !important; stroke-width: 2.4 !important; } .c-line .pt.hi { fill: var(--ink) !important; }
+.c-line .ref, .c-line .axis { stroke-width: 1.6 !important; stroke-linecap: round; }
