@@ -126,47 +126,100 @@ document.querySelectorAll('.live-avatar').forEach(el => {
   av.set({ x: -.22, y: .18, tilt: .17, roll: .22, sx: -.08 });
 });
 
-// ---------- The problem story: one figure that slumps over time, then hurts ----------
-class StoryAvatar extends DeckAvatar {
-  constructor(el) { super(el); this.pain = { neck: 0, back: 0, disc: 0 }; this.painGoal = { ...this.pain }; }
-  draw() {
-    const ctx = this.ctx, w = this.w, h = this.h * .86, fit = [250, 240];
-    ctx.clearRect(0, 0, this.w, this.h); this.render(ctx, w, h, { fit });
-    for (const k in this.pain) this.pain[k] += (this.painGoal[k] - this.pain[k]) * .06;
-    // Draw in the figure's own space (same transform as the figure, including the sideways bend),
-    // so the glows and the spine stay on the body as it slumps.
-    const c = this.cur, k = Math.min(w / fit[0], h / fit[1]) * c.zoom;
-    ctx.save(); ctx.translate(w / 2, h * 1.02); ctx.scale(k, k); ctx.translate(0, 8); ctx.translate(c.bx, 0);
-    ctx.translate(0, -10); ctx.rotate(c.bend || 0); ctx.translate(0, 10);
-    const glow = (x, y, r, a) => { if (a < .01) return; const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, `rgba(232,82,64,${.75 * a})`); g.addColorStop(.45, `rgba(240,120,90,${.35 * a})`); g.addColorStop(1, 'rgba(240,120,90,0)');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); };
-    const nx = c.hx * .35, top = -116 + c.drop;
-    glow(nx, -124 + c.drop + c.fwd * 8, 38, this.pain.neck);
-    if (this.pain.back > .01) {
-      ctx.globalAlpha = this.pain.back;
-      for (let i = 0; i < 9; i++) { const t = i / 8, y = top + 6 + t * (100 - c.drop), x = nx * (1 - t);
-        const hot = Math.max(this.pain.disc * (i === 7 ? 1 : 0), Math.max(0, (i - 4) / 4));
-        ctx.fillStyle = hot > .2 ? `rgb(${Math.round(250 - 20 * hot)},${Math.round(246 - 150 * hot)},${Math.round(238 - 160 * hot)})` : '#f3f1ea';
-        ctx.beginPath(); ctx.roundRect(x - 9, y - 4, 18, 8, 3); ctx.fill(); }
-      ctx.globalAlpha = 1;
+// ---------- The problem story ----------
+// Step 0: only the key message. 1–3: the front figure slumps (0, 3, 10 min).
+// 4–6: the figure turns to the side; neck, lower back and a disc light up. 7: money flutters away.
+const story = document.querySelector('.slide.story');
+if (story) {
+  const front = new DeckAvatar(document.getElementById('story-front')); front.setActive(true);
+  const slump = { x: -.12, y: .45, tilt: .16, roll: .26, sx: -.06, sink: .3 };
+  const POSE = [[null, 1], [null, 1], [{ x: -.06, y: .2, tilt: .09, roll: .12, sx: -.03, sink: .12 }, 1.04], [slump, 1.1]];
+
+  // Side view, drawn here in the same ink style as the app's figure.
+  const cv = document.getElementById('story-side'), g = cv.getContext('2d');
+  const INK = '#141412', PAPER = '#fbfaf6';
+  const S = { slump: .2, neck: 0, back: 0, disc: 0 }, goal = { ...S };
+  const lerp = (a, b, k) => a + (b - a) * k, mix = (A, B, k) => [lerp(A[0], B[0], k), lerp(A[1], B[1], k)];
+  const qp = (a, c, b, t) => [(1 - t) ** 2 * a[0] + 2 * (1 - t) * t * c[0] + t * t * b[0], (1 - t) ** 2 * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1]];
+  const limb = (pts, w, fill = PAPER) => { g.lineCap = g.lineJoin = 'round'; for (const [lw, c] of [[w + 4.5, INK], [w, fill]]) { g.lineWidth = lw; g.strokeStyle = c; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(...p) : g.moveTo(...p)); g.stroke(); } };
+  const glow = (x, y, r, a) => { if (a < .01) return; const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, `rgba(232,82,64,${.8 * a})`); gr.addColorStop(.45, `rgba(240,120,90,${.35 * a})`); gr.addColorStop(1, 'rgba(240,120,90,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); };
+  function drawSide(t) {
+    const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
+    if (cv.width !== Math.round(r.width * d)) { cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); }
+    g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
+    const k = Math.min(r.width / 420, r.height / 330) * d * .92;          // whole scene always fits: nothing cut
+    g.setTransform(k, 0, 0, k, cv.width / 2 - 40 * k, cv.height * .64);
+    const s = S.slump, br = Math.sin(t / 900) * 1.2;
+    // chair, desk and laptop in a light line
+    g.strokeStyle = 'rgba(20,20,18,.28)'; g.lineWidth = 2.4; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(-46, 22); g.lineTo(52, 22); g.moveTo(-44, 22); g.lineTo(-56, -84); g.moveTo(0, 22); g.lineTo(0, 92); g.moveTo(-30, 92); g.lineTo(30, 92); g.stroke();
+    g.beginPath(); g.moveTo(96, -34); g.lineTo(230, -34); g.moveTo(210, -34); g.lineTo(210, 92); g.stroke();
+    g.beginPath(); g.moveTo(128, -36); g.lineTo(196, -36); g.lineTo(186, -112); g.stroke();
+    // body: pelvis, spine curve, neck and head (the slump rounds the back and pushes the head forward)
+    const pel = [0, 4], top = mix([2, -118 + br], [30, -100 + br], s), ctl = mix([-8, -62], [-30, -66], s);
+    const nk = mix([6, -138 + br], [62, -118 + br], s), head = mix([10, -164 + br], [84, -128 + br], s);
+    // legs (trousers) and feet
+    limb([[pel[0] + 4, pel[1] + 6], [74, 10], [78, 84]], 26, INK); limb([[78, 84], [100, 86]], 9, INK);
+    // torso: a thick black stroke along the spine
+    g.strokeStyle = INK; g.lineWidth = 64; g.lineCap = 'round'; g.beginPath(); g.moveTo(pel[0] + 10, pel[1] - 18); g.quadraticCurveTo(ctl[0] + 10, ctl[1], top[0] + 6, top[1] + 14); g.stroke();
+    // spine: vertebrae along the back, the low ones turning red
+    const sp = i => { const tt = .08 + i / 11 * .9, p = qp(pel, ctl, top, 1 - tt), q = qp(pel, ctl, top, 1 - tt + .01); const a = Math.atan2(q[1] - p[1], q[0] - p[0]); return [p[0] - 16 * Math.cos(a - Math.PI / 2) * .0 - 14, p[1], a]; };
+    if (S.back > .01) for (let i = 0; i < 11; i++) {
+      const [x, y, a] = sp(i), hot = Math.max(S.disc * (i === 2 ? 1 : 0), S.back * Math.max(0, (4 - i) / 4));
+      g.save(); g.translate(x + 4, y - 6); g.rotate(a + Math.PI / 2); g.globalAlpha = S.back;
+      g.fillStyle = hot > .15 ? `rgb(${Math.round(250 - 20 * hot)},${Math.round(240 - 150 * hot)},${Math.round(230 - 150 * hot)})` : '#f1efe7';
+      g.beginPath(); g.roundRect(-9, -3.6, 18, 7.2, 3); g.fill(); g.restore();
     }
-    glow(0, -34, 34, this.pain.back * .8);
-    glow(0, top + 6 + 7 / 8 * (100 - c.drop), 22, this.pain.disc);
-    ctx.restore();
+    // neck and head (hair at the back, closed eye looking at the screen)
+    limb([top, nk], 14);
+    g.fillStyle = PAPER; g.strokeStyle = INK; g.lineWidth = 3.2; g.beginPath(); g.ellipse(head[0], head[1], 23, 26, s * .5, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.fillStyle = INK; g.beginPath(); g.ellipse(head[0], head[1], 23.5, 26.5, s * .5, Math.PI * .9 + s * .5, Math.PI * 1.75 + s * .5); g.closePath(); g.fill();
+    g.lineWidth = 2.6; g.beginPath(); const ex = head[0] + 12, ey = head[1] - 2 + s * 6; g.moveTo(ex - 5, ey); g.quadraticCurveTo(ex, ey + 4, ex + 5, ey); g.stroke();
+    // arm reaching to the keyboard
+    const sh = mix([8, -104 + br], [38, -90 + br], s), el = mix([30, -50], [64, -46], s);
+    limb([sh, el, [140, -42]], 13);
+    // pain
+    glow(lerp(top[0], nk[0], .4), lerp(top[1], nk[1], .4), 44, S.neck);
+    const low = qp(pel, ctl, top, .82); glow(low[0] - 10, low[1], 46, S.back * .8);
+    const disc = sp(2); glow(disc[0] + 4, disc[1] - 6, 26, S.disc);
+    for (const k2 in S) S[k2] += (goal[k2] - S[k2]) * .06;
   }
-}
-const storyEl = document.getElementById('story-figure');
-if (storyEl) {
-  const av = new StoryAvatar(storyEl); av.setActive(true);
-  const slump = { x: -.12, y: .45, tilt: .16, roll: .26, sx: -.06, sink: .3 };   // head down and forward, one shoulder low, closer to the screen
-  const POSE = [
-    [null, 1], [{ x: -.06, y: .2, tilt: .09, roll: .12, sx: -.03, sink: .12 }, 1.04], [slump, 1.1],
-    [slump, 1.1], [slump, 1.1], [slump, 1.1], [slump, 1.1],
-  ];
-  const PAIN = [{}, {}, {}, { neck: 1 }, { neck: .8, back: 1 }, { neck: .7, back: 1, disc: 1 }, { neck: .5, back: .7, disc: .7 }];
-  storyEl.closest('.slide').addEventListener('step', e => {
-    const k = e.detail, [d, wr] = POSE[k];
-    av.set(d, wr); av.painGoal = { neck: 0, back: 0, disc: 0, ...PAIN[k] };
-  });
+  (function loop(t) { if (story.classList.contains('open') || story.classList.contains('leaving')) drawSide(t); requestAnimationFrame(loop); })(0);
+
+  // Money: notes flutter down from the top and fade away.
+  const mc = document.getElementById('money'), m = mc.getContext('2d'); let notes = [], raining = false;
+  const note = (y0 = -.12 - Math.random() * .15) => ({ x: Math.random(), y: y0, vx: (Math.random() - .5) * .0006, vy: .0012 + Math.random() * .0012, a: Math.random() * 6, va: (Math.random() - .5) * .04, f: Math.random() * 6, vf: .05 + Math.random() * .05, s: .7 + Math.random() * .6 });
+  function drawNote(n, W, H, u) {
+    m.save(); m.translate(n.x * W + Math.sin(n.f * .7) * 30 * u, n.y * H); m.rotate(n.a); m.scale(n.s * u, n.s * u * Math.max(.12, Math.abs(Math.cos(n.f))));
+    m.globalAlpha = Math.max(0, Math.min(1, (1 - n.y) * 2.2));
+    m.fillStyle = '#d7ecd9'; m.strokeStyle = INK; m.lineWidth = 2.4; m.lineJoin = 'round';
+    m.beginPath(); m.roundRect(-44, -22, 88, 44, 6); m.fill(); m.stroke();
+    m.lineWidth = 1.8; m.beginPath(); m.ellipse(0, 0, 12, 14, 0, 0, Math.PI * 2); m.stroke();
+    m.beginPath(); m.roundRect(-38, -16, 76, 32, 4); m.globalAlpha *= .5; m.stroke(); m.globalAlpha /= .5;
+    m.fillStyle = INK; m.font = '700 18px Inter, sans-serif'; m.textAlign = 'center'; m.textBaseline = 'middle'; m.fillText('$', 0, 1);
+    m.restore();
+  }
+  (function rain() {
+    const r = mc.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
+    if (mc.width !== Math.round(r.width * d)) { mc.width = Math.round(r.width * d); mc.height = Math.round(r.height * d); }
+    m.setTransform(1, 0, 0, 1, 0, 0); m.clearRect(0, 0, mc.width, mc.height);
+    if (raining && notes.length < 34 && Math.random() < .25) notes.push(note());
+    const u = d * Math.max(.6, r.width / 1600);
+    notes.forEach(n => { n.x += n.vx; n.y += n.vy; n.a += n.va; n.f += n.vf; drawNote(n, mc.width, mc.height, u); });
+    notes = notes.filter(n => n.y < 1.1);
+    requestAnimationFrame(rain);
+  })();
+
+  const onStep = k => {
+    story.classList.toggle('intro', k === 0);
+    story.classList.toggle('turned', k >= 4);
+    const [dd, wr] = POSE[Math.min(k, 3)]; front.set(dd, wr);
+    Object.assign(goal, { slump: k >= 4 ? 1 : .2, neck: k >= 4 ? (k >= 7 ? .5 : 1) : 0, back: k >= 5 ? (k >= 7 ? .6 : 1) : 0, disc: k >= 6 ? (k >= 7 ? .6 : 1) : 0 });
+    if (k === 7 && !raining) for (let i = 0; i < 14; i++) notes.push(note(-.1 - Math.random() * .5 + i * .02));   // a first handful, already in the air
+    raining = k === 7;
+  };
+  story.addEventListener('step', e => onStep(e.detail));
+  onStep(+(story.dataset.at || 0));   // the slide may already be open (deep link)
 }
