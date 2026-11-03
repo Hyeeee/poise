@@ -165,7 +165,7 @@ if (story) {
     // spine from the waist (y 0) to the shoulders (y -116, as in the app); the slump rounds the back
     const spine = u => [0, -116 * u + br * u - s * 12 * u * u, -s * 18 * Math.sin(Math.PI * u) + s * 26 * u * u];
     const SH = spine(1);
-    const shoulder = side => [side * 40, SH[1], SH[2] - 2];
+    const shoulder = side => [side * 40, SH[1] + 5 * Math.sin(yaw), SH[2] - 2];
     // neck: 38 long like the app; slumped, it tips forward (turtle neck) and the head drops a little
     const NECK = [0, SH[1] - 8, SH[2]], na = s * .95, nl = 38 - s * 8;
     const head = [0, NECK[1] - Math.cos(na) * nl, NECK[2] + Math.sin(na) * nl];
@@ -194,9 +194,9 @@ if (story) {
     const showSpine = Math.max(0, sy - .35) / .65 * Math.max(S.neck, S.back);
     const col = [];
     if (showSpine > .01) {
-      for (let i = 0; i <= 16; i++) { const u = i / 16, c = spine(u);
-        const dz = u < .38 ? 11 * Math.sin(Math.PI * u / .38) : -(8 + 3 * s) * Math.sin(Math.PI * (u - .38) / .62);
-        col.push({ p: [0, c[1], c[2] - 6 + dz], hot: Math.max(S.back * Math.max(0, 1 - Math.abs(u - .2) / .16), S.disc * Math.max(0, 1 - Math.abs(u - .14) / .07)), u }); }
+      for (let i = 0; i <= 16; i++) { const u = .07 + i / 16 * .9, c = spine(u);
+        const dz = u < .38 ? 7 * Math.sin(Math.PI * u / .38) : -(5 + 2 * s) * Math.sin(Math.PI * (u - .38) / .62);
+        col.push({ p: [0, c[1], c[2] - 3 + dz], hot: Math.max(S.back * Math.max(0, 1 - Math.abs(u - .2) / .16), S.disc * Math.max(0, 1 - Math.abs(u - .14) / .07)), u }); }
       const n0 = col[col.length - 1].p;
       for (let i = 1; i <= 5; i++) { const v = i / 5, bump = 4 * Math.sin(Math.PI * v);
         col.push({ p: [0, lerp(n0[1], neckTop[1] + 4, v), lerp(n0[2], neckTop[2] - 6, v) + bump], hot: S.neck * (.55 + .45 * Math.sin(Math.PI * v)), neck: 1 }); }
@@ -211,16 +211,16 @@ if (story) {
         const h = Math.min(1, c.hot * pulse);
         g.save(); g.translate(q[0], q[1]); g.rotate(Math.atan2(q2[1] - q1[1], q2[0] - q1[0]) + Math.PI / 2);
         g.fillStyle = `rgb(${Math.round(244 - 10 * h)},${Math.round(238 - 150 * h)},${Math.round(226 - 160 * h)})`;
-        const wv = c.neck ? 9 : 16; g.beginPath(); g.roundRect(-wv / 2, -3.2, wv, 6.4, 2.6); g.fill(); g.restore(); });
+        const wv = c.neck ? 8 : 12; g.beginPath(); g.roundRect(-wv / 2, -3.2, wv, 6.4, 2.6); g.fill(); g.restore(); });
       // the squeezed disc bulges out toward the back
       if (!neckPart && S.disc > .02) { const i = Math.round(.14 * 16), q = Q[i]; g.fillStyle = `rgba(232,72,56,${S.disc * pulse})`;
         g.beginPath(); g.ellipse(q[0] - 9 * sy, q[1], 4 + 3 * S.disc, 3, 0, 0, Math.PI * 2); g.fill(); }
       g.restore();
     };
     drawSpine(false);
-    if (sy > .2) drawArm(arms[1].pts);   // side on, the near arm hangs in front of the body but behind the forward head
     limb(NECK, neckTop, 13);
     drawSpine(true);
+    if (sy > .2) drawArm(arms[1].pts);   // side on, the near arm hangs in front of the body and neck, behind the forward head
     // head: the app's head (19 × 23), hair cap with a soft fringe, closed eyes and a small nose line.
     // As the body turns, the face slides toward the side it faces and the hair wraps round to the back.
     const hc = P(head), tilt = na * sy * .8, hs = 1 + s * .08;
