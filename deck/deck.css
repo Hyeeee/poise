@@ -533,3 +533,5 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .story .receipt { left: auto; right: calc(50% + min(23%, calc(var(--s) * 380))); top: 52%; width: min(26%, calc(var(--s) * 420)); }
 
 .story .key .w { display: inline-block; will-change: transform, opacity; }
+
+x-w { display: inline-block; }   /* one word of a headline, so each can rise on its own */

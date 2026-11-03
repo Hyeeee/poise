@@ -67,6 +67,27 @@ function updateProgress() {
 function next() { const sl = slides[cur], k = +(sl.dataset.at || 0); if (k < stepsOf(sl)) setStep(sl, k + 1); else go(cur + 1); }
 function prev() { const sl = slides[cur], k = +(sl.dataset.at || 0); if (k > 0) setStep(sl, k - 1); else { go(cur - 1, true); } }
 
+// Main headlines arrive word by word: each word rises a little and sharpens, one after another
+// (the same motion as the problem story's title).
+const HEADS = [...document.querySelectorAll('.slide .title, .slide .cover-title, .slide .chapter-title')];
+HEADS.forEach(h => {
+  h.removeAttribute('data-in');                       // the words do the entrance now, not the whole block
+  const walk = node => [...node.childNodes].forEach(c => {
+    if (c.nodeType === 3) {
+      const parts = c.textContent.split(/(\s+)/); if (parts.length === 1 && !parts[0].trim()) return;
+      c.replaceWith(...parts.map(p => { if (!p) return document.createTextNode(''); if (/^\s+$/.test(p)) return document.createTextNode(p);
+        const s = document.createElement('x-w'); s.textContent = p; return s; }));
+    } else if (c.nodeType === 1 && c.localName !== 'x-w') walk(c);
+  });
+  walk(h);
+});
+function wordsIn(slide, delay = 380) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  slide.querySelectorAll('.title, .cover-title, .chapter-title').forEach(h => h.querySelectorAll('x-w').forEach((w, n) => w.animate(
+    [{ transform: 'translateY(.34em)', opacity: 0, filter: 'blur(4px)' }, { transform: 'none', opacity: 1, filter: 'blur(0)' }],
+    { duration: 620, delay: delay + n * 45, easing: 'cubic-bezier(.2,.75,.2,1)', fill: 'backwards' })));
+}
+
 function go(i, atEnd = false) {
   i = Math.max(0, Math.min(slides.length - 1, i));
   if (i === cur) return;
@@ -78,6 +99,7 @@ function go(i, atEnd = false) {
   slides.forEach(s => s.classList.remove('leaving'));
   if (prev) { prev.classList.remove('open'); prev.classList.add('leaving'); clearTimeout(leaveTimer); leaveTimer = setTimeout(() => prev.classList.remove('leaving'), 700); }
   next.classList.add('open');
+  wordsIn(next, prev ? 380 : 200);
   setStep(next, atEnd ? stepsOf(next) : 0);
   cur = i;
   document.body.classList.toggle('paper', next.classList.contains('paper'));
