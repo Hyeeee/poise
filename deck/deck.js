@@ -351,11 +351,13 @@ document.querySelectorAll('.viz-field:not([data-nodrift])').forEach(svg => {
   }, 900 + Math.random() * 500);
 });
 
-// 2x: one field that switches between sitting well (some large dots) and sitting poorly (twice as many)
+// 2x: the field starts with some dark dots (sitting well, 1x); a moment later the number turns to 2x
+// and twice as many dots go dark (sitting poorly). The number is the key, so no legend is needed.
 document.querySelectorAll('.viz-twin').forEach(box => {
-  const svg = box.querySelector('svg');
-  setInterval(() => {
-    if (!box.closest('.shown') || !box.closest('.slide.open')) { box.classList.remove('is2'); svg.classList.remove('doubled'); return; }
-    const on = !box.classList.contains('is2'); box.classList.toggle('is2', on); svg.classList.toggle('doubled', on);
-  }, 2200);
+  const svg = box.querySelector('svg'), num = box.parentElement.querySelector('.twin-num'); let t;
+  new MutationObserver(() => {
+    clearTimeout(t);
+    if (box.parentElement.classList.contains('shown')) t = setTimeout(() => { svg.classList.add('doubled'); num.textContent = '2×'; num.classList.add('pop'); }, 1600);
+    else { svg.classList.remove('doubled'); num.textContent = '1×'; num.classList.remove('pop'); }
+  }).observe(box.parentElement, { attributes: true, attributeFilter: ['class'] });
 });

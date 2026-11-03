@@ -739,3 +739,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .viz-twin .viz-field { margin: 0 !important; }
 .twin-key { position: absolute; left: 0; top: calc(100% + var(--s) * 18); flex-direction: row; gap: calc(var(--s) * 20); font-size: max(calc(var(--s) * 16), 10px); }
 .twin-key i { width: calc(var(--s) * 9); height: calc(var(--s) * 9); min-width: 5px; min-height: 5px; }
+
+/* 6.4 hrs: the dark dots fill clockwise from 12, like a clock */
+.v24 { --step: 22ms; }
+.big-stats .twin-num { display: inline-block; transition: transform .4s cubic-bezier(.3,1.4,.5,1); }
+.big-stats .twin-num.pop { animation: numpop .5s cubic-bezier(.3,1.4,.5,1); }
+@keyframes numpop { 0% { transform: translateY(.12em); opacity: .3; } 100% { transform: none; opacity: 1; } }
+.big-stats div.viz-twin { margin-bottom: calc(var(--s) * 72) !important; }
