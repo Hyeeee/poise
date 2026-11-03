@@ -905,3 +905,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* interviews: one conversation down the middle */
 .chat.one { display: flex; flex-direction: column; gap: calc(var(--s) * 30); width: min(100%, calc(var(--s) * 1100)); margin: 0 auto; }
 .fq-bars li { grid-template-columns: 11.5em 1fr 4.6em; }
+
+/* interviews in one thread: questions on the right edge, answers on the left, compact enough to fit */
+.chat.one { width: 100%; max-width: none; gap: calc(var(--s) * 18); padding-top: 0; align-content: start; justify-content: center; }
+.chat.one .ex { gap: calc(var(--s) * 10); }
+.chat.one .bub { font-size: max(calc(var(--s) * 21), 12px); padding: calc(var(--s) * 14) calc(var(--s) * 22); max-width: 52%; }
+.chat.one .bub.them span { margin-top: calc(var(--s) * 4); }
