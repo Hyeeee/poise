@@ -800,3 +800,24 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* survey: a plain line of method under the headline, so the numbers read as real research */
 .survey-meta { margin-top: calc(var(--s) * 20); font-size: max(calc(var(--s) * 20), 12px); color: var(--ink-3); letter-spacing: .01em; }
 .big-stats.survey em { font-style: normal; }
+
+/* Desk research charts, v7: each the chart type that fits its message, one shared look and one size.
+   Thin ink lines, grey context, ink for the point being made, 10px labels. */
+.big-stats .viz-chart { width: calc(var(--s) * 440) !important; height: calc(var(--s) * 220) !important; max-width: 100%; display: block; overflow: visible; margin-bottom: calc(var(--s) * 56) !important; }
+.viz-chart .t { font: 400 10px Inter, sans-serif; fill: var(--ink-3); }
+.viz-chart .t.hi { fill: var(--ink); font-weight: 600; }
+.viz-chart .axis { stroke: rgba(20,20,18,.25); stroke-width: 1; }
+.viz-chart .ref { stroke: rgba(20,20,18,.3); stroke-width: 1; stroke-dasharray: 3 4; }
+.viz-chart .tick { stroke: rgba(20,20,18,.2); stroke-width: 1; } .viz-chart .tick.big { stroke: rgba(20,20,18,.4); }
+.viz-chart .line { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.2s cubic-bezier(.3,.7,.2,1) .4s; }
+.shown .viz-chart .line { stroke-dashoffset: 0; }
+.viz-chart .pt { fill: #fff; stroke: var(--ink); stroke-width: 2; } .viz-chart .pt.hi { fill: var(--ink); }
+.viz-chart .track { fill: rgba(20,20,18,.07); }
+.viz-chart .band { fill: var(--ink); transform-box: fill-box; transform-origin: center; transform: scaleX(0); transition: transform 1s cubic-bezier(.3,.7,.2,1) .4s; }
+.shown .viz-chart .band { transform: none; }
+.viz-chart .bar { fill: rgba(20,20,18,.18); transform-box: fill-box; transform-origin: left; transform: scaleX(0); transition: transform 1s cubic-bezier(.3,.7,.2,1); transition-delay: calc(var(--i) * 90ms + 300ms); }
+.viz-chart .bar.hi { fill: var(--ink); }
+.shown .viz-chart .bar { transform: none; }
+.viz-chart text { opacity: 0; transition: opacity .5s ease 1s; } .shown .viz-chart text { opacity: 1; }
+.big-stats .viz-chart text, .big-stats .viz-chart rect { stroke: none !important; }
+.big-stats .viz-chart text { paint-order: normal; }
