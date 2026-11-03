@@ -861,3 +861,16 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .viz-chart .ring { display: none; }
 .viz-chart .bar.hi { fill: var(--p-coral) !important; }
 .viz-chart .bar { fill: rgba(20,20,18,.1) !important; }
+
+/* v9: the reference's three forms (segmented half gauge, status-dot grid, segmented ring), drawn slim */
+.viz-chart .gseg { fill: none; stroke: rgba(20,20,18,.08) !important; stroke-width: 9 !important; stroke-linecap: round !important; }
+.viz-chart .gseg.on { stroke: var(--p-amber) !important; opacity: 0; transition: opacity .3s ease; }
+.shown .viz-chart .gseg.on { opacity: 1; transition-delay: calc(var(--i) * 110ms + 300ms); }
+.viz-chart .g-mark { stroke-width: 1.5 !important; }
+.viz-chart .gd { fill: rgba(20,20,18,.08); stroke: none !important; transition: fill .3s ease; }
+.shown .viz-chart .gd.on { fill: var(--p-coral); transition-delay: calc(var(--i) * 10ms + 300ms); }
+.shown .viz-chart .gd.mid { fill: var(--p-coral-2); transition-delay: calc(var(--i) * 10ms + 300ms); }
+.viz-chart .rseg { fill: none; stroke: rgba(20,20,18,.1) !important; stroke-width: 9 !important; stroke-linecap: round !important; opacity: 0; transition: opacity .4s ease; }
+.viz-chart .rseg.on { stroke: var(--p-coral) !important; }
+.shown .viz-chart .rseg { opacity: 1; transition-delay: calc(var(--i) * 140ms + 300ms); }
+.viz-chart .big { font: 600 26px Inter, sans-serif; fill: var(--ink); stroke: none !important; letter-spacing: -.02em; }
