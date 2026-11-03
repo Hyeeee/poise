@@ -726,3 +726,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* calmer large dots: the reference's size, not bigger */
 .big-stats .shown .viz-field circle.on, .shown .viz-field circle.on, .shown .v2.doubled circle.two { transform: scale(2.5) !important; }
 .big-stats .shown .v78 circle.on, .shown .v78 circle.on { transform: scale(2.1) !important; }
+/* one dot size; the people the number is about are solid ink, everyone else is translucent grey */
+.big-stats .viz-field circle, .shown .viz-field circle { fill: rgba(20,20,18,.14) !important; transform: none !important; transition: fill .5s ease !important; }
+.big-stats .shown .viz-field circle.on, .shown .viz-field circle.on, .shown .v2.doubled circle.two { fill: var(--ink) !important; transform: none !important; transition-delay: calc(var(--i) * var(--step, 45ms) + 300ms) !important; }
+.shown .viz-field.live circle.on, .shown .v2 circle.two { transition-delay: 0s !important; }
+.v2 circle.two { --step: 25ms; }
+.shown .v2.doubled circle.two { transition-delay: calc(var(--i) * 20ms) !important; }
