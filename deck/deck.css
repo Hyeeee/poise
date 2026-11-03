@@ -490,3 +490,21 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .story .receipt { top: calc(var(--top) + var(--s) * 410); }
 .story .say { max-width: 14ch; text-wrap: balance; }
 .key, .story .say { text-wrap: balance; }
+
+/* Key message, take three: one fixed layout (two lines, never reflows). It only moves and scales:
+   big in the centre, then it glides to the title spot at half size, and the first step's title takes over. */
+.story .key, .story.intro .key, .story:not(.intro) .key { font-size: max(calc(var(--s) * 168), 56px); max-width: none; width: max-content; text-align: left; filter: none;
+  transform-origin: 0 0; white-space: nowrap; }
+.story .key .k1, .story .key .k2 { display: block; font-weight: 600; }
+.story .key .k1 { color: var(--ink); transform: translateX(var(--c, 0px)); transition: transform 1.1s var(--swoop); }
+.story.intro .key { left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: 1;
+  transition: left 1.1s var(--swoop), top 1.1s var(--swoop), transform 1.1s var(--swoop), opacity .3s ease; }
+.story:not(.intro) .key { left: var(--padx); top: var(--top); transform: scale(.5); opacity: 0; pointer-events: none;
+  transition: left 1.1s var(--swoop), top 1.1s var(--swoop), transform 1.1s var(--swoop), opacity .35s ease 1.05s; }
+.story:not(.intro) .key .k1 { transform: none; }
+/* centred: the short first line sits in the middle over the second */
+.story.intro .key .k1 { transform: translateX(var(--c, 0px)); }
+/* the first title appears exactly where the key lands, as it fades */
+.story.arriving .story-lines .line.shown { transition-delay: 1.05s, 1.05s, 1.05s !important; transform: none; }
+.story.arriving .story-stage { transition-delay: .9s !important; }
+.story .when { display: none; }

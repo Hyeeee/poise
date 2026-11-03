@@ -250,10 +250,18 @@ if (story) {
   }
   (function loop(t) { if (story.classList.contains('open') || story.classList.contains('leaving')) draw3d(t); requestAnimationFrame(loop); })(0);
 
+  // the key's first line is centred over the second by a measured shift, so the layout never changes
+  const keyEl = story.querySelector('.key');
+  const centreKey = () => { const k1 = keyEl.querySelector('.k1'), k2 = keyEl.querySelector('.k2');
+    k1.style.display = 'inline-block'; k2.style.display = 'inline-block';
+    const w1 = k1.getBoundingClientRect().width, w2 = k2.getBoundingClientRect().width, sc = keyEl.getBoundingClientRect().width / keyEl.offsetWidth || 1;
+    k1.style.display = k2.style.display = '';
+    keyEl.style.setProperty('--c', ((w2 - w1) / 2 / sc) + 'px'); };
+  document.fonts?.ready.then(centreKey); addEventListener('resize', centreKey); centreKey();
   let lastK = -1, arriveT;
   const onStep = k => {
     // leaving the key message: the figure and copy wait until the headline has settled, so nothing overlaps
-    if (lastK === 0 && k > 0) { story.classList.add('arriving'); clearTimeout(arriveT); arriveT = setTimeout(() => story.classList.remove('arriving'), 1700); }
+    if (lastK === 0 && k > 0) { story.classList.add('arriving'); clearTimeout(arriveT); arriveT = setTimeout(() => story.classList.remove('arriving'), 2200); }
     lastK = k;
     story.classList.toggle('intro', k === 0);
     const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.06, -.12, 0, 0, 0, 0];
