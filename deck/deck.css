@@ -623,3 +623,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats > div { width: max-content; max-width: calc(var(--s) * 460); }
 .big-stats .viz, .big-stats div.viz-pair { height: calc(var(--s) * 200) !important; margin-bottom: calc(var(--s) * 40) !important; }
 .big-stats b { margin-top: 0 !important; }
+.big-stats { align-content: center; }
+/* desk research: the quote sits top right beside the headline, so the figures can sit in the middle of the space below */
+.big-stats + .quote-chip { position: absolute; right: var(--padx); top: calc(var(--top) - var(--s) * 8); max-width: min(40%, calc(var(--s) * 640)); margin: 0; }
+.big-stats + .quote-chip p { font-size: max(calc(var(--s) * 34), 18px); }
+.big-stats { padding-top: calc(var(--s) * 40); }
