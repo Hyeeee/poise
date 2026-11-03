@@ -723,3 +723,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .twin-key b { font-size: inherit !important; margin: 0 !important; font-weight: 600; letter-spacing: 0; line-height: inherit; display: inline; }
 .viz-twin:not(.is2) .k1, .viz-twin.is2 .k2 { color: var(--ink); }
 .viz-twin:not(.is2) .k1 i, .viz-twin.is2 .k2 i { transform: none; }
+/* calmer large dots: the reference's size, not bigger */
+.big-stats .shown .viz-field circle.on, .shown .viz-field circle.on, .shown .v2.doubled circle.two { transform: scale(2.5) !important; }
+.big-stats .shown .v78 circle.on, .shown .v78 circle.on { transform: scale(2.1) !important; }
