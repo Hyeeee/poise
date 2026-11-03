@@ -629,4 +629,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats + .quote-chip p { font-size: max(calc(var(--s) * 34), 18px); }
 .big-stats { padding-top: calc(var(--s) * 40); }
 /* the three figures as one group, centred, closer together */
-.big-stats { justify-content: center; column-gap: calc(var(--s) * 150); }
+.big-stats { justify-content: center; column-gap: calc(var(--s) * 260); }
