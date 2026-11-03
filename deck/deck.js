@@ -334,3 +334,19 @@ if (story) {
   story.addEventListener('step', e => onStep(e.detail));
   onStep(+(story.dataset.at || 0));   // the slide may already be open (deep link)
 }
+
+// Desk research dot fields: once a figure is on screen, its big dots drift — one at a time a big dot
+// shrinks back and a nearby small one grows, so the count stays the same but the field feels alive.
+document.querySelectorAll('.viz-field').forEach(svg => {
+  const dots = [...svg.querySelectorAll('circle')], pos = dots.map(d => [+d.getAttribute('cx'), +d.getAttribute('cy')]);
+  setTimeout(() => svg.classList.add('live'), 4000);
+  setInterval(() => {
+    if (!svg.closest('.shown') || !svg.closest('.slide.open') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const lit = dots.filter(d => d.classList.contains('on')); if (!lit.length) return;
+    const from = lit[(Math.random() * lit.length) | 0], fi = dots.indexOf(from);
+    const near = dots.map((d, i) => [d, Math.hypot(pos[i][0] - pos[fi][0], pos[i][1] - pos[fi][1])])
+      .filter(([d, dist]) => !d.classList.contains('on') && dist > 4 && dist < 30).sort(() => Math.random() - .5);
+    if (!near.length) return;
+    svg.classList.add('live'); from.classList.remove('on'); near[0][0].classList.add('on');
+  }, 900 + Math.random() * 500);
+});
