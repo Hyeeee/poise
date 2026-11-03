@@ -840,3 +840,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .viz-chart .arc.on { stroke: var(--ink) !important; } .viz-chart .arc.mid { stroke: rgba(20,20,18,.32) !important; }
 .slide:not(.open) .viz-chart .arc, :not(.shown) > .viz-chart .arc { stroke-dasharray: 0 100 !important; }
 .big-stats .viz-chart .arc, .big-stats .viz-chart .ring { stroke-linecap: butt !important; }
+.big-stats .viz-chart .ring, .big-stats .viz-chart .arc { stroke-width: 12 !important; }
+.big-stats .viz-chart .arc { stroke-linecap: round !important; }
