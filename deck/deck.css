@@ -796,3 +796,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .cover-title, .cover-title span { white-space: nowrap; }
 .slide .title.wide, .slide .title.wide span { white-space: nowrap; max-width: none !important; }
 .slide .title.wide { font-size: min(var(--t-xl), calc((100vw - 2 * var(--padx)) / 25)); }
+
+/* survey: a plain line of method under the headline, so the numbers read as real research */
+.survey-meta { margin-top: calc(var(--s) * 20); font-size: max(calc(var(--s) * 20), 12px); color: var(--ink-3); letter-spacing: .01em; }
+.big-stats.survey em { font-style: normal; }
