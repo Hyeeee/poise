@@ -159,8 +159,8 @@ document.querySelectorAll('.live-avatar').forEach(el => {
 });
 
 // ---------- The problem story ----------
-// Step 0: only the key message. 1–3: the front figure slumps (0, 3, 10 min).
-// 4–6: the figure turns to the side; neck, lower back and a disc light up. 7: the treatment card.
+// Step 0: only the key message. 1: sitting well. 2: chin in hand, leaning. 3: creeping toward the screen.
+// 4: the figure turns to the side; neck and lower back hurt. 5: the bills.
 const story = document.querySelector('.slide.story');
 if (story) {
   // One figure built in 3D (cross-sections for the torso, spheres and capsules for head, neck and arms),
@@ -293,11 +293,9 @@ if (story) {
   const TITLES = [
     ['We drift', 'without noticing.'],
     ['We sit down', 'sitting well.'],
-    ['A few minutes in,', 'we start to drift.'],
-    ['By ten minutes, it’s', 'a different posture.'],
-    ['The head pushes forward.', 'The neck carries it.'],
-    ['The lower back', 'starts to give.'],
-    ['A disc slips', 'out of place.'],
+    ['As we work, we prop our chin', 'and lean to one side.'],
+    ['We creep toward the screen,', 'and our posture falls apart.'],
+    ['Day after day, the neck', 'and lower back start to hurt.'],
     ['Treatment, week after week.', 'It adds up.'],
   ];
   const keyLines = [...story.querySelectorAll('.key .k1, .key .k2')];
@@ -328,10 +326,10 @@ if (story) {
     story.classList.toggle('intro', k === 0);
     // 3 and 10 min: sinking back into the chair, farther from the screen, with only a slight tilt
     // 3 min: chin in hand, tilted hard toward it and leaning in. 10 min: leaning in close to the screen, head pushed forward (turtle neck).
-    const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.24, -.03, 0, 0, 0, 0], LE = [0, 0, -.2, -.5, 0, 0, 0, 0], AW = [0, 0, -.3, -.75, 0, 0, 0, 0], CH = [0, 0, 1, 0, 0, 0, 0, 0];
+    const SL = [0, 0, .35, .7, 1, 1], BE = [0, 0, -.24, -.03, 0, 0], LE = [0, 0, -.2, -.5, 0, 0], AW = [0, 0, -.3, -.75, 0, 0], CH = [0, 0, 1, 0, 0, 0];
     Object.assign(goal, { yaw: k >= 4 ? Math.PI / 2 : 0, slump: SL[k], bend: BE[k], lean: LE[k], away: AW[k], chin: CH[k],
-      neck: k >= 4 ? (k >= 7 ? .5 : 1) : 0, back: k >= 5 ? (k >= 7 ? .6 : 1) : 0, disc: k >= 6 ? (k >= 7 ? .6 : 1) : 0 });
-    story.classList.toggle('paying', k === 7);
+      neck: k >= 4 ? (k >= 5 ? .5 : 1) : 0, back: k >= 4 ? (k >= 5 ? .6 : 1) : 0, disc: k >= 4 ? (k >= 5 ? .6 : 1) : 0 });
+    story.classList.toggle('paying', k === 5);
   };
   story.addEventListener('step', e => onStep(e.detail));
   onStep(+(story.dataset.at || 0));   // the slide may already be open (deep link)
