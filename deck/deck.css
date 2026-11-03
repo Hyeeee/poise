@@ -435,16 +435,20 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .story.intro .story-copy, .story.intro .story-stage { opacity: 0; pointer-events: none; }
 .story.intro .story-stage { transform: translateY(calc(var(--s) * 40)) scale(.96); transition-delay: 0s; }
 /* front figure: the whole upper body stays inside the stage */
-.story-stage .front { position: absolute; inset: 4% 8% 8%; transition: transform .7s cubic-bezier(.5,0,.75,0), opacity .5s ease .2s; }
+.story-stage { perspective: 1600px; }
+.story-stage .front { position: absolute; inset: 6% 6% 0; transform-style: preserve-3d; backface-visibility: hidden; transition: transform .55s cubic-bezier(.55,0,.8,.3), opacity .25s ease .3s; }
 .story-stage .front canvas { position: absolute; inset: 0; }
-.story-stage .side { position: absolute; inset: 0; width: 100%; height: 100%; transform: scaleX(0); opacity: 0; transition: transform .7s cubic-bezier(.25,1,.5,1), opacity .3s ease; }
+.story-stage .side { position: absolute; inset: 6% 6% 0; width: 88%; height: 94%; transform: rotateY(-90deg); opacity: 0; backface-visibility: hidden; transition: transform .7s cubic-bezier(.2,.7,.3,1), opacity .2s ease; }
 /* turning to the side: the front squeezes to a line, then the side view opens out */
-.story.turned .front { transform: scaleX(0); opacity: 0; }
-.story.turned .side { transform: none; opacity: 1; transition-delay: .65s, .6s; }
+/* turning: the front figure rotates away in 3D, and the side view rotates in from the other edge */
+.story.turned .front { transform: rotateY(90deg); opacity: 0; }
+.story.turned .side { transform: none; opacity: 1; transition-delay: .5s, .5s; }
+.story:not(.turned) .front { transition-delay: .45s, .45s; transition-timing-function: cubic-bezier(.2,.7,.3,1), ease; }
+.story:not(.turned) .side { transition-timing-function: cubic-bezier(.55,0,.8,.3), ease; transition-delay: 0s, .3s; }
 .pain-tag { position: absolute; font-size: max(calc(var(--s) * 20), 12px); font-weight: 500; color: #a8432f; background: rgba(255,255,255,.88); border-radius: 99px; padding: calc(var(--s) * 8) calc(var(--s) * 16); box-shadow: 0 8px 24px -12px rgba(160,60,40,.4); }
-.pain-tag.neck { left: 60%; top: 16%; }
-.pain-tag.back { left: 10%; top: 44%; }
-.pain-tag.disc { left: 12%; top: 64%; }
+.pain-tag.neck { left: 62%; top: 22%; }
+.pain-tag.back { left: 8%; top: 50%; }
+.pain-tag.disc { left: 10%; top: 72%; }
 /* ---------- Desk research ---------- */
 .big-stats { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--s) * 48); align-items: center; }
 .big-stats div { display: flex; flex-direction: column; gap: calc(var(--s) * 12); }
@@ -452,3 +456,13 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .big-stats span { font-size: max(calc(var(--s) * 30), 16px); line-height: 1.35; color: var(--ink-2); max-width: 18ch; }
 .big-stats em { font-style: normal; font-size: var(--t-xs); color: var(--ink-3); }
 .quote-chip.wide { max-width: none; align-self: flex-start; }
+
+/* Treatment card on the last story step, in front of the falling notes */
+.story .receipt { position: absolute; z-index: 3; left: 46%; top: 30%; width: min(30%, calc(var(--s) * 440)); background: #fff; border-radius: calc(var(--s) * 22);
+  padding: calc(var(--s) * 30) calc(var(--s) * 32); box-shadow: 0 40px 80px -36px rgba(40,44,36,.4); display: flex; flex-direction: column; gap: calc(var(--s) * 12); font-size: max(calc(var(--s) * 22), 13px); }
+.story .receipt p { display: flex; justify-content: space-between; gap: 12px; color: var(--ink-2); }
+.story .receipt b { font-weight: 500; color: var(--ink); }
+.story .receipt .r-head { font-weight: 600; color: var(--ink); font-size: max(calc(var(--s) * 28), 15px); }
+.story .receipt .r-total { border-top: 1px dashed rgba(20,20,18,.2); padding-top: calc(var(--s) * 12); color: var(--ink); font-weight: 500; }
+.story.paying .pain-tag { opacity: 0; transition: opacity .4s; }
+.story .receipt { left: 40%; top: 32%; }

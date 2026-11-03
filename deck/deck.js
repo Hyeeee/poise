@@ -8,7 +8,7 @@ import { PostureAvatar } from '../avatar.js';
 class DeckAvatar extends PostureAvatar {
   draw() {
     this.ctx.clearRect(0, 0, this.w, this.h);
-    this.render(this.ctx, this.w, this.h * .93, { fit: [250, 240] });
+    this.render(this.ctx, this.w, this.h * (this.room || .93), { fit: [250, 240] });   // room: share of the height the figure uses, the rest is space below it
   }
 }
 
@@ -47,9 +47,23 @@ function setStep(sl, k) {
   sl.querySelectorAll('[data-only-from]').forEach(e => e.classList.toggle('shown', +e.dataset.onlyFrom <= k));
   sl.querySelectorAll('[data-mark]').forEach(e => { e.classList.toggle('done', +e.dataset.mark < k); e.classList.toggle('now', +e.dataset.mark === k); });
   sl.dispatchEvent(new CustomEvent('step', { detail: k }));
+  if (slides[cur] === sl) updateProgress();
 }
 // Forward: next step if the slide has one left, else the next slide (from its first step).
 // Back: previous step, else the previous slide at its last step.
+// Each part's bar fills by every press inside it: a slide counts as (its steps + 1) presses.
+function updateProgress() {
+  const units = sl => stepsOf(sl) + 1;
+  segs.forEach(({ el, start, n }) => {
+    let total = 0, done = 0;
+    for (let j = start; j < start + n; j++) {
+      const u = units(slides[j]); total += u;
+      if (j < cur) done += u; else if (j === cur) done += +(slides[j].dataset.at || 0) + 1;
+    }
+    el.querySelector('b').style.width = (Math.min(1, done / total) * 100) + '%';
+    el.classList.toggle('now', cur >= start && cur < start + n);
+  });
+}
 function next() { const sl = slides[cur], k = +(sl.dataset.at || 0); if (k < stepsOf(sl)) setStep(sl, k + 1); else go(cur + 1); }
 function prev() { const sl = slides[cur], k = +(sl.dataset.at || 0); if (k > 0) setStep(sl, k - 1); else { go(cur - 1, true); } }
 
@@ -70,11 +84,7 @@ function go(i, atEnd = false) {
   document.body.classList.toggle('on-cover', i === 0);
   document.body.classList.toggle('on-end', i === slides.length - 1);   // no progress on the thank you slide
   // each part fills by how far you are into it; the current part's name is darker
-  segs.forEach(({ el, start, n }) => {
-    const k = Math.max(0, Math.min(1, (i - start + 1) / n));
-    el.querySelector('b').style.width = (k * 100) + '%';
-    el.classList.toggle('now', i >= start && i < start + n);
-  });
+  updateProgress();
   history.replaceState(null, '', '#' + (i + 1));
 }
 
@@ -131,7 +141,7 @@ document.querySelectorAll('.live-avatar').forEach(el => {
 // 4–6: the figure turns to the side; neck, lower back and a disc light up. 7: money flutters away.
 const story = document.querySelector('.slide.story');
 if (story) {
-  const front = new DeckAvatar(document.getElementById('story-front')); front.setActive(true);
+  const front = new DeckAvatar(document.getElementById('story-front')); front.setActive(true); front.room = .8;
   const slump = { x: -.12, y: .45, tilt: .16, roll: .26, sx: -.06, sink: .3 };
   const POSE = [[null, 1], [null, 1], [{ x: -.06, y: .2, tilt: .09, roll: .12, sx: -.03, sink: .12 }, 1.04], [slump, 1.1]];
 
@@ -145,67 +155,68 @@ if (story) {
   const glow = (x, y, r, a) => { if (a < .01) return; const gr = g.createRadialGradient(x, y, 0, x, y, r);
     gr.addColorStop(0, `rgba(232,82,64,${.8 * a})`); gr.addColorStop(.45, `rgba(240,120,90,${.35 * a})`); gr.addColorStop(1, 'rgba(240,120,90,0)');
     g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); };
+  // Upper body only, like the front figure: waist at the bottom, room all round so nothing is cut.
   function drawSide(t) {
     const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
-    if (cv.width !== Math.round(r.width * d)) { cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); }
+    if (cv.width !== Math.round(r.width * d) || cv.height !== Math.round(r.height * d)) { cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); }
     g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
-    const k = Math.min(r.width / 420, r.height / 330) * d * .92;          // whole scene always fits: nothing cut
-    g.setTransform(k, 0, 0, k, cv.width / 2 - 40 * k, cv.height * .64);
+    const k = Math.min(r.width / 300, r.height / 290) * d;
+    g.setTransform(k, 0, 0, k, cv.width * .44, cv.height * .82);
     const s = S.slump, br = Math.sin(t / 900) * 1.2;
-    // chair, desk and laptop in a light line
-    g.strokeStyle = 'rgba(20,20,18,.28)'; g.lineWidth = 2.4; g.lineCap = 'round';
-    g.beginPath(); g.moveTo(-46, 22); g.lineTo(52, 22); g.moveTo(-44, 22); g.lineTo(-56, -84); g.moveTo(0, 22); g.lineTo(0, 92); g.moveTo(-30, 92); g.lineTo(30, 92); g.stroke();
-    g.beginPath(); g.moveTo(96, -34); g.lineTo(230, -34); g.moveTo(210, -34); g.lineTo(210, 92); g.stroke();
-    g.beginPath(); g.moveTo(128, -36); g.lineTo(196, -36); g.lineTo(186, -112); g.stroke();
-    // body: pelvis, spine curve, neck and head (the slump rounds the back and pushes the head forward)
-    const pel = [0, 4], top = mix([2, -118 + br], [30, -100 + br], s), ctl = mix([-8, -62], [-30, -66], s);
-    const nk = mix([6, -138 + br], [62, -118 + br], s), head = mix([10, -164 + br], [84, -128 + br], s);
-    // legs (trousers) and feet
-    limb([[pel[0] + 4, pel[1] + 6], [74, 10], [78, 84]], 26, INK); limb([[78, 84], [100, 86]], 9, INK);
-    // torso: a thick black stroke along the spine
-    g.strokeStyle = INK; g.lineWidth = 64; g.lineCap = 'round'; g.beginPath(); g.moveTo(pel[0] + 10, pel[1] - 18); g.quadraticCurveTo(ctl[0] + 10, ctl[1], top[0] + 6, top[1] + 14); g.stroke();
-    // spine: vertebrae along the back, the low ones turning red
-    const sp = i => { const tt = .08 + i / 11 * .9, p = qp(pel, ctl, top, 1 - tt), q = qp(pel, ctl, top, 1 - tt + .01); const a = Math.atan2(q[1] - p[1], q[0] - p[0]); return [p[0] - 16 * Math.cos(a - Math.PI / 2) * .0 - 14, p[1], a]; };
-    if (S.back > .01) for (let i = 0; i < 11; i++) {
+    const pel = [0, 6], top = mix([0, -116 + br], [30, -100 + br], s), ctl = mix([-8, -60], [-32, -64], s);
+    const nk = mix([4, -136 + br], [62, -118 + br], s), head = mix([8, -162 + br], [86, -128 + br], s);
+    // torso: a thick black stroke along the spine, cut flat at the waist like the front figure
+    g.save(); g.beginPath(); g.rect(-200, -400, 500, 400); g.clip();
+    g.strokeStyle = INK; g.lineWidth = 62; g.lineCap = 'round'; g.beginPath(); g.moveTo(pel[0] + 8, pel[1] + 10); g.quadraticCurveTo(ctl[0] + 8, ctl[1], top[0] + 6, top[1] + 14); g.stroke();
+    g.restore();
+    // spine: vertebrae down the back, the low ones turning red
+    const sp = i => { const tt = .1 + i / 10 * .86, p = qp(pel, ctl, top, 1 - tt), q = qp(pel, ctl, top, 1 - tt + .01); return [p[0] - 14, p[1], Math.atan2(q[1] - p[1], q[0] - p[0])]; };
+    if (S.back > .01) for (let i = 0; i < 10; i++) {
       const [x, y, a] = sp(i), hot = Math.max(S.disc * (i === 2 ? 1 : 0), S.back * Math.max(0, (4 - i) / 4));
-      g.save(); g.translate(x + 4, y - 6); g.rotate(a + Math.PI / 2); g.globalAlpha = S.back;
+      if (y > -6) continue;
+      g.save(); g.translate(x + 4, y - 4); g.rotate(a + Math.PI / 2); g.globalAlpha = S.back;
       g.fillStyle = hot > .15 ? `rgb(${Math.round(250 - 20 * hot)},${Math.round(240 - 150 * hot)},${Math.round(230 - 150 * hot)})` : '#f1efe7';
       g.beginPath(); g.roundRect(-9, -3.6, 18, 7.2, 3); g.fill(); g.restore();
     }
-    // neck and head (hair at the back, closed eye looking at the screen)
+    // neck and head (hair at the back, closed eye)
     limb([top, nk], 14);
     g.fillStyle = PAPER; g.strokeStyle = INK; g.lineWidth = 3.2; g.beginPath(); g.ellipse(head[0], head[1], 23, 26, s * .5, 0, Math.PI * 2); g.fill(); g.stroke();
     g.fillStyle = INK; g.beginPath(); g.ellipse(head[0], head[1], 23.5, 26.5, s * .5, Math.PI * .9 + s * .5, Math.PI * 1.75 + s * .5); g.closePath(); g.fill();
     g.lineWidth = 2.6; g.beginPath(); const ex = head[0] + 12, ey = head[1] - 2 + s * 6; g.moveTo(ex - 5, ey); g.quadraticCurveTo(ex, ey + 4, ex + 5, ey); g.stroke();
-    // arm reaching to the keyboard
-    const sh = mix([8, -104 + br], [38, -90 + br], s), el = mix([30, -50], [64, -46], s);
-    limb([sh, el, [140, -42]], 13);
+    // arm: hangs from the shoulder, forearm forward toward the keyboard
+    const sh = mix([8, -102 + br], [40, -88 + br], s), el = mix([14, -46], [56, -40], s), hand = mix([64, -40], [112, -30], s);
+    limb([sh, el, hand], 13);
     // pain
     glow(lerp(top[0], nk[0], .4), lerp(top[1], nk[1], .4), 44, S.neck);
-    const low = qp(pel, ctl, top, .82); glow(low[0] - 10, low[1], 46, S.back * .8);
-    const disc = sp(2); glow(disc[0] + 4, disc[1] - 6, 26, S.disc);
+    const low = qp(pel, ctl, top, .8); glow(low[0] - 10, low[1], 46, S.back * .8);
+    const dsc = sp(2); glow(dsc[0] + 4, dsc[1] - 4, 26, S.disc);
     for (const k2 in S) S[k2] += (goal[k2] - S[k2]) * .06;
   }
   (function loop(t) { if (story.classList.contains('open') || story.classList.contains('leaving')) drawSide(t); requestAnimationFrame(loop); })(0);
 
   // Money: notes flutter down from the top and fade away.
   const mc = document.getElementById('money'), m = mc.getContext('2d'); let notes = [], raining = false;
-  const note = (y0 = -.12 - Math.random() * .15) => ({ x: Math.random(), y: y0, vx: (Math.random() - .5) * .0006, vy: .0012 + Math.random() * .0012, a: Math.random() * 6, va: (Math.random() - .5) * .04, f: Math.random() * 6, vf: .05 + Math.random() * .05, s: .7 + Math.random() * .6 });
+  const note = (y0 = -.12 - Math.random() * .15) => ({ wob: Array.from({ length: 8 }, () => (Math.random() - .5) * 3), x: Math.random(), y: y0, vx: (Math.random() - .5) * .0006, vy: .0018 + Math.random() * .0016, a: Math.random() * 6, va: (Math.random() - .5) * .04, f: Math.random() * 6, vf: .05 + Math.random() * .05, s: .7 + Math.random() * .6 });
+  // A note drawn like the figure: paper fill, thick ink outline, a slightly wobbly edge, a hand-written $.
   function drawNote(n, W, H, u) {
     m.save(); m.translate(n.x * W + Math.sin(n.f * .7) * 30 * u, n.y * H); m.rotate(n.a); m.scale(n.s * u, n.s * u * Math.max(.12, Math.abs(Math.cos(n.f))));
-    m.globalAlpha = Math.max(0, Math.min(1, (1 - n.y) * 2.2));
-    m.fillStyle = '#d7ecd9'; m.strokeStyle = INK; m.lineWidth = 2.4; m.lineJoin = 'round';
-    m.beginPath(); m.roundRect(-44, -22, 88, 44, 6); m.fill(); m.stroke();
-    m.lineWidth = 1.8; m.beginPath(); m.ellipse(0, 0, 12, 14, 0, 0, Math.PI * 2); m.stroke();
-    m.beginPath(); m.roundRect(-38, -16, 76, 32, 4); m.globalAlpha *= .5; m.stroke(); m.globalAlpha /= .5;
-    m.fillStyle = INK; m.font = '700 18px Inter, sans-serif'; m.textAlign = 'center'; m.textBaseline = 'middle'; m.fillText('$', 0, 1);
+    m.globalAlpha = Math.max(0, Math.min(1, (1 - n.y) * 2.2)) * fade;
+    const w = n.wob, P = [[-40 + w[0], -20 + w[1]], [40 + w[2], -21 + w[3]], [41 + w[4], 20 + w[5]], [-39 + w[6], 21 + w[7]]];
+    m.fillStyle = '#e4f1e3'; m.strokeStyle = INK; m.lineWidth = 3.2; m.lineJoin = 'round';
+    m.beginPath(); P.forEach((p, i) => i ? m.lineTo(...p) : m.moveTo(...p)); m.closePath(); m.fill(); m.stroke();
+    m.lineWidth = 2.6; m.beginPath(); m.ellipse(0, 0, 11, 12, 0, 0, Math.PI * 2); m.fillStyle = PAPER; m.fill(); m.stroke();
+    m.fillStyle = INK; m.font = '600 17px "Shantell Sans", cursive'; m.textAlign = 'center'; m.textBaseline = 'middle'; m.fillText('$', 0, 1);
     m.restore();
   }
+  let fade = 1;
   (function rain() {
     const r = mc.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
     if (mc.width !== Math.round(r.width * d)) { mc.width = Math.round(r.width * d); mc.height = Math.round(r.height * d); }
     m.setTransform(1, 0, 0, 1, 0, 0); m.clearRect(0, 0, mc.width, mc.height);
-    if (raining && notes.length < 34 && Math.random() < .25) notes.push(note());
+    // only while that step is on screen; leaving it, the notes fade out fast and are gone
+    const live = raining && story.classList.contains('open');
+    fade += ((live ? 1 : 0) - fade) * .15; if (!live && fade < .02) notes = [];
+    if (live && notes.length < 40 && Math.random() < .4) notes.push(note());
     const u = d * Math.max(.6, r.width / 1600);
     notes.forEach(n => { n.x += n.vx; n.y += n.vy; n.a += n.va; n.f += n.vf; drawNote(n, mc.width, mc.height, u); });
     notes = notes.filter(n => n.y < 1.1);
@@ -217,8 +228,8 @@ if (story) {
     story.classList.toggle('turned', k >= 4);
     const [dd, wr] = POSE[Math.min(k, 3)]; front.set(dd, wr);
     Object.assign(goal, { slump: k >= 4 ? 1 : .2, neck: k >= 4 ? (k >= 7 ? .5 : 1) : 0, back: k >= 5 ? (k >= 7 ? .6 : 1) : 0, disc: k >= 6 ? (k >= 7 ? .6 : 1) : 0 });
-    if (k === 7 && !raining) for (let i = 0; i < 14; i++) notes.push(note(-.1 - Math.random() * .5 + i * .02));   // a first handful, already in the air
-    raining = k === 7;
+    if (k === 7 && !raining) for (let i = 0; i < 22; i++) notes.push(note(-.2 + Math.random() * .9));   // a first handful, already in the air
+    raining = k === 7; story.classList.toggle('paying', k === 7);
   };
   story.addEventListener('step', e => onStep(e.detail));
   onStep(+(story.dataset.at || 0));   // the slide may already be open (deep link)
