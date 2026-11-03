@@ -150,39 +150,45 @@ if (story) {
   const glow = (x, y, r, a) => { if (a < .01) return; const gr = g.createRadialGradient(x, y, 0, x, y, r);
     gr.addColorStop(0, `rgba(232,82,64,${.8 * a})`); gr.addColorStop(.45, `rgba(240,120,90,${.35 * a})`); gr.addColorStop(1, 'rgba(240,120,90,0)');
     g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); };
+  // Same proportions, line weights and face as the app's avatar (figure.js), just built in 3D so it can turn.
   function draw3d(t) {
     const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
     if (cv.width !== Math.round(r.width * d) || cv.height !== Math.round(r.height * d)) { cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); }
     g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
     for (const k in S) S[k] += (goal[k] - S[k]) * (k === 'yaw' ? .045 : .05);
-    const { yaw, slump: s, bend } = S, br = Math.sin(t / 900) * 1.2;
+    const { yaw, slump: s, bend } = S, br = Math.sin(t / 700) * 1.2;
     const cy = Math.cos(yaw), sy = Math.sin(yaw), cb = Math.cos(bend), sb = Math.sin(bend);
     // 3D point → screen. Sideways bend turns the upper body around the waist, then the whole body turns (yaw).
     const P = ([x, y, z]) => { const x1 = x * cb - y * sb, y1 = x * sb + y * cb; return [x1 * cy + z * sy, y1, -x1 * sy + z * cy]; };
-    const k = Math.min(r.width / 330, r.height / 285) * d;
-    g.setTransform(k, 0, 0, k, cv.width / 2 - 26 * sy * k, cv.height * .84);
-    // spine: from the waist up; the slump rounds the back (centre moves back) and pushes the top forward
-    const spine = u => [0, -116 * u + br * u - s * 14 * u * u, -s * 20 * Math.sin(Math.PI * u) + s * 30 * u * u];
+    const k = Math.min(r.width / 270, r.height / 250) * d;
+    g.setTransform(k, 0, 0, k, cv.width / 2 - 22 * sy * k, cv.height * .97);
+    // spine from the waist (y 0) to the shoulders (y -116, as in the app); the slump rounds the back
+    const spine = u => [0, -116 * u + br * u - s * 12 * u * u, -s * 18 * Math.sin(Math.PI * u) + s * 26 * u * u];
     const SH = spine(1);
-    const shoulder = side => [side * 40, SH[1] + 2, SH[2] - 4];
-    const neckTop = [0, SH[1] - lerp(22, 12, s), SH[2] + lerp(0, 30, s)];
-    const head = [0, neckTop[1] - lerp(26, 12, s), neckTop[2] + lerp(0, 26, s)];
-    const arm = side => { const sh = shoulder(side), el = [sh[0] + side * 6, sh[1] + 54, sh[2] + 8 + s * 18], hd = [el[0] - side * 3, el[1] + lerp(28, 6, s), el[2] + lerp(14, 54, s)]; return [sh, el, hd]; };
-    // torso outline from cross-sections: each slice is an ellipse (80 wide, 46 deep) around the spine
+    const shoulder = side => [side * 40, SH[1], SH[2] - 2];
+    // neck: 38 long like the app; slumped, it tips forward (turtle neck) and the head drops a little
+    const NECK = [0, SH[1] - 8, SH[2]], na = s * .95, nl = 38 - s * 8;
+    const head = [0, NECK[1] - Math.cos(na) * nl, NECK[2] + Math.sin(na) * nl];
+    const neckTop = [0, NECK[1] + (head[1] - NECK[1]) * .55, NECK[2] + (head[2] - NECK[2]) * .55];
+    // arms rest like the app (elbow out, hands in by the waist); slumped, the forearms reach forward to the desk
+    const arm = side => { const sh = shoulder(side), el = [sh[0] + side * 18, sh[1] + 50, sh[2] + 4 + s * 12], hd = [el[0] - side * 18, el[1] + lerp(52, 30, s), el[2] + lerp(2, 46, s)]; return [sh, el, hd]; };
+    // tee: the app's shape (42 wide at the shoulders, 37 at the chest, 34 at the waist), 22 deep
     const L = [], R = [];
-    for (let i = 0; i <= 12; i++) {
-      const u = i / 12, c = spine(u), w = lerp(34, 41, Math.min(1, u * 1.4)) * (u > .92 ? 1 - (u - .92) * 2.2 : 1), dp = 23;
-      // the slice's extent on screen across the turned axis
-      const half = Math.sqrt((w * cy) ** 2 + (dp * sy) ** 2);
-      const cc = P(c), ex = P([1, 0, 0]);
-      const ox = half, nx = cc[0];
-      L.push([nx - ox, cc[1] + (P([w, c[1], c[2]])[1] - cc[1]) * 0]); R.push([nx + ox, cc[1]]);
+    for (let i = 0; i <= 14; i++) {
+      const u = i / 14, c = spine(u), w = u < .81 ? lerp(34, 37, u / .81) : lerp(37, 42, (u - .81) / .19), dp = 22;
+      const half = Math.sqrt((w * cy) ** 2 + (dp * sy) ** 2), cc = P(c);
+      L.push([cc[0] - half, cc[1]]); R.push([cc[0] + half, cc[1]]);
     }
-    const lim = (pts, w, fill = PAPER) => { g.lineCap = g.lineJoin = 'round'; for (const [lw, col] of [[w + 4.5, INK], [w, fill]]) { g.lineWidth = lw; g.strokeStyle = col; g.beginPath(); pts.forEach((p, i) => { const q = P(p); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke(); } };
+    const limb = (a, b, w) => { const A = P(a), B = P(b); g.lineCap = 'round';
+      g.strokeStyle = INK; g.lineWidth = w + 4.5; g.beginPath(); g.moveTo(A[0], A[1]); g.lineTo(B[0], B[1]); g.stroke();
+      g.strokeStyle = PAPER; g.lineWidth = w; g.beginPath(); g.moveTo(A[0], A[1]); g.lineTo(B[0], B[1]); g.stroke(); };
+    const drawArm = ([sh, el, hd]) => { limb(sh, el, 11); limb(el, hd, 9);
+      const E = P(el), H = P(hd); g.fillStyle = PAPER; g.strokeStyle = INK; g.lineWidth = 2.4;
+      g.beginPath(); g.ellipse(H[0], H[1], 5.5, 7.5, Math.atan2(H[1] - E[1], H[0] - E[0]) - Math.PI / 2, 0, Math.PI * 2); g.fill(); g.stroke(); };
     const arms = [-1, 1].map(side => ({ side, pts: arm(side), z: P(shoulder(side))[2] })).sort((a, b) => a.z - b.z);
-    // far arm, torso, spine, near arm, neck, head
-    lim(arms[0].pts, 13);
-    g.fillStyle = INK; g.beginPath(); L.forEach((p, i) => i ? g.lineTo(...p) : g.moveTo(...p)); for (let i = R.length - 1; i >= 0; i--) g.lineTo(...R[i]); g.closePath(); g.fill();
+    // far arm, tee, spine, neck, head, near arm
+    if (sy > .2) drawArm(arms[0].pts);
+    g.fillStyle = INK; g.lineJoin = 'round'; g.beginPath(); L.forEach((p, i) => i ? g.lineTo(...p) : g.moveTo(...p)); for (let i = R.length - 1; i >= 0; i--) g.lineTo(...R[i]); g.closePath(); g.fill();
     // the spine, seen as the body turns: an S (lumbar curve forward, upper back curve back, neck curve forward).
     // Slumped, the upper curve deepens and the neck juts forward; the strained curves turn red and ache.
     const showSpine = Math.max(0, sy - .35) / .65 * Math.max(S.neck, S.back);
@@ -212,17 +218,25 @@ if (story) {
       g.restore();
     };
     drawSpine(false);
-    lim(arms[1].pts, 13);
-    lim([[0, SH[1] + 6, SH[2]], neckTop], 14);
+    if (sy > .2) drawArm(arms[1].pts);   // side on, the near arm hangs in front of the body but behind the forward head
+    limb(NECK, neckTop, 13);
     drawSpine(true);
-    // head: a sphere; hair caps the back and top; eyes only where they face the viewer
-    const hc = P(head), hr = 24;
-    g.fillStyle = PAPER; g.strokeStyle = INK; g.lineWidth = 3.2; g.beginPath(); g.ellipse(hc[0], hc[1], hr, hr * 1.1, 0, 0, Math.PI * 2); g.fill(); g.stroke();
-    const hd = P([head[0], head[1] - .6, head[2] - .8]); const ang = Math.atan2(hd[1] - hc[1], hd[0] - hc[0]);
-    g.fillStyle = INK; g.beginPath(); g.ellipse(hc[0], hc[1], hr + .5, hr * 1.1 + .5, 0, ang - 1.15, ang + 1.15); g.closePath(); g.fill();
-    g.lineWidth = 2.6;
-    for (const ex of [-8, 8]) { const e = [head[0] + ex, head[1] + 2, head[2] + 20], q = P(e); if (q[2] - hc[2] < 4) continue;
-      g.beginPath(); g.moveTo(q[0] - 5 * Math.max(.35, cy), q[1]); g.quadraticCurveTo(q[0], q[1] + 4, q[0] + 5 * Math.max(.35, cy), q[1]); g.stroke(); }
+    // head: the app's head (19 × 23), hair cap with a soft fringe, closed eyes and a small nose line.
+    // As the body turns, the face slides toward the side it faces and the hair wraps round to the back.
+    const hc = P(head), tilt = na * sy * .8, hs = 1 + s * .08;
+    g.save(); g.translate(hc[0], hc[1]); g.rotate(tilt); g.scale(hs, hs);
+    g.fillStyle = PAPER; g.strokeStyle = INK; g.lineWidth = 2.4;
+    g.beginPath(); g.ellipse(0, 0, 19, 23, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+    const a0 = lerp(1.02, .74, sy) * Math.PI, a1 = lerp(1.98, 1.86, sy) * Math.PI;
+    g.fillStyle = INK; g.beginPath(); g.ellipse(0, 0, 20.5, 24.5, 0, a0, a1);
+    g.quadraticCurveTo(lerp(14, 13, sy), lerp(-10, -13, sy), lerp(4, -1, sy), lerp(-11, -9, sy));
+    g.quadraticCurveTo(lerp(-8, -8, sy), lerp(-9, 2, sy), 20.5 * Math.cos(a0), 24.5 * Math.sin(a0)); g.fill();
+    const face = x => x * cy + 15 * sy, seen = x => -x * sy + 15 * cy > 2, ew = Math.max(.45, cy);
+    g.lineWidth = 1.8; g.lineCap = 'round'; g.beginPath();
+    for (const ex of [-7, 8]) if (seen(ex)) { const fx = face(ex); g.moveTo(fx - 4 * ew, 0); g.quadraticCurveTo(fx, 3, fx + 4 * ew, 0); }
+    const nx = face(1); g.moveTo(nx, 4); g.lineTo(nx - .5 + 2.5 * sy, 9); g.stroke();
+    g.restore();
+    if (sy <= .2) { drawArm(arms[1].pts); drawArm(arms[0].pts); }   // front on, arms last as in the app
     // pain: a warm glow plus little ink ache strokes that throb
     const ache = (x, y, r, a, seed) => { if (a < .05) return; g.save(); g.strokeStyle = `rgba(214,60,44,${a})`; g.lineWidth = 2.4; g.lineCap = 'round';
       for (let j = 0; j < 3; j++) { const an = seed + j * .55, r0 = r * (1 + .12 * Math.sin(t / 200 + j)), r1 = r0 + 9;
