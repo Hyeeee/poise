@@ -472,3 +472,21 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 
 .story.arriving .story-stage, .story.arriving .story-copy [data-only] { transition-delay: .9s !important; }
 .story.intro .key { transition-delay: .45s; }
+
+/* the treatment card sits under the headline, on the left */
+.story .receipt { left: var(--padx); top: calc(var(--top) + var(--s) * 230); width: min(34%, calc(var(--s) * 460)); }
+
+/* The step line IS the title: the key message steps aside and each step's line takes the title's place, top left */
+.story .key { transition: opacity .45s ease, filter .45s ease, transform 1.1s var(--swoop), font-size 1.1s var(--swoop), top 1.1s var(--swoop), left 1.1s var(--swoop); }
+.story:not(.intro) .key { font-size: max(calc(var(--s) * 168), 56px); max-width: 16ch; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(.94); text-align: center; opacity: 0; filter: blur(10px); pointer-events: none; }
+.story:not(.intro) .key span { white-space: nowrap; }
+.story .story-copy { position: absolute; left: var(--padx); top: var(--top); width: 40%; padding: 0; display: block; z-index: 3; }
+.story .story-lines .line { top: 0; bottom: auto; gap: calc(var(--s) * 18); }
+.story .say { font-weight: 600; font-size: max(calc(var(--s) * 84), 34px); line-height: 1.02; letter-spacing: -.04em; max-width: 12ch; }
+.story .when { font-size: max(calc(var(--s) * 26), 14px); }
+/* one line leaves before the next arrives, so titles never overlap */
+.story .story-lines .line { transition: opacity .28s ease, transform .4s var(--ease), filter .28s ease; transform: translateY(calc(var(--s) * -14)); }
+.story .story-lines .line.shown { transition: opacity .55s var(--ease) .3s, transform .8s var(--ease) .3s, filter .55s var(--ease) .3s; }
+.story .receipt { top: calc(var(--top) + var(--s) * 410); }
+.story .say { max-width: 14ch; text-wrap: balance; }
+.key, .story .say { text-wrap: balance; }

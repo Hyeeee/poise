@@ -138,7 +138,7 @@ document.querySelectorAll('.live-avatar').forEach(el => {
 
 // ---------- The problem story ----------
 // Step 0: only the key message. 1–3: the front figure slumps (0, 3, 10 min).
-// 4–6: the figure turns to the side; neck, lower back and a disc light up. 7: money flutters away.
+// 4–6: the figure turns to the side; neck, lower back and a disc light up. 7: the treatment card.
 const story = document.querySelector('.slide.story');
 if (story) {
   // One figure built in 3D (cross-sections for the torso, spheres and capsules for head, neck and arms),
@@ -250,35 +250,6 @@ if (story) {
   }
   (function loop(t) { if (story.classList.contains('open') || story.classList.contains('leaving')) draw3d(t); requestAnimationFrame(loop); })(0);
 
-  // Money: notes flutter down from the top and fade away.
-  const mc = document.getElementById('money'), m = mc.getContext('2d'); let notes = [], raining = false;
-  const note = (y0 = -.12 - Math.random() * .15) => ({ wob: Array.from({ length: 8 }, () => (Math.random() - .5) * 3), x: Math.random(), y: y0, vx: (Math.random() - .5) * .0006, vy: .0018 + Math.random() * .0016, a: Math.random() * 6, va: (Math.random() - .5) * .04, f: Math.random() * 6, vf: .05 + Math.random() * .05, s: .7 + Math.random() * .6 });
-  // A note drawn like the figure: paper fill, thick ink outline, a slightly wobbly edge, a hand-written $.
-  function drawNote(n, W, H, u) {
-    m.save(); m.translate(n.x * W + Math.sin(n.f * .7) * 30 * u, n.y * H); m.rotate(n.a); m.scale(n.s * u, n.s * u * Math.max(.12, Math.abs(Math.cos(n.f))));
-    m.globalAlpha = Math.max(0, Math.min(1, (1 - n.y) * 2.2)) * fade;
-    const w = n.wob, P = [[-40 + w[0], -20 + w[1]], [40 + w[2], -21 + w[3]], [41 + w[4], 20 + w[5]], [-39 + w[6], 21 + w[7]]];
-    m.fillStyle = '#e4f1e3'; m.strokeStyle = INK; m.lineWidth = 3.2; m.lineJoin = 'round';
-    m.beginPath(); P.forEach((p, i) => i ? m.lineTo(...p) : m.moveTo(...p)); m.closePath(); m.fill(); m.stroke();
-    m.lineWidth = 2.6; m.beginPath(); m.ellipse(0, 0, 11, 12, 0, 0, Math.PI * 2); m.fillStyle = PAPER; m.fill(); m.stroke();
-    m.fillStyle = INK; m.font = '600 17px "Shantell Sans", cursive'; m.textAlign = 'center'; m.textBaseline = 'middle'; m.fillText('$', 0, 1);
-    m.restore();
-  }
-  let fade = 1;
-  (function rain() {
-    const r = mc.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
-    if (mc.width !== Math.round(r.width * d)) { mc.width = Math.round(r.width * d); mc.height = Math.round(r.height * d); }
-    m.setTransform(1, 0, 0, 1, 0, 0); m.clearRect(0, 0, mc.width, mc.height);
-    // only while that step is on screen; leaving it, the notes fade out fast and are gone
-    const live = raining && story.classList.contains('open');
-    fade += ((live ? 1 : 0) - fade) * .15; if (!live && fade < .02) notes = [];
-    if (live && notes.length < 40 && Math.random() < .4) notes.push(note());
-    const u = d * Math.max(.6, r.width / 1600);
-    notes.forEach(n => { n.x += n.vx; n.y += n.vy; n.a += n.va; n.f += n.vf; drawNote(n, mc.width, mc.height, u); });
-    notes = notes.filter(n => n.y < 1.1);
-    requestAnimationFrame(rain);
-  })();
-
   let lastK = -1, arriveT;
   const onStep = k => {
     // leaving the key message: the figure and copy wait until the headline has settled, so nothing overlaps
@@ -288,8 +259,7 @@ if (story) {
     const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.06, -.12, 0, 0, 0, 0];
     Object.assign(goal, { yaw: k >= 4 ? Math.PI / 2 : 0, slump: SL[k], bend: BE[k],
       neck: k >= 4 ? (k >= 7 ? .5 : 1) : 0, back: k >= 5 ? (k >= 7 ? .6 : 1) : 0, disc: k >= 6 ? (k >= 7 ? .6 : 1) : 0 });
-    if (k === 7 && !raining) for (let i = 0; i < 22; i++) notes.push(note(-.2 + Math.random() * .9));   // a first handful, already in the air
-    raining = k === 7; story.classList.toggle('paying', k === 7);
+    story.classList.toggle('paying', k === 7);
   };
   story.addEventListener('step', e => onStep(e.detail));
   onStep(+(story.dataset.at || 0));   // the slide may already be open (deep link)
