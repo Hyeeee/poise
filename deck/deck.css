@@ -406,3 +406,39 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .thumbs .shot, .shots-col .shot { height: 100%; }
 .shots-row figure .shot { width: 100%; flex: 1; }
 .card.screen { padding-bottom: calc(var(--s) * 36); }
+
+/* ---------- Steps ---------- */
+[data-step], [data-only], [data-only-from] { opacity: 0; transform: translateY(calc(var(--s) * 24)); filter: blur(6px); transition: opacity .6s var(--ease), transform .8s var(--ease), filter .6s var(--ease); pointer-events: none; }
+[data-step].shown, [data-only].shown, [data-only-from].shown { opacity: 1; transform: none; filter: none; pointer-events: auto; }
+
+/* ---------- Problem story ---------- */
+.story-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: calc(var(--s) * 64); }
+.story-copy { display: flex; flex-direction: column; justify-content: space-between; min-height: 0; }
+.story-lines { position: relative; flex: 1; }
+.story-lines .line { position: absolute; left: 0; right: 0; top: 0; display: flex; flex-direction: column; gap: calc(var(--s) * 20); }
+.story-lines .line .title { max-width: 14ch; font-size: max(calc(var(--s) * 84), 34px); }
+.when { font-weight: 500; font-size: max(calc(var(--s) * 30), 16px); color: #c0533f; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.story-time { list-style: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: calc(var(--s) * 8); }
+.story-time li { font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-3); padding-top: calc(var(--s) * 12); border-top: 3px solid rgba(13,13,13,.1); transition: color .4s, border-color .4s; white-space: nowrap; }
+.story-time li.done { border-color: var(--ink); }
+.story-time li.now { border-color: #c0533f; color: var(--ink); font-weight: 500; }
+.story-stage { padding: 0; overflow: hidden; }
+.story-figure { position: absolute; inset: 6% 6% 0; }
+.story-figure canvas { position: absolute; inset: 0; }
+.pain-tag { position: absolute; font-size: max(calc(var(--s) * 20), 12px); font-weight: 500; color: #a8432f; background: rgba(255,255,255,.85); border-radius: 99px; padding: calc(var(--s) * 8) calc(var(--s) * 16); box-shadow: 0 8px 24px -12px rgba(160,60,40,.4); }
+.pain-tag.neck { left: 62%; top: 26%; }
+.pain-tag.back { left: 64%; top: 62%; }
+.pain-tag.disc { left: 14%; top: 74%; }
+.receipt { position: absolute; left: calc(var(--s) * 32); top: calc(var(--s) * 32); width: min(42%, calc(var(--s) * 380)); background: #fff; border-radius: calc(var(--s) * 18); padding: calc(var(--s) * 24) calc(var(--s) * 26); box-shadow: 0 30px 60px -30px rgba(40,44,36,.35); display: flex; flex-direction: column; gap: calc(var(--s) * 10); font-size: max(calc(var(--s) * 19), 12px); }
+.receipt p { display: flex; justify-content: space-between; gap: 12px; color: var(--ink-2); }
+.receipt b { font-weight: 500; color: var(--ink); }
+.receipt .r-head { font-weight: 600; color: var(--ink); font-size: max(calc(var(--s) * 22), 13px); }
+.receipt .r-total { border-top: 1px dashed rgba(20,20,18,.2); padding-top: calc(var(--s) * 10); color: var(--ink); font-weight: 500; }
+
+/* ---------- Desk research ---------- */
+.big-stats { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--s) * 48); align-items: center; }
+.big-stats div { display: flex; flex-direction: column; gap: calc(var(--s) * 12); }
+.big-stats b { font-weight: 500; font-size: max(calc(var(--s) * 150), 56px); letter-spacing: -.05em; line-height: .95; white-space: nowrap; }
+.big-stats span { font-size: max(calc(var(--s) * 30), 16px); line-height: 1.35; color: var(--ink-2); max-width: 18ch; }
+.big-stats em { font-style: normal; font-size: var(--t-xs); color: var(--ink-3); }
+.quote-chip.wide { max-width: none; align-self: flex-start; }
