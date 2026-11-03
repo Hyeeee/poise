@@ -265,7 +265,11 @@ if (story) {
     requestAnimationFrame(rain);
   })();
 
+  let lastK = -1, arriveT;
   const onStep = k => {
+    // leaving the key message: the figure and copy wait until the headline has settled, so nothing overlaps
+    if (lastK === 0 && k > 0) { story.classList.add('arriving'); clearTimeout(arriveT); arriveT = setTimeout(() => story.classList.remove('arriving'), 1700); }
+    lastK = k;
     story.classList.toggle('intro', k === 0);
     const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.06, -.12, 0, 0, 0, 0];
     Object.assign(goal, { yaw: k >= 4 ? Math.PI / 2 : 0, slump: SL[k], bend: BE[k],

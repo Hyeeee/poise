@@ -421,7 +421,8 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
   font-size: max(calc(var(--s) * 84), 34px); max-width: 12ch; transform-origin: 0 0;
   transition: transform 1.1s var(--swoop), font-size 1.1s var(--swoop), max-width 1.1s var(--swoop), left 1.1s var(--swoop), top 1.1s var(--swoop); }
 .key span { color: #a3a49d; }
-.story.intro .key { font-size: max(calc(var(--s) * 200), 64px); max-width: 9ch; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: left; }
+.story.intro .key { font-size: max(calc(var(--s) * 168), 56px); max-width: 16ch; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+.story.intro .key span { white-space: nowrap; }
 .story-copy { grid-column: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: calc(var(--s) * 40); padding-top: calc(var(--s) * 220); transition: opacity .6s ease .3s; }
 .story-lines { position: relative; flex: 1; }
 .story-lines .line { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: calc(var(--s) * 14); }
@@ -468,3 +469,6 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .cover.leaving ~ .slide.open { transition-delay: 0s; }
 .slide.open:not(.cover) { --wait: 420ms; }
 .cover.leaving ~ .slide.open { --wait: 180ms; }
+
+.story.arriving .story-stage, .story.arriving .story-copy [data-only] { transition-delay: .9s !important; }
+.story.intro .key { transition-delay: .45s; }
