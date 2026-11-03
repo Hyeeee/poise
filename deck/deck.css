@@ -842,3 +842,22 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .viz-chart .arc, .big-stats .viz-chart .ring { stroke-linecap: butt !important; }
 .big-stats .viz-chart .ring, .big-stats .viz-chart .arc { stroke-width: 12 !important; }
 .big-stats .viz-chart .arc { stroke-linecap: round !important; }
+
+/* Desk research, v8: each figure on its own soft card (after the reference), Poise's colours brightened */
+:root { --p-amber: #f2b13e; --p-coral: #f2735a; --p-coral-2: #f9b4a3; --p-mint: #6fcf97; }
+.big-stats:not(.survey) { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; column-gap: calc(var(--s) * 28) !important; justify-content: stretch !important; align-items: stretch; }
+.big-stats:not(.survey) > div { background: rgba(255,255,255,.62); backdrop-filter: blur(24px) saturate(1.2); -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  border-radius: calc(var(--s) * 36); padding: calc(var(--s) * 44) calc(var(--s) * 44) calc(var(--s) * 40); box-shadow: 0 30px 60px -40px rgba(40,44,36,.25); }
+.big-stats:not(.survey) .viz-chart { width: 100% !important; height: calc(var(--s) * 230) !important; margin-bottom: calc(var(--s) * 44) !important; }
+.big-stats:not(.survey) b { font-size: max(calc(var(--s) * 84), 36px) !important; }
+.viz-chart .g-track { fill: none; stroke: rgba(20,20,18,.07); stroke-width: 26; stroke-linecap: round; }
+.viz-chart .g-fill { fill: none; stroke-width: 26; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.3s cubic-bezier(.3,.7,.2,1) .4s; }
+.viz-chart .g-fill.amber { stroke: var(--p-amber) !important; }
+.shown .viz-chart .g-fill { stroke-dashoffset: 0; }
+.viz-chart .g-mark { stroke: var(--ink) !important; stroke-width: 2; stroke-linecap: round; }
+.viz-chart .dotk { fill: rgba(20,20,18,.25); stroke: none !important; }
+.big-stats .viz-chart .arc { stroke-width: 18 !important; stroke-linecap: round !important; }
+.viz-chart .arc.on { stroke: var(--p-coral) !important; } .viz-chart .arc.mid { stroke: var(--p-coral-2) !important; } .viz-chart .arc.rest { stroke: rgba(20,20,18,.08) !important; }
+.viz-chart .ring { display: none; }
+.viz-chart .bar.hi { fill: var(--p-coral) !important; }
+.viz-chart .bar { fill: rgba(20,20,18,.1) !important; }
