@@ -256,7 +256,10 @@ if (story) {
     const face = x => x * cy + 15 * sy, seen = x => -x * sy + 15 * cy > 2, ew = Math.max(.45, cy);
     g.lineWidth = 1.8; g.lineCap = 'round'; g.beginPath();
     for (const ex of [-7, 8]) if (seen(ex)) { const fx = face(ex); g.moveTo(fx - 4 * ew, 0); g.quadraticCurveTo(fx, 3, fx + 4 * ew, 0); }
-    const nx = face(1); g.moveTo(nx, 4); g.lineTo(nx - .5 + 2.5 * sy, 9); g.stroke();
+    g.stroke();
+    // the nose line only shows from the front; it fades out as the head turns to the side
+    const noseA = Math.max(0, 1 - sy / .55);
+    if (noseA > .01) { const nx = face(1); g.save(); g.globalAlpha *= noseA; g.beginPath(); g.moveTo(nx, 4); g.lineTo(nx - .5, 9); g.stroke(); g.restore(); }
     g.restore();
     if (sy <= .2) { drawArm(arms[1].pts); drawArm(arms[0].pts); }   // front on, arms last as in the app
     // pain: a warm glow plus little ink ache strokes that throb
