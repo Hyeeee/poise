@@ -886,3 +886,22 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ex .bub { opacity: 0; transform: translateY(calc(var(--s) * 10)); transition: opacity .45s ease, transform .55s var(--ease); }
 .ex.shown .bub { opacity: 1; transform: none; }
 .ex.shown .bub:nth-child(2) { transition-delay: .45s; } .ex.shown .bub:nth-child(3) { transition-delay: .8s; }
+
+/* Survey shown the way Google Forms summarises it: the question, the response count, a bar per answer */
+.forms { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); column-gap: calc(var(--s) * 40); align-content: center; }
+.form-q { background: rgba(255,255,255,.62); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-radius: calc(var(--s) * 28); padding: calc(var(--s) * 36); display: flex; flex-direction: column; }
+.fq-title { font-size: max(calc(var(--s) * 22), 13px); font-weight: 500; line-height: 1.3; color: var(--ink); min-height: 2.6em; }
+.fq-meta { margin-top: calc(var(--s) * 6); font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-3); }
+.fq-bars { list-style: none; padding: 0; margin: calc(var(--s) * 26) 0 0; display: flex; flex-direction: column; gap: calc(var(--s) * 14); }
+.fq-bars li { display: grid; grid-template-columns: 9.5em 1fr 4.6em; align-items: center; gap: calc(var(--s) * 12); font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-3); }
+.fq-bars li span { line-height: 1.2; }
+.fq-bars i { display: block; height: calc(var(--s) * 10); border-radius: 99px; background: linear-gradient(90deg, rgba(20,20,18,.22) 0 100%) left / calc(var(--v) * 100%) 100% no-repeat, rgba(20,20,18,.06); }
+.fq-bars li.hi { color: var(--ink); font-weight: 500; } .fq-bars li.hi i { background-image: linear-gradient(90deg, var(--ink) 0 100%); }
+.fq-bars b { font-weight: 500; text-align: right; } .fq-bars small { font-size: .85em; color: var(--ink-3); font-weight: 400; }
+.form-q .fq-bars i { background-size: 0 100%; transition: background-size 1s cubic-bezier(.3,.7,.2,1) .3s; }
+.form-q.shown .fq-bars i { background-size: calc(var(--v) * 100%) 100%; }
+.fq-take { margin-top: auto; padding-top: calc(var(--s) * 28); font-size: max(calc(var(--s) * 22), 13px); color: var(--ink-2); line-height: 1.35; }
+.fq-take b { color: var(--ink); font-weight: 600; }
+/* interviews: one conversation down the middle */
+.chat.one { display: flex; flex-direction: column; gap: calc(var(--s) * 30); width: min(100%, calc(var(--s) * 1100)); margin: 0 auto; }
+.fq-bars li { grid-template-columns: 11.5em 1fr 4.6em; }
