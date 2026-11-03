@@ -638,3 +638,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* side chips sit farther out, leaving room before the ache marks */
 .story .pain-tag.back { left: -14%; }
 .story .pain-tag.disc { left: -14%; }
+.cover-title span { color: #a3a49d; }
