@@ -640,3 +640,14 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .story .pain-tag.disc { left: -5%; }
 .cover-title span { color: #a3a49d; }
 .cover-title span { color: rgba(20,20,18,.42); }   /* translucent ink: takes on the gradient behind it but stays readable */
+
+/* the two cards as bills */
+.story .receipt.bill { width: min(26%, calc(var(--s) * 440)); }
+.story .bill .r-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: calc(var(--s) * 12); border-bottom: 1px dashed rgba(20,20,18,.2); }
+.story .bill .r-head span { letter-spacing: .14em; text-transform: uppercase; font-size: max(calc(var(--s) * 18), 11px); color: var(--ink-3); font-weight: 600; }
+.story .bill .r-head em { font-style: normal; color: #a8432f; font-weight: 600; font-size: max(calc(var(--s) * 22), 13px); }
+.story .bill p { align-items: baseline; }
+.story .bill small { font-size: .8em; color: var(--ink-3); }
+.story .bill b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.story .bill .r-total b { color: #a8432f; font-weight: 600; font-size: 1.15em; }
+.story .bill .r-note { display: block; font-size: max(calc(var(--s) * 13), 9px); color: var(--ink-3); line-height: 1.4; }
