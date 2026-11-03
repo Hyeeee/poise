@@ -141,58 +141,100 @@ document.querySelectorAll('.live-avatar').forEach(el => {
 // 4–6: the figure turns to the side; neck, lower back and a disc light up. 7: money flutters away.
 const story = document.querySelector('.slide.story');
 if (story) {
-  const front = new DeckAvatar(document.getElementById('story-front')); front.setActive(true); front.room = .8;
-  const slump = { x: -.12, y: .45, tilt: .16, roll: .26, sx: -.06, sink: .3 };
-  const POSE = [[null, 1], [null, 1], [{ x: -.06, y: .2, tilt: .09, roll: .12, sx: -.03, sink: .12 }, 1.04], [slump, 1.1]];
-
-  // Side view, drawn here in the same ink style as the app's figure.
-  const cv = document.getElementById('story-side'), g = cv.getContext('2d');
+  // One figure built in 3D (cross-sections for the torso, spheres and capsules for head, neck and arms),
+  // drawn in the app's ink style. It can turn from the front to the side like a real model, and slump.
+  const cv = document.getElementById('story-3d'), g = cv.getContext('2d');
   const INK = '#141412', PAPER = '#fbfaf6';
-  const S = { slump: .2, neck: 0, back: 0, disc: 0 }, goal = { ...S };
-  const lerp = (a, b, k) => a + (b - a) * k, mix = (A, B, k) => [lerp(A[0], B[0], k), lerp(A[1], B[1], k)];
-  const qp = (a, c, b, t) => [(1 - t) ** 2 * a[0] + 2 * (1 - t) * t * c[0] + t * t * b[0], (1 - t) ** 2 * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1]];
-  const limb = (pts, w, fill = PAPER) => { g.lineCap = g.lineJoin = 'round'; for (const [lw, c] of [[w + 4.5, INK], [w, fill]]) { g.lineWidth = lw; g.strokeStyle = c; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(...p) : g.moveTo(...p)); g.stroke(); } };
+  const S = { yaw: 0, slump: 0, bend: 0, neck: 0, back: 0, disc: 0 }, goal = { ...S };
+  const lerp = (a, b, k) => a + (b - a) * k;
   const glow = (x, y, r, a) => { if (a < .01) return; const gr = g.createRadialGradient(x, y, 0, x, y, r);
     gr.addColorStop(0, `rgba(232,82,64,${.8 * a})`); gr.addColorStop(.45, `rgba(240,120,90,${.35 * a})`); gr.addColorStop(1, 'rgba(240,120,90,0)');
     g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); };
-  // Upper body only, like the front figure: waist at the bottom, room all round so nothing is cut.
-  function drawSide(t) {
+  function draw3d(t) {
     const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
     if (cv.width !== Math.round(r.width * d) || cv.height !== Math.round(r.height * d)) { cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); }
     g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
-    const k = Math.min(r.width / 300, r.height / 290) * d;
-    g.setTransform(k, 0, 0, k, cv.width * .44, cv.height * .82);
-    const s = S.slump, br = Math.sin(t / 900) * 1.2;
-    const pel = [0, 6], top = mix([0, -116 + br], [30, -100 + br], s), ctl = mix([-8, -60], [-32, -64], s);
-    const nk = mix([4, -136 + br], [62, -118 + br], s), head = mix([8, -162 + br], [86, -128 + br], s);
-    // torso: a thick black stroke along the spine, cut flat at the waist like the front figure
-    g.save(); g.beginPath(); g.rect(-200, -400, 500, 400); g.clip();
-    g.strokeStyle = INK; g.lineWidth = 62; g.lineCap = 'round'; g.beginPath(); g.moveTo(pel[0] + 8, pel[1] + 10); g.quadraticCurveTo(ctl[0] + 8, ctl[1], top[0] + 6, top[1] + 14); g.stroke();
-    g.restore();
-    // spine: vertebrae down the back, the low ones turning red
-    const sp = i => { const tt = .1 + i / 10 * .86, p = qp(pel, ctl, top, 1 - tt), q = qp(pel, ctl, top, 1 - tt + .01); return [p[0] - 14, p[1], Math.atan2(q[1] - p[1], q[0] - p[0])]; };
-    if (S.back > .01) for (let i = 0; i < 10; i++) {
-      const [x, y, a] = sp(i), hot = Math.max(S.disc * (i === 2 ? 1 : 0), S.back * Math.max(0, (4 - i) / 4));
-      if (y > -6) continue;
-      g.save(); g.translate(x + 4, y - 4); g.rotate(a + Math.PI / 2); g.globalAlpha = S.back;
-      g.fillStyle = hot > .15 ? `rgb(${Math.round(250 - 20 * hot)},${Math.round(240 - 150 * hot)},${Math.round(230 - 150 * hot)})` : '#f1efe7';
-      g.beginPath(); g.roundRect(-9, -3.6, 18, 7.2, 3); g.fill(); g.restore();
+    for (const k in S) S[k] += (goal[k] - S[k]) * (k === 'yaw' ? .045 : .05);
+    const { yaw, slump: s, bend } = S, br = Math.sin(t / 900) * 1.2;
+    const cy = Math.cos(yaw), sy = Math.sin(yaw), cb = Math.cos(bend), sb = Math.sin(bend);
+    // 3D point → screen. Sideways bend turns the upper body around the waist, then the whole body turns (yaw).
+    const P = ([x, y, z]) => { const x1 = x * cb - y * sb, y1 = x * sb + y * cb; return [x1 * cy + z * sy, y1, -x1 * sy + z * cy]; };
+    const k = Math.min(r.width / 330, r.height / 285) * d;
+    g.setTransform(k, 0, 0, k, cv.width / 2 - 26 * sy * k, cv.height * .84);
+    // spine: from the waist up; the slump rounds the back (centre moves back) and pushes the top forward
+    const spine = u => [0, -116 * u + br * u - s * 14 * u * u, -s * 20 * Math.sin(Math.PI * u) + s * 30 * u * u];
+    const SH = spine(1);
+    const shoulder = side => [side * 40, SH[1] + 2, SH[2] - 4];
+    const neckTop = [0, SH[1] - lerp(22, 12, s), SH[2] + lerp(0, 30, s)];
+    const head = [0, neckTop[1] - lerp(26, 12, s), neckTop[2] + lerp(0, 26, s)];
+    const arm = side => { const sh = shoulder(side), el = [sh[0] + side * 6, sh[1] + 54, sh[2] + 8 + s * 18], hd = [el[0] - side * 3, el[1] + lerp(28, 6, s), el[2] + lerp(14, 54, s)]; return [sh, el, hd]; };
+    // torso outline from cross-sections: each slice is an ellipse (80 wide, 46 deep) around the spine
+    const L = [], R = [];
+    for (let i = 0; i <= 12; i++) {
+      const u = i / 12, c = spine(u), w = lerp(34, 41, Math.min(1, u * 1.4)) * (u > .92 ? 1 - (u - .92) * 2.2 : 1), dp = 23;
+      // the slice's extent on screen across the turned axis
+      const half = Math.sqrt((w * cy) ** 2 + (dp * sy) ** 2);
+      const cc = P(c), ex = P([1, 0, 0]);
+      const ox = half, nx = cc[0];
+      L.push([nx - ox, cc[1] + (P([w, c[1], c[2]])[1] - cc[1]) * 0]); R.push([nx + ox, cc[1]]);
     }
-    // neck and head (hair at the back, closed eye)
-    limb([top, nk], 14);
-    g.fillStyle = PAPER; g.strokeStyle = INK; g.lineWidth = 3.2; g.beginPath(); g.ellipse(head[0], head[1], 23, 26, s * .5, 0, Math.PI * 2); g.fill(); g.stroke();
-    g.fillStyle = INK; g.beginPath(); g.ellipse(head[0], head[1], 23.5, 26.5, s * .5, Math.PI * .9 + s * .5, Math.PI * 1.75 + s * .5); g.closePath(); g.fill();
-    g.lineWidth = 2.6; g.beginPath(); const ex = head[0] + 12, ey = head[1] - 2 + s * 6; g.moveTo(ex - 5, ey); g.quadraticCurveTo(ex, ey + 4, ex + 5, ey); g.stroke();
-    // arm: hangs from the shoulder, forearm forward toward the keyboard
-    const sh = mix([8, -102 + br], [40, -88 + br], s), el = mix([14, -46], [56, -40], s), hand = mix([64, -40], [112, -30], s);
-    limb([sh, el, hand], 13);
-    // pain
-    glow(lerp(top[0], nk[0], .4), lerp(top[1], nk[1], .4), 44, S.neck);
-    const low = qp(pel, ctl, top, .8); glow(low[0] - 10, low[1], 46, S.back * .8);
-    const dsc = sp(2); glow(dsc[0] + 4, dsc[1] - 4, 26, S.disc);
-    for (const k2 in S) S[k2] += (goal[k2] - S[k2]) * .06;
+    const lim = (pts, w, fill = PAPER) => { g.lineCap = g.lineJoin = 'round'; for (const [lw, col] of [[w + 4.5, INK], [w, fill]]) { g.lineWidth = lw; g.strokeStyle = col; g.beginPath(); pts.forEach((p, i) => { const q = P(p); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke(); } };
+    const arms = [-1, 1].map(side => ({ side, pts: arm(side), z: P(shoulder(side))[2] })).sort((a, b) => a.z - b.z);
+    // far arm, torso, spine, near arm, neck, head
+    lim(arms[0].pts, 13);
+    g.fillStyle = INK; g.beginPath(); L.forEach((p, i) => i ? g.lineTo(...p) : g.moveTo(...p)); for (let i = R.length - 1; i >= 0; i--) g.lineTo(...R[i]); g.closePath(); g.fill();
+    // the spine, seen as the body turns: an S (lumbar curve forward, upper back curve back, neck curve forward).
+    // Slumped, the upper curve deepens and the neck juts forward; the strained curves turn red and ache.
+    const showSpine = Math.max(0, sy - .35) / .65 * Math.max(S.neck, S.back);
+    const col = [];
+    if (showSpine > .01) {
+      for (let i = 0; i <= 16; i++) { const u = i / 16, c = spine(u);
+        const dz = u < .38 ? 11 * Math.sin(Math.PI * u / .38) : -(8 + 3 * s) * Math.sin(Math.PI * (u - .38) / .62);
+        col.push({ p: [0, c[1], c[2] - 6 + dz], hot: Math.max(S.back * Math.max(0, 1 - Math.abs(u - .2) / .16), S.disc * Math.max(0, 1 - Math.abs(u - .14) / .07)), u }); }
+      const n0 = col[col.length - 1].p;
+      for (let i = 1; i <= 5; i++) { const v = i / 5, bump = 4 * Math.sin(Math.PI * v);
+        col.push({ p: [0, lerp(n0[1], neckTop[1] + 4, v), lerp(n0[2], neckTop[2] - 6, v) + bump], hot: S.neck * (.55 + .45 * Math.sin(Math.PI * v)), neck: 1 }); }
+    }
+    const pulse = .75 + .25 * Math.sin(t / 260);
+    const drawSpine = neckPart => {
+      if (showSpine <= .01) return;
+      const Q = col.map(c => P(c.p)), from = neckPart ? 16 : 0, to = neckPart ? col.length : 17;
+      g.save(); g.globalAlpha = showSpine; g.lineCap = g.lineJoin = 'round';
+      g.strokeStyle = '#efe9dc'; g.lineWidth = 3; g.beginPath(); for (let i = from; i < to; i++) i > from ? g.lineTo(Q[i][0], Q[i][1]) : g.moveTo(Q[i][0], Q[i][1]); g.stroke();
+      col.forEach((c, i) => { if (i < from || i >= to || (i % 2 && !c.neck)) return; const q = Q[i], q2 = Q[Math.min(i + 1, Q.length - 1)], q1 = Q[Math.max(i - 1, 0)];
+        const h = Math.min(1, c.hot * pulse);
+        g.save(); g.translate(q[0], q[1]); g.rotate(Math.atan2(q2[1] - q1[1], q2[0] - q1[0]) + Math.PI / 2);
+        g.fillStyle = `rgb(${Math.round(244 - 10 * h)},${Math.round(238 - 150 * h)},${Math.round(226 - 160 * h)})`;
+        const wv = c.neck ? 9 : 16; g.beginPath(); g.roundRect(-wv / 2, -3.2, wv, 6.4, 2.6); g.fill(); g.restore(); });
+      // the squeezed disc bulges out toward the back
+      if (!neckPart && S.disc > .02) { const i = Math.round(.14 * 16), q = Q[i]; g.fillStyle = `rgba(232,72,56,${S.disc * pulse})`;
+        g.beginPath(); g.ellipse(q[0] - 9 * sy, q[1], 4 + 3 * S.disc, 3, 0, 0, Math.PI * 2); g.fill(); }
+      g.restore();
+    };
+    drawSpine(false);
+    lim(arms[1].pts, 13);
+    lim([[0, SH[1] + 6, SH[2]], neckTop], 14);
+    drawSpine(true);
+    // head: a sphere; hair caps the back and top; eyes only where they face the viewer
+    const hc = P(head), hr = 24;
+    g.fillStyle = PAPER; g.strokeStyle = INK; g.lineWidth = 3.2; g.beginPath(); g.ellipse(hc[0], hc[1], hr, hr * 1.1, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+    const hd = P([head[0], head[1] - .6, head[2] - .8]); const ang = Math.atan2(hd[1] - hc[1], hd[0] - hc[0]);
+    g.fillStyle = INK; g.beginPath(); g.ellipse(hc[0], hc[1], hr + .5, hr * 1.1 + .5, 0, ang - 1.15, ang + 1.15); g.closePath(); g.fill();
+    g.lineWidth = 2.6;
+    for (const ex of [-8, 8]) { const e = [head[0] + ex, head[1] + 2, head[2] + 20], q = P(e); if (q[2] - hc[2] < 4) continue;
+      g.beginPath(); g.moveTo(q[0] - 5 * Math.max(.35, cy), q[1]); g.quadraticCurveTo(q[0], q[1] + 4, q[0] + 5 * Math.max(.35, cy), q[1]); g.stroke(); }
+    // pain: a warm glow plus little ink ache strokes that throb
+    const ache = (x, y, r, a, seed) => { if (a < .05) return; g.save(); g.strokeStyle = `rgba(214,60,44,${a})`; g.lineWidth = 2.4; g.lineCap = 'round';
+      for (let j = 0; j < 3; j++) { const an = seed + j * .55, r0 = r * (1 + .12 * Math.sin(t / 200 + j)), r1 = r0 + 9;
+        g.beginPath(); g.moveTo(x + Math.cos(an) * r0, y + Math.sin(an) * r0); g.lineTo(x + Math.cos(an) * r1, y + Math.sin(an) * r1); g.stroke(); } g.restore(); };
+    const nk = P([0, lerp(SH[1], neckTop[1], .5), lerp(SH[2], neckTop[2], .5) - 4]); glow(nk[0], nk[1], 40, S.neck * pulse);
+    const lo = P(col.length ? col[Math.round(.2 * 16)].p : spine(.2)); glow(lo[0], lo[1], 44, S.back * .85 * pulse);
+    const sideOn = Math.max(0, sy - .5) * 2;
+    ache(nk[0], nk[1], 26, S.neck * sideOn * (S.disc > .5 ? .5 : 1), -2.1);
+    ache(lo[0], lo[1], 28, S.back * sideOn * (S.disc > .5 ? .5 : 1), 2.4);
+    if (S.disc > .02 && col.length) { const q = P(col[Math.round(.14 * 16)].p); glow(q[0] - 9 * sy, q[1], 22, S.disc * pulse); }
   }
-  (function loop(t) { if (story.classList.contains('open') || story.classList.contains('leaving')) drawSide(t); requestAnimationFrame(loop); })(0);
+  (function loop(t) { if (story.classList.contains('open') || story.classList.contains('leaving')) draw3d(t); requestAnimationFrame(loop); })(0);
 
   // Money: notes flutter down from the top and fade away.
   const mc = document.getElementById('money'), m = mc.getContext('2d'); let notes = [], raining = false;
@@ -225,9 +267,9 @@ if (story) {
 
   const onStep = k => {
     story.classList.toggle('intro', k === 0);
-    story.classList.toggle('turned', k >= 4);
-    const [dd, wr] = POSE[Math.min(k, 3)]; front.set(dd, wr);
-    Object.assign(goal, { slump: k >= 4 ? 1 : .2, neck: k >= 4 ? (k >= 7 ? .5 : 1) : 0, back: k >= 5 ? (k >= 7 ? .6 : 1) : 0, disc: k >= 6 ? (k >= 7 ? .6 : 1) : 0 });
+    const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.06, -.12, 0, 0, 0, 0];
+    Object.assign(goal, { yaw: k >= 4 ? Math.PI / 2 : 0, slump: SL[k], bend: BE[k],
+      neck: k >= 4 ? (k >= 7 ? .5 : 1) : 0, back: k >= 5 ? (k >= 7 ? .6 : 1) : 0, disc: k >= 6 ? (k >= 7 ? .6 : 1) : 0 });
     if (k === 7 && !raining) for (let i = 0; i < 22; i++) notes.push(note(-.2 + Math.random() * .9));   // a first handful, already in the air
     raining = k === 7; story.classList.toggle('paying', k === 7);
   };
