@@ -3,6 +3,15 @@ import { mountPainting } from '../painting.js';
 import { mountAgents } from '../agent.js';
 import { PostureAvatar } from '../avatar.js';
 
+// In the deck the figure is drawn smaller and higher than in the app, so the head, arms and
+// hands always stay inside the card (the app lets the body run off the bottom edge on purpose).
+class DeckAvatar extends PostureAvatar {
+  draw() {
+    this.ctx.clearRect(0, 0, this.w, this.h);
+    this.render(this.ctx, this.w, this.h * .93, { fit: [250, 240] });
+  }
+}
+
 const deck = document.getElementById('deck');
 const slides = [...deck.querySelectorAll('.slide')];
 const progress = document.getElementById('progress');
@@ -73,7 +82,7 @@ mountAgents(document);
 // Live figure: the real avatar, scripted to drift and come back, with the card colour following.
 const host = document.getElementById('live-figure');
 if (host) {
-  const av = new PostureAvatar(host);
+  const av = new DeckAvatar(host);
   av.setActive(true);
   const card = document.getElementById('live-card'), st = document.getElementById('live-state'), hint = document.getElementById('live-hint');
   const SCRIPT = [
@@ -95,6 +104,6 @@ if (host) {
 
 // Slide 3: the real figure, leaning off its outline
 document.querySelectorAll('.live-avatar').forEach(el => {
-  const av = new PostureAvatar(el); av.setActive(true);
+  const av = new DeckAvatar(el); av.setActive(true);
   av.set({ x: -.22, y: .18, tilt: .17, roll: .22, sx: -.08 });
 });
