@@ -732,3 +732,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .shown .viz-field.live circle.on, .shown .v2 circle.two { transition-delay: 0s !important; }
 .v2 circle.two { --step: 25ms; }
 .shown .v2.doubled circle.two { transition-delay: calc(var(--i) * 20ms) !important; }
+/* bigger fields; the 2x key sits under its field in one line, smaller, without moving the numbers */
+.big-stats .viz-field, .big-stats .viz-twin .viz-field { height: calc(var(--s) * 270) !important; }
+.big-stats .viz-field, .big-stats div.viz-twin { margin-bottom: calc(var(--s) * 72) !important; }
+.big-stats div.viz-twin { position: relative; display: block; }
+.big-stats .viz-twin .viz-field { margin: 0 !important; }
+.twin-key { position: absolute; left: 0; top: calc(100% + var(--s) * 18); flex-direction: row; gap: calc(var(--s) * 20); font-size: max(calc(var(--s) * 16), 10px); }
+.twin-key i { width: calc(var(--s) * 9); height: calc(var(--s) * 9); min-width: 5px; min-height: 5px; }
