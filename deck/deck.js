@@ -184,23 +184,23 @@ if (story) {
     // Leaning back tips the upper body away around the waist; a little perspective makes what is farther look smaller.
     const cl = Math.cos(S.lean), sl = Math.sin(S.lean);
     const P = ([x, y0, z0]) => { const y = y0 * cl - z0 * sl, z = y0 * sl + z0 * cl;
-      const x1 = x * cb - y * sb, y1 = x * sb + y * cb, X = x1 * cy + z * sy, Z = -x1 * sy + z * cy, pf = 420 / (420 - Z);
+      const x1 = x * cb - y * sb, y1 = x * sb + y * cb, X = x1 * cy + z * sy, Z = -x1 * sy + z * cy, pf = 300 / (300 - Z);
       return [X * pf, y1 * pf, Z]; };
     const k = Math.min(r.width / 250, r.height / 232) * d * (1 - .16 * S.away);   // farther from the screen = smaller
     g.setTransform(k, 0, 0, k, cv.width / 2 - 22 * sy * k, cv.height * .97);
     // spine from the waist (y 0) to the shoulders (y -116, as in the app); the slump rounds the back
     const spine = u => [0, -116 * u + br * u - s * 12 * u * u, -s * 18 * Math.sin(Math.PI * u) + s * 26 * u * u];
     const SH = spine(1);
-    const shoulder = side => [side * 40, SH[1] + 5 * Math.sin(yaw), SH[2] - 2];
+    const shoulder = side => [side * 40, SH[1] + 14 * Math.sin(yaw), SH[2] - 2 - 10 * Math.sin(yaw)];   // side on, the arm hangs from below and behind the neck
     // neck: 38 long like the app; slumped, it tips forward (turtle neck) and the head drops a little
     const NECK = [0, SH[1] - 8, SH[2]], na = s * .95, nl = 38 - s * 8;
     // chin in hand: the head slides and tips toward the propping hand (screen left)
-    const ch = S.chin, head = [-9 * ch, NECK[1] - Math.cos(na) * nl + 10 * ch, NECK[2] + Math.sin(na) * nl];
+    const ch = S.chin, head = [-12 * ch, NECK[1] - Math.cos(na) * nl + 8 * ch, NECK[2] + Math.sin(na) * nl];
     const neckTop = [0, NECK[1] + (head[1] - NECK[1]) * .55, NECK[2] + (head[2] - NECK[2]) * .55];
     // arms rest like the app (elbow out, hands in by the waist); slumped, the forearms reach forward to the desk
     const arm = side => { const sh = shoulder(side), el = [sh[0] + side * 18, sh[1] + 50, sh[2] + 4 + s * 12], hd = [el[0] - side * 18, el[1] + lerp(52, 30, s), el[2] + lerp(2, 46, s)];
       if (side < 0 && ch > .001) {   // propping arm: elbow down on the desk in front, hand under the chin
-        const E = [-24, sh[1] + 66, sh[2] + 34], H = [head[0] - 3, head[1] + 12, head[2] + 12];
+        const E = [-34, sh[1] + 84, sh[2] + 30], H = [head[0] - 6, head[1] + 30, head[2] + 6];
         for (let i = 0; i < 3; i++) { el[i] = lerp(el[i], E[i], ch); hd[i] = lerp(hd[i], H[i], ch); } }
       return [sh, el, hd]; };
     // tee: the app's shape (42 wide at the shoulders, 37 at the chest, 34 at the waist), 22 deep
@@ -249,12 +249,14 @@ if (story) {
       g.restore();
     };
     drawSpine(false);
+    if (sy > .2) drawArm(arms[1].pts);   // side on, the near arm hangs in front of the body but behind the neck, so the neck stays visible
     limb(NECK, neckTop, 13);
     drawSpine(true);
-    if (sy > .2) drawArm(arms[1].pts);   // side on, the near arm hangs in front of the body and neck, behind the forward head
     // head: the app's head (19 × 23), hair cap with a soft fringe, closed eyes and a small nose line.
     // As the body turns, the face slides toward the side it faces and the hair wraps round to the back.
-    const hc = P(head), tilt = na * sy * .8 - .26 * ch, hs = 1 + s * .08;
+    // chin in hand: the propping arm goes under the head, so the chin rests on the hand
+    const propping = ch > .3 && sy <= .2; if (propping) drawArm(arms.find(a => a.side < 0).pts);
+    const hc = P(head), tilt = na * sy * .8 - .32 * ch, hs = 1 + s * .08;
     g.save(); g.translate(hc[0], hc[1]); g.rotate(tilt); g.scale(hs, hs);
     g.fillStyle = PAPER; g.strokeStyle = INK; g.lineWidth = 2.4;
     g.beginPath(); g.ellipse(0, 0, 19, 23, 0, 0, Math.PI * 2); g.fill(); g.stroke();
@@ -270,7 +272,7 @@ if (story) {
     const noseA = Math.max(0, 1 - sy / .55);
     if (noseA > .01) { const nx = face(1); g.save(); g.globalAlpha *= noseA; g.beginPath(); g.moveTo(nx, 4); g.lineTo(nx - .5, 9); g.stroke(); g.restore(); }
     g.restore();
-    if (sy <= .2) { drawArm(arms[1].pts); drawArm(arms[0].pts); }   // front on, arms last as in the app
+    if (sy <= .2) arms.forEach(a => { if (!(propping && a.side < 0)) drawArm(a.pts); });   // front on, arms last as in the app
     // pain: a warm glow plus little ink ache strokes that throb
     const ache = (x, y, r, a, seed) => { if (a < .05) return; g.save(); g.strokeStyle = `rgba(214,60,44,${a})`; g.lineWidth = 2.4; g.lineCap = 'round';
       for (let j = 0; j < 3; j++) { const an = seed + j * .55, r0 = r * (1 + .12 * Math.sin(t / 200 + j)), r1 = r0 + 9;
@@ -323,7 +325,7 @@ if (story) {
     story.classList.toggle('intro', k === 0);
     // 3 and 10 min: sinking back into the chair, farther from the screen, with only a slight tilt
     // 3 min: chin in hand, tilted toward it. 10 min: sunk back into the chair, farther from the screen.
-    const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.07, -.03, 0, 0, 0, 0], LE = [0, 0, .04, .3, 0, 0, 0, 0], AW = [0, 0, .25, 1, 0, 0, 0, 0], CH = [0, 0, 1, 0, 0, 0, 0, 0];
+    const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.16, -.03, 0, 0, 0, 0], LE = [0, 0, .04, .5, 0, 0, 0, 0], AW = [0, 0, 0, 0, 0, 0, 0, 0], CH = [0, 0, 1, 0, 0, 0, 0, 0];
     Object.assign(goal, { yaw: k >= 4 ? Math.PI / 2 : 0, slump: SL[k], bend: BE[k], lean: LE[k], away: AW[k], chin: CH[k],
       neck: k >= 4 ? (k >= 7 ? .5 : 1) : 0, back: k >= 5 ? (k >= 7 ? .6 : 1) : 0, disc: k >= 6 ? (k >= 7 ? .6 : 1) : 0 });
     story.classList.toggle('paying', k === 7);
