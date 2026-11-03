@@ -822,3 +822,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .viz-chart text, .big-stats .viz-chart rect { stroke: none !important; }
 .big-stats .viz-chart text { paint-order: normal; }
 .head .survey-meta { margin-top: calc(var(--s) * 4) !important; }
+.head:has(.survey-meta) { gap: calc(var(--s) * 8); } .head .survey-meta { margin-top: 0 !important; }
