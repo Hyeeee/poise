@@ -659,3 +659,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .story .bill .r-head { display: block; padding-bottom: 0; border-bottom: 0; color: var(--ink); }
 .story .bill .r-total b { color: var(--ink); font-weight: 500; font-size: 1em; }
 .story .bill .r-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: max(calc(var(--s) * 14), 9px); }
+
+/* pain chips closer to the figure; neck chip lower, beside the neck */
+.story .pain-tag.neck { left: 14%; top: 27%; }
+.story .pain-tag.back { left: -1%; top: 60%; }
+.story .pain-tag.disc { left: -3%; top: 74%; }
+.story .pain-tag.disc.shown { transition-delay: .2s; }
