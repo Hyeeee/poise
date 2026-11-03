@@ -569,3 +569,52 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .viz-bars span { flex: 0 0 calc(var(--s) * 150); }
 .viz-bars i { flex: 0 0 calc(var(--w) * (100% - var(--s) * 230)); width: auto; }
 .toc { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: calc(var(--s) * 200); }
+
+/* Desk research charts, one language: the same dots, the same size and spacing, in Poise's colours.
+   Grey dots are everyone; the coral ones (Poise's "reset" colour) are the people the number is about. */
+:root { --poise-hit: #c97b6c; --poise-base: rgba(30,31,28,.12); }
+.big-stats .viz-dots { width: auto; height: calc(var(--s) * 200); max-width: 100%; }
+.viz-dots circle { fill: var(--poise-base); stroke: none; transition: fill .35s ease; }
+.shown .viz-dots circle.on { fill: var(--poise-hit); transition-delay: calc(var(--i) * 10ms + 300ms); }
+.v13 circle.on { transition-delay: .2s; }
+.shown .v13 circle.on { transition-delay: .9s; }
+.v2 circle { transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform .45s cubic-bezier(.3,1.4,.5,1), fill .35s ease; }
+.shown .v2 circle { transform: none; transition-delay: calc(var(--i) * 40ms + 250ms); }
+.v13 circle { transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform .45s cubic-bezier(.3,1.4,.5,1), fill .4s ease; }
+.shown .v13 circle { transform: none; transition-delay: calc(var(--i) * 40ms + 250ms), .9s; }
+.viz-pair { position: relative; height: calc(var(--s) * 200); }
+.viz-pair svg { position: absolute; left: 0; bottom: 0; height: 100%; }
+.viz-pair p { position: absolute; left: calc(var(--s) * 222); font-size: max(calc(var(--s) * 20), 12px); color: var(--ink-2); white-space: nowrap; opacity: 0; transition: opacity .4s ease .9s; }
+.viz-pair p b { font-weight: 600; color: var(--ink); margin-left: .3em; font-size: inherit !important; letter-spacing: 0; }
+.viz-pair .k1 { bottom: calc(var(--s) * 39); left: calc(var(--s) * 122); }
+.viz-pair .k2 { bottom: calc(var(--s) * 0); left: calc(var(--s) * 222); transform: translateY(15%); }
+.shown .viz-pair p { opacity: 1; }
+
+/* v2: every chart is a 10-row dot grid of the same size */
+:root { --poise-good: #7fae8e; }
+.v13 circle, .v2 circle { transform: none !important; }
+.v13 circle.on { transition-delay: 0s; }
+.shown .v13 circle.on { transition-delay: calc(var(--i) * 45ms + 300ms) !important; }
+.v2 circle.good { fill: var(--poise-base); transition: fill .35s ease; }
+.shown .v2 circle.good { fill: var(--poise-good); transition-delay: calc(var(--i) * 45ms + 300ms) !important; }
+.shown .v2 circle.on { transition-delay: calc(var(--i) * 45ms + 300ms) !important; }
+.viz-pair { display: block; }
+.viz-pair svg { position: static; height: 100%; width: auto; display: block; }
+.viz-pair p { position: absolute; top: calc(100% + var(--s) * 8); bottom: auto !important; transform: none !important; font-size: max(calc(var(--s) * 16), 11px); opacity: 1; color: var(--ink-3); }
+.viz-pair .k1 { left: 0 !important; }
+.viz-pair .k2 { left: calc(var(--s) * 72) !important; }
+.big-stats > div:has(.viz-pair) b { margin-top: calc(var(--s) * 52); }
+
+/* legend to the right of the 2x chart, a dot of each colour beside its label */
+.viz-pair { display: flex; align-items: flex-end; gap: calc(var(--s) * 28); }
+.viz-pair p { position: static !important; display: flex; align-items: center; gap: calc(var(--s) * 10); font-size: max(calc(var(--s) * 19), 12px); color: var(--ink-2); opacity: 0; transition: opacity .4s ease 1.2s; }
+.viz-pair p b { font-weight: 600; color: var(--ink); }
+.viz-pair p i { width: calc(var(--s) * 13); height: calc(var(--s) * 13); min-width: 7px; min-height: 7px; border-radius: 50%; background: var(--poise-good); }
+.viz-pair .k2 i { background: var(--poise-hit); }
+.viz-pair .legend { display: flex; flex-direction: column; gap: calc(var(--s) * 12); padding-bottom: calc(var(--s) * 4); }
+.shown .viz-pair p { opacity: 1; }
+.big-stats > div:has(.viz-pair) b { margin-top: calc(var(--s) * 28); }
+.viz-pair > svg { flex: 0 0 auto; height: 100% !important; width: auto !important; }
+.big-stats .viz-pair p b { font-size: inherit !important; margin: 0 0 0 .25em !important; line-height: inherit; letter-spacing: 0; display: inline; }
+.viz-pair > svg { aspect-ratio: 148 / 198; }
+.big-stats div.viz-pair { flex-direction: row; align-items: flex-end; gap: calc(var(--s) * 28); } .big-stats div.viz-pair .legend { flex-direction: column; gap: calc(var(--s) * 12); }
