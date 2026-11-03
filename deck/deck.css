@@ -766,3 +766,33 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; justify-content: stretch !important; column-gap: calc(var(--s) * 64) !important; }
 .big-stats > div { width: auto !important; max-width: none !important; }
 .big-stats > div > span { max-width: 26ch !important; text-wrap: balance; }
+
+/* Desk research, v6: one grammar for all three: same dot, same pitch, same height, bottom-aligned.
+   Hours of a day, people out of a hundred, dollars ranked against other conditions. */
+.big-stats .viz-grid { height: calc(var(--s) * 200) !important; width: auto !important; max-width: 100%; display: block; overflow: visible; margin-bottom: calc(var(--s) * 56) !important; }
+.viz-grid circle { fill: rgba(20,20,18,.13); transition: fill .4s ease; }
+.shown .viz-grid circle.on { fill: var(--ink); transition-delay: calc(var(--i) * var(--step, 12ms) + 300ms); }
+.shown .viz-grid circle.part { fill: rgba(20,20,18,.45); }
+.shown .viz-grid circle.mid { fill: rgba(20,20,18,.4); }
+.g24 { --step: 22ms; } .g100 { --step: 9ms; } .gbar { --step: 28ms; }
+.gbar circle.on:not(.top) { fill: rgba(20,20,18,.13); }
+.shown .gbar circle.on:not(.top) { fill: rgba(20,20,18,.32); }
+.viz-grid text { font: 500 9.5px var(--sans, Inter), sans-serif; fill: var(--ink-3); letter-spacing: 0; }
+.viz-grid text.hi { fill: var(--ink); font-weight: 600; }
+/* three equal columns as one centred group: same space on the left and right, same gaps between */
+.big-stats { grid-template-columns: repeat(3, calc(var(--s) * 400)) !important; justify-content: space-evenly !important; column-gap: 0 !important; }
+.viz-grid text { font-weight: 400; }
+.viz-grid text.hi { font-weight: 500; }
+
+.big-stats .viz-grid { height: auto !important; max-width: none; }
+.viz-grid circle, .viz-grid text { stroke: none !important; }
+.big-stats { grid-template-columns: repeat(3, calc(var(--s) * 450)) !important; }
+.big-stats .viz-grid { width: var(--w) !important; }
+/* headline: black on the first line, grey on the second, never more than two lines */
+.slide .title span, .cover-title span { display: block; }
+.slide .title, .cover-title { max-width: none !important; }
+.slide .title:not(.wide), .slide .title:not(.wide) span { white-space: nowrap; }
+.slide .title.wide { max-width: 24ch !important; }
+.cover-title, .cover-title span { white-space: nowrap; }
+.slide .title.wide, .slide .title.wide span { white-space: nowrap; max-width: none !important; }
+.slide .title.wide { font-size: min(var(--t-xl), calc((100vw - 2 * var(--padx)) / 25)); }
