@@ -755,3 +755,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats > div > span { max-width: 26ch; }
 .big-stats > div > span { max-width: 31ch; }
 .big-stats { column-gap: calc(var(--s) * 150) !important; } .big-stats > div > span { max-width: 29ch; }
+
+/* spending: the whole field fills from the centre out while the number counts up, the largest of the three */
+.vtop { --step: 9ms; }
+.big-stats b .dash { display: inline-block; margin: 0 .08em; letter-spacing: 0; color: inherit; font-size: inherit; max-width: none; }
+.big-stats b { letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+.big-stats b .dash { line-height: inherit !important; margin-top: 0 !important; vertical-align: baseline; }

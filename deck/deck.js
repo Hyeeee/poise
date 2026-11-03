@@ -361,3 +361,17 @@ document.querySelectorAll('.viz-twin').forEach(box => {
     else { svg.classList.remove('doubled'); num.textContent = '1×'; num.classList.remove('pop'); }
   }).observe(box.parentElement, { attributes: true, attributeFilter: ['class'] });
 });
+
+// Desk research: a number that counts up while its field fills
+document.querySelectorAll('.big-stats .count').forEach(el => {
+  const to = +el.dataset.to, pre = el.dataset.pre || '', post = el.dataset.post || '', item = el.parentElement; let raf;
+  const set = v => { el.textContent = pre + v.toFixed(1) + post; };
+  new MutationObserver(() => {
+    cancelAnimationFrame(raf);
+    if (!item.classList.contains('shown')) { set(0); return; }
+    const t0 = performance.now() + 300, dur = 1900;
+    const tick = now => { const k = Math.min(1, Math.max(0, (now - t0) / dur)); set(to * (1 - Math.pow(1 - k, 3))); if (k < 1) raf = requestAnimationFrame(tick); };
+    raf = requestAnimationFrame(tick);
+  }).observe(item, { attributes: true, attributeFilter: ['class'] });
+  set(0);
+});
