@@ -665,3 +665,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .story .pain-tag.back { left: -1%; top: 60%; }
 .story .pain-tag.disc { left: -3%; top: 74%; }
 .story .pain-tag.disc.shown { transition-delay: .2s; }
+
+/* bill title reads as the card's heading, with more room before the line items */
+.story .bill .r-head { font-size: max(calc(var(--s) * 32), 17px); margin-bottom: calc(var(--s) * 10); }
+.story .bill .r-total { font-weight: 600; }
+.story .bill .r-total b { font-weight: 600; }
