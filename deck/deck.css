@@ -417,23 +417,21 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .story > * { position: relative; z-index: 1; }
 .story .money { position: absolute; z-index: 2; }
 /* The key message: huge and centred on its own, then it shrinks into the top left */
-.key { position: absolute; left: var(--padx); top: var(--top); z-index: 3; font-weight: 600; letter-spacing: -.04em; line-height: 1.02;
-  font-size: max(calc(var(--s) * 84), 34px); max-width: 12ch; transform-origin: 0 0;
-  transition: transform 1.1s var(--swoop), font-size 1.1s var(--swoop), max-width 1.1s var(--swoop), left 1.1s var(--swoop), top 1.1s var(--swoop); }
-.key span { color: #a3a49d; }
-.story.intro .key { font-size: max(calc(var(--s) * 168), 56px); max-width: 16ch; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-.story.intro .key span { white-space: nowrap; }
-.story-copy { grid-column: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: calc(var(--s) * 40); padding-top: calc(var(--s) * 220); transition: opacity .6s ease .3s; }
-.story-lines { position: relative; flex: 1; }
-.story-lines .line { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: calc(var(--s) * 14); }
-.say { font-weight: 500; font-size: max(calc(var(--s) * 48), 21px); line-height: 1.15; letter-spacing: -.025em; max-width: 16ch; }
-.when { font-weight: 500; font-size: max(calc(var(--s) * 28), 15px); color: #c0533f; letter-spacing: -.01em; }
+
+
+
+
+
+
+
+
+
 .story-time { list-style: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: calc(var(--s) * 8); }
 .story-time li { font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-3); padding-top: calc(var(--s) * 12); border-top: 3px solid rgba(13,13,13,.1); transition: color .4s, border-color .4s; white-space: nowrap; }
 .story-time li.done { border-color: var(--ink); }
 .story-time li.now { border-color: #c0533f; color: var(--ink); font-weight: 500; }
 .story-stage { grid-column: 2; position: relative; min-height: 0; transition: opacity .8s var(--ease) .35s, transform 1s var(--swoop) .3s; }
-.story.intro .story-copy, .story.intro .story-stage { opacity: 0; pointer-events: none; }
+
 .story.intro .story-stage { transform: translateY(calc(var(--s) * 40)) scale(.96); transition-delay: 0s; }
 /* front figure: the whole upper body stays inside the stage */
 .story-stage { perspective: 1600px; }
@@ -470,52 +468,66 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .slide.open:not(.cover) { --wait: 420ms; }
 .cover.leaving ~ .slide.open { --wait: 180ms; }
 
-.story.arriving .story-stage, .story.arriving .story-copy [data-only] { transition-delay: .9s !important; }
-.story.intro .key { transition-delay: .45s; }
+
+
 
 /* the treatment card sits under the headline, on the left */
 .story .receipt { left: var(--padx); top: calc(var(--top) + var(--s) * 230); width: min(34%, calc(var(--s) * 460)); }
 
 /* The step line IS the title: the key message steps aside and each step's line takes the title's place, top left */
-.story .key { transition: opacity .45s ease, filter .45s ease, transform 1.1s var(--swoop), font-size 1.1s var(--swoop), top 1.1s var(--swoop), left 1.1s var(--swoop); }
-.story:not(.intro) .key { font-size: max(calc(var(--s) * 168), 56px); max-width: 16ch; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(.94); text-align: center; opacity: 0; filter: blur(10px); pointer-events: none; }
-.story:not(.intro) .key span { white-space: nowrap; }
-.story .story-copy { grid-column: auto; position: absolute; left: var(--padx); top: var(--top); width: 40%; padding: 0; display: block; z-index: 3; }
-.story .story-lines .line { top: 0; bottom: auto; gap: calc(var(--s) * 18); }
-.story .say { font-weight: 600; font-size: max(calc(var(--s) * 84), 34px); line-height: 1.02; letter-spacing: -.04em; max-width: 12ch; }
-.story .when { font-size: max(calc(var(--s) * 26), 14px); }
+
+
+
+
+
+
+
 /* one line leaves before the next arrives, so titles never overlap */
-.story .story-lines .line { transition: opacity .28s ease, transform .4s var(--ease), filter .28s ease; transform: translateY(calc(var(--s) * -14)); }
-.story .story-lines .line.shown { transition: opacity .55s var(--ease) .3s, transform .8s var(--ease) .3s, filter .55s var(--ease) .3s; }
+
+
 .story .receipt { top: calc(var(--top) + var(--s) * 410); }
-.story .say { max-width: 14ch; text-wrap: balance; }
-.key, .story .say { text-wrap: balance; }
+
+
 
 /* Key message, take three: one fixed layout (two lines, never reflows). It only moves and scales:
    big in the centre, then it glides to the title spot at half size, and the first step's title takes over. */
-.story .key, .story.intro .key, .story:not(.intro) .key { font-size: max(calc(var(--s) * 168), 56px); max-width: none; width: max-content; text-align: left; filter: none;
-  transform-origin: 0 0; white-space: nowrap; }
-.story .key .k1, .story .key .k2 { display: block; font-weight: 600; }
-.story .key .k1 { color: var(--ink); transform: translateX(var(--c, 0px)); transition: transform 1.1s var(--swoop); }
-.story.intro .key { left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: 1;
-  transition: left 1.1s var(--swoop), top 1.1s var(--swoop), transform 1.1s var(--swoop), opacity .3s ease; }
-.story:not(.intro) .key { left: var(--padx); top: var(--top); transform: scale(.5); opacity: 0; pointer-events: none;
-  transition: left 1.1s var(--swoop), top 1.1s var(--swoop), transform 1.1s var(--swoop), opacity .35s ease 1.05s; }
-.story:not(.intro) .key .k1 { transform: none; }
+
+
+
+
+
+
 /* centred: the short first line sits in the middle over the second */
-.story.intro .key .k1 { transform: translateX(var(--c, 0px)); }
+
 /* the first title appears exactly where the key lands, as it fades */
-.story.arriving .story-lines .line.shown { transition-delay: 1.05s, 1.05s, 1.05s !important; transform: none; }
+
 .story.arriving .story-stage { transition-delay: .9s !important; }
-.story .when { display: none; }
+
 
 /* While it glides, the words turn into the first step's line, so it lands already changed */
-.story .key .k-next { position: absolute; left: 0; top: 0; color: var(--ink); }
-.story .key .k-next b { display: block; font-weight: 600; }
-.story.intro .key .k-next { opacity: 0; transition: opacity .35s ease; }
-.story:not(.intro) .key .k-next { opacity: 1; transition: opacity .5s ease .3s; }
-.story.intro .key .k1, .story.intro .key .k2 { opacity: 1; transition: transform 1.1s var(--swoop), opacity .5s ease .3s; }
-.story:not(.intro) .key .k1, .story:not(.intro) .key .k2 { opacity: 0; transition: transform 1.1s var(--swoop), opacity .45s ease .15s; }
-.story:not(.intro) .key { transition: left 1.1s var(--swoop), top 1.1s var(--swoop), transform 1.1s var(--swoop), opacity .2s ease 1.1s; }
-.story.arriving .story-lines .line { transform: none !important; filter: none !important; }
-.story.arriving .story-lines .line.shown { transition: opacity .2s ease 1.1s !important; }
+
+
+
+
+
+
+
+
+
+
+/* ---------- Problem story, centred ----------
+   One title, top centre. Step 0 shows the key message big in the middle; on the next press it glides up
+   to the title spot at half size while its letters turn into the first step's words. Every step after
+   that changes the title the same way, letter by letter. The figure stands in the middle below it. */
+.story .key { position: absolute; z-index: 3; left: 50%; top: var(--top); margin: 0; width: max-content; max-width: none;
+  font-size: max(calc(var(--s) * 168), 56px); font-weight: 600; letter-spacing: -.04em; line-height: 1.02; text-align: center; white-space: pre;
+  transform-origin: 50% 0; transform: translateX(-50%) scale(.5);
+  transition: top 1.1s var(--swoop), transform 1.1s var(--swoop); font-variant-ligatures: none; }
+.story.intro .key { top: 50%; transform: translate(-50%, -50%) scale(1); }
+.story .key .k1, .story .key .k2 { display: block; color: var(--ink); transition: color .8s ease; }
+.story.intro .key .k2 { color: #a3a49d; }
+.story .story-stage { grid-column: auto; position: absolute; left: 50%; width: min(46%, calc(var(--s) * 760)); transform: translateX(-50%);
+  top: calc(var(--top) + max(calc(var(--s) * 200), 80px)); bottom: var(--bottom); }
+.story.intro .story-stage { opacity: 0; transform: translateX(-50%) translateY(calc(var(--s) * 40)) scale(.96); }
+.story.arriving .story-stage { transition-delay: .8s !important; }
+.story .receipt { left: auto; right: calc(50% + min(23%, calc(var(--s) * 380))); top: 52%; width: min(26%, calc(var(--s) * 420)); }

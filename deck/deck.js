@@ -160,7 +160,7 @@ if (story) {
     const cy = Math.cos(yaw), sy = Math.sin(yaw), cb = Math.cos(bend), sb = Math.sin(bend);
     // 3D point → screen. Sideways bend turns the upper body around the waist, then the whole body turns (yaw).
     const P = ([x, y, z]) => { const x1 = x * cb - y * sb, y1 = x * sb + y * cb; return [x1 * cy + z * sy, y1, -x1 * sy + z * cy]; };
-    const k = Math.min(r.width / 270, r.height / 250) * d;
+    const k = Math.min(r.width / 250, r.height / 232) * d;
     g.setTransform(k, 0, 0, k, cv.width / 2 - 22 * sy * k, cv.height * .97);
     // spine from the waist (y 0) to the shoulders (y -116, as in the app); the slump rounds the back
     const spine = u => [0, -116 * u + br * u - s * 12 * u * u, -s * 18 * Math.sin(Math.PI * u) + s * 26 * u * u];
@@ -250,18 +250,42 @@ if (story) {
   }
   (function loop(t) { if (story.classList.contains('open') || story.classList.contains('leaving')) draw3d(t); requestAnimationFrame(loop); })(0);
 
-  // the key's first line is centred over the second by a measured shift, so the layout never changes
-  const keyEl = story.querySelector('.key');
-  const centreKey = () => { const k1 = keyEl.querySelector('.k1'), k2 = keyEl.querySelector('.k2');
-    k1.style.display = 'inline-block'; k2.style.display = 'inline-block';
-    const w1 = k1.getBoundingClientRect().width, w2 = k2.getBoundingClientRect().width, sc = keyEl.getBoundingClientRect().width / keyEl.offsetWidth || 1;
-    k1.style.display = k2.style.display = '';
-    keyEl.style.setProperty('--c', ((w2 - w1) / 2 / sc) + 'px'); };
-  document.fonts?.ready.then(centreKey); addEventListener('resize', centreKey); centreKey();
+  // The title: one two-line heading whose letters turn into the next step's words.
+  const TITLES = [
+    ['We drift', 'without noticing.'],
+    ['We sit down', 'sitting well.'],
+    ['A few minutes in,', 'we start to drift.'],
+    ['By ten minutes, it’s', 'a different posture.'],
+    ['The head pushes forward.', 'The neck carries it.'],
+    ['The lower back', 'starts to give.'],
+    ['A disc slips', 'out of place.'],
+    ['Treatment, week after week.', 'It adds up.'],
+  ];
+  const keyLines = [...story.querySelectorAll('.key .k1, .key .k2')];
+  const GLYPHS = 'abcdefghijklmnopqrstuvwxyz';
+  let morphRun = 0;
+  // Each letter flickers through a few random letters, then settles on the new one, sweeping left to right.
+  const morphTitle = (to, dur = 900, delay = 0) => {
+    const run = ++morphRun, from = keyLines.map(l => l.textContent);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { keyLines.forEach((l, i) => l.textContent = to[i]); return; }
+    const plan = to.map((t, i) => { const f = from[i], n = Math.max(f.length, t.length);
+      return Array.from({ length: n }, (_, c) => { const st = delay + (c / n) * dur * .45 + Math.random() * dur * .1;
+        return { f: f[c] || '', t: t[c] || '', st, end: st + dur * .3 + Math.random() * dur * .25 }; }); });
+    const t0 = performance.now();
+    const tick = now => { if (run !== morphRun) return; const e = now - t0; let done = true;
+      plan.forEach((chars, i) => { keyLines[i].textContent = chars.map(ch => {
+        if (e < ch.st) { done = false; return ch.f; }
+        if (e < ch.end) { done = false; return ch.t === ' ' && ch.f === ' ' ? ' ' : GLYPHS[(Math.random() * 26) | 0]; }
+        return ch.t; }).join(''); });
+      if (!done) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  };
   let lastK = -1, arriveT;
   const onStep = k => {
     // leaving the key message: the figure and copy wait until the headline has settled, so nothing overlaps
     if (lastK === 0 && k > 0) { story.classList.add('arriving'); clearTimeout(arriveT); arriveT = setTimeout(() => story.classList.remove('arriving'), 2200); }
+    if (k !== lastK && lastK !== -1) morphTitle(TITLES[k], lastK === 0 || k === 0 ? 1000 : 750, lastK === 0 ? 100 : 0);
+    else if (lastK === -1) keyLines.forEach((l, i) => l.textContent = TITLES[k][i]);
     lastK = k;
     story.classList.toggle('intro', k === 0);
     const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.06, -.12, 0, 0, 0, 0];
