@@ -618,18 +618,3 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .viz-pair p b { font-size: inherit !important; margin: 0 0 0 .25em !important; line-height: inherit; letter-spacing: 0; display: inline; }
 .viz-pair > svg { aspect-ratio: 148 / 198; }
 .big-stats div.viz-pair { flex-direction: row; align-items: flex-end; gap: calc(var(--s) * 28); } .big-stats div.viz-pair .legend { flex-direction: column; gap: calc(var(--s) * 12); }
-
-/* Each chart sits in its own card of the same size, centred, so the three read as one row;
-   the number and text sit below with their own, tighter rhythm. */
-.big-stats { align-items: start; column-gap: calc(var(--s) * 32); }
-.big-stats > div { gap: 0; }
-.chart-card { margin: 0 0 calc(var(--s) * 44); height: calc(var(--s) * 300); border-radius: calc(var(--s) * 28);
-  background: rgba(255,255,255,.55); backdrop-filter: blur(24px) saturate(1.2); -webkit-backdrop-filter: blur(24px) saturate(1.2);
-  display: grid; place-items: center; padding: calc(var(--s) * 40); }
-.chart-card .viz { height: calc(var(--s) * 180) !important; width: auto !important; max-width: 100%; }
-.big-stats div.viz-pair { height: calc(var(--s) * 180); width: auto; }
-.big-stats b { margin-top: 0 !important; }
-.big-stats > div:has(.viz-pair) b { margin-top: 0 !important; }
-.big-stats > div > span { margin-top: calc(var(--s) * 16); }
-.big-stats > div > em { margin-top: calc(var(--s) * 10); }
-.chart-card .v13 { aspect-ratio: 278 / 198; } .chart-card .v78 { aspect-ratio: 1; } .chart-card .viz-pair > svg { height: 100% !important; }
