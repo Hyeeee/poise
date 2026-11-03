@@ -618,3 +618,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .viz-pair p b { font-size: inherit !important; margin: 0 0 0 .25em !important; line-height: inherit; letter-spacing: 0; display: inline; }
 .viz-pair > svg { aspect-ratio: 148 / 198; }
 .big-stats div.viz-pair { flex-direction: row; align-items: flex-end; gap: calc(var(--s) * 28); } .big-stats div.viz-pair .legend { flex-direction: column; gap: calc(var(--s) * 12); }
+/* the three figures spread edge to edge: the first starts at the left margin, the last ends at the right one */
+.big-stats { grid-template-columns: repeat(3, auto); justify-content: space-between; column-gap: calc(var(--s) * 64); }
+.big-stats > div { width: max-content; max-width: calc(var(--s) * 460); }
+.big-stats .viz, .big-stats div.viz-pair { height: calc(var(--s) * 200) !important; margin-bottom: calc(var(--s) * 40) !important; }
+.big-stats b { margin-top: 0 !important; }
