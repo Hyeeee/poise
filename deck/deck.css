@@ -854,3 +854,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .shown .viz-chart .pie { transform: none; }
 .viz-chart .pie-edge { fill: none; stroke: var(--ink) !important; stroke-width: 2.6 !important; stroke-linejoin: round; }
 .viz-chart .lead { fill: none; stroke: var(--ink) !important; stroke-width: 1.6 !important; stroke-linecap: round; }
+
+/* neck pain pie, clean like the other charts: no outline, solid ink for 42%, grey to 63%, light track for the rest */
+.viz-chart .pie-out { fill: rgba(20,20,18,.08) !important; stroke: none !important; }
+.viz-chart .pie.light { fill: rgba(20,20,18,.32) !important; }
+.viz-chart .lead { stroke-opacity: .5; stroke-width: 1 !important; }
