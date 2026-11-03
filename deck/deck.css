@@ -670,3 +670,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .story .bill .r-head { font-size: max(calc(var(--s) * 32), 17px); margin-bottom: calc(var(--s) * 10); }
 .story .bill .r-total { font-weight: 600; }
 .story .bill .r-total b { font-weight: 600; }
+/* pain chips arrive one by one, after the figure has turned */
+.story .pain-tag.neck.shown { transition-delay: 1.1s !important; }
+.story .pain-tag.back.shown { transition-delay: 1.7s !important; }
+.story .pain-tag.disc.shown { transition-delay: 2.3s !important; }
