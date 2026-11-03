@@ -831,3 +831,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .viz-chart g, .big-stats .viz-chart circle.pt { stroke-width: 2; }
 .big-stats .viz-chart .ppl * { stroke: none !important; }
 .big-stats .viz-chart .area { stroke: none !important; }
+/* Rule: anything sitting directly under a headline (a subtitle, a method line) keeps the same 16-unit gap */
+.head { gap: 0 !important; }
+.head > .title + * { margin-top: calc(var(--s) * 16) !important; }
