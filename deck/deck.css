@@ -709,3 +709,17 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* bills wait until the pain chips are gone */
 .story .receipt.bill.shown { transition-delay: .3s !important; }
 .story .receipt.bill.receipt-right.shown { transition-delay: .5s !important; }
+
+/* v5: monotone, after Studio Dumbar. Small ink dots on rings; the people the number is about are large ink dots. */
+.big-stats .viz-field circle, .shown .viz-field circle { fill: var(--ink) !important; }
+.big-stats .shown .viz-field circle.on, .shown .viz-field circle.on, .shown .v78 circle.on { transform: scale(3.4) !important; }
+.v2 circle.two { transition-delay: calc(var(--i) * 25ms) !important; }
+.shown .v2.doubled circle.two { transform: scale(3.4) !important; }
+.big-stats div.viz-twin { flex-direction: row; align-items: center; gap: calc(var(--s) * 32); }
+.big-stats .viz-twin .viz-field { height: calc(var(--s) * 220) !important; }
+.twin-key { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: calc(var(--s) * 8); font-size: max(calc(var(--s) * 19), 12px); color: var(--ink-3); }
+.twin-key li { display: flex; align-items: center; gap: calc(var(--s) * 10); white-space: nowrap; transition: color .4s; }
+.twin-key i { width: calc(var(--s) * 12); height: calc(var(--s) * 12); min-width: 7px; min-height: 7px; border-radius: 50%; background: var(--ink); transform: scale(0); transition: transform .4s cubic-bezier(.3,1.4,.5,1); }
+.big-stats .twin-key b { font-size: inherit !important; margin: 0 !important; font-weight: 600; letter-spacing: 0; line-height: inherit; display: inline; }
+.viz-twin:not(.is2) .k1, .viz-twin.is2 .k2 { color: var(--ink); }
+.viz-twin:not(.is2) .k1 i, .viz-twin.is2 .k2 i { transform: none; }

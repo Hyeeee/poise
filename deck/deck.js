@@ -337,7 +337,7 @@ if (story) {
 
 // Desk research dot fields: once a figure is on screen, its big dots drift — one at a time a big dot
 // shrinks back and a nearby small one grows, so the count stays the same but the field feels alive.
-document.querySelectorAll('.viz-field').forEach(svg => {
+document.querySelectorAll('.viz-field:not([data-nodrift])').forEach(svg => {
   const dots = [...svg.querySelectorAll('circle')], pos = dots.map(d => [+d.getAttribute('cx'), +d.getAttribute('cy')]);
   setTimeout(() => svg.classList.add('live'), 4000);
   setInterval(() => {
@@ -349,4 +349,13 @@ document.querySelectorAll('.viz-field').forEach(svg => {
     if (!near.length) return;
     svg.classList.add('live'); from.classList.remove('on'); near[0][0].classList.add('on');
   }, 900 + Math.random() * 500);
+});
+
+// 2x: one field that switches between sitting well (some large dots) and sitting poorly (twice as many)
+document.querySelectorAll('.viz-twin').forEach(box => {
+  const svg = box.querySelector('svg');
+  setInterval(() => {
+    if (!box.closest('.shown') || !box.closest('.slide.open')) { box.classList.remove('is2'); svg.classList.remove('doubled'); return; }
+    const on = !box.classList.contains('is2'); box.classList.toggle('is2', on); svg.classList.toggle('doubled', on);
+  }, 2200);
 });
