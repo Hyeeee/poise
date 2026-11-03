@@ -184,7 +184,7 @@ if (story) {
     // Leaning back tips the upper body away around the waist; a little perspective makes what is farther look smaller.
     const cl = Math.cos(S.lean), sl = Math.sin(S.lean);
     const P = ([x, y0, z0]) => { const y = y0 * cl - z0 * sl, z = y0 * sl + z0 * cl;
-      const x1 = x * cb - y * sb, y1 = x * sb + y * cb, X = x1 * cy + z * sy, Z = -x1 * sy + z * cy, pf = 560 / (560 - Z);
+      const x1 = x * cb - y * sb, y1 = x * sb + y * cb, X = x1 * cy + z * sy, Z = -x1 * sy + z * cy, pf = 560 / (560 - Z * cy);   // perspective only facing us; side on, both arms line up
       return [X * pf, y1 * pf, Z]; };
     const k = Math.min(r.width / 250, r.height / 232) * d * (1 - .16 * S.away);   // farther from the screen = smaller
     g.setTransform(k, 0, 0, k, cv.width / 2 - 22 * sy * k, cv.height * .97);
