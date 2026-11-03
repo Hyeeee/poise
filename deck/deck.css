@@ -872,3 +872,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .viz-chart .span { fill: none; stroke: rgba(20,20,18,.35) !important; stroke-width: 1.5 !important; stroke-linecap: round !important; --sw: 0; stroke-dasharray: var(--sw) 100; transition: --sw 1.4s cubic-bezier(.4,0,.2,1) .5s; }
 .viz-chart .span.hi { stroke: var(--ink) !important; }
 .shown .viz-chart .span { --sw: var(--to); }
+
+/* the line that leads from the numbers to the survey */
+.bridge { margin-top: auto; align-self: center; text-align: center; font-size: max(calc(var(--s) * 30), 16px); font-weight: 500; letter-spacing: -.015em; color: var(--ink); }
+.bridge span { color: var(--ink-3); }
