@@ -872,3 +872,17 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .viz-chart .span { fill: none; stroke: rgba(20,20,18,.35) !important; stroke-width: 1.5 !important; stroke-linecap: round !important; --sw: 0; stroke-dasharray: var(--sw) 100; transition: --sw 1.4s cubic-bezier(.4,0,.2,1) .5s; }
 .viz-chart .span.hi { stroke: var(--ink) !important; }
 .shown .viz-chart .span { --sw: var(--to); }
+
+/* Interviews and survey as one conversation: my question on the right in ink, their answers on the left */
+.chat { flex: 1; display: grid; grid-template-columns: 1fr 1fr; column-gap: calc(var(--s) * 96); align-content: center; padding-top: calc(var(--s) * 20); }
+.chat-col { display: flex; flex-direction: column; gap: calc(var(--s) * 36); }
+.chat .ex { display: flex; flex-direction: column; gap: calc(var(--s) * 12); }
+.bub { max-width: 82%; border-radius: calc(var(--s) * 26); padding: calc(var(--s) * 18) calc(var(--s) * 26); font-size: max(calc(var(--s) * 24), 13px); line-height: 1.35; letter-spacing: -.01em; }
+.bub.me { align-self: flex-end; background: var(--ink); color: #fbfaf6; border-bottom-right-radius: calc(var(--s) * 8); }
+.bub.them { align-self: flex-start; background: rgba(255,255,255,.78); color: var(--ink); border-bottom-left-radius: calc(var(--s) * 8); box-shadow: 0 16px 36px -28px rgba(40,44,36,.35); }
+.bub.them span { display: block; margin-top: calc(var(--s) * 8); font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-3); }
+.bub.stat b { font-weight: 600; }
+/* within a step, the answer follows the question */
+.ex .bub { opacity: 0; transform: translateY(calc(var(--s) * 10)); transition: opacity .45s ease, transform .55s var(--ease); }
+.ex.shown .bub { opacity: 1; transform: none; }
+.ex.shown .bub:nth-child(2) { transition-delay: .45s; } .ex.shown .bub:nth-child(3) { transition-delay: .8s; }
