@@ -867,3 +867,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .viz-chart .sweep.light { stroke: rgba(20,20,18,.32) !important; transition-delay: .4s; transition-duration: 1.6s; }
 .shown .viz-chart .sweep { --sw: var(--to); }
 .c-pie .t, .c-pie .lead { opacity: 0; transition: opacity .5s ease 1.6s; } .shown .c-pie .t, .shown .c-pie .lead { opacity: 1; }
+
+/* both numbers start at 12 o'clock: thin arcs outside the pie show 0 to 42% and 0 to 63% */
+.viz-chart .span { fill: none; stroke: rgba(20,20,18,.35) !important; stroke-width: 1.5 !important; stroke-linecap: round !important; --sw: 0; stroke-dasharray: var(--sw) 100; transition: --sw 1.4s cubic-bezier(.4,0,.2,1) .5s; }
+.viz-chart .span.hi { stroke: var(--ink) !important; }
+.shown .viz-chart .span { --sw: var(--to); }
