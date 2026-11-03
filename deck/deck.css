@@ -834,3 +834,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* Rule: anything sitting directly under a headline (a subtitle, a method line) keeps the same 16-unit gap */
 .head { gap: 0 !important; }
 .head > .title + * { margin-top: calc(var(--s) * 16) !important; }
+
+.viz-chart .ring { fill: none; stroke: rgba(20,20,18,.08) !important; stroke-width: 22; }
+.viz-chart .arc { fill: none; stroke-width: 22; transition: stroke-dasharray 1.1s cubic-bezier(.3,.7,.2,1) .4s; }
+.viz-chart .arc.on { stroke: var(--ink) !important; } .viz-chart .arc.mid { stroke: rgba(20,20,18,.32) !important; }
+.slide:not(.open) .viz-chart .arc, :not(.shown) > .viz-chart .arc { stroke-dasharray: 0 100 !important; }
+.big-stats .viz-chart .arc, .big-stats .viz-chart .ring { stroke-linecap: butt !important; }
