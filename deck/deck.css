@@ -761,3 +761,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats b .dash { display: inline-block; margin: 0 .08em; letter-spacing: 0; color: inherit; font-size: inherit; max-width: none; }
 .big-stats b { letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
 .big-stats b .dash { line-height: inherit !important; margin-top: 0 !important; vertical-align: baseline; }
+/* smaller numbers; three equal columns so the gaps between 1-2 and 2-3 match */
+.big-stats b { font-size: max(calc(var(--s) * 92), 40px) !important; }
+.big-stats { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; justify-content: stretch !important; column-gap: calc(var(--s) * 64) !important; }
+.big-stats > div { width: auto !important; max-width: none !important; }
+.big-stats > div > span { max-width: 26ch !important; text-wrap: balance; }
