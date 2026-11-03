@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="834" viewBox="0 0 1600 834" font-family="Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<rect x="446" y="70" width="520" height="710" rx="24" fill="#f4f3ef"/>
+<rect x="1016" y="70" width="520" height="710" rx="24" fill="#eef7f0" stroke="#96d6a5" stroke-width="1.5"/>
+<text x="470" y="116" font-size="26" font-weight="600" fill="#6a6b64" letter-spacing="-.02em">Version one</text>
+<text x="1040" y="116" font-size="26" font-weight="600" fill="#141412" letter-spacing="-.02em">Version two</text>
+<text x="80" y="208" font-size="19" font-weight="600" fill="#141412">Getting started</text>
+<text x="470" y="208" font-size="19" fill="#6a6b64">Two popups at once, then a 12 step tour</text>
+<text x="1040" y="208" font-size="19" fill="#141412">One card at a time, then a 4 step tour</text>
+<line x1="80" y1="254" x2="1520" y2="254" stroke="#d9d8d2" stroke-width="1"/>
+<text x="80" y="312" font-size="19" font-weight="600" fill="#141412">Your posture</text>
+<text x="470" y="312" font-size="19" fill="#6a6b64">A percent number to decode</text>
+<text x="1040" y="300" font-size="19" fill="#141412">A figure that moves with you, next to</text>
+<text x="1040" y="326" font-size="19" fill="#141412">your outline</text>
+<line x1="80" y1="358" x2="1520" y2="358" stroke="#d9d8d2" stroke-width="1"/>
+<text x="80" y="416" font-size="19" font-weight="600" fill="#141412">Feedback</text>
+<text x="470" y="416" font-size="19" fill="#6a6b64">A toast at the top of the screen</text>
+<text x="1040" y="416" font-size="19" fill="#141412">A speech bubble right by the figure</text>
+<line x1="80" y1="462" x2="1520" y2="462" stroke="#d9d8d2" stroke-width="1"/>
+<text x="80" y="520" font-size="19" font-weight="600" fill="#141412">While you work</text>
+<text x="470" y="520" font-size="19" fill="#6a6b64">Switch back to the Poise tab to check</text>
+<text x="1040" y="520" font-size="19" fill="#141412">A mini window that sits beside your work</text>
+<line x1="80" y1="566" x2="1520" y2="566" stroke="#d9d8d2" stroke-width="1"/>
+<text x="80" y="624" font-size="19" font-weight="600" fill="#141412">Camera</text>
+<text x="470" y="624" font-size="19" fill="#6a6b64">On first, explained after</text>
+<text x="1040" y="624" font-size="19" fill="#141412">Off first, you choose to turn it on</text>
+<line x1="80" y1="670" x2="1520" y2="670" stroke="#d9d8d2" stroke-width="1"/>
+<text x="80" y="728" font-size="19" font-weight="600" fill="#141412">Your report</text>
+<text x="470" y="728" font-size="19" fill="#6a6b64">A list of numbers and causes</text>
+<text x="1040" y="728" font-size="19" fill="#141412">A chart you can hover to see each moment</text>
+</svg>

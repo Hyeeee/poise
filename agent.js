@@ -8,16 +8,16 @@ const TAU = Math.PI * 2;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Each formation returns N points in a unit space (-1..1), z used for depth.
+// Every formation is a 3D solid with evenly spaced points, so rotation keeps the grid aligned.
+function grid(n, rows, fn) {
+  const cols = Math.ceil(n / rows), out = [];
+  for (let r = 0; r < rows && out.length < n; r++)
+    for (let c = 0; c < cols && out.length < n; c++) out.push(fn(r / Math.max(1, rows - 1), c / cols, r, c));
+  return out;
+}
+const rowsFor = n => Math.max(3, Math.round(Math.sqrt(n / 2)));
 const SHAPES = {
-  ring(n) { return Array.from({ length: n }, (_, i) => { const a = i / n * TAU; return [Math.cos(a) * .82, Math.sin(a) * .82, 0]; }); },
-  diamond(n) {
-    return Array.from({ length: n }, (_, i) => {
-      const t = i / n * 4, side = Math.floor(t), f = t - side;
-      const c = [[0, -.9], [.9, 0], [0, .9], [-.9, 0]];
-      const a = c[side], b = c[(side + 1) % 4];
-      return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, 0];
-    });
-  },
+  cylinder(n) { return grid(n, rowsFor(n), (v, u) => { const a = u * TAU; return [Math.cos(a) * .72, -.78 + v * 1.56, Math.sin(a) * .72]; }); },
   sphere(n) {
     const g = Math.PI * (3 - Math.sqrt(5));
     return Array.from({ length: n }, (_, i) => {
@@ -25,28 +25,72 @@ const SHAPES = {
       return [Math.cos(a) * r * .9, y * .9, Math.sin(a) * r * .9];
     });
   },
-  stack(n) {
-    const rings = 5, per = Math.ceil(n / rings);
+  torus(n) { return grid(n, rowsFor(n), (v, u, r, c) => { const a = u * TAU, b = (r / rowsFor(n)) * TAU; const R = .62 + .26 * Math.cos(b); return [Math.cos(a) * R, .26 * Math.sin(b), Math.sin(a) * R]; }); },
+  vase(n) { return grid(n, rowsFor(n), (v, u, r) => { const a = u * TAU + r * .2, rad = .38 + .4 * Math.sin(v * Math.PI); return [Math.cos(a) * rad, -.8 + v * 1.6, Math.sin(a) * rad]; }); },
+  cone(n) { return grid(n, rowsFor(n), (v, u, r) => { const a = u * TAU + r * .25, rad = .3 + .56 * v; return [Math.cos(a) * rad, -.82 + v * 1.64, Math.sin(a) * rad]; }); },
+  helix(n) {
     return Array.from({ length: n }, (_, i) => {
-      const k = Math.floor(i / per), a = (i % per) / per * TAU;
-      return [Math.cos(a) * .7, -.62 + k * .31, Math.sin(a) * .7];
+      const s = i % 2, t = Math.floor(i / 2) / Math.ceil(n / 2), a = t * TAU * 2 + s * Math.PI;
+      return [Math.cos(a) * .62, -.85 + t * 1.7, Math.sin(a) * .62];
     });
   },
-  burst(n) {
+  // A coiled spring: one continuous line wound around the body's axis.
+  spring(n) {
     return Array.from({ length: n }, (_, i) => {
-      const ring = i % 3, a = i / n * TAU * 3 + ring * .4, r = [.35, .62, .9][ring];
-      return [Math.cos(a) * r, Math.sin(a) * r, 0];
+      const t = i / (n - 1), a = t * TAU * 5.5;
+      return [Math.cos(a) * .58, -.82 + t * 1.64, Math.sin(a) * .58];
     });
   },
-  knot(n) {
+  // A flattened pebble: the sphere after a long breath out.
+  pebble(n) { return SHAPES.sphere(n).map(([x, y, z]) => [x * 1.05, y * .5, z * 1.05]); },
+  // An hourglass: a slow breath, wide at the top and bottom, narrow at the waist.
+  hourglass(n) { return grid(n, rowsFor(n), (v, u, r) => { const a = u * TAU + r * .3, rad = .22 + .52 * Math.abs(v * 2 - 1); return [Math.cos(a) * rad, -.8 + v * 1.6, Math.sin(a) * rad]; }); },
+  // A ring that ripples up and down: balance.
+  wave(n) {
+    // Three rings stacked like a ribbon, all following the same slow ripple.
+    const rows = 3, per = Math.ceil(n / rows);
     return Array.from({ length: n }, (_, i) => {
-      const t = i / n * TAU, r = .55 + .25 * Math.cos(3 * t);
-      return [r * Math.cos(2 * t), r * Math.sin(2 * t), .35 * Math.sin(3 * t)];
+      const r = Math.floor(i / per), a = (i % per) / per * TAU + r * .12;
+      return [Math.cos(a) * .8, .24 * Math.sin(a * 3) + (r - 1) * .22, Math.sin(a) * .8];
+    });
+  },
+  // A double helix, two strands wound together: health, life.
+  // A double helix, two strands wound together: health, life.
+  // Only about two thirds of the dots show here (the rest fade out and ride along), so the spacing matches the other shapes.
+  dna(n) {
+    const m = Math.ceil(n * .64);
+    return Array.from({ length: n }, (_, i) => {
+      const j = i % m, s = j % 2, t = Math.floor(j / 2) / Math.ceil(m / 2), a = t * TAU * 1.6 + s * Math.PI;
+      return [Math.cos(a) * .5, -.86 + t * 1.72, Math.sin(a) * .5, i >= m ? 0 : 1];
     });
   },
 };
-const ORDER = ['ring', 'sphere', 'diamond', 'stack', 'burst', 'knot'];
-const MOOD_SHAPE = { green: 'ring', amber: 'knot', red: 'diamond' };
+// The sphere is home: Poise moves through five symbols, then returns to it and loops.
+const ORDER = ['sphere', 'spring', 'hourglass', 'dna', 'pebble'];   // 'wave' (rippling rings) taken out
+const MOOD_SHAPE = { green: 'sphere', amber: 'spring', red: 'hourglass' };
+
+// Hand-drawn dots. Every dot gets a few slightly different, nearly round outlines, like the same
+// circle inked more than once, and slowly melts between them so it feels drawn and alive.
+function inkBlob(rot = Math.random() * TAU) {
+  const n = 8, sq = .93 + Math.random() * .14;
+  return Array.from({ length: n }, (_, i) => {
+    const a = i / n * TAU, r = 1 + (Math.random() - .5) * .14;
+    const x = Math.cos(a) * r * sq, y = Math.sin(a) * r / sq;
+    return [x * Math.cos(rot) - y * Math.sin(rot), x * Math.sin(rot) + y * Math.cos(rot)];
+  });
+}
+// Draw a closed, smooth outline through the midpoints of the wobbly polygon.
+function blobPath(ctx, pts, x, y, r) {
+  const m = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], n = pts.length;
+  ctx.beginPath();
+  let s = m(pts[n - 1], pts[0]);
+  ctx.moveTo(x + s[0] * r, y + s[1] * r);
+  for (let i = 0; i < n; i++) {
+    const c = pts[i], e = m(c, pts[(i + 1) % n]);
+    ctx.quadraticCurveTo(x + c[0] * r, y + c[1] * r, x + e[0] * r, y + e[1] * r);
+  }
+  ctx.closePath();
+}
 
 const agents = new Set();
 let raf = 0, pointer = { x: -1e4, y: -1e4 };
@@ -62,11 +106,11 @@ class Agent {
     const small = this.size < 60;
     this.n = Number(host.dataset.dots) || (small ? 12 : this.size < 140 ? 32 : 84);
     this.dot = Number(host.dataset.dot) || Math.max(1, this.size / (small ? 16 : 72));
-    this.shapeIndex = Math.floor(Math.random() * ORDER.length);
+    this.shapeIndex = 0;
     this.target = this.build(host.dataset.shape || ORDER[this.shapeIndex]);
-    this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU }));
+    this.pts = this.target.map(p => ({ x: p[0] * .2, y: p[1] * .2, z: 0, vx: 0, vy: 0, seed: Math.random() * TAU, vis: 1, ring: false, ink: (r => [inkBlob(r), inkBlob(r)])(Math.random() * TAU) }));
     this.spin = Math.random() * TAU;
-    this.next = performance.now() + 4000 + Math.random() * 3000;
+    this.next = performance.now() + 9000;
     this.scale = 1; this.energy = 0;
     this.resize();
     new ResizeObserver(() => this.resize()).observe(host);
@@ -75,7 +119,7 @@ class Agent {
     this.shape = name;
     const pts = SHAPES[name](this.n);
     // Order points by angle so morphs travel around the form instead of crossing it.
-    return pts.map(p => ({ p, a: Math.atan2(p[1], p[0]) })).sort((a, b) => a.a - b.a).map(o => o.p);
+    return pts.map(p => ({ p, k: (p[3] === 0 ? 1e4 : 0) + Math.round((p[1] + 1) * 6) * 10 + (Math.atan2(p[2], p[0]) + Math.PI) })).sort((a, b) => a.k - b.k).map(o => o.p);
   }
   morph(name) { if (name && name !== this.shape) this.target = this.build(name); }
   resize() {
@@ -102,53 +146,65 @@ class Agent {
     else if (now > this.next) {
       this.shapeIndex = (this.shapeIndex + 1) % ORDER.length;
       this.morph(ORDER[this.shapeIndex]);
-      this.next = now + 5200 + Math.random() * 2600;
+      this.next = now + (this.shape === 'sphere' ? 9000 : 7000);
     }
 
     const wantScale = (cl.contains('in') ? 1.32 : 1) * (listening ? 1.12 : 1) * (mood === 'red' ? .86 : 1);
     this.scale += (wantScale - this.scale) * Math.min(1, dt * (cl.contains('in') ? .7 : 4));
     const wantEnergy = speaking ? 1 : thinking ? .7 : listening ? .5 : mood === 'amber' ? .45 : mood === 'red' ? .8 : .12;
     this.energy += (wantEnergy - this.energy) * Math.min(1, dt * 3);
-    this.spin += dt * (.18 + this.energy * (thinking ? 2.2 : .6));
+    // A pinned sphere has no shape changes to look alive, so it turns a bit faster and breathes.
+    const pinned = !!h.dataset.shape;
+    this.spin += dt * ((pinned ? .55 : .12) + this.energy * (thinking ? 2.2 : .6));
+    const breathe = pinned && !reduced ? 1 + .03 * Math.sin(now / 900) : 1;   // applied per frame, never stored
 
     const { ctx, w, hgt = this.h } = { ctx: this.ctx, w: this.w, hgt: this.h };
     ctx.clearRect(0, 0, w, hgt);
-    const cx = w / 2, cy = hgt / 2, R = this.size / 2 - this.dot * 2;
+    const cx = w / 2, cy = hgt / 2, R = (this.size / 2 - this.dot * 2) * .8;
     const rect = this.canvas.getBoundingClientRect();
     const mx = pointer.x - rect.left, my = pointer.y - rect.top;
     const cos = Math.cos(this.spin), sin = Math.sin(this.spin);
     const tilt = .38, ct = Math.cos(tilt), st = Math.sin(tilt);
     const ink = getComputedStyle(h).color || '#2b2c29';
-    ctx.fillStyle = ink;
+    ctx.fillStyle = ink; ctx.strokeStyle = ink; ctx.lineJoin = 'round';
+    const paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f7f5ef';
 
     const speakPulse = speaking ? .06 * Math.sin(now / 90) + .05 * Math.sin(now / 37) : 0;
-    const k = reduced ? 1 : Math.min(1, dt * 5.5);
+    const k = reduced ? 1 : Math.min(1, dt * 1.6);
 
     for (let i = 0; i < this.pts.length; i++) {
       const p = this.pts[i], t = this.target[i];
       // Rotate target around Y, then tilt toward the viewer.
       let x = t[0] * cos + t[2] * sin, z = -t[0] * sin + t[2] * cos, y = t[1];
-      if (this.shape === 'ring' || this.shape === 'diamond' || this.shape === 'burst') { x = t[0] * Math.cos(this.spin * .4) - t[1] * Math.sin(this.spin * .4); y = t[0] * Math.sin(this.spin * .4) + t[1] * Math.cos(this.spin * .4); z = 0; }
       const y2 = y * ct - z * st, z2 = y * st + z * ct;
-      const wob = this.energy * .09 * Math.sin(now / 400 + p.seed * 3) + speakPulse;
-      let tx = cx + x * R * this.scale * (1 + wob), ty = cy + y2 * R * this.scale * (1 + wob);
+      const wob = this.energy * .06 * Math.sin(now / 420 + y * 3) + speakPulse;
+      let tx = cx + x * R * this.scale * breathe * (1 + wob), ty = cy + y2 * R * this.scale * breathe * (1 + wob);
       // Drift.
-      tx += Math.sin(now / 1300 + p.seed) * R * .025;
-      ty += Math.cos(now / 1500 + p.seed * 1.3) * R * .025;
+      ty += Math.sin(now / 1600) * R * .02;
       // Spring toward target, with damping.
       const px = cx + p.x * R, py = cy + p.y * R;
       p.vx = (p.vx + (tx - px) * k * 6) * .72;
       p.vy = (p.vy + (ty - py) * k * 6) * .72;
       let nx = px + p.vx * dt * 10, ny = py + p.vy * dt * 10;
       // Shy away from the pointer.
-      const dx = nx - mx, dy = ny - my, d2 = dx * dx + dy * dy, reach = R * .9;
-      if (d2 < reach * reach && !reduced) { const d = Math.sqrt(d2) || 1, f = (1 - d / reach) * R * .18; nx += dx / d * f; ny += dy / d * f; }
+      const dx = nx - mx, dy = ny - my, d2 = dx * dx + dy * dy, reach = R * .45;
+      if (d2 < reach * reach && !reduced && !pinned) { const d = Math.sqrt(d2) || 1, f = (1 - d / reach) * R * .07; nx += dx / d * f; ny += dy / d * f; }
       p.x = (nx - cx) / R; p.y = (ny - cy) / R; p.z += (z2 - p.z) * k;
       const depth = (p.z + 1) / 2;
-      ctx.globalAlpha = .35 + .65 * (1 - depth * .7);
-      ctx.beginPath();
-      ctx.arc(nx, ny, this.dot * (.75 + (1 - depth) * .45), 0, TAU);
-      ctx.fill();
+      p.vis += ((t[3] ?? 1) - p.vis) * Math.min(1, dt * 2.5);   // dots a formation doesn't use fade away
+      if (p.vis < .02) continue;
+      ctx.globalAlpha = (.35 + .65 * (1 - depth * .8)) * p.vis;   // front dots full ink, back ones fainter
+      const r = this.dot * .82 * (.75 + (1 - depth) * .45);
+      // Each dot slowly melts between two of its hand-drawn outlines (no flicker), and floats a hair on its own.
+      const w = reduced ? 0 : .5 + .5 * Math.sin(now / 750 + p.seed);
+      const a = p.ink[0], b = p.ink[1], shape = a.map((q, j) => { const o = b[j % b.length]; return [q[0] + (o[0] - q[0]) * w, q[1] + (o[1] - q[1]) * w]; });
+      const fx = reduced ? 0 : Math.sin(now / 2300 + p.seed * 3) * r * .35, fy = reduced ? 0 : Math.cos(now / 2700 + p.seed * 2) * r * .35;
+      blobPath(ctx, shape, nx + fx, ny + fy, r);
+      // Some dots are inked rings (pale inside, like the avatar's limbs); the rest are solid ink.
+      if (p.ring && r > 2.2) {
+        ctx.fillStyle = paper; ctx.fill(); ctx.fillStyle = ink;
+        ctx.lineWidth = Math.max(1, r * .42); ctx.stroke();
+      } else ctx.fill();
     }
     ctx.globalAlpha = 1;
   }

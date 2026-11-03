@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Poise · Case study</title>
+<meta name="description" content="Poise, a light bar and web app that notice when your posture drifts. A case study by Marin Chung.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Shantell+Sans:wght@500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+</head>
+<body class="on-cover">
+<!-- painting.js cycles its colours only while the app (#studio) is hidden -->
+<div id="studio" hidden></div>
+
+<!-- One white sheet for every content slide: it rises over the colour after the cover. -->
+<div class="sheet" aria-hidden="true"></div>
+
+<!-- Progress, split into the parts of the contents: each part fills as you move through it -->
+<nav class="progress" id="progress" aria-label="Progress"></nav>
+
+<main class="deck" id="deck">
+
+  <!-- 1 · Cover -->
+  <section class="slide cover" data-title="Cover">
+    <div class="cover-head" data-in>
+      <p class="cover-logo">poise</p>
+      <p class="cover-tag">A posture companion<br>for people who work at a desk</p>
+    </div>
+    <div class="cover-main">
+      <h1 class="cover-title" data-in>Notice when your posture drifts, without stopping your work.</h1>
+      <div class="agent cover-orb" data-in></div>
+    </div>
+    <dl class="facts" data-in>
+      <div><dt>Timeline</dt><dd>5 weeks, fall 2026</dd></div>
+      <div><dt>Role</dt><dd>Solo designer and builder</dd></div>
+      <div><dt>Scope</dt><dd>Research, UX/UI, hardware</dd></div>
+      <div><dt>Tools</dt><dd>Claude, MediaPipe, Arduino</dd></div>
+      <div><dt>Prepared for</dt><dd>DoorDash Product Design</dd></div>
+    </dl>
+  </section>
+
+  <!-- 2 · Contents -->
+  <section class="slide paper" data-title="Contents">
+    <div class="toc">
+      <div class="head">
+        <h2 class="title" data-in>Here’s what I’ll <span>walk you through.</span></h2>
+      </div>
+      <ol class="toc-list">
+        <li data-in><i>01</i><b>The problem</b><span>Why we drift at a desk without noticing, and what it costs</span></li>
+        <li data-in><i>02</i><b>UX research</b><span>Three interviews, a survey of 11, and the posture tools out there</span></li>
+        <li data-in><i>03</i><b>Version one</b><span>A light bar and a web app, from setup to the end of session report</span></li>
+        <li data-in><i>04</i><b>Iteration</b><span>A playtest at school, and the five problems it brought up</span></li>
+        <li data-in><i>05</i><b>Version two</b><span>Five fixes, one for each problem</span></li>
+        <li data-in><i>06</i><b>What I learned</b><span>Lessons, and what I’d do next</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3 · Problem, told as a story. Space moves it on one step at a time:
+       the key message alone, then it shrinks away and the figure tells what happens. -->
+  <section class="slide paper story" data-title="The problem" data-steps="7">
+    <div class="receipt" data-only-from="7">
+      <p class="r-head">Treatment</p>
+      <p><span>Physical therapy</span><b>2× a week</b></p>
+      <p><span>Imaging</span><b>MRI</b></p>
+      <p><span>Time off work</span><b>Days</b></p>
+      <p class="r-total"><span>It adds up</span><b>Weeks to months</b></p>
+    </div>
+    <div class="receipt receipt-right" data-only-from="7">
+      <p class="r-head">Every day</p>
+      <p><span>Sleep</span><b>Broken</b></p>
+      <p><span>Focus</span><b>Harder to hold</b></p>
+      <p><span>Sitting</span><b>Painful</b></p>
+      <p class="r-total"><span>It spreads</span><b>Work and home</b></p>
+    </div>
+    <h2 class="key" aria-live="polite"><span class="k1">We drift</span><span class="k2">without noticing.</span></h2>
+    <div class="story-stage" role="img" aria-label="A seated figure slumps over time, then seen from the side shows neck pain, lower back pain and a slipped disc">
+      <canvas class="fig3d" id="story-3d"></canvas>
+      <p class="pain-tag neck" data-only-from="4">Neck pain</p>
+      <p class="pain-tag back" data-only-from="5">Lower back pain</p>
+      <p class="pain-tag disc" data-only-from="6">Herniated disc</p>
+    </div>
+  </section>
+
+  <!-- 3b · Desk research, one figure at a time -->
+  <section class="slide paper" data-title="Desk research" data-steps="3">
+    <div class="head">
+      <h2 class="title" data-in>It’s not only me. <span>The numbers say the same.</span></h2>
+    </div>
+    <div class="big-stats">
+      <div data-step="1"><svg class="viz viz-dots v13" viewBox="0 0 258 198" preserveAspectRatio="xMinYMax meet" aria-hidden="true"><circle style="--i:9" cx="9" cy="9" r="6.5"/><circle style="--i:8" cx="9" cy="29" r="6.5"/><circle style="--i:7" cx="9" cy="49" r="6.5"/><circle style="--i:6" cx="9" cy="69" r="6.5"/><circle style="--i:5" cx="9" cy="89" r="6.5"/><circle style="--i:4" cx="9" cy="109" r="6.5"/><circle style="--i:3" cx="9" cy="129" r="6.5"/><circle style="--i:2" cx="9" cy="149" r="6.5"/><circle style="--i:1" cx="9" cy="169" r="6.5"/><circle style="--i:0" cx="9" cy="189" r="6.5"/><circle style="--i:11" cx="29" cy="9" r="6.5"/><circle style="--i:10" cx="29" cy="29" r="6.5"/><circle style="--i:9" cx="29" cy="49" r="6.5"/><circle style="--i:8" cx="29" cy="69" r="6.5"/><circle style="--i:7" cx="29" cy="89" r="6.5"/><circle style="--i:6" cx="29" cy="109" r="6.5"/><circle style="--i:5" cx="29" cy="129" r="6.5"/><circle style="--i:4" cx="29" cy="149" r="6.5"/><circle style="--i:3" cx="29" cy="169" r="6.5"/><circle style="--i:2" cx="29" cy="189" r="6.5"/><circle style="--i:13" cx="49" cy="9" r="6.5"/><circle style="--i:12" cx="49" cy="29" r="6.5"/><circle style="--i:11" cx="49" cy="49" r="6.5"/><circle style="--i:10" cx="49" cy="69" r="6.5"/><circle style="--i:9" cx="49" cy="89" r="6.5"/><circle style="--i:8" cx="49" cy="109" r="6.5"/><circle style="--i:7" cx="49" cy="129" r="6.5"/><circle style="--i:6" cx="49" cy="149" r="6.5"/><circle style="--i:5" cx="49" cy="169" r="6.5"/><circle style="--i:4" cx="49" cy="189" r="6.5"/><circle style="--i:15" cx="69" cy="9" r="6.5"/><circle style="--i:14" cx="69" cy="29" r="6.5"/><circle style="--i:13" cx="69" cy="49" r="6.5"/><circle style="--i:12" cx="69" cy="69" r="6.5"/><circle style="--i:11" cx="69" cy="89" r="6.5"/><circle style="--i:10" cx="69" cy="109" r="6.5"/><circle style="--i:9" cx="69" cy="129" r="6.5"/><circle style="--i:8" cx="69" cy="149" r="6.5"/><circle style="--i:7" cx="69" cy="169" r="6.5"/><circle style="--i:6" cx="69" cy="189" r="6.5"/><circle style="--i:17" cx="89" cy="9" r="6.5"/><circle style="--i:16" cx="89" cy="29" r="6.5"/><circle style="--i:15" cx="89" cy="49" r="6.5"/><circle style="--i:14" cx="89" cy="69" r="6.5"/><circle style="--i:13" cx="89" cy="89" r="6.5"/><circle style="--i:12" cx="89" cy="109" r="6.5"/><circle style="--i:11" cx="89" cy="129" r="6.5"/><circle style="--i:10" cx="89" cy="149" r="6.5"/><circle style="--i:9" cx="89" cy="169" r="6.5"/><circle style="--i:8" cx="89" cy="189" r="6.5"/><circle style="--i:19" cx="109" cy="9" r="6.5"/><circle style="--i:18" cx="109" cy="29" r="6.5"/><circle style="--i:17" cx="109" cy="49" r="6.5"/><circle style="--i:16" cx="109" cy="69" r="6.5"/><circle style="--i:15" cx="109" cy="89" r="6.5"/><circle style="--i:14" cx="109" cy="109" r="6.5"/><circle style="--i:13" cx="109" cy="129" r="6.5"/><circle style="--i:12" cx="109" cy="149" r="6.5"/><circle style="--i:11" cx="109" cy="169" r="6.5"/><circle style="--i:10" cx="109" cy="189" r="6.5"/><circle class="on" style="--i:21" cx="129" cy="9" r="6.5"/><circle class="on" style="--i:20" cx="129" cy="29" r="6.5"/><circle class="on" style="--i:19" cx="129" cy="49" r="6.5"/><circle class="on" style="--i:18" cx="129" cy="69" r="6.5"/><circle class="on" style="--i:17" cx="129" cy="89" r="6.5"/><circle class="on" style="--i:16" cx="129" cy="109" r="6.5"/><circle class="on" style="--i:15" cx="129" cy="129" r="6.5"/><circle class="on" style="--i:14" cx="129" cy="149" r="6.5"/><circle class="on" style="--i:13" cx="129" cy="169" r="6.5"/><circle class="on" style="--i:12" cx="129" cy="189" r="6.5"/><circle style="--i:23" cx="149" cy="9" r="6.5"/><circle style="--i:22" cx="149" cy="29" r="6.5"/><circle style="--i:21" cx="149" cy="49" r="6.5"/><circle style="--i:20" cx="149" cy="69" r="6.5"/><circle style="--i:19" cx="149" cy="89" r="6.5"/><circle style="--i:18" cx="149" cy="109" r="6.5"/><circle style="--i:17" cx="149" cy="129" r="6.5"/><circle style="--i:16" cx="149" cy="149" r="6.5"/><circle style="--i:15" cx="149" cy="169" r="6.5"/><circle style="--i:14" cx="149" cy="189" r="6.5"/><circle style="--i:25" cx="169" cy="9" r="6.5"/><circle style="--i:24" cx="169" cy="29" r="6.5"/><circle style="--i:23" cx="169" cy="49" r="6.5"/><circle style="--i:22" cx="169" cy="69" r="6.5"/><circle style="--i:21" cx="169" cy="89" r="6.5"/><circle style="--i:20" cx="169" cy="109" r="6.5"/><circle style="--i:19" cx="169" cy="129" r="6.5"/><circle style="--i:18" cx="169" cy="149" r="6.5"/><circle style="--i:17" cx="169" cy="169" r="6.5"/><circle style="--i:16" cx="169" cy="189" r="6.5"/><circle style="--i:27" cx="189" cy="9" r="6.5"/><circle style="--i:26" cx="189" cy="29" r="6.5"/><circle style="--i:25" cx="189" cy="49" r="6.5"/><circle style="--i:24" cx="189" cy="69" r="6.5"/><circle style="--i:23" cx="189" cy="89" r="6.5"/><circle style="--i:22" cx="189" cy="109" r="6.5"/><circle style="--i:21" cx="189" cy="129" r="6.5"/><circle style="--i:20" cx="189" cy="149" r="6.5"/><circle style="--i:19" cx="189" cy="169" r="6.5"/><circle style="--i:18" cx="189" cy="189" r="6.5"/><circle style="--i:29" cx="209" cy="9" r="6.5"/><circle style="--i:28" cx="209" cy="29" r="6.5"/><circle style="--i:27" cx="209" cy="49" r="6.5"/><circle style="--i:26" cx="209" cy="69" r="6.5"/><circle style="--i:25" cx="209" cy="89" r="6.5"/><circle style="--i:24" cx="209" cy="109" r="6.5"/><circle style="--i:23" cx="209" cy="129" r="6.5"/><circle style="--i:22" cx="209" cy="149" r="6.5"/><circle style="--i:21" cx="209" cy="169" r="6.5"/><circle style="--i:20" cx="209" cy="189" r="6.5"/><circle style="--i:31" cx="229" cy="9" r="6.5"/><circle style="--i:30" cx="229" cy="29" r="6.5"/><circle style="--i:29" cx="229" cy="49" r="6.5"/><circle style="--i:28" cx="229" cy="69" r="6.5"/><circle style="--i:27" cx="229" cy="89" r="6.5"/><circle style="--i:26" cx="229" cy="109" r="6.5"/><circle style="--i:25" cx="229" cy="129" r="6.5"/><circle style="--i:24" cx="229" cy="149" r="6.5"/><circle style="--i:23" cx="229" cy="169" r="6.5"/><circle style="--i:22" cx="229" cy="189" r="6.5"/><circle style="--i:33" cx="249" cy="9" r="6.5"/><circle style="--i:32" cx="249" cy="29" r="6.5"/><circle style="--i:31" cx="249" cy="49" r="6.5"/><circle style="--i:30" cx="249" cy="69" r="6.5"/><circle style="--i:29" cx="249" cy="89" r="6.5"/><circle style="--i:28" cx="249" cy="109" r="6.5"/><circle style="--i:27" cx="249" cy="129" r="6.5"/><circle style="--i:26" cx="249" cy="149" r="6.5"/><circle style="--i:25" cx="249" cy="169" r="6.5"/><circle style="--i:24" cx="249" cy="189" r="6.5"/></svg><b>1 in 13</b><span>people live with low back pain</span><em>WHO, 2023</em></div>
+      <div data-step="2"><svg class="viz viz-dots v78" viewBox="0 0 198 198" preserveAspectRatio="xMinYMax meet" aria-hidden="true"><circle class="on" style="--i:0" cx="9" cy="9" r="6.5"/><circle class="on" style="--i:1" cx="29" cy="9" r="6.5"/><circle class="on" style="--i:2" cx="49" cy="9" r="6.5"/><circle class="on" style="--i:3" cx="69" cy="9" r="6.5"/><circle class="on" style="--i:4" cx="89" cy="9" r="6.5"/><circle class="on" style="--i:5" cx="109" cy="9" r="6.5"/><circle class="on" style="--i:6" cx="129" cy="9" r="6.5"/><circle class="on" style="--i:7" cx="149" cy="9" r="6.5"/><circle class="on" style="--i:8" cx="169" cy="9" r="6.5"/><circle class="on" style="--i:9" cx="189" cy="9" r="6.5"/><circle class="on" style="--i:10" cx="9" cy="29" r="6.5"/><circle class="on" style="--i:11" cx="29" cy="29" r="6.5"/><circle class="on" style="--i:12" cx="49" cy="29" r="6.5"/><circle class="on" style="--i:13" cx="69" cy="29" r="6.5"/><circle class="on" style="--i:14" cx="89" cy="29" r="6.5"/><circle class="on" style="--i:15" cx="109" cy="29" r="6.5"/><circle class="on" style="--i:16" cx="129" cy="29" r="6.5"/><circle class="on" style="--i:17" cx="149" cy="29" r="6.5"/><circle class="on" style="--i:18" cx="169" cy="29" r="6.5"/><circle class="on" style="--i:19" cx="189" cy="29" r="6.5"/><circle class="on" style="--i:20" cx="9" cy="49" r="6.5"/><circle class="on" style="--i:21" cx="29" cy="49" r="6.5"/><circle class="on" style="--i:22" cx="49" cy="49" r="6.5"/><circle class="on" style="--i:23" cx="69" cy="49" r="6.5"/><circle class="on" style="--i:24" cx="89" cy="49" r="6.5"/><circle class="on" style="--i:25" cx="109" cy="49" r="6.5"/><circle class="on" style="--i:26" cx="129" cy="49" r="6.5"/><circle class="on" style="--i:27" cx="149" cy="49" r="6.5"/><circle class="on" style="--i:28" cx="169" cy="49" r="6.5"/><circle class="on" style="--i:29" cx="189" cy="49" r="6.5"/><circle class="on" style="--i:30" cx="9" cy="69" r="6.5"/><circle class="on" style="--i:31" cx="29" cy="69" r="6.5"/><circle class="on" style="--i:32" cx="49" cy="69" r="6.5"/><circle class="on" style="--i:33" cx="69" cy="69" r="6.5"/><circle class="on" style="--i:34" cx="89" cy="69" r="6.5"/><circle class="on" style="--i:35" cx="109" cy="69" r="6.5"/><circle class="on" style="--i:36" cx="129" cy="69" r="6.5"/><circle class="on" style="--i:37" cx="149" cy="69" r="6.5"/><circle class="on" style="--i:38" cx="169" cy="69" r="6.5"/><circle class="on" style="--i:39" cx="189" cy="69" r="6.5"/><circle class="on" style="--i:40" cx="9" cy="89" r="6.5"/><circle class="on" style="--i:41" cx="29" cy="89" r="6.5"/><circle class="on" style="--i:42" cx="49" cy="89" r="6.5"/><circle class="on" style="--i:43" cx="69" cy="89" r="6.5"/><circle class="on" style="--i:44" cx="89" cy="89" r="6.5"/><circle class="on" style="--i:45" cx="109" cy="89" r="6.5"/><circle class="on" style="--i:46" cx="129" cy="89" r="6.5"/><circle class="on" style="--i:47" cx="149" cy="89" r="6.5"/><circle class="on" style="--i:48" cx="169" cy="89" r="6.5"/><circle class="on" style="--i:49" cx="189" cy="89" r="6.5"/><circle class="on" style="--i:50" cx="9" cy="109" r="6.5"/><circle class="on" style="--i:51" cx="29" cy="109" r="6.5"/><circle class="on" style="--i:52" cx="49" cy="109" r="6.5"/><circle class="on" style="--i:53" cx="69" cy="109" r="6.5"/><circle class="on" style="--i:54" cx="89" cy="109" r="6.5"/><circle class="on" style="--i:55" cx="109" cy="109" r="6.5"/><circle class="on" style="--i:56" cx="129" cy="109" r="6.5"/><circle class="on" style="--i:57" cx="149" cy="109" r="6.5"/><circle class="on" style="--i:58" cx="169" cy="109" r="6.5"/><circle class="on" style="--i:59" cx="189" cy="109" r="6.5"/><circle class="on" style="--i:60" cx="9" cy="129" r="6.5"/><circle class="on" style="--i:61" cx="29" cy="129" r="6.5"/><circle class="on" style="--i:62" cx="49" cy="129" r="6.5"/><circle class="on" style="--i:63" cx="69" cy="129" r="6.5"/><circle class="on" style="--i:64" cx="89" cy="129" r="6.5"/><circle class="on" style="--i:65" cx="109" cy="129" r="6.5"/><circle class="on" style="--i:66" cx="129" cy="129" r="6.5"/><circle class="on" style="--i:67" cx="149" cy="129" r="6.5"/><circle class="on" style="--i:68" cx="169" cy="129" r="6.5"/><circle class="on" style="--i:69" cx="189" cy="129" r="6.5"/><circle class="on" style="--i:70" cx="9" cy="149" r="6.5"/><circle class="on" style="--i:71" cx="29" cy="149" r="6.5"/><circle class="on" style="--i:72" cx="49" cy="149" r="6.5"/><circle class="on" style="--i:73" cx="69" cy="149" r="6.5"/><circle class="on" style="--i:74" cx="89" cy="149" r="6.5"/><circle class="on" style="--i:75" cx="109" cy="149" r="6.5"/><circle class="on" style="--i:76" cx="129" cy="149" r="6.5"/><circle class="on" style="--i:77" cx="149" cy="149" r="6.5"/><circle style="--i:78" cx="169" cy="149" r="6.5"/><circle style="--i:79" cx="189" cy="149" r="6.5"/><circle style="--i:80" cx="9" cy="169" r="6.5"/><circle style="--i:81" cx="29" cy="169" r="6.5"/><circle style="--i:82" cx="49" cy="169" r="6.5"/><circle style="--i:83" cx="69" cy="169" r="6.5"/><circle style="--i:84" cx="89" cy="169" r="6.5"/><circle style="--i:85" cx="109" cy="169" r="6.5"/><circle style="--i:86" cx="129" cy="169" r="6.5"/><circle style="--i:87" cx="149" cy="169" r="6.5"/><circle style="--i:88" cx="169" cy="169" r="6.5"/><circle style="--i:89" cx="189" cy="169" r="6.5"/><circle style="--i:90" cx="9" cy="189" r="6.5"/><circle style="--i:91" cx="29" cy="189" r="6.5"/><circle style="--i:92" cx="49" cy="189" r="6.5"/><circle style="--i:93" cx="69" cy="189" r="6.5"/><circle style="--i:94" cx="89" cy="189" r="6.5"/><circle style="--i:95" cx="109" cy="189" r="6.5"/><circle style="--i:96" cx="129" cy="189" r="6.5"/><circle style="--i:97" cx="149" cy="189" r="6.5"/><circle style="--i:98" cx="169" cy="189" r="6.5"/><circle style="--i:99" cx="189" cy="189" r="6.5"/></svg><b>78%</b><span>of college students report neck pain in some studies</span><em>Gao et al., 2023</em></div>
+      <div data-step="3"><div class="viz viz-pair"><svg class="viz viz-dots v2" viewBox="0 0 148.0 198" preserveAspectRatio="xMinYMax meet" aria-hidden="true"><circle class="good" style="--i:9" cx="9" cy="9" r="6.5"/><circle class="good" style="--i:8" cx="9" cy="29" r="6.5"/><circle class="good" style="--i:7" cx="9" cy="49" r="6.5"/><circle class="good" style="--i:6" cx="9" cy="69" r="6.5"/><circle class="good" style="--i:5" cx="9" cy="89" r="6.5"/><circle class="good" style="--i:4" cx="9" cy="109" r="6.5"/><circle class="good" style="--i:3" cx="9" cy="129" r="6.5"/><circle class="good" style="--i:2" cx="9" cy="149" r="6.5"/><circle class="good" style="--i:1" cx="9" cy="169" r="6.5"/><circle class="good" style="--i:0" cx="9" cy="189" r="6.5"/><circle class="good" style="--i:9" cx="29" cy="9" r="6.5"/><circle class="good" style="--i:8" cx="29" cy="29" r="6.5"/><circle class="good" style="--i:7" cx="29" cy="49" r="6.5"/><circle class="good" style="--i:6" cx="29" cy="69" r="6.5"/><circle class="good" style="--i:5" cx="29" cy="89" r="6.5"/><circle class="good" style="--i:4" cx="29" cy="109" r="6.5"/><circle class="good" style="--i:3" cx="29" cy="129" r="6.5"/><circle class="good" style="--i:2" cx="29" cy="149" r="6.5"/><circle class="good" style="--i:1" cx="29" cy="169" r="6.5"/><circle class="good" style="--i:0" cx="29" cy="189" r="6.5"/><circle class="on" style="--i:13" cx="79.0" cy="9" r="6.5"/><circle class="on" style="--i:12" cx="79.0" cy="29" r="6.5"/><circle class="on" style="--i:11" cx="79.0" cy="49" r="6.5"/><circle class="on" style="--i:10" cx="79.0" cy="69" r="6.5"/><circle class="on" style="--i:9" cx="79.0" cy="89" r="6.5"/><circle class="on" style="--i:8" cx="79.0" cy="109" r="6.5"/><circle class="on" style="--i:7" cx="79.0" cy="129" r="6.5"/><circle class="on" style="--i:6" cx="79.0" cy="149" r="6.5"/><circle class="on" style="--i:5" cx="79.0" cy="169" r="6.5"/><circle class="on" style="--i:4" cx="79.0" cy="189" r="6.5"/><circle class="on" style="--i:13" cx="99.0" cy="9" r="6.5"/><circle class="on" style="--i:12" cx="99.0" cy="29" r="6.5"/><circle class="on" style="--i:11" cx="99.0" cy="49" r="6.5"/><circle class="on" style="--i:10" cx="99.0" cy="69" r="6.5"/><circle class="on" style="--i:9" cx="99.0" cy="89" r="6.5"/><circle class="on" style="--i:8" cx="99.0" cy="109" r="6.5"/><circle class="on" style="--i:7" cx="99.0" cy="129" r="6.5"/><circle class="on" style="--i:6" cx="99.0" cy="149" r="6.5"/><circle class="on" style="--i:5" cx="99.0" cy="169" r="6.5"/><circle class="on" style="--i:4" cx="99.0" cy="189" r="6.5"/><circle class="on" style="--i:13" cx="119.0" cy="9" r="6.5"/><circle class="on" style="--i:12" cx="119.0" cy="29" r="6.5"/><circle class="on" style="--i:11" cx="119.0" cy="49" r="6.5"/><circle class="on" style="--i:10" cx="119.0" cy="69" r="6.5"/><circle class="on" style="--i:9" cx="119.0" cy="89" r="6.5"/><circle class="on" style="--i:8" cx="119.0" cy="109" r="6.5"/><circle class="on" style="--i:7" cx="119.0" cy="129" r="6.5"/><circle class="on" style="--i:6" cx="119.0" cy="149" r="6.5"/><circle class="on" style="--i:5" cx="119.0" cy="169" r="6.5"/><circle class="on" style="--i:4" cx="119.0" cy="189" r="6.5"/><circle class="on" style="--i:13" cx="139.0" cy="9" r="6.5"/><circle class="on" style="--i:12" cx="139.0" cy="29" r="6.5"/><circle class="on" style="--i:11" cx="139.0" cy="49" r="6.5"/><circle class="on" style="--i:10" cx="139.0" cy="69" r="6.5"/><circle class="on" style="--i:9" cx="139.0" cy="89" r="6.5"/><circle class="on" style="--i:8" cx="139.0" cy="109" r="6.5"/><circle class="on" style="--i:7" cx="139.0" cy="129" r="6.5"/><circle class="on" style="--i:6" cx="139.0" cy="149" r="6.5"/><circle class="on" style="--i:5" cx="139.0" cy="169" r="6.5"/><circle class="on" style="--i:4" cx="139.0" cy="189" r="6.5"/></svg><div class="legend"><p class="k1"><i></i>Sitting well <b>1×</b></p><p class="k2"><i></i>Sitting poorly <b>2×</b></p></div></div><b>2×</b><span>the odds of neck pain when you sit poorly</span><em>Gao et al., 2023</em></div>
+    </div>
+  </section>
+
+  <!-- 4 · Interviews -->
+  <section class="slide paper" data-title="What people told me">
+    <div class="head">
+      <h2 class="title" data-in>I asked how people work. <span>Most only noticed when it hurt.</span></h2>
+    </div>
+    <div class="cards c-4-4-4">
+      <div class="card" data-in>
+        <div class="card-copy"><h3>Noticing late</h3><p>Barely notice, or notice only when it hurts.</p></div>
+        <div class="big-num"><b>7<small>/11</small></b>
+          <div class="dots-11" role="img" aria-label="7 of 11 people"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+        </div>
+      </div>
+      <div class="card accent" data-in>
+        <span class="icon-dot"><svg viewBox="0 0 24 24"><path d="M5 6h14v9H9l-4 4z"/></svg></span>
+        <p class="accent-quote">“Sometimes I just realize it, but sometimes if it hurts, that’s how I realize it.”</p>
+        <cite>Engineer, interview</cite>
+      </div>
+      <div class="card" data-in>
+        <div class="card-copy"><h3>Where it hurts</h3><p>Out of 11 people surveyed.</p></div>
+        <div class="bars">
+          <div><span>Neck</span><i style="--v:6"></i><b>6</b></div>
+          <div><span>Back</span><i style="--v:5"></i><b>5</b></div>
+          <div><span>Shoulders</span><i style="--v:3"></i><b>3</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="stats" data-in>
+      <div class="mini-quote"><p>“When I catch myself sliding too far, I fix my posture.”</p><span>Lawyer</span></div>
+      <div class="mini-quote"><p>“I also bought an ergonomic chair and a motion desk.”</p><span>Designer</span></div>
+      <div><b>10/11</b><span>feel it at least once a week</span></div>
+      <div><b>0</b><span>had tried a posture app or wearable</span></div>
+    </div>
+  </section>
+
+  <!-- 5 · Market -->
+  <section class="slide paper" data-title="Market research">
+    <div class="head">
+      <h2 class="title" data-in>Most posture tools make you look away. <span>The best status updates don’t.</span></h2>
+    </div>
+    <div class="cards c-6-6">
+      <div class="card muted" data-in>
+        <div class="card-copy"><h3>Posture tools</h3><p>They pop up on the screen you are working on, so you have to stop to read them.</p></div>
+        <div class="chips">
+          <span>Nekoze</span><span>Posture Pal</span><span>Apple Screen Distance</span><span>Amio</span><span>CRIX</span>
+        </div>
+        <p class="verdict"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Interrupts your work</p>
+      </div>
+      <div class="card tint-green" data-in>
+        <div class="card-copy"><h3>Status updates</h3><p>A glance tells you where things stand, without opening anything.</p></div>
+        <div class="chips">
+          <span>DoorDash</span><span>Uber</span><span>Starbucks Live Activities</span><span>HidrateSpark light</span>
+        </div>
+        <p class="verdict ok"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Read at a glance</p>
+      </div>
+    </div>
+    <p class="takeaway" data-in>Poise does what the right side does, on your desk.</p>
+  </section>
+
+  <!-- 6 · Hypothesis -->
+  <section class="slide paper" data-title="Hypothesis">
+    <div class="head">
+      <h2 class="title wide" data-in>How might we help people notice when their posture drifts, <span>without pulling them out of their work?</span></h2>
+    </div>
+    <div class="cards c-6-6">
+      <div class="card" data-in>
+        <span class="icon-dot"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M8 20h8M12 16.5V20"/></svg></span>
+        <div class="card-copy"><h3>Software</h3><p>Remembers your own reference posture. Reacts only to a change that lasts, not a quick stretch. Shows your pattern when you finish.</p></div>
+      </div>
+      <div class="card photo-card" data-in>
+        <img class="cover-img" src="img/desk.webp" alt="Poise light bar glowing on top of a monitor at a desk">
+        <div class="card-copy on-photo"><h3>Hardware</h3><p>People already buy monitor light bars. A light at the edge of your view tells you without looking at the screen.</p></div>
+      </div>
+    </div>
+    <p class="takeaway" data-in>If the screen learns your posture and a light tells you quietly, you’ll catch it sooner and stay aligned longer. <em>It notices a change from your own reference. It doesn’t diagnose.</em></p>
+  </section>
+
+  <!-- 7 · Version one -->
+  <section class="slide paper" data-title="Version one">
+    <div class="head">
+      <h2 class="title" data-in>Version one. <span>A light on your monitor and an app that work together.</span></h2>
+    </div>
+    <div class="cards c-4-4-4">
+      <div class="card screen" data-in><div class="card-copy"><h3>Welcome</h3><p>Sit well without thinking about it.</p></div><div class="shot full screen-img"><img src="shots/v1-welcome.webp" alt="Version one welcome screen" loading="lazy" decoding="async"></div></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Start</h3><p>Camera, light bar and reference.</p></div><div class="shot part screen-img"><img src="shots/v1-camera-part.webp" alt="Version one start screen with the camera" loading="lazy" decoding="async"></div></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Work</h3><p>The light follows your posture.</p></div><div class="shot full screen-img"><img src="shots/v1-aligned.webp" alt="Version one work mode, aligned" loading="lazy" decoding="async"></div></div>
+    </div>
+    <ol class="flow" data-in>
+      <li>Onboarding</li><li>Reference</li><li>Tour</li><li>Work</li><li>Break</li><li>Report</li>
+    </ol>
+  </section>
+
+  <!-- 8 · V1 setup -->
+  <section class="slide paper" data-title="Version one setup">
+    <div class="head">
+      <h2 class="title" data-in>It asks how you work, <span>then learns what good looks like for you.</span></h2>
+    </div>
+    <div class="cards c-8-4">
+      <div class="card" data-in>
+        <div class="card-copy"><h3>A few plain questions</h3><p>Focus length, how to be nudged, how to rest.</p></div>
+        <div class="thumbs">
+          <div class="shot part"><img src="shots/v1-q1-part.webp" alt="Onboarding question one" loading="lazy" decoding="async"></div><div class="shot part"><img src="shots/v1-q2-part.webp" alt="Onboarding question two" loading="lazy" decoding="async"></div><div class="shot part"><img src="shots/v1-q3-part.webp" alt="Onboarding question three" loading="lazy" decoding="async"></div><div class="shot part"><img src="shots/v1-summary-part.webp" alt="Onboarding summary" loading="lazy" decoding="async"></div>
+        </div>
+      </div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Your reference</h3><p>Sit the way you want to stay, then save it.</p></div><div class="shot part screen-img"><img src="shots/v1-ref-part.webp" alt="Saving the reference posture" loading="lazy" decoding="async"></div></div>
+    </div>
+    <div class="decision-row" data-in><span>Decision</span><p>A few plain questions over a settings page. People know how they work, not which settings to pick.</p></div>
+  </section>
+
+  <!-- 9 · V1 work mode -->
+  <section class="slide paper" data-title="Version one work mode">
+    <div class="head">
+      <h2 class="title" data-in>While you work, <span>the light does the talking.</span></h2>
+    </div>
+    <div class="cards c-5-7">
+      <div class="card screen" data-in><div class="card-copy"><h3>On screen</h3><p>Aligned, drifting, and how far you moved.</p></div><div class="shot full screen-img"><img src="shots/v1-drifting.webp" alt="Version one work mode, drifting" loading="lazy" decoding="async"></div></div>
+      <div class="card photos" data-in>
+        <div class="card-copy"><h3>On your desk</h3><p>The light warms slowly as the drift lasts.</p></div>
+        <div class="photo-strip">
+          <figure><img src="img/light-white.webp" alt="Light bar white while sitting well"><figcaption>White</figcaption></figure>
+          <figure><img src="img/light-warm.webp" alt="Light bar warming"><figcaption>Warming</figcaption></figure>
+          <figure><img src="img/light-orange.webp" alt="Light bar orange"><figcaption>Orange</figcaption></figure>
+          <figure><img src="img/light-red.webp" alt="Light bar red"><figcaption>Red</figcaption></figure>
+        </div>
+      </div>
+    </div>
+    <div class="decision-row" data-in><span>Decision</span><p>A slow fade over an instant alert. My first version turned red in one second, and it felt like being scolded.</p></div>
+  </section>
+
+  <!-- 10 · V1 break and report -->
+  <section class="slide paper" data-title="Version one break and report">
+    <div class="head">
+      <h2 class="title" data-in>Breaks you actually move in, <span>and a report at the end.</span></h2>
+    </div>
+    <div class="cards c-3-3-3-3">
+      <div class="card screen" data-in><div class="card-copy"><h3>Stretch</h3></div><div class="shot part screen-img"><img src="shots/v1-stretch-part.webp" alt="Version one stretch break" loading="lazy" decoding="async"></div></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Breathe</h3></div><div class="shot part screen-img"><img src="shots/v1-breathe-part.webp" alt="Version one breathing break" loading="lazy" decoding="async"></div></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Game</h3></div><div class="shot part screen-img"><img src="shots/v1-game-part.webp" alt="Version one bubble game" loading="lazy" decoding="async"></div></div>
+      <div class="card screen" data-in><div class="card-copy"><h3>Report</h3></div><div class="shot part screen-img"><img src="shots/v1-report-part.webp" alt="Version one session report" loading="lazy" decoding="async"></div></div>
+    </div>
+    <div class="decision-row" data-in><span>Decision</span><p>Flow over precision. A break that keeps saying try again isn’t a break.</p></div>
+  </section>
+
+  <!-- 11 · Playtest -->
+  <section class="slide chapter-slide heard" data-title="What I heard">
+    <div class="heard-head">
+      <h2 class="chapter-title small" data-in>Then I put it in front of people.</h2>
+    </div>
+    <div class="heard-grid">
+      <div class="glass-card" data-in>
+        <h3>What worked</h3>
+        <ul class="ticks">
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>It caught posture changes people didn’t notice</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>People liked the break modes</li>
+        </ul>
+      </div>
+      <div class="glass-card" data-in>
+        <h3>What didn’t</h3>
+        <ol class="problems">
+          <li><i>1</i>Worried the camera was watching them</li>
+          <li><i>2</i>Too much showed up at once</li>
+          <li><i>3</i>Nobody knew what the percent meant</li>
+          <li><i>4</i>Feedback was easy to miss</li>
+          <li><i>5</i>While working, nobody looks at the app</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 · V2 camera -->
+  <section class="slide paper" data-title="Trust first">
+    <div class="head">
+      <h2 class="title" data-in>Trust comes <span>before the camera turns on.</span></h2>
+    </div>
+    <div class="cards c-6-6">
+      <div class="card muted screen" data-in><div class="card-copy"><h3>Before</h3><p>The camera turned on first, the explanation came after.</p></div><div class="shot part screen-img"><img src="shots/v1-camera-part.webp" alt="Version one, camera on straight away" loading="lazy" decoding="async"></div></div>
+      <div class="card tint-green" data-in><div class="card-copy"><h3>After</h3><p>Camera off at the start. The first card says what it does, then you choose. Or use the distance sensor instead.</p></div><div class="shot part screen-img"><img src="shots/v2-camera-part.webp" alt="Version two camera card, turn on camera or use sensor" loading="lazy" decoding="async"></div></div>
+    </div>
+    <p class="learned-row" data-in><span>What I learned</span>Explaining after the fact felt like an excuse.</p>
+  </section>
+
+  <!-- 13 · One thing at a time -->
+  <section class="slide paper" data-title="One thing at a time">
+    <div class="head">
+      <h2 class="title" data-in>One thing <span>at a time.</span></h2>
+    </div>
+    <div class="cards c-4-8">
+      <div class="card muted" data-in>
+        <div class="card-copy"><h3>Before</h3><p>Two popups at once, then a 12 step tour.</p></div>
+        <div class="shots-col"><div class="shot part"><img src="shots/v1-camera-part.webp" alt="Version one, two popups at once" loading="lazy" decoding="async"></div><div class="shot part"><img src="shots/v1-tour-part.webp" alt="Version one tour, step 7 of 12" loading="lazy" decoding="async"></div></div>
+      </div>
+      <div class="card tint" data-in>
+        <div class="card-copy"><h3>After</h3><p>Three start cards, one at a time. The card stays put and only its inside changes.</p></div>
+        <div class="shots-row">
+          <figure><div class="shot part"><img src="shots/v2-camera-part.webp" alt="Start card 1, turn on your camera" loading="lazy" decoding="async"></div><figcaption>1</figcaption></figure>
+          <figure><div class="shot part"><img src="shots/v2-bar-part.webp" alt="Start card 2, connect your light bar" loading="lazy" decoding="async"></div><figcaption>2</figcaption></figure>
+          <figure><div class="shot part"><img src="shots/v2-ref-part.webp" alt="Start card 3, save your reference" loading="lazy" decoding="async"></div><figcaption>3</figcaption></figure>
+        </div>
+      </div>
+    </div>
+    <div class="stats" data-in>
+      <div><b>12 → 4</b><span>tour steps</span></div>
+      <div><b>2 → 1</b><span>popup on screen at a time</span></div>
+      <div><b>3</b><span>start cards in one fixed place</span></div>
+      <div class="note-stat"><span>What I learned</span><p>Every extra card is one more reason to skip.</p></div>
+    </div>
+  </section>
+
+  <!-- 14 · Number to figure (live) -->
+  <section class="slide paper" data-title="Number to figure">
+    <div class="head">
+      <h2 class="title" data-in>People didn’t read the number. <span>They read themselves.</span></h2>
+    </div>
+    <div class="cards c-4-8">
+      <div class="card muted" data-in>
+        <div class="card-copy"><h3>Before</h3><p>A percent shift nobody could read.</p></div>
+        <div class="shot part screen-img"><img src="shots/v1-aligned-part.webp" alt="Version one card with a percent shift number" loading="lazy" decoding="async"></div>
+      </div>
+      <div class="card live" id="live-card" data-in>
+        <div class="card-copy"><h3 id="live-state">Aligned</h3><p id="live-hint">Close to your reference.</p></div>
+        <span class="live-tag">Live</span>
+        <div class="live-figure" id="live-figure"></div>
+      </div>
+    </div>
+    <div class="features" data-in>
+      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8"/></svg></span><h4>A chart first</h4><p>A live graph was still hard to read at a glance.</p></div>
+      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg></span><h4>Then a figure</h4><p>It follows you, so you see which way you lean.</p></div>
+      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8" ry="9" stroke-dasharray="3 3"/></svg></span><h4>Your outline</h4><p>The gap to the dashed outline says more than any number.</p></div>
+    </div>
+  </section>
+
+  <!-- 15 · Feedback where you look -->
+  <section class="slide paper" data-title="Feedback where you look">
+    <div class="head">
+      <h2 class="title" data-in>Feedback belongs <span>where you’re already looking.</span></h2>
+    </div>
+    <div class="cards c-4-8">
+      <div class="card muted screen" data-in><div class="card-copy"><h3>Before</h3><p>A toast at the top of the screen, far from your eyes.</p></div><div class="shot full screen-img"><img src="shots/v1-drifting.webp" alt="Version one, feedback at the top of the screen" loading="lazy" decoding="async"></div></div>
+      <div class="card tint-green" data-in><div class="card-copy"><h3>After</h3><p>A handwritten speech bubble next to the figure’s head, following it as you move. The top of the card takes the colour of your state.</p></div><div class="shot part screen-img"><img src="shots/v2-bubble-part.webp" alt="Ink figure with a handwritten speech bubble saying got it, that is your reference now" loading="lazy" decoding="async"></div></div>
+    </div>
+    <p class="learned-row" data-in><span>What I learned</span>A message far from your eyes is a message missed.</p>
+  </section>
+
+  <!-- 16 · Next to your work -->
+  <section class="slide paper" data-title="Next to your work">
+    <div class="head">
+      <h2 class="title" data-in>Poise has to live next to your work, <span>not in front of it.</span></h2>
+    </div>
+    <div class="cards c-4-8">
+      <div class="card muted screen" data-in><div class="card-copy"><h3>Before</h3><p>To check your state you had to switch back to the Poise tab.</p></div><div class="shot full screen-img"><img src="shots/v1-aligned.webp" alt="Version one, the full Poise tab" loading="lazy" decoding="async"></div></div>
+      <div class="card photo-card top" data-in>
+        <img class="cover-img" src="img/mini-corner.webp" alt="The Poise mini window floating over another app on a laptop">
+        <div class="card-copy on-photo dark"><h3>After</h3><p>A small window over any app with the same figure, one line of state and End session.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 · V1 vs V2 -->
+  <section class="slide paper" data-title="Same app, two versions">
+    <div class="head">
+      <h2 class="title" data-in>Same app, <span>two versions.</span></h2>
+    </div>
+    <div class="cards c-12">
+      <div class="card" data-in><img class="contain-img" src="img/v1-vs-v2.svg" alt="Start, work, break and report screens in version one next to version two"></div>
+    </div>
+    <div class="stats" data-in>
+      <div><b>12 → 4</b><span>tour steps</span></div>
+      <div><b>2 → 1</b><span>popup at a time</span></div>
+      <div><b>% → figure</b><span>how your posture is shown</span></div>
+      <div><b>List → 3</b><span>numbers and a graph in the report</span></div>
+    </div>
+  </section>
+
+  <!-- 18 · Learned -->
+  <section class="slide paper" data-title="What I learned">
+    <div class="head">
+      <h2 class="title" data-in>People don’t want one right signal. <span>They want the one that fits them.</span></h2>
+    </div>
+    <ol class="lessons">
+      <li data-in><i>01</i><b>Every person wants a different signal</b><span>Some loved the voice, some turned it off. Light, voice, both or none should be a choice.</span></li>
+      <li data-in><i>02</i><b>A nudge works when it doesn’t interrupt</b><span>Feedback helps most when you can keep working while you get it.</span></li>
+      <li data-in><i>03</i><b>You read yourself faster than a number</b><span>The figure and its outline beat the percent and the chart.</span></li>
+    </ol>
+    <p class="aside-row" data-in>AI widened my options and sped up building. People decided what stayed.</p>
+  </section>
+
+  <!-- 19 · Next -->
+  <section class="slide paper" data-title="What I’d do next">
+    <div class="head">
+      <h2 class="title" data-in>What I’d <span>do next.</span></h2>
+    </div>
+    <div class="cards c-4-4-4 short">
+      <div class="card" data-in><span class="icon-dot"><svg viewBox="0 0 24 24"><path d="M4 7h10M4 12h16M4 17h7"/><circle cx="17" cy="7" r="2"/><circle cx="14" cy="17" r="2"/></svg></span><div class="card-copy push"><h3>Personal feedback</h3><p>Light, voice, both, or off, set per person and per moment.</p></div></div>
+      <div class="card" data-in><span class="icon-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></svg></span><div class="card-copy push"><h3>Better tracking</h3><p>Make the pose detection steadier in low light and at odd angles.</p></div></div>
+      <div class="card" data-in><span class="icon-dot"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span><div class="card-copy push"><h3>Longer testing</h3><p>Weeks of real use, to see if people really stay aligned longer.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 20 · Thank you -->
+  <section class="slide chapter-slide end" data-title="Thank you">
+    <div class="agent chapter-orb" data-in></div>
+    <div class="chapter-main">
+      <p class="pill glass" data-in>Thank you</p>
+      <h2 class="chapter-title" data-in>Sit well without thinking about it.</h2>
+      <a class="end-link" href="https://poise-lightbar.netlify.app" data-in>poise-lightbar.netlify.app</a>
+    </div>
+  </section>
+
+</main>
+
+<script type="module" src="deck.js"></script>
+</body>
+</html>

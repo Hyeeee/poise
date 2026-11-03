@@ -2,9 +2,9 @@
 const KEY = 'poise.settings.v2';
 
 export const SENSITIVITY = {
-  gentle:   { label: 'Gentle',   threshold: 26 },
-  balanced: { label: 'Balanced', threshold: 18 },
-  firm:     { label: 'Firm',     threshold: 12 },
+  gentle:   { label: 'Gentle',   threshold: 40 },
+  balanced: { label: 'Balanced', threshold: 30 },
+  firm:     { label: 'Firm',     threshold: 20 },
 };
 export const SENS_ORDER = ['gentle', 'balanced', 'firm'];
 
@@ -14,15 +14,16 @@ const DEFAULT_WORK = [
   { id: 'sprint', name: 'Quick sprint', focus: 15, sensitivity: 'firm',     delay: 3,  eyes: false, chime: true,  preset: true },
 ];
 const DEFAULT_BREAK = [
-  { id: 'stretch', name: 'Stretch along', style: 'stretch', count: 5, minutes: 3, auto: true, preset: true },
-  { id: 'move',    name: 'Light move',    style: 'stretch', count: 3, minutes: 2, auto: true, preset: true },
-  { id: 'breathe', name: 'Breathe',       style: 'breathe', count: 3, minutes: 3, auto: true, preset: true },
+  { id: 'stretch', name: 'Stretch along', style: 'stretch', count: 10, minutes: 4, auto: true, preset: true },
+  { id: 'breathe', name: 'Reset',         style: 'breathe', count: 3, minutes: .5, auto: true, preset: true },
+  { id: 'game',    name: 'Reach & pop',   style: 'game',    count: 5, minutes: 1, auto: true, preset: true },
 ];
 
 function defaults() {
   return {
     onboarded: false,
     voice: true,
+    music: true,
     joints: true,
     works: structuredClone(DEFAULT_WORK),
     breaks: structuredClone(DEFAULT_BREAK),
@@ -40,6 +41,14 @@ function load() {
     const state = { ...base, ...saved };
     if (!Array.isArray(state.works) || !state.works.length) state.works = base.works;
     if (!Array.isArray(state.breaks) || !state.breaks.length) state.breaks = base.breaks;
+    // One stretch mode now (Light move merged in), plus the movement game.
+    state.breaks = state.breaks.filter(m => m.id !== 'move');
+    state.breaks.forEach(m => { if (m.style === 'stretch' && m.count === 5) m.count = 10; });
+    const rb = state.breaks.find(m => m.id === 'breathe' && m.preset); if (rb && rb.name === 'Breathe') { rb.name = 'Reset'; rb.minutes = 2; }
+    for (const m of base.breaks) if (!state.breaks.some(b => b.id === m.id)) state.breaks.push(m);
+    // Every new visit starts fresh: breaks open on Stretch, and the game list starts on Bubbles.
+    state.breakId = (state.breaks.find(b => b.style === 'stretch') || state.breaks[0]).id;
+    state.gameKind = 'bubbles';
     return state;
   } catch { return defaults(); }
 }
@@ -92,8 +101,10 @@ export function patchMode(kind, patch) {
 }
 
 export function describeWork(m) {
-  return `${m.focus} min focus, ${SENSITIVITY[m.sensitivity].label.toLowerCase()} cues after ${m.delay}s${m.eyes ? ', eye care on' : ''}`;
+  return `${m.focus} min focus, ${SENSITIVITY[m.sensitivity].label.toLowerCase()} cues after ${m.delay}s`;
 }
 export function describeBreak(m) {
-  return m.style === 'breathe' ? `${m.minutes} min breathing and eye rest` : `${m.count} guided stretch${m.count > 1 ? 'es' : ''}`;
+  if (m.style === 'breathe') return `${m.minutes < 1 ? m.minutes * 60 + ' sec' : m.minutes + ' min'} of slow breathing and eye rest`;
+  if (m.style === 'game') return `${m.minutes} min movement game`;
+  return `${m.count} guided stretch${m.count > 1 ? 'es' : ''}`;
 }

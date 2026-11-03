@@ -1,8 +1,31 @@
-import { ReelPlayer } from './reels.js';
+import { GuidePlayer } from './guide.js';
 import { store, SENSITIVITY, SENS_ORDER, createMode, deleteMode, patchMode, describeWork, describeBreak, clamp } from './settings.js';
 import { runOnboarding, speak } from './onboarding.js';
 import { respond } from './assistant.js';
 import { mountAgents } from './agent.js';
+import { ambient } from './ambient.js';
+import { mountPainting } from './painting.js';
+import { MoveGame } from './game.js';
+import { MiniGame, GAMES } from './minigames.js';
+import './seg.js';
+import { sensor, readSensor, stopSensor } from './sensor.js';
+mountPainting();
+// Welcome entrance: words drift in, then the buttons.
+(() => {
+  const lede = document.querySelector('.welcome-main .lede');
+  if (!lede || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let i = 0;
+  lede.querySelectorAll('b, span').forEach(part => {
+    const words = part.textContent.split(' ');
+    part.innerHTML = words.map(w => `<span class="word" style="animation-delay:${600 + (i++) * 90}ms">${w}</span>`).join(' ');
+  });
+  document.querySelector('.welcome-main').style.setProperty('--cta-delay', `${600 + i * 90 + 250}ms`);
+  document.body.classList.add('enter');
+})();
+import { startTour } from './tour.js';
+import { PostureAvatar } from './avatar.js';
+import { BreathFigure, drawFigure } from './figure.js';
+import { session as posture, showReport, breakLog, showBreakReport, POSTURE_SAY } from './report.js';
 
 const $ = id => document.getElementById(id);
 const text = (id, value) => { $(id).textContent = value; };
@@ -12,12 +35,13 @@ const ICON = {
   play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>',
   pause: '<svg viewBox="0 0 24 24"><rect x="6.5" y="5.5" width="3.6" height="13" rx="1"/><rect x="13.9" y="5.5" width="3.6" height="13" rx="1"/></svg>',
 };
-const colors = { green: '#7fd6b2', amber: '#efc46a', red: '#ec8d87', idle: '#b3c2d8' };
+const colors = { green: '#4fbf73', amber: '#f0a020', red: '#e5483d', idle: '#b3c2d8', white: '#e9e7df' };
 
 // ---------- State ----------
+const breathState = { mode: 'idle', level: 0 };   // Reset card figure: how full the breath is
 let session = 0, screen = 'work', stream, pose, face, loading = false, active = false;
 let landmarks = null, reference = null, lastFrame = -1, lastDetect = 0, lastFace = 0;
-let driftSince = 0, nearSince = 0, lastState = 'idle', blinkTimes = [], eyesClosed = false, faceStart = 0;
+let driftSince = 0, nearSince = 0, recoverAt = 0, lastState = 'idle', blinkTimes = [], eyesClosed = false, faceStart = 0;
 let remaining = store.work().focus * 60, timerRunning = false, timerLast = 0, lastFocus = store.work().focus;
 let stats = { green: 0, amber: 0, red: 0 }, lastStatTick = 0;
 let port, writer, lastSerial = '', lastSerialTime = 0, serialBusy = false, toastTimeout;
@@ -26,20 +50,129 @@ const threshold = () => SENSITIVITY[store.work().sensitivity].threshold;
 const strongDelay = () => store.work().delay * 1000;
 
 // ---------- Output: light bar, toast, chime ----------
-function light(state) {
-  document.documentElement.style.setProperty('--signal', colors[state]);
-  $('state-agent').dataset.mood = state;
-  if (writer && (lastSerial !== state || performance.now() - lastSerialTime > 1000) && !serialBusy) {
+// state: green | amber | red | idle | white. rgb (optional) sends an exact blended color to the bar.
+// Light bar presets as RGB (same values the board uses), so brightness can scale them too.
+const PRESET_RGB = { white: [140, 140, 130], green: [0, 255, 30], amber: [255, 130, 0], red: [255, 0, 0], idle: [40, 45, 50] };
+// Silent test is no longer offered in settings, so it never applies (even if it was left on earlier).
+const silent = () => false;
+// tone (optional): the colour the SCREEN shows. It is kept separate from the LED colour because
+// LED mixes (dim white → orange) look muddy on screen; the screen fades through a pale yellow instead.
+function light(state, rgb, fast, tone) {
+  // Silent test: keep tracking, but send no cue. The bar goes dark and the screen stays neutral.
+  if (silent()) { state = 'idle'; rgb = [0, 0, 0]; fast = undefined; tone = null; }
+  const screenColor = tone ? `rgb(${tone.join(',')})` : silent() ? colors.idle : rgb ? `rgb(${rgb.join(',')})` : colors[state];
+  document.documentElement.style.setProperty('--signal', screenColor);
+  // Break cards glow only on a real cue; in games, any colour the game sends (bubble colour, a ring, a catch) glows too.
+  const playful = screen === 'break' && (store.brk().style === 'game' ? !!tone || (rgb && rgb.some(v => v > 40)) : store.brk().style === 'breathe' && !!tone);
+  document.documentElement.dataset.cue = playful ? 'game' : state;
+  // Brightness setting (25-100%): every colour is scaled down before it is sent to the board.
+  const bright = (store.state.brightness ?? 100) / 100;
+  if (bright < 1) rgb = (rgb || PRESET_RGB[state] || PRESET_RGB.idle).map(v => Math.round(v * bright));
+  $('state-agent').dataset.mood = state === 'white' ? 'green' : state;
+  const msg = rgb ? `RGB ${rgb.join(' ')}${fast ? ' ' + fast : ''}` : state.toUpperCase();
+  if (writer && (lastSerial !== msg || performance.now() - lastSerialTime > 1000) && !serialBusy) {
     serialBusy = true;
-    writer.write(new TextEncoder().encode(state.toUpperCase() + '\n'))
-      .then(() => { lastSerial = state; lastSerialTime = performance.now(); })
-      .catch(() => { writer = null; $('connect').classList.remove('on'); toast('Light bar disconnected'); })
+    writer.write(new TextEncoder().encode(msg + '\n'))
+      .then(() => { lastSerial = msg; lastSerialTime = performance.now(); })
+      .catch(() => { writer = null; $('connect').classList.remove('on'); toast('The light bar got disconnected.'); })
       .finally(() => { serialBusy = false; });
   }
 }
-function toast(msg) {
-  text('toast', msg); $('toast').hidden = false;
-  clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { $('toast').hidden = true; }, 4000);
+// Feedback appears as a speech bubble next to the figure in the side panel, as if it were talking to you.
+// When no figure is on screen (welcome, camera off), it falls back to the small toast at the top.
+function bubbleHost() {
+  for (const sel of ['#work-panel:not([hidden]) #avatar-box', '#break-panel:not([hidden]) .reel-video', '#breathe-panel:not([hidden]) .breath-stage', '#game-panel:not([hidden]) .stage-box']) {
+    const el = document.querySelector(sel);
+    if (el && el.offsetParent !== null && el.offsetHeight > 0) return el;
+  }
+  return null;
+}
+// Toast icons, drawn like the top bar icons: light bar, camera, mini window, voice, away, done, info.
+const TOAST_ICONS = [
+  [/light bar|usb|sensor|port/i, '<rect x="3" y="7" width="18" height="4" rx="2"/><path d="M8 15h8M12 11v8"/>'],
+  [/camera|see you|in view|frame|arms/i, '<rect x="3" y="6.5" width="13" height="11" rx="3"/><path d="m16 10.5 5-3v9l-5-3"/>'],
+  [/mini window/i, '<rect x="3" y="5" width="18" height="14" rx="3"/><rect x="11" y="10" width="6.5" height="5.5" rx="1.3"/>'],
+  [/voice|silent|light and/i, '<path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6"/>'],
+  [/stepped away|paused|welcome back|timer/i, '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'],
+  [/got it|perfect|reference now|saw your wave/i, '<circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.2 2.4 2.4 4.6-4.8"/>'],
+];
+const toastIcon = msg => (TOAST_ICONS.find(([re]) => re.test(msg)) || [0, '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>'])[1];
+// device: true for connection messages (camera, light bar). They always use the bottom toast with
+// the device icon, never the figure's speech bubble.
+function toast(msg, { device = false } = {}) {
+  const host = device ? null : bubbleHost();
+  if (!host) {
+    // A small line icon that says what the message is about, then the text.
+    const t = $('toast');
+    t.innerHTML = `<span class="t-tile" aria-hidden="true"><svg class="t-ic" viewBox="0 0 24 24">${toastIcon(msg)}</svg></span><span class="t-tx"></span>`;
+    t.querySelector('.t-tx').textContent = msg;
+    t.hidden = false; t.style.animation = 'none'; void t.offsetWidth; t.style.animation = '';
+    clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { $('toast').hidden = true; }, 4000);
+    return;
+  }
+  $('toast').hidden = true;
+  let b = host.querySelector('.say-bubble');
+  if (!b) {
+    b = document.createElement('div'); b.className = 'say-bubble'; b.setAttribute('role', 'status');
+    // Ink-drawn tail, same line weight as the figure.
+    // Body and tail are ONE ink path, so the tail joins the bubble without a seam.
+    b.innerHTML = '<svg class="sb-shape" aria-hidden="true"><path/></svg><span class="sb-text"></span>';
+    host.append(b);
+  }
+  b.querySelector('.sb-text').textContent = msg;
+  b._shape = null;   // redraw the outline for the new text size
+  b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+  clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('show'), 3200);
+  followHead(host, b);
+}
+// Hand-drawn bubble outline: rounded body with a short curved tail at a bottom corner.
+function drawBubble(b, w, h, flip) {
+  const r = Math.min(14, h / 2), x0 = 16, svg = b.querySelector('.sb-shape');
+  const d = `M${r},0 H${w - r} Q${w},0 ${w},${r} V${h - r} Q${w},${h} ${w - r},${h} H${x0 + 13} Q${x0 + 6},${h + 3} ${x0 - 4},${h + 11} Q${x0 + 1},${h + 4} ${x0},${h} H${r} Q0,${h} 0,${h - r} V${r} Q0,0 ${r},0 Z`;
+  svg.setAttribute('viewBox', `-2 -2 ${w + 4} ${h + 16}`);
+  svg.setAttribute('width', w + 4); svg.setAttribute('height', h + 16);
+  const path = svg.querySelector('path'); path.setAttribute('d', d);
+  path.setAttribute('transform', flip ? `translate(${w},0) scale(-1,1)` : '');
+}
+// Keep the bubble just above and beside the figure's head, easing after it as the figure moves.
+function followHead(host, b) {
+  if (b._follow) return;
+  const step = () => {
+    if (!b.isConnected || !b.classList.contains('show')) { b._follow = 0; return; }
+    b._follow = requestAnimationFrame(step);
+    const cv = [...host.querySelectorAll('canvas')].find(c => c._head && performance.now() - c._head.at < 1000);
+    if (!cv) return;
+    const k = cv.getBoundingClientRect().width / cv.width, hr = host.getBoundingClientRect(), cr = cv.getBoundingClientRect();
+    const hx = cr.left - hr.left + cv._head.x * k, hy = cr.top - hr.top + cv._head.y * k, r = cv._head.r * k;
+    const bw = b.offsetWidth, bh = b.offsetHeight;
+    // Pick a side once (with a little hysteresis) so the bubble doesn't flip back and forth.
+    const roomR = hr.width - hx - r, roomL = hx - r;
+    if (b._side == null || (b._side === 'r' && roomL > roomR + 40) || (b._side === 'l' && roomR > roomL + 40)) b._side = roomR >= roomL ? 'r' : 'l';
+    const right = b._side === 'r';
+    // Always beside the head (never over the face). Narrow, so long lines wrap to 3–4 rows.
+    const room = (right ? roomR : roomL) - r * .25 - 6;
+    const mw = Math.max(90, Math.min(158, room));   // a little wider for the handwriting font
+    if (b._mw !== mw || b._txt !== b.textContent) {
+      b._mw = mw; b._txt = b.textContent;
+      b.style.width = ''; b.style.setProperty('max-width', mw + 'px', 'important');
+      // Shrink-wrap: after the text wraps, make the bubble only as wide as its longest line.
+      const r = document.createRange(); r.selectNodeContents(b.querySelector('.sb-text'));
+      const widest = Math.max(...[...r.getClientRects()].map(x => x.width));
+      if (widest > 0) b.style.setProperty('width', Math.ceil(widest) + 26 + 'px', 'important');
+    }
+    let x = right ? hx + r * 1.2 : hx - r * 1.2 - bw, y = hy - r * .55 - bh;
+    x = Math.max(6, Math.min(hr.width - bw - 6, x)); y = Math.max(6, y);
+    b.classList.toggle('flip', !right);
+    const key = `${bw}x${bh}${right}`;
+    if (b._shape !== key) { b._shape = key; drawBubble(b, bw, bh, !right); }
+    // Outline weight = the figure's ink weight at its current size (2.4 figure units; head radius is 24).
+    const sw = Math.max(1, Math.min(3, r / 10)).toFixed(2);
+    const path = b.querySelector('.sb-shape path'); if (path && path.getAttribute('stroke-width') !== sw) path.setAttribute('stroke-width', sw);
+    const cur = b._pos || [x, y], e = b._pos ? .18 : 1;
+    b._pos = [cur[0] + (x - cur[0]) * e, cur[1] + (y - cur[1]) * e];
+    b.style.transform = `translate(${b._pos[0]}px, ${b._pos[1]}px)`;
+  };
+  b._follow = requestAnimationFrame(step);
 }
 let audio;
 function chime() {
@@ -64,10 +197,14 @@ async function models() {
   if (pose) return;
   const { FilesetResolver, PoseLandmarker, FaceLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs');
   const files = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm');
-  pose = await PoseLandmarker.createFromOptions(files, {
-    baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task' },
-    runningMode: 'VIDEO', numPoses: 1, minPoseDetectionConfidence: .55, minTrackingConfidence: .55,
+  // 1. The "full" model: more accurate than "lite", still real-time on a laptop.
+  //    Runs on the graphics card when it can, otherwise falls back to the CPU.
+  const poseOptions = delegate => ({
+    baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task', delegate },
+    runningMode: 'VIDEO', numPoses: 1, minPoseDetectionConfidence: .5, minPosePresenceConfidence: .5, minTrackingConfidence: .5,
   });
+  try { pose = await PoseLandmarker.createFromOptions(files, poseOptions('GPU')); }
+  catch { pose = await PoseLandmarker.createFromOptions(files, poseOptions('CPU')); }
   try {
     face = await FaceLandmarker.createFromOptions(files, {
       baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task' },
@@ -91,11 +228,14 @@ async function start() {
     await models();
     if (run !== session) return;
     active = true; lastFrame = -1; faceStart = performance.now();
-    $('empty-camera').hidden = true;
+    setTimeout(maybeStartGame, 300);
+    if (sensorRef) { sensorRef = false; showSensorCard(); }
+    syncRef();
     $('stop').classList.add('on'); $('stop').setAttribute('aria-label', 'Turn camera off');
     text('start-status', '');
     setChip('Find your frame', false);
-    requestAnimationFrame(loop);
+    toast('Camera connected', { device: true });
+    scheduleLoop();
   } catch (e) {
     stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null; active = false;
     const msg = e.name === 'NotAllowedError' ? 'Camera access is blocked. Allow it in your browser settings, then try again.'
@@ -109,25 +249,172 @@ async function start() {
 }
 
 function stop() {
+  hideCamNotice();
   session++; active = false;
   stream?.getTracks().forEach(t => t.stop()); stream = null; camera.srcObject = null;
-  landmarks = null; reference = null; timerRunning = false; holdStart = 0; driftSince = 0; nearSince = 0; blinkTimes = []; eyesClosed = false;
+  landmarks = null; reference = null; if (!sensorRef) timerRunning = false; holdStart = 0; driftSince = 0; nearSince = 0; blinkTimes = []; eyesClosed = false;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  $('empty-camera').hidden = false;
+  syncRef();
   $('stop').classList.remove('on'); $('stop').setAttribute('aria-label', 'Turn camera on');
   setChip('Camera off');
   text('deviation', '—'); text('blinks', '—'); text('distance', '—'); text('match-score', '—');
-  text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); text('calibrate', 'Set reference');
+  text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay.'); text('calibrate', 'Set');
   $('hold-bar').style.width = '0'; $('deviation-bar').style.width = '0';
   renderPause(); light('idle');
+  if (sensor.live && !sensorRef) calibrateSensor(); else showSensorCard();   // camera off + sensor: straight to sensor mode
 }
+
+// Said up front every time the camera turns on (playtest: people worried about being watched).
+// It is step 1 of the start flow: notice, then light bar, then reference. One card at a time.
+let flowSteps = [], noticeOpen = false, flowStep = null;
+function showCamNotice() {
+  flowSteps = ['cam', ...(needBar() ? ['bar'] : []), 'ref'];
+  noticeOpen = true; flowStep = null;
+  syncRef();
+}
+function hideCamNotice() {
+  if (!noticeOpen) return;
+  noticeOpen = false;
+  syncRef();
+}
+// Show or hide a start card with a short slide: forward steps come in from the right,
+// going back comes in from the left. The leaving card fades out the other way.
+const POP_FOR = { cam: 'empty-camera', bar: 'bar-prompt', ref: 'ref-prompt' };
+function setPop(id, show, dir = 1) {
+  const el = $(id);
+  if (show) {
+    if (!el.hidden && !el.classList.contains('leaving')) return;
+    clearTimeout(el._leave);
+    el.classList.remove('leaving'); el.dataset.dir = dir === 0 ? 'enter' : dir > 0 ? 'next' : 'back';
+    el.hidden = false;
+    el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+  } else if (!el.hidden && dir !== 0) {
+    // Between steps: swap at once. Two glass cards stacked during a cross-fade looked whiter
+    // than one, so the surface flashed white; now there is only ever one surface on screen.
+    clearTimeout(el._leave); el.classList.remove('leaving'); el.hidden = true;
+  } else if (!el.hidden && !el.classList.contains('leaving')) {
+    el.dataset.dir = dir === 0 ? 'enter' : dir > 0 ? 'next' : 'back';
+    el.classList.add('leaving');
+    el._leave = setTimeout(() => { el.hidden = true; el.classList.remove('leaving'); }, 420);
+  }
+}
+// Small dots under each start card. The new card starts with the previous dot lit,
+// then the pill slides over, so the dots feel like one control moving along.
+function renderSteps(id, step, from) {
+  const box = $(id).querySelector('.pop-steps'); if (!box) return;
+  const i = flowSteps.indexOf(step), f = from >= 0 ? from : i;
+  box.hidden = i < 0 || flowSteps.length < 2;
+  box.innerHTML = flowSteps.map((st, n) => `<button type="button" data-step="${st}" class="${n === f ? 'on' : ''}" aria-label="Step ${n + 1} of ${flowSteps.length}"${n === i ? ' aria-current="step"' : ''}></button>`).join('');
+  if (f !== i) requestAnimationFrame(() => requestAnimationFrame(() =>
+    box.querySelectorAll('button').forEach((b, n) => b.classList.toggle('on', n === i))));
+}
+// Tap a dot to jump back (or ahead) to that step.
+function goStep(step) {
+  if (step === 'cam') return;   // going back to step 1 would mean turning the camera off
+  if (step === 'bar') barSkipped = false;
+  if (step === 'ref') barSkipped = true;
+  syncRef();
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.pop-steps button[data-step]');
+  if (b && !b.classList.contains('on')) goStep(b.dataset.step);
+});
+$('cam-notice-ok').onclick = hideCamNotice;
+$('cam-notice-sensor').onclick = () => {
+  hideCamNotice();
+  if (sensor.live) stop();   // camera off + sensor connected: Poise switches to sensor mode on its own
+  else toast('Connect the light bar first. Its distance sensor works without the camera.');
+};
 
 function setChip(label, live = false) { text('tracking', label); $('tracking').classList.toggle('live', live); }
 
 const visible = (p, ids) => p && ids.every(i => p[i] && (p[i].visibility ?? 1) > .6);
+// ---------- Steadier tracking ----------
+// 2. Smoothing: each point eases toward its new position. Big moves follow quickly,
+//    tiny jitters are mostly ignored (a simple version of the "One Euro" filter).
+// 3. Low-confidence points: when MediaPipe isn't sure about a point, keep the last good
+//    position for up to half a second instead of letting it jump around.
+let smooth = null, smoothAt = [];
+function smoothPose(raw, now) {
+  if (!raw) { smooth = null; return null; }
+  if (!smooth) { smooth = raw.map(p => ({ ...p })); smoothAt = raw.map(() => now); return smooth; }
+  for (let i = 0; i < raw.length; i++) {
+    const r = raw[i], s0 = smooth[i];
+    if ((r.visibility ?? 1) > .5) {
+      const move = Math.hypot(r.x - s0.x, r.y - s0.y);
+      const k = Math.min(.85, .25 + move * 10);
+      s0.x += (r.x - s0.x) * k; s0.y += (r.y - s0.y) * k; s0.z += ((r.z ?? 0) - (s0.z ?? 0)) * k;
+      s0.visibility = r.visibility; smoothAt[i] = now;
+    } else if (now - smoothAt[i] > 1000) {
+      s0.visibility = r.visibility;                 // gone too long: let it drop out
+    }
+  }
+  return smooth;
+}
+// 4. Scene check: too dark, or shoulders cut off at the edge of the frame.
+let lastLightCheck = 0, sceneIssue = '';
+let camGoneSince = 0, camAway = false, camPaused = false;
+const lightCanvas = document.createElement('canvas'); lightCanvas.width = 32; lightCanvas.height = 18;
+function checkScene(p) {
+  let issue = '';
+  try {
+    const g = lightCanvas.getContext('2d', { willReadFrequently: true });
+    g.drawImage(camera, 0, 0, 32, 18);
+    const px = g.getImageData(0, 0, 32, 18).data;
+    let sum = 0; for (let i = 0; i < px.length; i += 4) sum += px[i] * .3 + px[i + 1] * .59 + px[i + 2] * .11;
+    if (sum / (px.length / 4) < 55) issue = 'A bit dark here.';
+  } catch {}
+  if (!issue && p && [11, 12].some(i => p[i].x < .04 || p[i].x > .96 || p[i].y > .97)) issue = 'Move back a little.';
+  if (!issue && p && !visible(p, [7, 8]) && visible(p, [0, 11, 12])) issue = 'Face the camera.';
+  if (issue !== sceneIssue) { sceneIssue = issue; if (issue && !issue.startsWith('Face')) toast(issue); }
+  if (issue) setChip(issue);
+}
+
+// Posture cue, all measured in shoulder-widths so it works at any distance.
+//  x, y : where the head sits over the shoulders. Uses the ears when both are visible
+//         (ears move with the whole head, so looking down at the desk barely changes them);
+//         otherwise the nose.
+//  tilt : one shoulder lower than the other.
+//  roll : head tipped to one side (the line between the eyes).
+//  width: shoulder width in the image — bigger means closer to the screen.
 function cue(p) {
   const a = p[11], b = p[12], w = Math.hypot(a.x - b.x, a.y - b.y);
-  return { x: (p[0].x - (a.x + b.x) / 2) / w, y: (p[0].y - (a.y + b.y) / 2) / w, tilt: (a.y - b.y) / w, width: w };
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  const ears = visible(p, [7, 8]);
+  const hx = ears ? (p[7].x + p[8].x) / 2 : p[0].x, hy = ears ? (p[7].y + p[8].y) / 2 : p[0].y;
+  const roll = visible(p, [2, 5]) ? (p[2].y - p[5].y) / w : 0;
+  return { x: (hx - mx) / w, y: (hy - my) / w, tilt: (a.y - b.y) / w, roll, width: w, ears, sy: my, sx: mx };
+}
+
+// Joint colour flips with what is behind the lines: dark lines on light clothes or walls,
+// white lines on dark ones. We sample a tiny copy of the video along the skeleton twice a second.
+const lumaCanvas = document.createElement('canvas'), lumaCtx = lumaCanvas.getContext('2d', { willReadFrequently: true });
+lumaCanvas.width = 64; lumaCanvas.height = 36;
+let jointLuma = 0.4, jointDark = false, lumaAt = 0;
+function jointInk(p) {
+  const now = performance.now();
+  if (now - lumaAt > 500 && camera.videoWidth) {
+    lumaAt = now;
+    lumaCtx.drawImage(camera, 0, 0, 64, 36);
+    const px = lumaCtx.getImageData(0, 0, 64, 36).data;
+    const pts = [];
+    for (const [a, b] of [[11, 12], [11, 13], [12, 14], [11, 23], [12, 24]]) {
+      if (!visible(p, [a, b])) continue;
+      for (const t of [0, .25, .5, .75, 1]) pts.push([p[a].x + (p[b].x - p[a].x) * t, p[a].y + (p[b].y - p[a].y) * t]);
+    }
+    let sum = 0, n = 0;
+    for (const [x, y] of pts) {
+      const X = Math.round(x * 63), Y = Math.round(y * 35);
+      if (X < 0 || Y < 0 || X > 63 || Y > 35) continue;
+      const i = (Y * 64 + X) * 4;
+      sum += (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255; n++;
+    }
+    if (n) jointLuma = jointLuma * .6 + (sum / n) * .4;
+    // Gap between the two thresholds stops it flickering on mid-grey clothes.
+    if (!jointDark && jointLuma > .62) jointDark = true;
+    else if (jointDark && jointLuma < .5) jointDark = false;
+  }
+  return jointDark ? 'rgba(13,13,13,.9)' : 'rgba(255,255,255,.95)';
 }
 
 function draw(p) {
@@ -136,48 +423,171 @@ function draw(p) {
   if (!store.state.joints) return;
   const scale = Math.max(w / camera.videoWidth, h / camera.videoHeight), vw = camera.videoWidth * scale, vh = camera.videoHeight * scale, ox = (w - vw) / 2, oy = (h - vh) / 2;
   const xy = a => [a.x * vw + ox, a.y * vh + oy];
-  ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.fillStyle = '#fff'; ctx.lineWidth = 1.5; ctx.shadowBlur = 12; ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--signal');
-  for (const [a, b] of [[0, 7], [0, 8], [11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [24, 26]]) {
+  const ink = jointInk(p);
+  ctx.strokeStyle = ink; ctx.fillStyle = ink; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.shadowBlur = 0;
+  for (const [a, b] of [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [24, 26]]) {
     if (!visible(p, [a, b])) continue;
     ctx.beginPath(); ctx.moveTo(...xy(p[a])); ctx.lineTo(...xy(p[b])); ctx.stroke();
   }
-  for (const i of [0, 7, 8, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26]) if (visible(p, [i])) { ctx.beginPath(); ctx.arc(...xy(p[i]), 3.5, 0, Math.PI * 2); ctx.fill(); }
+  for (const i of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26]) if (visible(p, [i])) { ctx.beginPath(); ctx.arc(...xy(p[i]), 5, 0, Math.PI * 2); ctx.fill(); }
+}
+
+// Which part of the shift is largest → a specific message.
+// widthRatio > 1: shoulders look wider than at the reference = closer to the screen.
+function shiftCause(delta, widthRatio = 1) {
+  const parts = {
+    close: widthRatio > 1 ? Math.max(0, Math.log(widthRatio) - .12) * 2 : 0,
+    far: widthRatio < 1 ? Math.max(0, -Math.log(widthRatio) - .12) * 2 : 0,
+    forward: Math.max(0, delta?.y || 0),
+    side: Math.abs(delta?.x || 0) + Math.abs(delta?.roll || 0) * .6,
+    shoulders: Math.abs(delta?.tilt || 0),
+    slouch: (delta?.sink || 0) * 1.2,
+  };
+  const [key, size] = Object.entries(parts).sort((a, b) => b[1] - a[1])[0];
+  if (size < .05) return null;
+  shiftCause.key = key;
+  return {
+    close: ['Too close', 'Sit back an arm’s length.'],
+    far: ['Too far', 'Come a little closer.'],
+    forward: ['Leaning forward', 'Head back over your shoulders.'],
+    side: ['Tilting', 'Bring your head back to center.'],
+    shoulders: ['Uneven shoulders', 'Let both shoulders drop evenly.'],
+    slouch: ['Slouching', 'Sit up a little taller.'],
+  }[key];
 }
 
 const STATE_COPY = {
-  green: ['Aligned', 'Close to your reference.'],
-  amber: ['Drifting', 'A small shift. Settle back when you can.'],
-  red: ['Reset your posture', 'You have been out of position for a while.'],
+  white: ['Aligned', 'Close to your reference.'],
+  green: ['Back in balance', 'Nice correction.'],
+  amber: ['Drifting', 'Settle back when you can.'],
+  red: ['Time to reset', 'You’ve been off for a while.'],
 };
 
 function updateWork(p, now) {
-  if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit the way you want to stay, then save it.'); return; }
+  if (!silent()) avatar.setPose(p, (camera.videoWidth / camera.videoHeight) || 16 / 9);
+  if (!reference) { text('posture-state', 'Set a reference'); text('posture-hint', 'Sit how you want to stay.'); return; }
   const c = cue(p);
-  const d = Math.min(100, Math.round((Math.abs(c.x - reference.x) + Math.abs(c.y - reference.y) + Math.abs(c.tilt - reference.tilt)) * 100));
-  text('deviation', d); $('deviation-bar').style.width = d + '%';
-  let state = 'green';
-  if (d > threshold()) { if (!driftSince) driftSince = now; state = now - driftSince >= strongDelay() ? 'red' : 'amber'; } else driftSince = 0;
-  if (state === 'red' && lastState !== 'red' && store.work().chime) chime();
-  lastState = state;
-  light(state);
-  text('posture-state', STATE_COPY[state][0]); text('posture-hint', STATE_COPY[state][1]);
-  // Share of the session spent aligned
-  if (lastStatTick && timerRunning) stats[state] += Math.min(now - lastStatTick, 500);
-  lastStatTick = now;
-  renderAligned();
-  if (store.work().eyes) {
-    if (c.width / reference.width > 1.25) { if (!nearSince) nearSince = now; text('distance', now - nearSince > 3000 ? 'Too close' : 'Close'); }
+  // If the ears were visible when the reference was saved but aren't now (or the other way round),
+  // the head point moved source, so take a fresh baseline for the head.
+  if (c.ears !== reference.ears) { reference = { ...reference, x: c.x, y: c.y, ears: c.ears }; }
+  // Each part ignores a small natural wobble first (dz), so a slight nod or tilt counts as nothing.
+  const dz = v => Math.max(0, Math.abs(v) - .04);
+  let d = Math.min(100, Math.round((dz(c.x - reference.x) + dz(c.y - reference.y) + dz(c.tilt - reference.tilt) + dz(c.roll - (reference.roll || 0)) * .6) * 100));
+  // The distance sensor is more exact about leaning toward the screen than the camera.
+  let widthRatio = c.width / reference.width;
+  // Shoulders sinking in the frame = sliding down / leaning back in the chair.
+  const sink = reference.sy != null ? Math.max(0, (c.sy - reference.sy) / reference.width) : 0;
+  d = Math.min(100, d + Math.round(Math.max(0, sink - .03) * 90));
+  // Sensor (camera on): only counts when you're really close, under the good range (55 cm), not small moves.
+  if (sensor.live && sensor.cm > 0 && sensor.cm < SENSOR_GOOD[0] - 3) { widthRatio = Math.max(widthRatio, (SENSOR_GOOD[0] - 3) / sensor.cm); }
+  applyPosture(d, now, { x: c.x - reference.x, y: c.y - reference.y, tilt: c.tilt - reference.tilt, roll: c.roll - (reference.roll || 0), sink, sx: reference.sx != null ? (c.sx - reference.sx) / reference.width : 0 }, widthRatio);
+}
+// How far you've leaned toward the screen, 0–100, from the sensor alone.
+// Sensor-only mode uses the same fixed range as the light bar: 55–80 cm is good.
+const SENSOR_GOOD = [50, 85];   // wider good range = less sensitive
+function sensorShift() {
+  if (sensorRef && sensor.cm > 0) {
+    const off = sensor.cm < SENSOR_GOOD[0] ? SENSOR_GOOD[0] - sensor.cm : sensor.cm > SENSOR_GOOD[1] ? sensor.cm - SENSOR_GOOD[1] : 0;
+    return Math.min(100, Math.round(Math.max(0, off - 5) * 3));   // 5 cm slack, gentler slope
+  }
+  const k = sensor.closeness;
+  return k > 1.08 ? Math.min(100, Math.round((k - 1.08) * 260)) : 0;
+}
+// ---------- Posture → light color ----------
+// Small, short movements are ignored. The light only reacts when you STAY shifted:
+//  1. Grace: shifted for less than 5 s (or the mode's delay, if longer) → nothing changes.
+//  2. Fade to yellow: over the next 6 s the light blends slowly from white to yellow.
+//  3. Fade to red: if you're still shifted 20 s later (or the shift is large, 80%+),
+//     it blends from yellow to red over another 6 s.
+//  4. Back in position for 1 s → green for a moment, then white again.
+const GRACE_MS = () => Math.max(5000, strongDelay());
+const FADE_MS = 6000, RED_AFTER_MS = 20000, SETTLE_MS = 1000;
+const WHITE = [140, 140, 130], PALE = [255, 205, 60], YELLOW = [255, 130, 0], RED = [255, 0, 0];
+// Screen versions of the same steps: neutral → pale yellow → warm yellow → soft red.
+// On screen, sitting well is a soft green (the LED stays white), so the card always shows your state.
+const S_WHITE = [150, 214, 165], S_PALE = [255, 238, 168], S_YELLOW = [250, 200, 95], S_RED = [242, 128, 112], S_GREEN = [105, 204, 138];
+// Two-stop fade so the first thing you see is a pale yellow, never a dim, muddy one.
+const toWarm = (k, a, b, c) => k < .5 ? mix(a, b, k * 2) : mix(b, c, (k - .5) * 2);
+let lastTone = null;
+const mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
+let alignedSince = 0, cueShown = false, lastRgb = null;
+function applyPosture(d, now, delta, widthRatio) {
+  // Camera distance: shoulders look wider when you lean in, narrower when you sit back.
+  // Counted as a shift too (20% closer or farther ≈ 45% shift).
+  // Ignore the first ~12% of size change (normal shifting in the chair), then count it more gently.
+  if (widthRatio) d = Math.max(d, Math.min(100, Math.round(Math.max(0, Math.abs(Math.log(widthRatio)) - .12) * 200)));
+  live.d = live.d == null ? d : live.d * .6 + d * .4;
+  if (!silent()) avatar.set(delta, widthRatio || 1);
+  // The number updates twice a second at most, so it reads calmly.
+  if (now - (applyPosture.shown || 0) > 500) { applyPosture.shown = now; text('deviation', d); }
+  $('deviation-bar').style.width = d + '%';
+  let state, rgb = null, tone = null;
+  if (d > threshold()) {
+    alignedSince = 0;
+    if (!driftSince) driftSince = now;
+    const held = now - driftSince, grace = GRACE_MS();
+    if (held < grace) {
+      state = cueShown ? lastState : 'white';          // still within grace: no change
+      if (cueShown) { rgb = lastRgb; tone = lastTone; }
+    } else {
+      cueShown = true;
+      const toYellow = Math.min(1, (held - grace) / FADE_MS);
+      const redStart = d >= 80 ? grace + FADE_MS : grace + RED_AFTER_MS;
+      const toRed = Math.max(0, Math.min(1, (held - redStart) / FADE_MS));
+      rgb = toRed > 0 ? mix(YELLOW, RED, toRed) : toWarm(toYellow, WHITE, PALE, YELLOW);
+      tone = toRed > 0 ? mix(S_YELLOW, S_RED, toRed) : toWarm(toYellow, S_WHITE, S_PALE, S_YELLOW);
+      state = toRed >= 1 ? 'red' : toYellow > .5 ? 'amber' : 'white';
+    }
+    recoverAt = 0;
+  } else {
+    if (!alignedSince) alignedSince = now;
+    if (now - alignedSince >= SETTLE_MS || !driftSince) {
+      // Settled back. Show green only if the light had actually changed.
+      if (driftSince && cueShown) recoverAt = now;
+      driftSince = 0; cueShown = false;
+    }
+    state = recoverAt && now - recoverAt < 1500 ? 'green' : driftSince ? lastState : 'white';
+    if (driftSince && state !== 'green') { rgb = lastRgb; tone = lastTone; }
+    // Back in balance: the card still shows a moment of green, but the light bar goes straight back to white.
+    if (state === 'green') { tone = S_GREEN; rgb = WHITE; }
+  }
+  if (state === 'red' && lastState !== 'red' && !silent()) {
+    // Say what's going on, once per red, in the chosen voice.
+    if (store.state.voice) { shiftCause.key = null; shiftCause(delta, widthRatio); setTimeout(() => speak(POSTURE_SAY(shiftCause.key), $('state-agent')), 0); }
+  }
+  lastState = state; lastRgb = rgb; lastTone = tone;
+  light(state, rgb, undefined, tone || (state === 'white' ? S_WHITE : null));
+  // Say WHAT moved, not just that something did: the biggest part of the shift wins.
+  let [title, hint] = STATE_COPY[state];
+  // The % label names what moved most: forward, tilt, closer, back, slouch…
+  shiftCause.key = null; shiftCause(delta, widthRatio);
+  const DEV_LABEL = { close: '% closer', far: '% farther', forward: '% forward', side: '% tilted', shoulders: '% uneven', slouch: '% slouched' };
+  text('dev-label', d < 6 ? '% off your reference' : DEV_LABEL[shiftCause.key] || '% off your reference');
+  // Name the shift as soon as it is visible, not only once the light has changed.
+  // Shown from half the cue threshold; hides again below a third, so it doesn't flicker at the edge.
+  const thr = threshold();
+  if (d > thr * .5) applyPosture.naming = true; else if (d < thr * .35) applyPosture.naming = false;
+  if (state !== 'green' && applyPosture.naming) {
+    const c = shiftCause(delta, widthRatio);
+    if (c) {
+      title = c[0];
+      hint = c[1];   // one short line; how long it's been shows in the colour, not in more words
+    }
+  }
+  if (silent()) { title = 'Silent test'; hint = 'Tracking quietly, light and voice off.'; text('deviation', '—'); $('deviation-bar').style.width = '0'; }
+  text('posture-state', title); text('posture-hint', hint);
+  // Session analysis (only while the focus timer runs).
+  if (timerRunning) posture.record(now, d, state, delta, widthRatio);
+  else posture.pause();
+  if (false) {   // eye care removed
+    if (widthRatio > 1.25) { if (!nearSince) nearSince = now; text('distance', now - nearSince > 3000 ? 'Too close' : 'Close'); }
     else { nearSince = 0; text('distance', 'Good'); }
   }
 }
 
-function renderAligned() {
-  const total = stats.green + stats.amber + stats.red;
-  text('aligned', total > 3000 ? Math.round(stats.green / total * 100) + '%' : '—');
-}
 
 function updateFace(now) {
-  if (!face || !store.work().eyes) return;
+  return;   // eye care removed
   const r = face.detectForVideo(camera, now), s = r.faceBlendshapes?.[0]?.categories;
   if (!s) { text('blinks', '—'); return; }
   const l = s.find(x => x.categoryName === 'eyeBlinkLeft')?.score || 0, rgt = s.find(x => x.categoryName === 'eyeBlinkRight')?.score || 0;
@@ -188,72 +598,135 @@ function updateFace(now) {
   text('blinks', now - faceStart < 15000 ? '…' : blinkTimes.length);
 }
 
+// Next tracking step. Browsers stop animation frames in a hidden tab, which would stop posture
+// tracking while you work somewhere else. So in the background it runs on a timer (about 4 times
+// a second), and switching tabs restarts the chain in the right mode. loopGen drops stale callbacks
+// so there is never more than one loop running.
+let loopGen = 0;
+function scheduleLoop() {
+  const g = ++loopGen;
+  if (document.hidden) setTimeout(() => { if (g === loopGen) loop(performance.now()); }, 250);
+  else requestAnimationFrame(t => { if (g === loopGen) loop(t); });
+}
+document.addEventListener('visibilitychange', () => { if (active) scheduleLoop(); });
 function loop(now) {
   if (!active) return;
   try {
     if (camera.readyState >= 2 && camera.currentTime !== lastFrame && now - lastDetect > 65) {
       lastFrame = camera.currentTime; lastDetect = now;
       const r = pose.detectForVideo(camera, now);
-      landmarks = r.landmarks[0];
+      landmarks = smoothPose(r.landmarks[0], now);
+      if (now - lastLightCheck > 1000) { lastLightCheck = now; checkScene(landmarks); }
       if (visible(landmarks, [0, 11, 12])) {
         draw(landmarks);
-        setChip('Tracking', true);
+        if (!sceneIssue) setChip('Tracking', true);
+        camGoneSince = 0;
+        avatar.setPresent(true);
+        if (camAway) { camAway = false; if (camPaused) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back.'); } camPaused = false; }
         if (screen === 'work') updateWork(landmarks, now);
         else if (store.brk().style === 'stretch') updateGame(landmarks, now);
+        else if (store.brk().style === 'game') { moveGame.update(landmarks); mini.update(landmarks); }
+        else if (store.brk().style === 'breathe') updateReset(landmarks);
       } else {
         landmarks = null; ctx.clearRect(0, 0, canvas.width, canvas.height);
-        driftSince = 0; nearSince = 0; holdStart = 0; lastStatTick = 0;
+        driftSince = 0; nearSince = 0; holdStart = 0; lastStatTick = 0; posture.pause();
         setChip('Keep your head and shoulders in view');
-        if (screen === 'work') { text('posture-state', 'Paused'); text('posture-hint', 'Move back into the frame to continue.'); text('deviation', '—'); }
+        // Nobody in view for 3 s: you're away. Pause the focus timer until you're back.
+        if (!camGoneSince) camGoneSince = now;
+        if (!camAway && now - camGoneSince > 3000 && screen === 'work') {
+          camAway = true; camPaused = timerRunning; timerRunning = false; renderPause(); light('idle');
+          toast(screen === 'work' ? 'I can’t see you, so I paused the timer.' : 'I can’t see you. Step back into view.');
+          setChip('Away from desk');
+        }
+        avatar.setPresent(false);
+        if (screen === 'work') { text('posture-state', camAway ? 'Away' : 'Paused'); text('posture-hint', camAway ? 'Paused until you sit back down.' : 'Move back into the frame to continue.'); text('deviation', '—'); }
         text('match-score', '—'); $('hold-bar').style.width = '0';
         if (!(screen === 'break' && store.brk().style === 'breathe')) light('idle');
       }
       if (now - lastFace > 120) { updateFace(now); lastFace = now; }
     }
   } catch (e) {
-    stop(); toast('Tracking stopped. Turn the camera on to try again.'); return;
+    stop(); toast('Tracking stopped. Turn the camera back on to try again.'); return;
   }
-  requestAnimationFrame(loop);
+  scheduleLoop();
 }
 
+// Before a reference exists: the side panel is hidden and the main screen asks for one.
+let barSkipped = false;
+const needBar = () => !writer && !barSkipped && ('serial' in navigator);
+const hasRef = () => !!reference || sensorRef;
+function syncRef() {
+  avatar.setActive(hasRef());
+  $('studio').classList.toggle('no-ref', !hasRef() && screen === 'work');
+  $('end-session').hidden = !hasRef();
+  $('sensor-mode').hidden = true;
+  const bar = needBar(), open = !!reference || !active || screen !== 'work' ? false : true;
+  // Step 1 is the camera card (camera starts OFF; you turn it on), then light bar, then reference.
+  const step = !active ? 'cam' : !open ? null : bar ? 'bar' : 'ref';
+  if (step === 'cam' && flowStep !== 'cam') flowSteps = ['cam', ...(needBar() ? ['bar'] : []), 'ref'];
+  if (step !== flowStep) {
+    const from = flowSteps.indexOf(flowStep), to = flowSteps.indexOf(step);
+    // 0 = first card or closing the flow (whole card fades); ±1 = moving between steps (only the content moves).
+    const dir = from < 0 || to < 0 ? 0 : to >= from ? 1 : -1;
+    for (const [k, id] of Object.entries(POP_FOR)) setPop(id, k === step, dir);
+    if (step) renderSteps(POP_FOR[step], step, flowStep ? from : -1);
+    flowStep = step;
+  }
+}
 function calibrate() {
-  if (!active || !visible(landmarks, [0, 11, 12])) { toast('Keep your head and both shoulders in view'); return false; }
+  if (!active && sensor.live && sensor.cm > 0) return calibrateSensor();
+  if (!active || !visible(landmarks, [0, 11, 12])) { toast('Keep your head and both shoulders in view, then try again.'); return false; }
   reference = cue(landmarks); driftSince = 0; nearSince = 0;
-  stats = { green: 0, amber: 0, red: 0 }; lastStatTick = 0;
-  text('calibrate', 'Reset reference');
-  toast('Reference saved');
+  sensorRef = false;
+  if (sensor.live && sensor.cm > 0) sensor.base = sensor.cm;
+  syncRef();
+  if (!posture.active) posture.reset();
+  text('calibrate', 'Reset');
+  toast('Got it. That’s your reference now.');
   timerRunning = true; timerLast = performance.now(); renderPause();
+  maybeTour();
   return true;
 }
 
 // ---------- Break: stretch game ----------
 // Each target matches the visible direction and movement in its video segment.
 const poses = [
-  { name: 'Shoulder release, left', tip: 'Bring the arm on the left of your mirror across your chest. Support it with your other hand.', type: 'cross', side: 'left', video: 'GcPujVayIbI', start: 8, end: 21 },
-  { name: 'Shoulder release, right', tip: 'Switch sides. Bring the arm on the right of your mirror across your chest.', type: 'cross', side: 'right', video: 'GcPujVayIbI', start: 23, end: 36 },
-  { name: 'Neck release, right', tip: 'Soften your shoulders. Tip your head right and slightly forward.', type: 'neck', target: 18, video: 'Q14tE13GNrs', start: 65, end: 79 },
-  { name: 'Neck release, left', tip: 'Now to the left. Stay within a comfortable range.', type: 'neck', target: -18, video: 'Q14tE13GNrs', start: 81, end: 90 },
-  { name: 'Upper-back release', tip: 'Wrap your arms around an imaginary cushion and let your shoulders round forward.', type: 'hug', video: 'GcPujVayIbI', start: 38, end: 56 },
+  // Standing stretches, chosen so the arms never cover each other: the camera sees every joint.
+  { name: 'Side reach, left', tip: 'Arms up, lean gently to the left.', type: 'side', side: 'left' },
+  { name: 'Side reach, right', tip: 'Arms up, lean gently to the right.', type: 'side', side: 'right' },
+  { name: 'Neck release, right', tip: 'Tip your head gently to the right.', type: 'neck', target: 18 },
+  { name: 'Neck release, left', tip: 'Tip your head gently to the left.', type: 'neck', target: -18 },
+  { name: 'Overhead reach', tip: 'Reach both arms straight up.', type: 'reach' },
+  { name: 'T-arms', tip: 'Arms out to the sides, shoulders low.', type: 'tee' },
+  { name: 'Shoulder shrug', tip: 'Lift your shoulders, then let them drop.', type: 'shrug' },
+  { name: 'Look left', tip: 'Turn your head slowly to the left.', type: 'turn', side: 'left' },
+  { name: 'Look right', tip: 'Turn your head slowly to the right.', type: 'turn', side: 'right' },
+  { name: 'Chest opener', tip: 'Hands up like a goalpost, chest open.', type: 'wings' },
 ];
+let holdAcc = 0, holdLast = 0;
 let queue = [], round = 0, points = 0, perfect = 0, holdStart = 0, missingSince = 0, betweenUntil = 0, gameDone = false, guidePlaying = false, poseStarted = 0;
-const reel = new ReelPlayer({ onPlaying(playing) { guidePlaying = playing; if (!playing) holdStart = 0; }, onError() { holdStart = 0; light('idle'); } });
+const reel = new GuidePlayer({ onPlaying(playing) { guidePlaying = playing; if (!playing) holdStart = 0; } });
 const angle = (a, b, c) => { const u = [a.x - b.x, a.y - b.y], v = [c.x - b.x, c.y - b.y]; return Math.acos(Math.max(-1, Math.min(1, (u[0] * v[0] + u[1] * v[1]) / (Math.hypot(...u) * Math.hypot(...v) || 1)))) * 180 / Math.PI; };
 
 function newGame() {
-  const count = clamp(store.brk().count || 5, 1, poses.length);
+  const count = clamp(store.brk().count || 10, 1, poses.length);
   // Random subset, kept in the guide's original order so paired sides stay together.
   const picked = new Set([...poses.keys()].sort(() => Math.random() - .5).slice(0, count));
   queue = poses.filter((_, i) => picked.has(i));
   round = 0; points = 0; perfect = 0; gameDone = false; betweenUntil = 0;
+  breakLog.start('stretch');
   showPose();
 }
 function showPose() {
-  holdStart = 0; missingSince = 0; poseStarted = performance.now(); guidePlaying = false;
+  holdStart = 0; holdAcc = 0; holdLast = 0; missingSince = 0; poseStarted = performance.now(); guidePlaying = false;
   const p = queue[round];
   $('reel-progress').innerHTML = queue.map((_, i) => `<span class="${i < round ? 'done' : i === round ? 'current' : ''}"></span>`).join('');
-  $('reel-complete').hidden = !!p; $('pose-actions').hidden = !p;
+  // When the stretches are done, the break report popup offers the next step, so the card shows
+  // no buttons of its own behind it (no Again / Back to focus row, no End break).
+  $('reel-complete').hidden = true; $('pose-actions').hidden = !p; $('end-break').hidden = !p;
   if (!p) {
     gameDone = true; reel.stop();
+    setTimeout(() => endBreak(), 900);
     text('pose-name', 'Break complete'); text('pose-instruction', `${perfect} of ${queue.length} stretches matched.`);
     text('round', `${queue.length} / ${queue.length}`); text('hold-label', ''); text('match-score', '—');
     $('hold-bar').style.width = '100%';
@@ -261,117 +734,227 @@ function showPose() {
   }
   text('pose-name', p.name); text('pose-instruction', p.tip); text('round', `${round + 1} / ${queue.length}`);
   text('match-score', '—'); $('hold-bar').style.width = '0';
-  text('hold-label', active ? 'Watch first, then follow along.' : 'Turn on your camera to get a match score.');
+  text('hold-label', active ? 'Watch the figure, then follow along.' : 'Turn on your camera to get a match score.');
   text('points', `${points} points`);
+  breakLog.pose(p.name);
   reel.load(p);
+  guidePlaying = reel.playing;   // load() keeps playing without re-announcing it
 }
 function advance(passed = false) {
   if (gameDone) return;
-  if (passed) { points += 100; perfect++; toast('Perfect  +100'); light('green'); }
+  if (passed) breakLog.matched(); else breakLog.skipped();
+  if (passed) { points += 100; perfect++; toast('Perfect! That’s 100 points.'); light('green'); }
   round++; betweenUntil = performance.now() + 1500; showPose(); text('points', `${points} points`);
 }
 // Position-based estimates, normalized by shoulder width. No video is uploaded.
+// Scores use points the camera can always see in these poses: shoulders, elbows, wrists, nose, ears.
+// Everything is measured in shoulder-widths, so it works at any distance.
+let shrugRef = [];
 function poseScore(p, target) {
-  const required = target.type === 'neck' ? [7, 8, 11, 12] : [11, 12, 13, 14, 15, 16];
-  if (!visible(p, required)) return null;
-  if (target.type === 'neck') { const tilt = Math.atan2(p[8].y - p[7].y, Math.abs(p[7].x - p[8].x)) * 180 / Math.PI; return Math.max(0, 100 - Math.abs(tilt - target.target) * 4); }
+  const vis = i => p && p[i] && (p[i].visibility ?? 1) > .3;
+  const need = ['neck', 'shrug', 'turn'].includes(target.type) ? [11, 12] : [11, 12, 15, 16];
+  if (!need.every(vis)) return null;
+  if (target.type === 'neck') { if (!vis(7) || !vis(8)) return null; const tilt = Math.atan2(p[8].y - p[7].y, Math.abs(p[7].x - p[8].x)) * 180 / Math.PI; return Math.max(0, 100 - Math.abs(tilt - target.target) * 4); }
   const w = Math.hypot(p[11].x - p[12].x, p[11].y - p[12].y); if (w < .04) return null;
   const mid = { x: (p[11].x + p[12].x) / 2, y: (p[11].y + p[12].y) / 2 };
-  if (target.type === 'cross') {
-    const left = target.side === 'left', shoulder = p[left ? 11 : 12], elbow = p[left ? 13 : 14], wrist = p[left ? 15 : 16], support = p[left ? 16 : 15];
-    // Anatomical left is screen-left after the camera mirror transform.
-    const across = (left ? mid.x - wrist.x : wrist.x - mid.x) / w;
-    if (across < .08) return 0;
-    const heightError = Math.abs((wrist.y - mid.y) / w - .12);
-    const supportGap = Math.hypot(support.x - elbow.x, support.y - elbow.y) / w;
-    const elbowAngle = angle(shoulder, elbow, wrist);
-    return Math.max(0, 100 - heightError * 65 - Math.max(0, supportGap - .45) * 50 - Math.max(0, 120 - elbowAngle) * .35);
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  if (target.type === 'side') {
+    // Both hands overhead (half the score) + hands shifted toward the chosen side (the other half).
+    const handsY = (p[15].y + p[16].y) / 2, handsX = (p[15].x + p[16].x) / 2;
+    const up = clamp01((mid.y - handsY) / w / 1.1);                   // ~1.1 shoulder-widths above the shoulders = full
+    // The view is mirrored: a larger raw x shows on the screen's left.
+    const shift = (target.side === 'left' ? handsX - mid.x : mid.x - handsX) / w;
+    return Math.round(up * 50 + clamp01(shift / .45) * 50);
   }
-  // Upper-back hug: both elbows bent and hands together in front of the torso.
-  const handGap = Math.hypot(p[15].x - p[16].x, p[15].y - p[16].y) / w;
-  const handsY = ((p[15].y + p[16].y) / 2 - mid.y) / w;
-  const elbowL = angle(p[11], p[13], p[15]), elbowR = angle(p[12], p[14], p[16]);
-  if (handsY > 1.05 || handsY < .12 || elbowL > 145 || elbowR > 145) return 0;
-  return Math.max(0, 100 - Math.max(0, handGap - .4) * 50 - Math.abs(handsY - .55) * 45 - Math.abs(elbowL - elbowR) * .3);
+  if (target.type === 'reach') {
+    const up = Math.min(mid.y - p[15].y, mid.y - p[16].y) / w;            // both hands well above the shoulders
+    const centred = 1 - clamp01(Math.max(Math.abs(p[15].x - mid.x), Math.abs(p[16].x - mid.x)) / w - .6);
+    return Math.round(clamp01(up / 1.3) * 75 + centred * 25);
+  }
+  if (target.type === 'tee') {
+    const level = clamp01(1 - (Math.abs(p[15].y - p[11].y) + Math.abs(p[16].y - p[12].y)) / 2 / w / .5);
+    const spread = clamp01((Math.abs(p[15].x - p[16].x) / w - 1.4) / 1.2);
+    return Math.round(level * 50 + spread * 50);
+  }
+  if (target.type === 'shrug') {
+    // Compared with YOUR relaxed shoulders, not a fixed number (camera height and angle change
+    // the raw value a lot). shrugRef remembers the lowest-shoulder (largest gap) of the last ~10 s.
+    const head = vis(7) && vis(8) ? (p[7].y + p[8].y) / 2 : vis(0) ? p[0].y : null;
+    if (head == null) return null;
+    const gap = (mid.y - head) / w, now = performance.now();
+    shrugRef = shrugRef.filter(r => now - r.t < 10000); shrugRef.push({ t: now, g: gap });
+    const relaxed = Math.max(...shrugRef.map(r => r.g));
+    return Math.round(clamp01((relaxed - gap) / .1) * 100);              // ~0.1 shoulder-width lift = full
+  }
+  if (target.type === 'turn') {
+    if (!vis(0) || !vis(7) || !vis(8)) return null;
+    const ears = (p[7].x + p[8].x) / 2, span = Math.abs(p[7].x - p[8].x) || .01;
+    const off = (target.side === 'left' ? p[0].x - ears : ears - p[0].x) / span;   // mirrored view: larger x = screen left
+    return Math.round(clamp01(off / .35) * 100);
+  }
+  // Chest opener: wrists above the shoulders, elbows near shoulder height and spread wide.
+  const wristsUp = clamp01(((mid.y - p[15].y) + (mid.y - p[16].y)) / 2 / w / .5);
+  const elbows = vis(13) && vis(14);
+  const level = elbows ? clamp01(1 - (Math.abs(p[13].y - p[11].y) + Math.abs(p[14].y - p[12].y)) / 2 / w / .6) : .6;
+  const spread = clamp01((Math.abs(p[15].x - p[16].x) / w - .9) / .7);
+  return Math.round(wristsUp * 40 + level * 30 + spread * 30);
 }
+// Lenient on purpose: get close for half a second and move on.
+const PASS = 40, PASS_MS = 1000;
 function updateGame(p, now) {
   if (gameDone || now < betweenUntil) return;
   if (!guidePlaying) { holdStart = 0; missingSince = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Play the guide to continue.'); return; }
-  if (now - poseStarted < 4000) { holdStart = 0; text('hold-label', 'Watch first, then follow along.'); return; }
+  if (now - poseStarted < 800) { holdStart = 0; text('hold-label', 'Watch the figure, then follow along.'); return; }
   const target = queue[round], value = poseScore(p, target);
   if (value === null) {
     holdStart = 0; $('hold-bar').style.width = '0'; text('match-score', '—'); light('idle');
     if (!missingSince) missingSince = now;
-    text('hold-label', target.type === 'neck' ? 'Keep your face and shoulders in view.' : 'Keep both arms in view. Skipping in a few seconds.');
-    if (target.type !== 'neck' && now - missingSince > 8000) { toast('Arms out of view. Skipped.'); advance(); }
+    text('hold-label', ['neck', 'shrug', 'turn'].includes(target.type) ? 'Keep your face and shoulders in view.' : 'Step back so your arms fit in the frame.');
+    if (now - missingSince > 6000) { toast('I lost your arms, so let’s skip this one.'); advance(); }
     return;
   }
   missingSince = 0;
   const score = Math.round(value);
-  text('match-score', score); light(score >= 60 ? 'green' : score >= 40 ? 'amber' : 'red');
-  if (score >= 60) {
-    if (!holdStart) holdStart = now;
-    const elapsed = now - holdStart;
-    $('hold-bar').style.width = Math.min(100, elapsed / 20) + '%';
-    text('hold-label', `Hold for ${(Math.max(0, 2000 - elapsed) / 1000).toFixed(1)}s`);
-    if (elapsed >= 2000) advance(true);
-  } else { holdStart = 0; $('hold-bar').style.width = '0'; text('hold-label', 'Mirror the guide. Reach 60% and hold for 2s.'); }
+  breakLog.score(score);
+  text('match-score', score); light(score >= PASS ? 'green' : score >= PASS - 15 ? 'amber' : 'red');
+  // Forgiving hold: time near the pose adds up; brief slips only drain it slowly.
+  const dt = holdLast ? Math.min(200, now - holdLast) : 0; holdLast = now;
+  holdAcc = score >= PASS ? holdAcc + dt : Math.max(0, holdAcc - dt * .5);
+  $('hold-bar').style.width = Math.min(100, holdAcc / PASS_MS * 100) + '%';
+  text('hold-label', score >= PASS ? 'Nice, hold it.' : holdAcc > 0 ? 'Almost there, stay with it.' : 'Mirror the figure as closely as you can.');
+  if (holdAcc >= PASS_MS) { holdAcc = 0; advance(true); }
 }
 
-// ---------- Break: breathe ----------
-const TIPS = ['Rest your eyes on something far away.', 'Let your shoulders drop.', 'Blink slowly a few times.', 'Unclench your jaw.'];
-let breathTimer = null;
+// ---------- Break: Reset (shoulder-drop breathing, then eye rest) ----------
+// Part 1 (first two thirds): breathe in for 4 s, out for 6 s. On each out-breath, let your
+//   shoulders drop. The camera measures how far they come down (ear-to-shoulder distance),
+//   and the light bar slowly brightens and dims with your breath.
+// Part 2 (last third): eye rest. Look at something far away, then blink slowly.
+const SHOULDER_CM = 38;                          // average shoulder width, to turn ratios into cm
+let breathTimer = null, resetShoulder = { base: null, now: null, best: 0, samples: [] };
+// ear-to-shoulder gap in shoulder widths: bigger = shoulders lower / more relaxed
+function shoulderGap(p) {
+  if (!visible(p, [11, 12]) || !(visible(p, [7, 8]) || visible(p, [0]))) return null;
+  const w = Math.hypot(p[11].x - p[12].x, p[11].y - p[12].y);
+  const head = visible(p, [7, 8]) ? (p[7].y + p[8].y) / 2 : p[0].y;
+  return ((p[11].y + p[12].y) / 2 - head) / w;
+}
+function updateReset(p) {
+  const g = shoulderGap(p); if (g == null) return;
+  const s = resetShoulder;
+  s.samples.push(g); if (s.samples.length > 5) s.samples.shift();
+  const avg = s.samples.reduce((a, b) => a + b, 0) / s.samples.length;
+  // Measure each breath, not against the start: remember where your shoulders were highest
+  // in the last ~8 s (the top of the in-breath), and how far they've come down from there.
+  const now = performance.now();
+  s.hist = (s.hist || []).filter(h => now - h.t < 8000); s.hist.push({ t: now, g: avg });
+  if (s.base == null && s.samples.length >= 5) s.base = avg;
+  s.top = Math.min(...s.hist.map(h => h.g));        // smallest gap = shoulders highest
+  s.now = avg;
+  if (s.base != null) s.best = Math.max(s.best, (avg - s.top) * SHOULDER_CM);
+}
 function startBreathe() {
   stopBreathe();
-  const total = store.brk().minutes * 60 * 1000, began = performance.now();
+  const total = Math.max(.5, store.brk().minutes) * 60 * 1000, began = performance.now(), eyesAt = total * 2 / 3;
+  breakLog.start('breathe');
+  resetShoulder = { base: null, now: null, best: 0, samples: [] };
   const orb = $('breath-orb');
-  let inhale = true, phaseEnd = 0;
+  breathState.mode = 'breathe'; breathState.level = 0;
+  let inhale = true, phaseStart = 0, phaseEnd = 0, eyeStep = -1, breaths = 0;
+  text('reset-cm', '—'); $('reset-bar').style.width = '0';
+  const EYES = [
+    ['Look far away', 'Rest your eyes on something far away.'],
+    ['Blink slowly', 'Close your eyes fully, a few times.'],
+    ['Look around', 'Move only your eyes, all around.'],
+  ];
   const tick = () => {
-    const now = performance.now(), left = Math.max(0, total - (now - began));
+    const now = performance.now(), t = now - began, left = Math.max(0, total - t);
     $('breath-bar').style.width = (100 - left / total * 100) + '%';
     text('breath-left', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')} left`);
     if (!left) {
-      stopBreathe(); orb.classList.remove('in'); text('breath-cue', 'Break complete'); text('breath-tip', 'Nice. Ready when you are.'); light('green');
+      stopBreathe(); orb.classList.remove('in'); text('breath-cue', 'Reset complete'); text('breath-tip', 'Nice. Ready when you are.'); light('green');
+      breakLog.resetResult({ shoulderCm: resetShoulder.best, eyesMs: total - eyesAt });
+      endBreak();
       return;
     }
-    if (now >= phaseEnd) {
-      inhale = !inhale || phaseEnd === 0;
-      const ms = inhale ? 4000 : 6000;
-      orb.classList.toggle('in', inhale);
-      text('breath-cue', inhale ? 'Breathe in' : 'Breathe out');
-      light(inhale ? 'green' : 'idle');
-      phaseEnd = now + ms;
-      text('breath-tip', TIPS[Math.floor((now - began) / 20000) % TIPS.length]);
+    if (t < eyesAt) {
+      // Part 1: breathing with the light bar.
+      if (now >= phaseEnd) {
+        inhale = !inhale || phaseEnd === 0;
+        if (inhale && phaseEnd) { breakLog.breath(); breaths++; }
+        phaseStart = now; phaseEnd = now + (inhale ? 4000 : 6000);
+        orb.classList.toggle('in', inhale);
+        text('breath-cue', inhale ? 'Breathe in' : 'Breathe out');
+      }
+      const k = Math.min(1, (now - phaseStart) / (phaseEnd - phaseStart));
+      const level = inhale ? k : 1 - k;                      // 0 dim … 1 bright
+      const lv = .5 - .5 * Math.cos(level * Math.PI);        // ease in and out
+      breathState.level = lv;
+      // While you breathe along (camera on), the card glows green and swells with each breath.
+      const follow = active && landmarks;
+      light('idle', [Math.round(25 + 135 * lv), Math.round(30 + 140 * lv), Math.round(28 + 110 * lv)], 15, follow ? mix([235, 245, 236], [120, 205, 145], lv) : null);
+      const s = resetShoulder;
+      const drop = s.base != null && s.now != null ? Math.max(0, (s.now - s.top) * SHOULDER_CM) : 0;
+      text('breath-tip', inhale ? 'Breathe in slowly through your nose.' : 'Breathe out and let your shoulders sink.');
+      // Same layout as stretching: big number = how far your shoulders have relaxed, bar = toward a 2 cm goal.
+      text('reset-cm', s.base == null ? '—' : drop.toFixed(1));
+      text('reset-count', `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}`);
+      $('reset-bar').style.width = Math.min(100, drop / 1.5 * 100) + '%';
+      text('breath-metric', !active ? 'Turn on the camera to track it.' : s.base == null ? 'Sit still for a moment…' : inhale ? 'Shoulders rise a little as you breathe in.' : drop >= 1.5 ? 'Lovely, your shoulders dropped a lot.' : 'Let your shoulders sink as you breathe out.');
+    } else {
+      // Part 2: eye rest. Gentle steady glow on the bar.
+      const step = Math.min(EYES.length - 1, Math.floor((t - eyesAt) / ((total - eyesAt) / EYES.length)));
+      breathState.mode = 'eyes';
+      if (step !== eyeStep) { eyeStep = step; orb.classList.remove('in'); text('breath-cue', EYES[step][0]); text('breath-tip', EYES[step][1]); }
+      light('idle', [90, 100, 85]);
+      text('reset-count', 'Eye rest'); text('breath-metric', `${Math.ceil(left / 1000)}s left`);
     }
   };
-  tick(); breathTimer = setInterval(tick, 250);
+  tick(); breathTimer = setInterval(tick, 120);
 }
-function stopBreathe() { clearInterval(breathTimer); breathTimer = null; }
+function stopBreathe() { clearInterval(breathTimer); breathTimer = null; breathState.mode = 'idle'; }
+// Reset card: the same figure breathes with you instead of the dot orb.
+new BreathFigure(document.querySelector('#breathe-panel .breath-stage'), { level: () => breathState.level, mode: () => breathState.mode });
 
 // ---------- Screens ----------
+let breakToured = null;
 function setScreen(next) {
   screen = next;
+  queueMicrotask(syncRef);
   const brk = store.brk();
   $('studio').classList.toggle('break-mode', next === 'break');
   $('studio').classList.toggle('breathing', next === 'break' && brk.style === 'breathe');
   $('work-panel').hidden = next !== 'work';
   $('break-panel').hidden = !(next === 'break' && brk.style === 'stretch');
   $('breathe-panel').hidden = !(next === 'break' && brk.style === 'breathe');
+  $('game-panel').hidden = !(next === 'break' && brk.style === 'game');
+  $('break-switch').hidden = next !== 'break';
+  if (next === 'break') { const card = $(brk.style === 'stretch' ? 'break-panel' : brk.style === 'breathe' ? 'breathe-panel' : 'game-panel'); card.prepend($('break-switch')); }
+  document.querySelectorAll('#break-switch button').forEach(b => b.classList.toggle('active', b.dataset.style === brk.style));
   $('work').classList.toggle('active', next === 'work'); $('break').classList.toggle('active', next === 'break');
   holdStart = 0; driftSince = 0; light('idle');
-  reel.stop(); stopBreathe();
+  reel.stop(); stopBreathe(); stopGames();
   if (next === 'break') {
     timerRunning = false; renderPause();
-    if (brk.style === 'stretch') newGame(); else startBreathe();
+    if (breakToured === null) breakToured = !ALWAYS_ONBOARD && !!store.state.breakToured;
+    if (!breakToured) {
+      breakToured = true; store.update(st => { st.breakToured = true; });
+      setTimeout(() => startTour(() => { if (screen === 'break') startBreakStyle(brk); }, brk.style), 400);
+      return;
+    }
+    startBreakStyle(brk);
   } else {
     remaining = store.work().focus * 60; renderTimer();
-    if (reference) { timerRunning = true; timerLast = performance.now(); renderPause(); }
+    if (hasRef()) { timerRunning = true; timerLast = performance.now(); renderPause(); }
   }
 }
 
 function renderTimer() {
   const total = store.work().focus * 60;
-  text('timer', `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(Math.floor(remaining % 60)).padStart(2, '0')}`);
+  // Minutes and seconds (25:00), like the first version, so the time left is always exact.
+  const secs = Math.max(0, Math.ceil(remaining));
+  text('timer', `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`);
+  text('timer-unit', 'left');
   $('timer-bar').style.width = (1 - remaining / total) * 100 + '%';
 }
 function renderPause() {
@@ -380,33 +963,39 @@ function renderPause() {
 }
 setInterval(() => {
   const now = performance.now();
-  if (timerRunning && active && screen === 'work' && !document.hidden) {
+  // Keeps counting while you work in another tab or app: that is the normal way to use Poise.
+  // It still pauses when you step away from the desk or pause it yourself.
+  if (timerRunning && (active || sensorRef) && !away && screen === 'work') {
     remaining = Math.max(0, remaining - (now - timerLast) / 1000);
     renderTimer();
     if (!remaining) {
-      if (store.work().chime || !store.brk().auto) chime();
-      if (store.brk().auto) { setScreen('break'); toast('Focus done. Time for a break.'); }
-      else {
-        timerRunning = false; remaining = store.work().focus * 60; renderTimer(); renderPause();
-        addMessage('poise', 'Focus time is up. Want to take a break?');
-        openThread(['Take a break', 'Keep going']);
-      }
+      chime();
+      endSession('timer');
     }
   }
   timerLast = now;
 }, 200);
+
+// ---------- Avatar ----------
+// Upper-body figure that copies how you sit, over a dashed outline of your reference.
+const avatar = new PostureAvatar($('avatar-box'));
+const live = { d: null };
 
 // Keep panel text in sync with the current modes.
 function syncUI() {
   const work = store.work(), brk = store.brk();
   if (work.focus !== lastFocus) { lastFocus = work.focus; remaining = work.focus * 60; }
   text('work-mode-name', work.name);
-  text('next-break', `Then ${brk.name.toLowerCase()}: ${describeBreak(brk)}`);
-  $('eye-stat').hidden = !work.eyes; $('dist-stat').hidden = !work.eyes;
+  // Plain, spoken-style line about what comes after the focus block.
+  text('next-break', brk.style === 'breathe' ? `Up next, a ${brk.minutes < 1 ? brk.minutes * 60 + '-second' : brk.minutes + '-minute'} breathing break`
+    : brk.style === 'game' ? `Up next, a ${brk.minutes}-minute movement game`
+    : `Up next, ${brk.count} easy stretch${brk.count > 1 ? 'es' : ''}`);
+  $('eye-stat').hidden = true; $('dist-stat').hidden = true;
+  document.querySelector('.card.stats').hidden = true;
   renderTimer(); renderPause();
   if (screen === 'break') {
-    const wantStretch = brk.style === 'stretch';
-    if ($('break-panel').hidden === wantStretch) setScreen('break');
+    const showing = !$('break-panel').hidden ? 'stretch' : !$('breathe-panel').hidden ? 'breathe' : 'game';
+    if (showing !== brk.style && !endingBreak) setScreen('break');
   }
 }
 store.on(() => { syncUI(); if ($('modes').open) renderModeList(); });
@@ -416,7 +1005,7 @@ let tab = 'work';
 function openModes(kind = tab) { tab = kind; renderModes(); if (!$('modes').open) $('modes').showModal(); }
 function renderModes() {
   document.querySelectorAll('#modes-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  $('pref-voice').checked = store.state.voice; $('pref-joints').checked = store.state.joints;
+  $('pref-voice').checked = store.state.voice; syncVoicePick(); $('pref-silent').checked = !!store.state.silent; $('pref-music').checked = store.state.music; $('pref-joints').checked = store.state.joints;
   renderModeList(); renderEditor();
 }
 function renderModeList() {
@@ -442,46 +1031,144 @@ function segmented(name, options, value) {
   return `<div class="segmented" role="group" data-seg="${name}">${options.map(([v, l]) => `<button type="button" data-v="${v}" class="${v === value ? 'active' : ''}">${l}</button>`).join('')}</div>`;
 }
 function toggle(name, checked) { return `<label class="toggle"><input type="checkbox" data-k="${name}" ${checked ? 'checked' : ''}></label>`; }
+// Settings editor. Every choice is the same control: a segmented row of a few sensible values.
+// The mode itself is picked, added, renamed and deleted from one dropdown at the top.
+const CHOICES = {
+  focus: [[15, '15 min'], [25, '25 min'], [30, '30 min'], [45, '45 min'], [60, '1 hour'], [90, '1.5 hours'], [120, '2 hours']],
+  delay: [[3, '3 sec'], [5, '5 sec'], [10, '10 sec'], [20, '20 sec']],
+  count: [[3, '3 stretches'], [5, '5 stretches'], [10, '10 stretches']],
+  breathe: [[.5, '30 sec'], [1, '1 min'], [2, '2 min'], [5, '5 min']],
+  game: [[1, '1 min'], [2, '2 min'], [3, '3 min']],
+};
+function numSeg(key, opts, value, label) {
+  const list = opts.some(([v]) => v === value) ? opts : [...opts, [value, label(value)]].sort((a, b) => a[0] - b[0]);
+  return ddHTML('n:' + key, list, value);
+}
+const CHEV = '<svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg>';
+// One dropdown for every choice in Settings: a small button showing the value, a menu with a check on the current one.
+function ddHTML(key, opts, value) {
+  const cur = opts.find(([v]) => String(v) === String(value)) || opts[0];
+  return `<div class="dd" data-dd="${key}"><button type="button" class="dd-btn" aria-haspopup="menu" aria-expanded="false"><b>${cur[1]}</b>${CHEV}</button>
+    <div class="dd-menu" role="menu" hidden>${opts.map(([v, l]) => `<button type="button" role="menuitemradio" data-v="${v}" aria-checked="${String(v) === String(value)}" class="dd-item${String(v) === String(value) ? ' on' : ''}">${l}</button>`).join('')}</div></div>`;
+}
+function wireDD(dd, pick) {
+  const btn = dd.querySelector('.dd-btn'), menu = dd.querySelector('.dd-menu');
+  btn.onclick = e => { e.stopPropagation(); const show = menu.hidden; closeDDs(); menu.hidden = !show; dd.classList.toggle('open', show); btn.setAttribute('aria-expanded', show); };
+  menu.addEventListener('click', e => { const it = e.target.closest('.dd-item[data-v]'); if (!it) return; closeDDs(); pick(it.dataset.v, it); });
+}
+function setDD(dd, value) {
+  dd.querySelectorAll('.dd-item[data-v]').forEach(it => { const on = it.dataset.v === String(value); it.classList.toggle('on', on); it.setAttribute('aria-checked', on); if (on) dd.querySelector('.dd-btn b').textContent = it.textContent; });
+}
+function closeDDs() { document.querySelectorAll('.dd').forEach(d => { d.classList.remove('open'); const m = d.querySelector('.dd-menu'); if (m) m.hidden = true; d.querySelector('.dd-btn')?.setAttribute('aria-expanded', 'false'); }); }
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.dd')) closeDDs(); });
 function renderEditor() {
   const ed = $('editor');
   const m = tab === 'work' ? store.work() : store.brk();
-  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-  let html = field('Name', `<input type="text" data-k="name" maxlength="32" value="${esc(m.name)}">`);
+  const list = tab === 'work' ? store.state.works : store.state.breaks;
+  const current = m.id;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  let html = `<div class="field mode-row"><span>Mode</span>
+    <div class="dd" id="mode-dd">
+      <button type="button" class="dd-btn" aria-haspopup="menu" aria-expanded="false"><b>${esc(m.name)}</b>${CHEV}</button>
+      <input type="text" class="dd-name" maxlength="32" value="${esc(m.name)}" aria-label="Mode name" hidden>
+      <div class="dd-menu" role="menu" hidden>
+        ${list.map(x => `<button type="button" role="menuitemradio" aria-checked="${x.id === current}" data-id="${x.id}" class="dd-item${x.id === current ? ' on' : ''}">${esc(x.name)}</button>`).join('')}
+        <i class="dd-sep"></i>
+        <button type="button" role="menuitem" class="dd-item act" data-act="new">New mode</button>
+        <button type="button" role="menuitem" class="dd-item act" data-act="rename">Rename</button>
+        ${list.length > 1 ? '<button type="button" role="menuitem" class="dd-item act danger-item" data-act="delete">Delete this mode</button>' : ''}
+      </div>
+    </div></div>`;
   if (tab === 'work') {
-    html += field('Focus length', `<input type="range" data-k="focus" min="5" max="90" step="5" value="${m.focus}">`, `<output>${m.focus} min</output>`);
-    html += field('Sensitivity', segmented('sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
-    html += field('Strong cue after', `<input type="range" data-k="delay" min="2" max="20" step="1" value="${m.delay}">`, `<output>${m.delay}s</output>`);
-    html += field('Eye care', toggle('eyes', m.eyes));
-    html += field('Chime', toggle('chime', m.chime));
+    html += field('Focus length', numSeg('focus', CHOICES.focus, m.focus, v => v + ' min'));
+    html += field('Sensitivity', ddHTML('s:sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
+    html += field('Strong cue after', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
   } else {
-    html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Breathe']], m.style));
-    html += m.style === 'stretch'
-      ? field('Stretches', `<input type="range" data-k="count" min="1" max="5" step="1" value="${m.count}">`, `<output>${m.count}</output>`)
-      : field('Length', `<input type="range" data-k="minutes" min="1" max="10" step="1" value="${m.minutes}">`, `<output>${m.minutes} min</output>`);
+    html += field('Style', ddHTML('s:style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
+    html += m.style === 'stretch' ? field('Stretches', numSeg('count', CHOICES.count, m.count, v => v + ' stretches'))
+      : field('Length', numSeg('minutes', CHOICES[m.style], m.minutes, v => v < 1 ? v * 60 + ' sec' : v + ' min'));
     html += field('Start automatically', toggle('auto', m.auto));
   }
-  const list = tab === 'work' ? store.state.works : store.state.breaks;
-  html += `<div class="editor-foot"><span class="sub">${tab === 'work' ? describeWork(m) : describeBreak(m)}</span>${list.length > 1 ? '<button type="button" class="danger" id="delete-mode">Delete</button>' : ''}</div>`;
-  ed.innerHTML = html;
+  ed.innerHTML = `<div class="group">${html}</div>`;
 
-  ed.querySelectorAll('input[type=range]').forEach(inp => inp.oninput = () => {
-    const v = Number(inp.value); patchMode(tab, { [inp.dataset.k]: v });
-    const unit = { focus: ' min', minutes: ' min', delay: 's', count: '' }[inp.dataset.k];
-    inp.parentElement.querySelector('output').textContent = v + unit;
-    ed.querySelector('.editor-foot .sub').textContent = tab === 'work' ? describeWork(store.work()) : describeBreak(store.brk());
-  });
   ed.querySelectorAll('input[type=checkbox]').forEach(inp => inp.onchange = () => patchMode(tab, { [inp.dataset.k]: inp.checked }));
-  ed.querySelector('input[type=text]').oninput = e => patchMode(tab, { name: e.target.value.trim() || 'Untitled' });
   ed.querySelectorAll('[data-seg] button').forEach(b => b.onclick = () => { patchMode(tab, { [b.parentElement.dataset.seg]: b.dataset.v }); renderEditor(); });
-  const del = $('delete-mode');
-  if (del) del.onclick = () => { deleteMode(tab, m.id); renderModes(); };
+  ed.querySelectorAll('.dd[data-dd]').forEach(dd => wireDD(dd, v => {
+    const [kind, key] = dd.dataset.dd.split(':');
+    patchMode(tab, { [key]: kind === 'n' ? Number(v) : v }); renderEditor();
+  }));
+
+  // Mode dropdown
+  const dd = $('mode-dd'), btn = dd.querySelector('.dd-btn'), menu = dd.querySelector('.dd-menu'), name = dd.querySelector('.dd-name');
+  const open = on => { menu.hidden = !on; btn.setAttribute('aria-expanded', on); dd.classList.toggle('open', on); };
+  btn.onclick = e => { e.stopPropagation(); const show = menu.hidden; closeDDs(); open(show); };
+  menu.onclick = e => {
+    const it = e.target.closest('.dd-item'); if (!it) return;
+    open(false);
+    if (it.dataset.id) { store.update(s => { if (tab === 'work') s.workId = it.dataset.id; else s.breakId = it.dataset.id; }); renderEditor(); return; }
+    if (it.dataset.act === 'new') { createMode(tab, ''); patchMode(tab, { name: 'New mode' }); renderModes(); startRename(); }
+    if (it.dataset.act === 'rename') startRename();
+    if (it.dataset.act === 'delete') { deleteMode(tab, m.id); renderModes(); }
+  };
+  function startRename() {
+    const d = $('mode-dd'), b = d.querySelector('.dd-btn'), n = d.querySelector('.dd-name');
+    n.style.width = Math.max(140, b.offsetWidth) + 'px';   // same size as the button it replaces
+    b.hidden = true; n.hidden = false; n.focus(); n.select();
+    const done = () => { patchMode(tab, { name: n.value.trim() || 'Untitled' }); renderEditor(); };
+    n.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); n.blur(); } if (e.key === 'Escape') { n.value = m.name; n.blur(); } };
+    n.onblur = done;
+  }
 }
 document.querySelectorAll('#modes-tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; renderModes(); });
-$('pref-voice').onchange = e => store.update(s => { s.voice = e.target.checked; });
+$('pref-silent').onchange = e => {
+  store.update(s => { s.silent = e.target.checked; });
+  if (e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
+  syncSilent(); lastSerial = ''; light(lastState === 'idle' ? 'idle' : 'white');
+  toast(e.target.checked ? 'Silent test is on. The light and voice stay off.' : 'Silent test is off.');
+};
+function syncSilent() { $('silent-chip').hidden = !store.state.silent; }
+syncSilent();
+$('pref-voice').onchange = e => {
+  store.update(s => { s.voice = e.target.checked; });
+  if (!e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
+  syncVoicePick();
+};
+function syncVoicePick() {
+  $('pref-voice-pick').classList.toggle('dim', !store.state.voice);
+  setDD($('voice-seg'), store.state.voiceId || 'ava');
+}
+wireDD($('voice-seg'), () => {});        // picks are handled by the click listener below
+wireDD($('bright-seg'), () => {});
+$('voice-seg').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]'); if (!b) return;
+  store.update(s => { s.voiceId = b.dataset.v; s.voice = true; });
+  $('pref-voice').checked = true; syncVoicePick();
+  speak('All set.', $('ask-orb'));
+});
+// Light bar brightness: pick a level, the light updates on its next message (within a frame).
+function syncBright() {
+  setDD($('bright-seg'), store.state.brightness ?? 100);
+}
+$('bright-seg').addEventListener('click', e => {
+  const b = e.target.closest('.dd-item[data-v]'); if (!b) return;
+  store.update(s => { s.brightness = +b.dataset.v; }); syncBright();
+  lastSerial = null;                                   // force the new level to be sent right away
+});
+syncBright();
 $('pref-joints').onchange = e => setJoints(e.target.checked);
-$('pref-setup').onclick = () => { $('modes').close(); rerunSetup(); };
-document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
-$('modes').addEventListener('click', e => { if (e.target === $('modes')) $('modes').close(); });
+// Settings drawer slides out before it closes.
+function closeModes(then) {
+  const d = $('modes');
+  if (!d.open) { then?.(); return; }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { d.close(); then?.(); return; }
+  d.classList.add('closing');
+  setTimeout(() => { d.classList.remove('closing'); d.close(); then?.(); }, 320);
+}
+$('pref-setup').onclick = () => closeModes(rerunSetup);
+$('pref-tour').onclick = () => closeModes(() => { setScreen('work'); startTour(); });
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => closeModes());
+$('modes').addEventListener('click', e => { if (e.target === $('modes')) closeModes(); });
+$('modes').addEventListener('cancel', e => { e.preventDefault(); closeModes(); });
 
 function setJoints(v) {
   store.update(s => { s.joints = v; });
@@ -490,12 +1177,15 @@ function setJoints(v) {
 
 async function rerunSetup() {
   const wasBreak = screen === 'break';
+  // Setup is a full-screen page of its own: hide the studio (camera, panel, toolbar) underneath it.
+  $('studio').hidden = true; closeThread();
   await runOnboarding();
+  $('studio').hidden = false;
   if (wasBreak) setScreen('work'); else syncUI();
 }
 
 // ---------- Ask Poise ----------
-const SUGGEST = ['Focus 40 minutes', 'Less sensitive', 'Breaks with breathing', 'How am I doing?'];
+const SUGGEST = ['Focus 40 min', 'Less sensitive', 'Breathing breaks', 'How am I doing?'];
 function addMessage(who, msg) {
   const el = document.createElement('div');
   el.className = `msg ${who}`; el.textContent = msg;
@@ -503,8 +1193,9 @@ function addMessage(who, msg) {
   $('messages').scrollTop = $('messages').scrollHeight;
 }
 function openThread(suggestions = SUGGEST) {
+  $('thread').classList.remove('closing');
   $('thread').hidden = false; $('studio').classList.add('chatting');
-  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, eye care, your breaks, or a new mode.');
+  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, your breaks, or a new mode.');
   $('suggest').innerHTML = '';
   suggestions.forEach(s => {
     const b = document.createElement('button'); b.type = 'button'; b.textContent = s;
@@ -512,7 +1203,14 @@ function openThread(suggestions = SUGGEST) {
     $('suggest').append(b);
   });
 }
-function closeThread() { $('thread').hidden = true; $('studio').classList.remove('chatting'); }
+// Thread slides down out of view before it hides.
+function closeThread() {
+  const t = $('thread'); if (t.hidden) return;
+  $('studio').classList.remove('chatting');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { t.hidden = true; return; }
+  t.classList.add('closing');
+  setTimeout(() => { t.classList.remove('closing'); t.hidden = true; }, 260);
+}
 
 const assistantCtx = {
   work: () => store.work(), brk: () => store.brk(),
@@ -530,10 +1228,10 @@ const assistantCtx = {
   rerunSetup: () => { closeThread(); rerunSetup(); },
   openModes: () => openModes(),
   status: () => {
-    const total = stats.green + stats.amber + stats.red;
-    const share = total > 3000 ? Math.round(stats.green / total * 100) : null;
+    const sum = posture.summary();
+    const share = sum ? sum.aligned : null;
     const mins = Math.ceil(remaining / 60);
-    const blinks = store.work().eyes && active ? blinkTimes.length : null;
+    const blinks = null;
     return {
       en: [share !== null ? `You've been aligned ${share}% of this session.` : 'Set a reference and start the timer to see how you are doing.',
         `${mins} min left in ${store.work().name}.`, blinks !== null ? `${blinks} blinks in the last minute.` : ''].join(' ').trim(),
@@ -560,58 +1258,439 @@ function send(message) {
     if ($('modes').open) renderEditor();
   }, 380);
 }
-$('ask-form').onsubmit = e => { e.preventDefault(); send($('ask-input').value); };
+$('ask-form').onsubmit = e => { e.preventDefault(); window.setSpeechLang?.($('ask-input').value); send($('ask-input').value); };
 $('ask-input').onfocus = () => openThread();
 document.addEventListener('pointerdown', e => { if (!$('ask').contains(e.target) && !$('thread').hidden) closeThread(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('thread').hidden) { closeThread(); $('ask-input').blur(); } });
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (Recognition) {
+  // Hands-free conversation: tap the mic once, talk as many times as you like, tap again to stop.
+  // Recognition pauses while Poise is speaking (so it doesn't hear itself) and resumes right after.
   const rec = new Recognition();
-  rec.lang = navigator.languages?.some(l => l.startsWith('ko')) ? 'ko-KR' : 'en-US';
-  rec.interimResults = false;
+  // One recognition language at a time (a browser limit). English by default, since Poise speaks English;
+  // typing a message in Korean switches listening to Korean, and typing in English switches it back.
+  rec.lang = store.state.speechLang || 'en-US';
+  window.setSpeechLang = text => {
+    const lang = /[가-힣]/.test(text) ? 'ko-KR' : /[a-z]/i.test(text) ? 'en-US' : null;
+    if (!lang || lang === rec.lang) return;
+    rec.lang = lang; store.update(st => { st.speechLang = lang; });
+    if (on && running) { try { rec.abort(); } catch {} }      // restarts in the new language
+  };
+  rec.interimResults = true;
+  rec.continuous = true;
   $('mic').hidden = false;
-  rec.onresult = e => { spoken = true; send(e.results[0][0].transcript); };
-  rec.onend = rec.onerror = () => { $('mic').classList.remove('listening'); $('ask-orb').classList.remove('listening'); };
+  $('mic').insertAdjacentHTML('beforeend', '<span class="mic-bars" aria-hidden="true"><i></i><i></i><i></i></span>');
+  let on = false, running = false, restartT = 0;
+  const input = $('ask-input'), placeholder = input.placeholder;
+  const setUI = v => {
+    $('mic').classList.toggle('listening', v); $('ask-orb').classList.toggle('listening', v); $('ask-form').classList.toggle('listening', v);
+    $('mic').setAttribute('aria-label', v ? 'Stop listening' : 'Speak instead');
+    input.placeholder = v ? 'Listening…' : placeholder;
+  };
+  const begin = () => { if (!on || running || $('ask-orb').classList.contains('speaking')) return; try { rec.start(); running = true; } catch {} };
+  const later = (ms = 250) => { clearTimeout(restartT); restartT = setTimeout(begin, ms); };
+  rec.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript.trim();
+      if (e.results[i].isFinal) { if (t) { input.value = ''; spoken = true; send(t); } }
+      else interim += t;
+    }
+    if (interim) input.value = interim;            // you can see it hearing you
+  };
+  rec.onend = () => { running = false; if (on) later(); };
+  rec.onerror = e => { running = false; if (e.error === 'not-allowed' || e.error === 'service-not-allowed') stopListening(); };
+  // Pause while Poise talks, then listen again.
+  new MutationObserver(() => {
+    if (!on) return;
+    if ($('ask-orb').classList.contains('speaking')) { clearTimeout(restartT); if (running) rec.abort(); }
+    else later(400);
+  }).observe($('ask-orb'), { attributes: true, attributeFilter: ['class'] });
+
+  // Mic level: the three bars in the mic button move with your voice, so you know it hears you.
+  let audioStream, raf;
+  async function startLevel() {
+    try {
+      audioStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      const ac = new (window.AudioContext || window.webkitAudioContext)(), an = ac.createAnalyser();
+      an.fftSize = 256; ac.createMediaStreamSource(audioStream).connect(an);
+      const data = new Uint8Array(an.frequencyBinCount), bars = [...$('mic').querySelectorAll('.mic-bars i')];
+      const tick = () => {
+        if (!on) { ac.close(); return; }
+        an.getByteTimeDomainData(data);
+        let sum = 0; for (const v of data) sum += (v - 128) ** 2;
+        const lvl = Math.min(1, Math.sqrt(sum / data.length) / 28);
+        // Same mark as the voice cards: a gentle idle wave, taller when you speak.
+        const t = performance.now() / 1000;
+        bars.forEach((b, i) => { const idle = .35 + .2 * (Math.sin(t * 6 + i * 1.1) + 1) / 2; b.style.transform = `scaleY(${Math.min(1, idle + lvl * [0.6, .8, .7][i])})`; });
+        raf = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch {}
+  }
+  function stopListening() {
+    on = false; clearTimeout(restartT); cancelAnimationFrame(raf);
+    try { rec.abort(); } catch {} running = false;
+    audioStream?.getTracks().forEach(t => t.stop()); audioStream = null;
+    setUI(false);
+  }
   $('mic').onclick = () => {
-    if ($('mic').classList.contains('listening')) { rec.stop(); return; }
-    try { rec.start(); $('mic').classList.add('listening'); $('ask-orb').classList.add('listening'); openThread(); } catch {}
+    if (on) { stopListening(); return; }
+    on = true; setUI(true); openThread(); begin(); startLevel();
   };
 }
 
+// ---------- End of a focus session ----------
+let ending = false;
+async function endSession(reason) {
+  if (ending) return;
+  ending = true;
+  timerRunning = false; renderPause();
+  const r = posture.summary();
+  posture.clear();
+  if (reason === 'end') { light('idle'); }
+  // Always say out loud that the session is over (works with the mini window open, too).
+  // The report's lines are pre-recorded ("Great session. Here is how your posture went." …), so they play in the natural voice.
+  const say = line => speak(line, $('ask-orb'));
+  const choice = r ? await showReport(r, say) : (say('Session ended. Here is your summary.'), 'break');
+  ending = false;
+  remaining = store.work().focus * 60; renderTimer();
+  if (choice === 'break') { setScreen('break'); if (!active) toast('Turn on your camera to follow the stretches'); }
+  else if (choice === 'new') {
+    setScreen('work');
+    if (hasRef()) { posture.reset(); timerRunning = true; timerLast = performance.now(); renderPause(); }
+  } else {
+    reel.stop(); stopBreathe(); stop(); closeThread();
+    $('studio').hidden = true; $('welcome').hidden = false;
+  }
+}
+$('end-session').onclick = () => endSession('end');
+
+// ---------- Background music ----------
+function syncMusic() {
+  const on = store.state.music;
+  document.querySelectorAll('.music-btn').forEach(b => { b.classList.toggle('off', !on); b.setAttribute('aria-pressed', String(on)); });
+  if ($('pref-music')) $('pref-music').checked = store.state.music;
+}
+document.querySelectorAll('.music-btn').forEach(b => b.onclick = () => {
+  const on = ambient.toggle();
+  store.update(s => { s.music = on; });
+  syncMusic();
+});
+$('pref-music').onchange = e => { store.update(s => { s.music = e.target.checked; }); e.target.checked ? ambient.start() : ambient.stop(); syncMusic(); };
+// Browsers only allow sound after the first click anywhere on the page.
+// Start the music as soon as the page opens. If the browser blocks sound until the
+// first click or key press, ambient.js starts it at that moment.
+if (store.state.music) ambient.start();
+syncMusic();
+// Several Poise tabs or windows each play their own music. When the music is switched in one,
+// the others hear about it through localStorage and follow, so turning it off really silences it.
+addEventListener('storage', e => {
+  if (e.key !== 'poise.settings.v2' || !e.newValue) return;
+  try {
+    const on = !!JSON.parse(e.newValue).music;
+    if (on === !!store.state.music) return;
+    store.state.music = on;
+    on ? ambient.start() : ambient.stop();
+    syncMusic();
+  } catch {}
+});
+
 // ---------- Wiring ----------
-async function begin(withCamera) {
-  if (!store.state.onboarded) {
+const ALWAYS_ONBOARD = true; // set to false after testing
+async function begin(withCamera, skipSetup = false) {
+  if (store.state.music) { ambient.start(); syncMusic(); }
+  // Testing: always run the setup questions first, even on return visits.
+  if (!skipSetup && (ALWAYS_ONBOARD || !store.state.onboarded)) {
     $('welcome').hidden = true;
     await runOnboarding();
   }
   setScreen('work');
   enter();
-  if (withCamera) start();
+  tourPending = ALWAYS_ONBOARD || !store.state.toured;
+  // The camera stays off until you turn it on from the first card.
+}
+// The studio guide waits until the first reference is set, so people can start right away.
+let tourPending = false;
+async function maybeTour() {
+  if (!tourPending) return;
+  tourPending = false;
+  const wasRunning = timerRunning;
+  timerRunning = false; renderPause();
+  await new Promise(r => setTimeout(r, 900));
+  await new Promise(r => startTour(r));
+  store.update(s => { s.toured = true; });
+  if (wasRunning && hasRef()) { timerRunning = true; timerLast = performance.now(); renderPause(); }
 }
 $('start').onclick = () => begin(true);
-$('preview').onclick = () => begin(false);
+$('preview').onclick = () => begin(true, true);
 $('enable').onclick = start;
+$('cam-off-sensor').onclick = () => { if (sensor.live) calibrateSensor(); else toast('Connect the light bar first. Its distance sensor works without the camera.'); };
 $('stop').onclick = () => (active ? stop() : start());
 $('home').onclick = () => { reel.stop(); stopBreathe(); stop(); closeThread(); $('studio').hidden = true; $('welcome').hidden = false; };
 $('work').onclick = () => setScreen('work');
 $('break').onclick = () => setScreen('break');
 $('skip').onclick = () => advance();
+// Go back one stretch (the current one and the one you return to are logged fresh).
+$('prev-pose').onclick = () => {
+  if (gameDone || round === 0) { holdStart = 0; poseStarted = performance.now(); reel.replay(); return; }
+  breakLog.unlog(2); round--; betweenUntil = 0; showPose();
+};
 $('replay').onclick = () => { holdStart = 0; poseStarted = performance.now(); reel.replay(); };
 $('restart-break').onclick = newGame;
 $('return-work').onclick = () => setScreen('work');
-$('breath-end').onclick = () => setScreen('work');
+$('breath-end').onclick = () => endBreak();
+$('end-break').onclick = () => endBreak();
+// ---------- Break: movement game ----------
+const fmtClock = ms => { const t = Math.ceil(ms / 1000); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
+let gameRgb = null;
+// Game card stage: a small map of you (a simple figure) and where the bubbles are around you,
+// so you can find them even without looking at the camera view. Popped bubbles ripple out.
+function drawGameMap(g) {
+  const cv = $('game-map'); if (!cv || !cv.offsetWidth) return;
+  const dpr = Math.min(2, devicePixelRatio || 1), W = cv.offsetWidth, H = cv.offsetHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
+  // Upper body only, same size and place as the figure in the other games.
+  const fs0 = Math.min(W - 32, H - 32) / 300, fy0 = H - 10;
+  const cx = W / 2, u = 80 * fs0, cy = fy0 - 116 * fs0 + u * .5;   // u = one shoulder-width on the map
+  // You: the same ink figure, with its arms following yours so you can see yourself reach for a bubble.
+  const b = g.body;
+  const fs = fs0, fy = fy0;
+  const aspect = (camera.videoWidth / camera.videoHeight) || 16 / 9;
+  const map = b ? (x, y) => [cx - (x - b.cx) / b.w * u, cy - u * .5 + (y - b.cy) / b.w / aspect * u] : null;   // mirrored like the camera
+  const P = { eL: [-60, -66], wL: [-46, -8], eR: [60, -66], wR: [46, -8] };
+  if (b) {
+    const toFig = i => { const [x, y] = map(b.p[i].x, b.p[i].y); return [(x - cx) / fs, (y - fy) / fs]; };
+    if (b.ok(13)) P.eL = toFig(13); if (b.ok(15)) P.wL = toFig(15);
+    if (b.ok(14)) P.eR = toFig(14); if (b.ok(16)) P.wR = toFig(16);
+  }
+  c.save(); c.translate(cx, fy); c.scale(fs, fs);
+  drawFigure(c, { lean: 0, bend: 0, look: 0, head: 0, drop: 0, shrug: 0, ...P }, { legs: false });
+  c.restore();
+  if (!b) { c.fillStyle = '#6a6b64'; c.font = '500 13px -apple-system, Inter, sans-serif'; c.textAlign = 'center'; c.fillText(active ? 'Step back so your arms fit in view' : 'Bubbles will appear around you', cx, H - 22); return; }
+  // hands
+  for (const i of [15, 16]) if (b.ok(i)) { const [x, y] = map(b.p[i].x, b.p[i].y); c.fillStyle = '#141412'; c.beginPath(); c.arc(x, y, 4, 0, Math.PI * 2); c.fill(); }
+  const now = performance.now();
+  for (const bub of g.bubbles) {
+    const [x, y] = map(bub.x, bub.y), [r, gg, bl] = bub.color, age = (now - bub.born) / bub.life;
+    c.fillStyle = `rgba(${r},${gg},${bl},.22)`; c.strokeStyle = `rgba(${r},${gg},${bl},.9)`; c.lineWidth = 2.4 * fs;
+    c.beginPath(); c.arc(x, y, u * .38, 0, Math.PI * 2); c.fill(); c.stroke();
+    c.lineWidth = 1.6 * fs; c.beginPath(); c.arc(x, y, u * .38 + 4, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - age)); c.stroke();
+  }
+  for (const p of g.pops) {
+    const k = (now - p.t) / 800; if (k > 1) continue;
+    const [x, y] = map(p.x, p.y), [r, gg, bl] = p.color;
+    c.strokeStyle = `rgba(${r},${gg},${bl},${1 - k})`; c.lineWidth = 1.6 * fs;
+    c.beginPath(); c.arc(x, y, u * (.38 + k * .5), 0, Math.PI * 2); c.stroke();
+  }
+}
+const moveGame = new MoveGame($('game-canvas'), camera, {
+  onTick({ score, left, combo, tracking }) {
+    gameRgb ? light('idle', gameRgb, 20) : light('idle');
+    text('game-score', score); text('game-left', fmtClock(left));
+    $('game-bar').style.width = (100 - left / (store.brk().minutes * 60000) * 100) + '%';
+    text('game-label', !tracking ? 'Step back so your arms fit in the frame.' : combo > 2 ? `${combo} in a row` : 'Reach for the bubbles.');
+  },
+  // Keep the last bubble's colour until the next one, instead of snapping back to the default.
+  onColor(rgb) { if (rgb) gameRgb = rgb; },
+  onFrame(g) { drawGameMap(g); },
+  onEnd(r) { breakLog.game(r); endBreak(); },
+});
+// Which game: Bubbles (camera overlay) or one of the seated games drawn in the stage box.
+const gameKind = () => GAMES[store.state.gameKind] ? store.state.gameKind : 'bubbles';
+const mini = new MiniGame($('mini-canvas'), {
+  helper: $('game-map'),
+  onTick({ score, left, label }) {
+    // Every catch / ring / seed pulses the light bar softly twice in the
+    // event's colour, then it settles back to the calm colour.
+    const fk = gameFlash && performance.now() - gameFlash.t;
+    if (gameFlash && fk < 1000) {
+      // two soft pulses: brightness rises and falls like a breath (sin²), 0.5 s each
+      const b = Math.pow(Math.sin(fk / 500 * Math.PI), 2) * .85 + .15;
+      // Only the light bar pulses; the screen holds the full colour (tone), so it never dips back to green.
+      light('idle', gameFlash.rgb.map(v => Math.round(v * b / 8) * 8), 35, gameFlash.rgb);
+    }
+    else { gameFlash = null; gameRgb ? light('idle', gameRgb, 20) : light('idle'); }
+    text('game-score', score); text('game-left', fmtClock(left));
+    $('game-bar').style.width = (100 - left / (store.brk().minutes * 60000) * 100) + '%';
+    text('game-label', label);
+  },
+  // After the pulse, stay on that colour (the last catch) rather than snapping back to the default.
+  onColor(rgb) { if (rgb) { gameFlash = { rgb, t: performance.now() }; gameRgb = rgb; } },
+  onEnd(r) { breakLog.game(r); endBreak(); },
+});
+let gameFlash = null;
+const gameRunning = () => moveGame.running || mini.running;
+function stopGames() { moveGame.stop(); mini.stop(); $('mini-canvas').hidden = true; gameRgb = null; }
+function renderGameChips() {
+  const k = gameKind();
+  document.querySelectorAll('#game-chips button').forEach(b => b.classList.toggle('on', b.dataset.g === k));
+  text('game-title', GAMES[k].title); text('game-tip', GAMES[k].tip);
+  text('game-unit', k === 'bells' ? 'bells' : k === 'boat' ? 'drops' : k === 'seeds' ? 'seeds' : 'points');
+}
+$('game-chips').addEventListener('click', e => {
+  const b = e.target.closest('button[data-g]'); if (!b) return;
+  store.update(s => { s.gameKind = b.dataset.g; });
+  stopGames(); breakLog.start('game'); resetGamePanel();
+});
+function resetGamePanel() {
+  stopGames(); renderGameChips();
+  const c = $('game-map'); c.getContext('2d').clearRect(0, 0, c.width, c.height);
+  text('game-score', 0); text('game-left', fmtClock(store.brk().minutes * 60000)); $('game-bar').style.width = '0';
+  text('game-label', active ? 'Step back so your arms fit in the frame.' : 'Turn on your camera to play.');
+  if (gameKind() === 'bubbles') requestAnimationFrame(() => drawGameMap({ body: null, bubbles: [], pops: [] }));
+  maybeStartGame();
+}
+// The game starts on its own as soon as you're in Game mode with the camera on.
+function maybeStartGame() {
+  if (screen !== 'break' || store.brk().style !== 'game' || gameRunning() || endingBreak || !active) return;
+  const k = gameKind();
+  if (k === 'bubbles') moveGame.start(store.brk().minutes * 60); else { $('mini-canvas').hidden = false; mini.start(k, store.brk().minutes * 60); }
+}
+$('game-end').onclick = () => { if (moveGame.running) breakLog.game(moveGame.result()); else if (mini.running) breakLog.game(mini.result()); endBreak(); };
+function startBreakStyle(brk) {
+  if (brk.style === 'stretch') newGame();
+  else if (brk.style === 'breathe') startBreathe();
+  else { breakLog.start('game'); resetGamePanel(); }
+}
+// Switch break type on the spot.
+// Delegated, so it keeps working after the switch moves between cards or re-renders.
+$('break-switch').addEventListener('click', e => {
+  const b = e.target.closest('button[data-style]'); if (!b) return;
+  const style = b.dataset.style;
+  const pick = store.state.breaks.find(m => m.style === style && !m.preset) || store.state.breaks.find(m => m.style === style);
+  stopGames();
+  store.update(s => {
+    let m = pick;
+    if (!m) {   // older saved settings may be missing this type: add it
+      const defs = { stretch: { name: 'Stretch along', count: 10, minutes: 4 }, breathe: { name: 'Reset', count: 3, minutes: .5 }, game: { name: 'Reach & pop', count: 5, minutes: 1 } };
+      m = { id: style === 'breathe' ? 'breathe' : style, style, auto: true, preset: true, ...defs[style] };
+      s.breaks = s.breaks.filter(x => x.id !== m.id); s.breaks.push(m);
+    }
+    s.breakId = m.id;
+  });
+  setScreen('break');
+});
+let endingBreak = false;
+async function endBreak() {
+  if (endingBreak || screen !== 'break') return;
+  endingBreak = true;
+  reel.stop(); stopBreathe(); stopGames(); light('idle');
+  breakLog.away(breakAwayMs); breakAwayMs = 0;
+  const r = breakLog.summary();
+  const choice = r ? await showBreakReport(r, line => speak(line, $('ask-orb'))) : 'focus';
+  endingBreak = false;
+  if (choice === 'again' && r?.kind === 'breathe') { setScreen('work'); if (active && visible(landmarks, [0, 11, 12])) calibrate(); else toast('Turn on your camera to save a new reference'); }
+  else if (choice === 'again') setScreen('break');
+  else if (choice === 'focus') setScreen('work');
+  else { stop(); closeThread(); $('studio').hidden = true; $('welcome').hidden = false; }
+}
 $('calibrate').onclick = calibrate;
+$('ref-set').onclick = calibrate;
 $('work-mode-name').onclick = () => openModes('work');
 $('open-modes').onclick = () => openModes(screen === 'break' ? 'break' : 'work');
 $('pause').onclick = () => {
-  if (!active) return toast('Turn on your camera first');
+  if (!active && !sensorRef) return toast('Turn on your camera first');
   timerRunning = !timerRunning; timerLast = performance.now(); renderPause();
 };
+// ---------- Distance sensor (HC-SR04 on the light bar) ----------
+let sensorRef = false;        // posture reference taken from the sensor alone (camera off)
+let away = false, awaySince = 0, backSince = 0, pausedByAway = false, breakAwayMs = 0, lastSensorTick = 0;
+let tapStart = 0, tapFrom = 0, lastTap = 0;
+function calibrateSensor() {
+  sensor.base = sensor.cm > 0 ? sensor.cm : 65; sensorRef = true; reference = null; driftSince = 0;
+  syncRef();
+  if (!posture.active) posture.reset();
+  text('calibrate', 'Reset');
+  toast('The distance sensor is keeping track now.');
+  timerRunning = true; timerLast = performance.now(); renderPause();
+  showSensorCard();
+  setChip(`Sensor mode · ${sensor.cm} cm`, true);
+  maybeTour();
+  return true;
+}
+// Camera off + sensor connected: say so on the card, and keep tracking with the sensor.
+function showSensorCard() {
+  const on = sensorRef && !active;
+  $('empty-camera').classList.toggle('sensor-on', on);
+  $('empty-camera').querySelector('.say').innerHTML = on
+    ? `<b>Sensor mode</b> <span>The camera is off, so the distance sensor is keeping an eye on how far you sit.</span>`
+    : '<b>Turn on your camera</b> <span>I watch your posture through it. The video stays on this device and is never saved or sent.</span>';
+  $('enable').textContent = on ? 'Use the camera instead' : 'Turn on camera';
+  $('enable').classList.add('primary'); $('enable').classList.remove('ghost'); $('enable').classList.toggle('end-wide', on);
+}
+$('sensor-mode').onclick = () => { if (screen !== 'work') setScreen('work'); calibrateSensor(); };
+sensor.on(() => {
+  const now = performance.now();
+  $('sensor-chip').hidden = false;
+  text('sensor-chip', sensor.cm > 0 ? `Distance from screen ${sensor.cm} cm` : 'Distance from screen');
+  if (now - lastSensorTick > 180) { lastSensorTick = now; sensorTick(now); }
+  sensorTap(now);
+  // Camera off: switch to sensor mode on its own, so the bar and the session keep working.
+  if (!active && !sensorRef && sensor.live && !$('studio').hidden) calibrateSensor();
+  if (!active) syncRef();
+  $('sensor-row').hidden = active;   // cm only in sensor mode (camera off)
+   text('sensor-dist', sensor.cm > 0 ? sensor.cm : '—');
+  $('sensor-dist').classList.toggle('off', sensor.cm > 0 && (sensor.cm < SENSOR_GOOD[0] || sensor.cm > SENSOR_GOOD[1]));
+});
+function sensorTick(now) {
+  if (!sensor.base) return;
+  // 1. Away from the desk: much farther than your reference, or nothing in range.
+  const isFar = sensor.cm < 0 || sensor.cm > sensor.base + 45 || sensor.cm > 220;
+  if (isFar) { backSince = 0; if (!awaySince) awaySince = now; }
+  else { awaySince = 0; if (!backSince) backSince = now; }
+  if (!away && awaySince && now - awaySince > 3000) {
+    away = true; avatar.setPresent(false);
+    if (screen === 'work') {
+      pausedByAway = timerRunning; timerRunning = false; renderPause(); posture.pause(); light('idle');
+      text('posture-state', 'Away'); text('posture-hint', 'Paused until you sit back down.');
+      toast('You stepped away, so I paused for you.');
+    }
+    setChip('Away from desk');
+  }
+  if (away) { if (screen === 'break') breakAwayMs += 180; }
+  if (away && backSince && now - backSince > 1500) {
+    away = false; avatar.setPresent(true);
+    if (screen === 'work' && pausedByAway) { timerRunning = true; timerLast = performance.now(); renderPause(); toast('Welcome back.'); }
+    pausedByAway = false;
+    setChip(active ? 'Tracking' : `Sensor mode · ${sensor.cm} cm`, true);
+  }
+  // 3. Camera off: posture from distance alone.
+  if (sensorRef && !active && !away && screen === 'work') {
+    const d = sensorShift();
+    applyPosture(d, now, { x: 0, y: Math.max(0, sensor.closeness - 1), tilt: 0 }, sensor.closeness);
+  }
+}
+// 5. Wave a hand close to the sensor (under 15 cm, briefly) to tap.
+function sensorTap(now) {
+  const v = sensor.raw;
+  if (v > 0 && v < 15) { if (!tapStart) { tapStart = now; tapFrom = sensor.cm; } return; }
+  if (tapStart) {
+    const held = now - tapStart; tapStart = 0;
+    if (held > 120 && held < 900 && now - lastTap > 1500) { lastTap = now; onSensorTap(); }
+  }
+}
+function onSensorTap() {
+  if (screen === 'break') {
+    const style = store.brk().style;
+    if (style === 'game' && !gameRunning()) maybeStartGame();
+    else if (style === 'stretch') advance();
+    else toast('I saw your wave.');
+  } else if (hasRef()) {
+    timerRunning = !timerRunning; timerLast = performance.now(); renderPause();
+    toast(timerRunning ? 'You tapped the sensor, so the timer is running.' : 'You tapped the sensor, so I paused the timer.');
+  }
+}
+
+$('bar-connect').onclick = () => $('connect').click();
+$('bar-skip').onclick = () => { barSkipped = true; syncRef(); };
 $('connect').onclick = async () => {
   if (!('serial' in navigator)) return toast('Use desktop Chrome or Edge to connect the light bar');
   try {
     if (writer) {
+      await stopSensor(); $('sensor-chip').hidden = true;
       await writer.close(); writer.releaseLock(); await port.close(); writer = null;
       $('connect').classList.remove('on'); $('connect').setAttribute('aria-label', 'Connect light bar');
       return;
@@ -620,7 +1699,9 @@ $('connect').onclick = async () => {
     await port.open({ baudRate: 115200 });
     writer = port.writable.getWriter(); lastSerial = '';
     $('connect').classList.add('on'); $('connect').setAttribute('aria-label', 'Disconnect light bar');
-    toast('Light bar connected'); light('idle');
+    toast('Light bar connected', { device: true }); light('idle');
+    readSensor(port);
+    syncRef();
   } catch (e) { if (e.name !== 'NotFoundError') toast('Check the USB connection. Another app may be using the port.'); }
 };
 document.addEventListener('visibilitychange', () => {
@@ -633,3 +1714,138 @@ window.addEventListener('pagehide', () => { reel.stop(); stream?.getTracks().for
 syncUI();
 renderPause();
 mountAgents();
+syncRef();
+
+
+
+// ---------- Mini window ----------
+// Playtest: while working nobody looks at the Poise tab, so a small always-on-top window
+// shows posture and time left. Uses Document Picture-in-Picture (Chrome and Edge on desktop).
+let pipWin = null, pipTimer = 0;
+async function togglePip() {
+  if (pipWin && !pipWin.closed) { pipWin.close(); return; }
+  if (!('documentPictureInPicture' in window)) { toast('The mini window works in Chrome or Edge on a computer'); return; }
+  try { pipWin = await documentPictureInPicture.requestWindow({ width: 360, height: 166 }); }
+  catch { toast('Could not open the mini window'); return; }
+  // Mini window: the same little figure on the left, the state in words on the right. Sans serif.
+  const d = pipWin.document;
+  d.head.innerHTML = `<style>
+    *{box-sizing:border-box;margin:0}
+    html,body{height:100%}
+    body{font:14px/1.35 -apple-system,BlinkMacSystemFont,'SF Pro Text',Inter,'Segoe UI',sans-serif;letter-spacing:-.011em;color:#0d0d0d;
+      background:#fff;display:flex;gap:16px;align-items:center;padding:18px 20px;position:relative;overflow:hidden}
+    /* Same drifting wash as the Focus and Break cards. */
+    @property --sig{syntax:'<color>';inherits:true;initial-value:#96d6a5}
+    @property --g1x{syntax:'<percentage>';inherits:false;initial-value:12%}
+    @property --g1y{syntax:'<percentage>';inherits:false;initial-value:4%}
+    @property --g2x{syntax:'<percentage>';inherits:false;initial-value:88%}
+    @property --g2y{syntax:'<percentage>';inherits:false;initial-value:60%}
+    body{transition:--sig 1.4s ease}
+    body::before{content:"";position:absolute;inset:-16% -8% -10% -8%;z-index:-1;pointer-events:none;
+      --c1:color-mix(in srgb,var(--sig) 78%,white);--c2:color-mix(in srgb,var(--sig) 45%,#b3dfda);
+      background:radial-gradient(75% 45% at var(--g1x) var(--g1y),color-mix(in srgb,var(--c1) 88%,white),transparent 80%),
+        radial-gradient(70% 42% at var(--g2x) var(--g2y),color-mix(in srgb,var(--c2) 88%,white),transparent 80%),
+        linear-gradient(180deg,color-mix(in srgb,var(--c1) 60%,white) 0%,color-mix(in srgb,var(--c1) 30%,white) 50%,color-mix(in srgb,var(--c1) 18%,white) 100%);
+      filter:blur(14px) saturate(1.05);opacity:.9;animation:glowDrift 16s ease-in-out infinite alternate}
+    @keyframes glowDrift{
+      0%{--g1x:12%;--g1y:4%;--g2x:88%;--g2y:60%}
+      25%{--g1x:45%;--g1y:55%;--g2x:55%;--g2y:92%}
+      50%{--g1x:82%;--g1y:92%;--g2x:15%;--g2y:30%}
+      75%{--g1x:30%;--g1y:40%;--g2x:40%;--g2y:6%}
+      100%{--g1x:60%;--g1y:10%;--g2x:80%;--g2y:75%}}
+    @media (prefers-reduced-motion:reduce){body::before{animation:none}}
+    .fig{flex:none;width:96px;height:100%;max-height:126px;border-radius:14px;background:rgba(255,255,255,.75);overflow:hidden}
+    canvas{display:block;width:100%;height:100%}
+    .txt{min-width:0;display:flex;flex-direction:column;gap:3px}
+    b{font-size:16px;font-weight:600;letter-spacing:-.022em;line-height:1.2}
+    .hint{color:#5d5d5d;font-size:13px;line-height:1.35}
+    .txt{flex:1;min-width:0;height:calc(100vh - 36px);display:flex;flex-direction:column;overflow:hidden;padding:0}
+    .fig{height:calc(100vh - 36px)!important;width:calc(100vh - 36px)!important;max-height:none!important}
+    .tm{margin-top:4px}
+    .foot{margin-top:auto!important}
+    #live-foot{align-items:stretch}
+    #end{margin-left:0;width:100%}
+    .tm{font-size:12px;color:#8f8f8f}
+    .foot{margin-top:8px;display:flex;align-items:center;gap:8px}
+    button{font:inherit;font-size:13px;font-weight:500;letter-spacing:-.01em;border:0;cursor:pointer;height:30px;padding:0 10px;white-space:nowrap;flex:1;min-width:0;border-radius:10px;
+      background:rgba(13,13,13,.07);color:#0d0d0d;transition:background .4s}
+    button:hover{background:rgba(13,13,13,.13)}
+    button.pri{background:#0d0d0d;color:#fff} button.pri:hover{background:#333}
+    #end{margin-left:auto}
+    [hidden]{display:none!important}
+  </style>`;
+  d.body.innerHTML = '<div class="fig"><canvas id="fig"></canvas></div><div class="txt"><b id="st"></b><span class="hint" id="hint"></span>'
+    + '<span class="tm" id="tm"></span><div class="foot" id="live-foot"><button class="pri" id="end">End session</button></div>'
+    + '<div class="foot" id="done-foot" hidden><button class="pri" id="go-break">Take a break</button></div></div>';
+  // Bring the main Poise tab forward (needs the click that just happened in the mini window).
+  const toMain = () => { try { window.focus(); } catch {} };
+  d.getElementById('end').onclick = () => $('end-session').click();
+  d.getElementById('go-break').onclick = () => { if (!$('report').hidden) $('report-break').click(); else setScreen('break'); toMain(); };
+  const cv = d.getElementById('fig'), pctx = cv.getContext('2d');
+  const frame = now => {
+    if (!pipWin || pipWin.closed) return;
+    const r = cv.getBoundingClientRect(), dpr = Math.min(2, pipWin.devicePixelRatio || 1);
+    if (cv.width !== Math.round(r.width * dpr) || cv.height !== Math.round(r.height * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); }
+    pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    avatar.step(performance.now());
+    avatar.render(pctx, r.width, r.height, { fit: [165, 205] });
+    pipWin.requestAnimationFrame(frame);
+  };
+  pipWin.requestAnimationFrame(frame);
+  const tick = () => {
+    if (!pipWin || pipWin.closed) return;
+    const q = id => d.getElementById(id);
+    q('st').textContent = $('posture-state').textContent;
+    q('hint').textContent = $('posture-hint').textContent;
+    q('tm').textContent = `${$('timer').textContent} ${$('timer-unit').textContent}`;
+    // Session over: the report is open in the main tab, so offer the next step here.
+    const done = !$('report').hidden;
+    if (done) { q('st').textContent = 'Session done'; q('hint').textContent = $('report-title').textContent + ' ' + $('report-line').textContent; }
+    q('live-foot').hidden = done;
+    q('end').hidden = screen !== 'work' || $('end-session').hidden;
+    q('done-foot').hidden = !done;
+    q('tm').hidden = done;
+    // Never cut the text: if it doesn't fit, step the text size down until it does.
+    const txt = d.querySelector('.txt');
+    for (const [t, h] of [[16, 13], [15, 12.5], [14, 12], [13, 11.5]]) {
+      q('st').style.fontSize = t + 'px'; q('hint').style.fontSize = h + 'px';
+      if (txt.scrollHeight <= txt.clientHeight + 1) break;
+    }
+    if (!done && screen !== 'work') q('tm').textContent = '';
+    const c = getComputedStyle(document.documentElement).getPropertyValue('--signal').trim() || '#c9ccd1';
+    d.body.style.setProperty('--sig', c);
+  };
+  tick(); clearInterval(pipTimer); pipTimer = setInterval(tick, 500);
+  $('pip').classList.add('on');
+  pipWin.addEventListener('pagehide', () => { clearInterval(pipTimer); pipWin = null; $('pip').classList.remove('on'); });
+}
+$('pip').onclick = togglePip;
+
+// ---------- Logo colour follows what is behind it ----------
+// Twice a second, sample the camera image under the logo (top-left corner, mirrored like the view)
+// and switch the logo to white on a dark background, back to ink on a light one.
+{
+  const lc = document.createElement('canvas'), lx = lc.getContext('2d', { willReadFrequently: true });
+  lc.width = 32; lc.height = 18;
+  let dark = false;
+  setInterval(() => {
+    const logo = $('home');
+    if (!logo || $('studio').hidden) return;
+    if (!active || !camera.videoWidth) { if (dark) { dark = false; logo.classList.remove('on-dark'); } return; }
+    const r = logo.getBoundingClientRect(), vw = innerWidth, vh = innerHeight;
+    // The video fills the screen (cover) and is mirrored, so map the logo box into video pixels.
+    const vr = camera.videoWidth / camera.videoHeight, sr = vw / vh;
+    const scale = vr > sr ? vh / camera.videoHeight : vw / camera.videoWidth;
+    const ox = (vw - camera.videoWidth * scale) / 2, oy = (vh - camera.videoHeight * scale) / 2;
+    const sx = camera.videoWidth - ((r.right - ox) / scale), sy = (r.top - oy) / scale;
+    const sw = r.width / scale, sh = r.height / scale;
+    try {
+      lx.drawImage(camera, Math.max(0, sx), Math.max(0, sy), sw, sh, 0, 0, 32, 18);
+      const d = lx.getImageData(0, 0, 32, 18).data; let s = 0;
+      for (let i = 0; i < d.length; i += 4) s += .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2];
+      const luma = s / (d.length / 4) / 255;
+      const next = dark ? luma < .52 : luma < .42;          // a little hysteresis so it doesn't flicker
+      if (next !== dark) { dark = next; logo.classList.toggle('on-dark', dark); }
+    } catch {}
+  }, 500);
+}
