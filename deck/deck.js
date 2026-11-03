@@ -187,15 +187,15 @@ if (story) {
       const x1 = x * cb - y * sb, y1 = x * sb + y * cb, X = x1 * cy + z * sy, Z = -x1 * sy + z * cy, pf = 560 / (560 - Z * cy);   // perspective only facing us; side on, both arms line up
       return [X * pf, y1 * pf, Z]; };
     const k = Math.min(r.width / 250, r.height / 232) * d * (1 - .16 * S.away);   // closer to the screen = bigger (zoomed in)
-    g.setTransform(k, 0, 0, k, cv.width / 2 - 22 * sy * k, cv.height * .97);
+    g.setTransform(k, 0, 0, k, cv.width / 2 - 22 * sy * k, cv.height * .97);   // closer = bigger, cropped at the bottom like a close-up
     // spine from the waist (y 0) to the shoulders (y -116, as in the app); the slump rounds the back
     const spine = u => [0, -116 * u + br * u - s * 12 * u * u, -s * 18 * Math.sin(Math.PI * u) + s * 26 * u * u];
     const SH = spine(1);
-    const shoulder = side => [side * 40, SH[1] + 5 * Math.sin(yaw), SH[2] - 2];
+    const shoulder = side => [side * (40 - 4 * Math.max(0, -S.away)), SH[1] + 5 * Math.sin(yaw), SH[2] - 2];
     // neck: 38 long like the app; slumped, it tips forward (turtle neck) and the head drops a little
     const NECK = [0, SH[1] - 8, SH[2]], na = s * .95, nl = 38 - s * 8;
     // chin in hand: the head slides and tips toward the propping hand (screen left)
-    const ch = S.chin, head = [-12 * ch, NECK[1] - Math.cos(na) * nl + 8 * ch - 9 * s * (1 - Math.sin(yaw)), NECK[2] + Math.sin(na) * nl];
+    const ch = S.chin, head = [-12 * ch, NECK[1] - Math.cos(na) * nl + 8 * ch + 4 * s * (1 - Math.sin(yaw)), NECK[2] + Math.sin(na) * nl];
     const neckTop = [head[0] * .55, NECK[1] + (head[1] - NECK[1]) * .55, NECK[2] + (head[2] - NECK[2]) * .55];
     // arms rest like the app (elbow out, hands in by the waist); slumped, the forearms reach forward to the desk
     const arm = side => { const sh = shoulder(side), el = [sh[0] + side * 18, sh[1] + 50, sh[2] + 4 + s * 12], hd = [el[0] - side * 18, el[1] + lerp(52, 30, s), el[2] + lerp(2, 46, s)];
@@ -326,7 +326,7 @@ if (story) {
     story.classList.toggle('intro', k === 0);
     // 3 and 10 min: sinking back into the chair, farther from the screen, with only a slight tilt
     // 3 min: chin in hand, tilted hard toward it and leaning in. 10 min: leaning in close to the screen, head pushed forward (turtle neck).
-    const SL = [0, 0, .35, .7, 1, 1], BE = [0, 0, -.24, -.03, 0, 0], LE = [0, 0, -.2, -.5, 0, 0], AW = [0, 0, -.3, -.75, 0, 0], CH = [0, 0, 1, 0, 0, 0];
+    const SL = [0, 0, .35, .7, 1, 1], BE = [0, 0, -.24, -.03, 0, 0], LE = [0, 0, -.2, -.5, 0, 0], AW = [0, 0, -.3, -1.05, 0, 0], CH = [0, 0, 1, 0, 0, 0];
     Object.assign(goal, { yaw: k >= 4 ? Math.PI / 2 : 0, slump: SL[k], bend: BE[k], lean: LE[k], away: AW[k], chin: CH[k],
       neck: k >= 4 ? (k >= 5 ? .5 : 1) : 0, back: k >= 4 ? (k >= 5 ? .6 : 1) : 0, disc: k >= 4 ? (k >= 5 ? .6 : 1) : 0 });
     story.classList.toggle('paying', k === 5);

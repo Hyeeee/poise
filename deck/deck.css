@@ -653,7 +653,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .story .bill .r-note { display: block; font-size: max(calc(var(--s) * 13), 9px); color: var(--ink-3); line-height: 1.4; }
 
 /* figure sits closer under the title */
-.story .story-stage { top: calc(var(--top) + max(calc(var(--s) * 150), 64px)); }
+.story .story-stage { top: calc(var(--top) + max(calc(var(--s) * 210), 84px)); }
 
 /* bills, simplified: same plain card as before, a one-line source at the bottom */
 .story .bill .r-head { display: block; padding-bottom: 0; border-bottom: 0; color: var(--ink); }
