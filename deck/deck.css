@@ -918,3 +918,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .chat.one .ex > .bub.them { grid-column: 1; max-width: 100%; justify-self: start; }
 .chat.one { gap: calc(var(--s) * 26); }
 .chat.one .ex > .bub.me { align-self: start !important; justify-self: end; }
+.chat.one .ex > .bub.them { max-width: 58%; }
