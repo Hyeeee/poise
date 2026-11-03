@@ -654,3 +654,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 
 /* figure sits closer under the title */
 .story .story-stage { top: calc(var(--top) + max(calc(var(--s) * 150), 64px)); }
+
+/* bills, simplified: same plain card as before, a one-line source at the bottom */
+.story .bill .r-head { display: block; padding-bottom: 0; border-bottom: 0; color: var(--ink); }
+.story .bill .r-total b { color: var(--ink); font-weight: 500; font-size: 1em; }
+.story .bill .r-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: max(calc(var(--s) * 14), 9px); }
