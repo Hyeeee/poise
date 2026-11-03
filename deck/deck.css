@@ -911,3 +911,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .chat.one .ex { gap: calc(var(--s) * 10); }
 .chat.one .bub { font-size: max(calc(var(--s) * 21), 12px); padding: calc(var(--s) * 14) calc(var(--s) * 22); max-width: 52%; }
 .chat.one .bub.them span { margin-top: calc(var(--s) * 4); }
+.chat.one { gap: calc(var(--s) * 14); } .chat.one .ex { gap: calc(var(--s) * 8); } .chat.one .bub { padding: calc(var(--s) * 12) calc(var(--s) * 20); }
+/* each exchange is one row: the question sits at the right, its answers stack on the left */
+.chat.one .ex { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: calc(var(--s) * 40); row-gap: calc(var(--s) * 8); align-items: start; }
+.chat.one .ex > .bub.me { grid-column: 2; grid-row: 1; max-width: none; }
+.chat.one .ex > .bub.them { grid-column: 1; max-width: 100%; justify-self: start; }
+.chat.one { gap: calc(var(--s) * 26); }
+.chat.one .ex > .bub.me { align-self: start !important; justify-self: end; }
