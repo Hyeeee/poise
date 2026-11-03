@@ -296,7 +296,7 @@ if (story) {
     ['As we work, we prop our chin', 'and lean to one side.'],
     ['We creep toward the screen,', 'and our posture falls apart.'],
     ['Day after day, the neck', 'and lower back start to hurt.'],
-    ['Treatment, week after week.', 'It adds up.'],
+    ['Fixing it later', 'can cost thousands.'],
   ];
   const keyLines = [...story.querySelectorAll('.key .k1, .key .k2')];
   let morphRun = 0;
