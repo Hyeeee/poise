@@ -859,3 +859,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .viz-chart .pie-out { fill: rgba(20,20,18,.08) !important; stroke: none !important; }
 .viz-chart .pie.light { fill: rgba(20,20,18,.32) !important; }
 .viz-chart .lead { stroke-opacity: .5; stroke-width: 1 !important; }
+
+/* pie fills clockwise from 12 o'clock: a stroke as wide as the radius, drawn out along the circle */
+@property --sw { syntax: "<number>"; inherits: false; initial-value: 0; }
+.viz-chart .sweep { fill: none; stroke-width: 62 !important; stroke-linecap: butt !important; --sw: 0; stroke-dasharray: var(--sw) 100; transition: --sw 1.2s cubic-bezier(.4,0,.2,1) .4s; }
+.viz-chart .sweep.dense { stroke: var(--ink) !important; transition-delay: .4s; }
+.viz-chart .sweep.light { stroke: rgba(20,20,18,.32) !important; transition-delay: .4s; transition-duration: 1.6s; }
+.shown .viz-chart .sweep { --sw: var(--to); }
+.c-pie .t, .c-pie .lead { opacity: 0; transition: opacity .5s ease 1.6s; } .shown .c-pie .t, .shown .c-pie .lead { opacity: 1; }
