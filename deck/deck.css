@@ -634,3 +634,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* a second card on the right, mirroring the treatment card */
 .story .receipt.receipt-right { right: auto; left: calc(50% + min(23%, calc(var(--s) * 380))); top: 40%; }
 .story .receipt.receipt-right.shown { transition-delay: .25s; }
+
+/* side chips sit farther out, leaving room before the ache marks */
+.story .pain-tag.back { left: -14%; }
+.story .pain-tag.disc { left: -14%; }

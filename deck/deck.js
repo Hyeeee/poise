@@ -244,8 +244,6 @@ if (story) {
         g.fillStyle = `rgb(${Math.round(244 - 10 * h)},${Math.round(238 - 150 * h)},${Math.round(226 - 160 * h)})`;
         const wv = c.neck ? 8 : 12; g.beginPath(); g.roundRect(-wv / 2, -3.2, wv, 6.4, 2.6); g.fill(); g.restore(); });
       // the squeezed disc bulges out toward the back
-      if (!neckPart && S.disc > .02) { const i = Math.round(.14 * 16), q = Q[i]; g.fillStyle = `rgba(232,72,56,${S.disc * pulse})`;
-        g.beginPath(); g.ellipse(q[0] - 9 * sy, q[1], 4 + 3 * S.disc, 3, 0, 0, Math.PI * 2); g.fill(); }
       g.restore();
     };
     drawSpine(false);
