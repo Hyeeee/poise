@@ -630,3 +630,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats { padding-top: calc(var(--s) * 40); }
 /* the three figures as one group, centred, closer together */
 .big-stats { justify-content: center; column-gap: calc(var(--s) * 260); }
+
+/* a second card on the right, mirroring the treatment card */
+.story .receipt.receipt-right { right: auto; left: calc(50% + min(23%, calc(var(--s) * 380))); top: 40%; }
+.story .receipt.receipt-right.shown { transition-delay: .25s; }
