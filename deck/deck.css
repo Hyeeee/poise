@@ -531,3 +531,5 @@ body.paper .sheet { background: rgba(250,250,247,.8); }
 .story.intro .story-stage { opacity: 0; transform: translateX(-50%) translateY(calc(var(--s) * 40)) scale(.96); }
 .story.arriving .story-stage { transition-delay: .8s !important; }
 .story .receipt { left: auto; right: calc(50% + min(23%, calc(var(--s) * 380))); top: 52%; width: min(26%, calc(var(--s) * 420)); }
+
+.story .key .w { display: inline-block; will-change: transform, opacity; }

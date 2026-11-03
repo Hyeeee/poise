@@ -262,30 +262,29 @@ if (story) {
     ['Treatment, week after week.', 'It adds up.'],
   ];
   const keyLines = [...story.querySelectorAll('.key .k1, .key .k2')];
-  const GLYPHS = 'abcdefghijklmnopqrstuvwxyz';
   let morphRun = 0;
-  // Each letter flickers through a few random letters, then settles on the new one, sweeping left to right.
-  const morphTitle = (to, dur = 900, delay = 0) => {
-    const run = ++morphRun, from = keyLines.map(l => l.textContent);
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { keyLines.forEach((l, i) => l.textContent = to[i]); return; }
-    const plan = to.map((t, i) => { const f = from[i], n = Math.max(f.length, t.length);
-      return Array.from({ length: n }, (_, c) => { const st = delay + (c / n) * dur * .45 + Math.random() * dur * .1;
-        return { f: f[c] || '', t: t[c] || '', st, end: st + dur * .3 + Math.random() * dur * .25 }; }); });
-    const t0 = performance.now();
-    const tick = now => { if (run !== morphRun) return; const e = now - t0; let done = true;
-      plan.forEach((chars, i) => { keyLines[i].textContent = chars.map(ch => {
-        if (e < ch.st) { done = false; return ch.f; }
-        if (e < ch.end) { done = false; return ch.t === ' ' && ch.f === ' ' ? ' ' : GLYPHS[(Math.random() * 26) | 0]; }
-        return ch.t; }).join(''); });
-      if (!done) requestAnimationFrame(tick); };
-    requestAnimationFrame(tick);
+  // Word by word: the old words lift up and fade, then the new ones rise into place one after another.
+  const setWords = (line, text) => { line.replaceChildren(...text.split(' ').flatMap((w, i) => {
+    const s = document.createElement('span'); s.className = 'w'; s.textContent = w; return i ? [document.createTextNode(' '), s] : [s]; })); };
+  const morphTitle = (to, delay = 0) => {
+    const run = ++morphRun;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { keyLines.forEach((l, i) => setWords(l, to[i])); return; }
+    let i = 0, outEnd = 0;
+    keyLines.forEach(l => l.querySelectorAll('.w').forEach(w => { const d = delay + i++ * 22; outEnd = Math.max(outEnd, d + 260);
+      w.animate([{ transform: 'none', opacity: 1, filter: 'blur(0)' }, { transform: 'translateY(-.28em)', opacity: 0, filter: 'blur(3px)' }],
+        { duration: 260, delay: d, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' }); }));
+    setTimeout(() => { if (run !== morphRun) return; let n = 0;
+      keyLines.forEach((l, li) => { setWords(l, to[li]); l.querySelectorAll('.w').forEach(w => w.animate(
+        [{ transform: 'translateY(.34em)', opacity: 0, filter: 'blur(4px)' }, { transform: 'none', opacity: 1, filter: 'blur(0)' }],
+        { duration: 620, delay: n++ * 45, easing: 'cubic-bezier(.2,.75,.2,1)', fill: 'backwards' })); }); }, outEnd);
   };
+  keyLines.forEach(l => setWords(l, l.textContent));
   let lastK = -1, arriveT;
   const onStep = k => {
     // leaving the key message: the figure and copy wait until the headline has settled, so nothing overlaps
     if (lastK === 0 && k > 0) { story.classList.add('arriving'); clearTimeout(arriveT); arriveT = setTimeout(() => story.classList.remove('arriving'), 2200); }
-    if (k !== lastK && lastK !== -1) morphTitle(TITLES[k], lastK === 0 || k === 0 ? 1000 : 750, lastK === 0 ? 100 : 0);
-    else if (lastK === -1) keyLines.forEach((l, i) => l.textContent = TITLES[k][i]);
+    if (k !== lastK && lastK !== -1) morphTitle(TITLES[k], lastK === 0 ? 120 : 0);
+    else if (lastK === -1) keyLines.forEach((l, i) => setWords(l, TITLES[k][i]));
     lastK = k;
     story.classList.toggle('intro', k === 0);
     const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.06, -.12, 0, 0, 0, 0];
