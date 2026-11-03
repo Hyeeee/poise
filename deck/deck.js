@@ -186,7 +186,7 @@ if (story) {
     const P = ([x, y0, z0]) => { const y = y0 * cl - z0 * sl, z = y0 * sl + z0 * cl;
       const x1 = x * cb - y * sb, y1 = x * sb + y * cb, X = x1 * cy + z * sy, Z = -x1 * sy + z * cy, pf = 560 / (560 - Z * cy);   // perspective only facing us; side on, both arms line up
       return [X * pf, y1 * pf, Z]; };
-    const k = Math.min(r.width / 250, r.height / 232) * d * (1 - .16 * S.away);   // farther from the screen = smaller
+    const k = Math.min(r.width / 250, r.height / 232) * d * (1 - .16 * S.away);   // closer to the screen = bigger (zoomed in)
     g.setTransform(k, 0, 0, k, cv.width / 2 - 22 * sy * k, cv.height * .97);
     // spine from the waist (y 0) to the shoulders (y -116, as in the app); the slump rounds the back
     const spine = u => [0, -116 * u + br * u - s * 12 * u * u, -s * 18 * Math.sin(Math.PI * u) + s * 26 * u * u];
@@ -195,12 +195,12 @@ if (story) {
     // neck: 38 long like the app; slumped, it tips forward (turtle neck) and the head drops a little
     const NECK = [0, SH[1] - 8, SH[2]], na = s * .95, nl = 38 - s * 8;
     // chin in hand: the head slides and tips toward the propping hand (screen left)
-    const ch = S.chin, head = [-12 * ch, NECK[1] - Math.cos(na) * nl + 8 * ch + 14 * s * (1 - Math.sin(yaw)), NECK[2] + Math.sin(na) * nl];
+    const ch = S.chin, head = [-12 * ch, NECK[1] - Math.cos(na) * nl + 8 * ch - 9 * s * (1 - Math.sin(yaw)), NECK[2] + Math.sin(na) * nl];
     const neckTop = [head[0] * .55, NECK[1] + (head[1] - NECK[1]) * .55, NECK[2] + (head[2] - NECK[2]) * .55];
     // arms rest like the app (elbow out, hands in by the waist); slumped, the forearms reach forward to the desk
     const arm = side => { const sh = shoulder(side), el = [sh[0] + side * 18, sh[1] + 50, sh[2] + 4 + s * 12], hd = [el[0] - side * 18, el[1] + lerp(52, 30, s), el[2] + lerp(2, 46, s)];
       if (side < 0 && ch > .001) {   // propping arm: elbow down on the desk in front, hand under the chin
-        const E = [-34, sh[1] + 84, sh[2] + 30], H = [head[0] - 2, head[1] + 19, head[2] + 2];
+        const E = [-34, sh[1] + 84, sh[2] + 30], H = [head[0] - 4, head[1] + 22, head[2] + 2];
         for (let i = 0; i < 3; i++) { el[i] = lerp(el[i], E[i], ch); hd[i] = lerp(hd[i], H[i], ch); } }
       return [sh, el, hd]; };
     // tee: the app's shape (42 wide at the shoulders, 37 at the chest, 34 at the waist), 22 deep
@@ -271,7 +271,11 @@ if (story) {
     const noseA = Math.max(0, 1 - sy / .55);
     if (noseA > .01) { const nx = face(1); g.save(); g.globalAlpha *= noseA; g.beginPath(); g.moveTo(nx, 4); g.lineTo(nx - .5, 9); g.stroke(); g.restore(); }
     g.restore();
-    if (sy <= .2) arms.forEach(a => { if (!(propping && a.side < 0)) drawArm(a.pts); });   // front on, arms last as in the app
+    if (sy <= .2) arms.forEach(a => { if (!(propping && a.side < 0)) drawArm(a.pts); });
+    // the propping hand sits just under the chin, drawn over the head's edge so it reads as holding the chin
+    if (propping) { const [, el, hd] = arms.find(a => a.side < 0).pts, E = P(el), H = P(hd);
+      g.save(); g.globalAlpha *= Math.min(1, (ch - .3) / .4); g.fillStyle = PAPER; g.strokeStyle = INK; g.lineWidth = 2.4;
+      g.beginPath(); g.ellipse(H[0], H[1], 6.5, 8, Math.atan2(H[1] - E[1], H[0] - E[0]) - Math.PI / 2, 0, Math.PI * 2); g.fill(); g.stroke(); g.restore(); }   // front on, arms last as in the app
     // pain: a warm glow plus little ink ache strokes that throb
     const ache = (x, y, r, a, seed) => { if (a < .05) return; g.save(); g.strokeStyle = `rgba(214,60,44,${a})`; g.lineWidth = 2.4; g.lineCap = 'round';
       for (let j = 0; j < 3; j++) { const an = seed + j * .55, r0 = r * (1 + .12 * Math.sin(t / 200 + j)), r1 = r0 + 9;
@@ -324,7 +328,7 @@ if (story) {
     story.classList.toggle('intro', k === 0);
     // 3 and 10 min: sinking back into the chair, farther from the screen, with only a slight tilt
     // 3 min: chin in hand, tilted hard toward it and leaning in. 10 min: leaning in close to the screen, head pushed forward (turtle neck).
-    const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.24, -.03, 0, 0, 0, 0], LE = [0, 0, -.2, -.5, 0, 0, 0, 0], AW = [0, 0, 0, 0, 0, 0, 0, 0], CH = [0, 0, 1, 0, 0, 0, 0, 0];
+    const SL = [0, 0, .35, .7, 1, 1, 1, 1], BE = [0, 0, -.24, -.03, 0, 0, 0, 0], LE = [0, 0, -.2, -.5, 0, 0, 0, 0], AW = [0, 0, -.3, -.75, 0, 0, 0, 0], CH = [0, 0, 1, 0, 0, 0, 0, 0];
     Object.assign(goal, { yaw: k >= 4 ? Math.PI / 2 : 0, slump: SL[k], bend: BE[k], lean: LE[k], away: AW[k], chin: CH[k],
       neck: k >= 4 ? (k >= 7 ? .5 : 1) : 0, back: k >= 5 ? (k >= 7 ? .6 : 1) : 0, disc: k >= 6 ? (k >= 7 ? .6 : 1) : 0 });
     story.classList.toggle('paying', k === 7);

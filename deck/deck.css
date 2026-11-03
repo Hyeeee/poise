@@ -651,3 +651,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .story .bill b { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .story .bill .r-total b { color: #a8432f; font-weight: 600; font-size: 1.15em; }
 .story .bill .r-note { display: block; font-size: max(calc(var(--s) * 13), 9px); color: var(--ink-3); line-height: 1.4; }
+
+/* figure sits closer under the title */
+.story .story-stage { top: calc(var(--top) + max(calc(var(--s) * 150), 64px)); }
