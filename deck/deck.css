@@ -823,3 +823,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .viz-chart text { paint-order: normal; }
 .head .survey-meta { margin-top: calc(var(--s) * 4) !important; }
 .head:has(.survey-meta) { gap: calc(var(--s) * 8); } .head .survey-meta { margin-top: 0 !important; }
+
+.viz-chart .area { fill: rgba(20,20,18,.06); opacity: 0; transition: opacity .8s ease 1s; } .shown .viz-chart .area { opacity: 1; }
+.viz-chart .ppl { fill: rgba(20,20,18,.1); transition: fill .4s ease; }
+.shown .viz-chart .ppl.on { fill: var(--ink); transition-delay: calc(var(--i) * 120ms + 300ms); }
+.shown .viz-chart .ppl.mid { fill: rgba(20,20,18,.38); transition-delay: calc(var(--i) * 120ms + 300ms); }
+.big-stats .viz-chart g, .big-stats .viz-chart circle.pt { stroke-width: 2; }
+.big-stats .viz-chart .ppl * { stroke: none !important; }
+.big-stats .viz-chart .area { stroke: none !important; }
