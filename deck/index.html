@@ -201,43 +201,18 @@
       <h2 class="title" data-in>Meet Poise, my first version. <span>A light on your monitor and an app that work together.</span></h2>
     </div>
     <div class="cards c-6-6 pz-row">
-      <div class="card pz-card" data-in><div class="pz-visual pz-screens"><div class="pz-frame"><video class="pz-video" src="img/v1-flow.mp4" poster="img/v1-flow-poster.jpg" autoplay muted loop playsinline preload="auto"></video></div></div><div class="pz-copy"><div class="card-copy"><h3>Software</h3><p>A web app that learns how you sit, then watches for change.</p></div></div></div>
+      <div class="card pz-card" data-in><div class="pz-visual pz-screens"><div class="pz-frame"><div class="v1-stage"><img class="v1-bg" alt=""><img class="v1-a" alt=""><img class="v1-b" alt=""><i class="v1-tap"></i></div></div></div><div class="pz-copy"><div class="card-copy"><h3>Software</h3><p>A web app that learns how you sit, then watches for change.</p></div></div></div>
       <div class="card pz-card" data-in><div class="pz-visual pz-cut"><img src="img/lightbar-bar.png" alt="The cardboard light bar prototype with its sensors, LED strip and Arduino"></div><div class="pz-copy"><div class="card-copy"><h3>Hardware</h3><p>A light bar on top of your monitor, at the edge of your view.</p></div></div></div>
     </div>
   </section>
-  <section class="slide paper" data-title="Version one" data-steps="4">
+  <section class="slide paper" data-title="Version one" data-steps="3">
     <div class="head">
       <h2 class="title" data-in>Here’s how it works. <span>Setup, work, break and settings.</span></h2>
     </div>
-    <div class="fl-row"><div class="fl-card" data-step="1"><div class="fl-vid" data-scene="onb"><div class="fx fx-onb">
-  <div class="q q1"><p class="fx-orb"></p><h4 data-type="When you sit down to work, how long do you usually stay focused?"></h4>
-    <div class="val"><b class="n">30</b> min</div><div class="sl"><i></i><u></u></div>
-    <div class="pills"><span>10 min</span><span>30 min</span><span class="t60">1 hour</span></div><span class="btn go">Continue</span></div>
-  <div class="q q2"><h4 data-type="When your posture starts to drift, how should I let you know?"></h4>
-    <div class="opts"><span>Gently, after 10 seconds</span><span class="pick">Clearly, after 5 seconds</span><span>Right away, with a chime</span></div></div>
-  <div class="q q3"><h4>Here is what I set up for you.</h4>
-    <div class="sum"><div><em>Focus</em><p>Focus length<b>60 min</b></p><p>Posture cues<b>Clear, 5s</b></p></div><div><em>Break</em><p>Break type<b>Stretches</b></p><p>Starts<b>Auto</b></p></div></div><span class="btn go2">Start</span></div>
-  <i class="tap"></i></div></div><div class="fl-copy"><h3>Onboarding</h3><p>A few plain questions set it up for you.</p></div></div><div class="fl-card" data-step="2"><div class="fl-vid" data-scene="work"><div class="fx fx-work"><svg class="fx-fig" viewBox="0 0 120 160"><circle class="hd" cx="60" cy="34" r="16"/><path class="bd" d="M22 160c0-40 17-66 38-66s38 26 38 66z"/></svg>
-  <div class="wp"><div class="st"><p><b class="s1">Aligned.</b> <span class="s2">Close to your reference.</span></p><div class="bar"><i></i></div><div class="row"><b class="pc">0</b><small>% forward</small></div></div>
-  <div class="tm"><small>My focus</small><b class="clock">24:58</b><span class="btn">End session</span></div></div>
-  <div class="rep"><p><b>Good session.</b> You stayed aligned 78% of the time.</p>
-    <svg viewBox="0 0 200 60"><path class="base" d="M6 50H194"/><path class="ln" d="M6 50 L50 50 L62 18 L118 16 L130 50 L194 50"/></svg>
-    <div class="segs"></div><div class="nums"><div><b>78%</b><small>aligned</small></div><div><b>4.6s</b><small>to correct</small></div><div><b>1</b><small>drift</small></div></div></div>
-  <i class="tap"></i></div></div><div class="fl-copy"><h3>Work</h3><p>The side panel follows how you sit, then a report at the end.</p></div></div><div class="fl-card" data-step="3"><div class="fl-vid" data-scene="brk"><div class="fx fx-brk"><div class="bk">
-  <div class="tabs"><span class="on">Stretch</span><span>Reset</span><span>Game</span></div>
-  <div class="prog"><i></i><small class="cnt">1 / 10</small></div>
-  <div class="art"><svg class="fx-stick" viewBox="0 0 100 160"><circle cx="50" cy="20" r="10"/><path class="tor" d="M50 30v52"/><path class="arm l" d="M50 40 L32 64"/><path class="arm r" d="M50 40 L68 64"/><path d="M50 82 L40 150M50 82 L60 150"/></svg></div>
-  <h5 class="pn">Side reach, left</h5><p class="pi">Raise both arms and lean gently to the left.</p>
-  <div class="mt"><b class="m">0</b><small>% match</small><span class="pts">0 points</span></div><div class="hold"><i></i></div></div></div></div><div class="fl-copy"><h3>Break</h3><p>Guided stretches you follow along with.</p></div></div><div class="fl-card" data-step="4"><div class="fl-vid" data-scene="set"><div class="fx fx-set">
-  <div class="sh"><div class="hd2"><b>Modes</b><span>×</span></div>
-    <div class="seg2"><span class="on">Focus</span><span>Break</span></div>
-    <div class="chips"><span class="on c1">My focus</span><span class="c2">Deep focus</span><span>Quick sprint</span></div>
-    <p class="lbl">Focus length<b class="fl">60 min</b></p><div class="sl"><i></i><u></u></div>
-    <p class="lbl">Sensitivity</p><div class="seg3"><span>Gentle</span><span class="on">Balanced</span><span>Firm</span></div>
-    <p class="lbl tg">Eye care<i class="sw"></i></p><p class="lbl tg">Voice guidance<i class="sw on"></i></p></div>
-  <div class="ask"><div class="th"><p class="me"></p><p class="ai">Done. Focus is 50 minutes, and breaks use breathing.</p></div>
-    <div class="bar2"><span class="ph">Ask Poise to change anything</span><span class="ty"></span><i class="mic"></i><i class="send"></i></div></div>
-  <i class="tap"></i></div></div><div class="fl-copy"><h3>Settings</h3><p>Tune it yourself, or just ask Poise.</p></div></div></div>
+    <div class="v1-card" data-in>
+      <div class="v1-side"><div class="v1-item" data-k="onb"><h3>Onboarding</h3><p class="v1-lead">A few plain questions set it up for you.</p><p class="v1-body">Instead of a settings page, Poise asks how long you focus, how it should tell you when you drift, and what helps you rest. Then it shows what it set up.</p></div><div class="v1-item" data-k="work"><h3>Work</h3><p class="v1-lead">The side panel follows how you sit.</p><p class="v1-body">When you lean in, the card warms and tells you which way you moved. When you settle back, it says so. At the end, a report shows how the session went.</p></div><div class="v1-item" data-k="brk"><h3>Break</h3><p class="v1-lead">Guided stretches you follow along with.</p><p class="v1-body">A figure shows each stretch, the camera checks how closely you match it, and points add up as you hold each pose.</p></div><div class="v1-item" data-k="set"><h3>Settings</h3><p class="v1-lead">Tune it yourself, or just ask Poise.</p><p class="v1-body">Modes keep your focus length, sensitivity and break style. Or type to Poise, and it changes the settings for you.</p></div></div>
+      <div class="v1-screen"><div class="v1-stage"><img class="v1-bg" alt=""><img class="v1-a" alt=""><img class="v1-b" alt=""><i class="v1-tap"></i></div></div>
+    </div>
   </section>
 
   <!-- 8 · V1 setup -->

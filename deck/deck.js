@@ -504,3 +504,50 @@ document.querySelectorAll('.fl-row').forEach(row => {
     new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] });
   });
 })();
+
+// Version one screens: real version one layers played on one backdrop, with a tap dot.
+// Used by the Version one card (one part per press) and the Meet Poise software card (all parts in a loop).
+const V1 = (() => {
+  const W = ms => new Promise(r => setTimeout(r, ms));
+  let man = null; const ready = fetch('v1/manifest.json').then(r => r.json()).then(m => { man = m; m.steps.forEach(s => { const i = new Image(); i.src = 'v1/' + s.img; }); return m; });
+  function player(stage) {
+    const A = stage.querySelector('.v1-a'), B = stage.querySelector('.v1-b'), bg = stage.querySelector('.v1-bg'), tap = stage.querySelector('.v1-tap');
+    bg.src = 'v1/bg.webp'; let front = A, token = 0;
+    const show = src => new Promise(res => { const back = front === A ? B : A; let done = false;
+      const go = () => { if (done) return; done = true; back.classList.add('on'); front.classList.remove('on'); front = back; res(); };
+      back.onload = go; back.src = src; if (back.complete && back.naturalWidth) go(); });
+    const tapTo = async (x, y) => { tap.style.left = (x / 1440 * 100) + '%'; tap.style.top = (y / 900 * 100) + '%';
+      await W(720); tap.classList.add('hover'); await W(380); tap.classList.remove('hover'); tap.classList.add('press'); await W(180); tap.classList.remove('press'); };
+    const park = () => { tap.style.left = '72%'; tap.style.top = '112%'; };
+    async function play(keys) {
+      const my = ++token; await ready; if (my !== token) return;
+      tap.style.transition = 'none'; park(); tap.offsetWidth; tap.style.transition = '';
+      while (my === token) {
+        for (const key of keys) for (const s of man.steps.filter(x => x.scene === key)) {
+          if (my !== token) return; if (s.hover) continue;
+          await show('v1/' + s.img); await W(s.hold); if (my !== token) return;
+          if (s.tap) await tapTo(s.tap.x, s.tap.y);
+        }
+        await W(500); park();
+      }
+    }
+    return { play, stop: () => { token++; } };
+  }
+  return { player };
+})();
+(() => {
+  const card = document.querySelector('.v1-card'); if (!card) return;
+  const sl = card.closest('.slide'), pl = V1.player(card.querySelector('.v1-stage')), KEYS = ['onb', 'work', 'brk', 'set'];
+  let cur = '';
+  const sync = () => { const k = KEYS[Math.min(3, +(sl.dataset.at || 0))];
+    card.querySelectorAll('.v1-item').forEach(i => i.classList.toggle('on', i.dataset.k === k));
+    if (!sl.classList.contains('open')) { pl.stop(); cur = ''; return; }
+    if (cur !== k) { cur = k; pl.play([k]); } };
+  sl.addEventListener('step', sync); new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] });
+})();
+(() => {
+  const st = document.querySelector('.pz-frame .v1-stage'); if (!st) return;
+  const sl = st.closest('.slide'), pl = V1.player(st); let on = false;
+  const sync = () => { const o = sl.classList.contains('open'); if (o && !on) { on = true; pl.play(['onb', 'work', 'brk', 'set']); } if (!o && on) { on = false; pl.stop(); } };
+  new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
+})();
