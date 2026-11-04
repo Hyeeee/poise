@@ -1521,3 +1521,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
   93.8% { opacity: .9; transform: translate(-50%,-50%) scale(.8) }
   96.5% { opacity: 0; transform: translate(-50%,-50%) scale(2.6) }
   }
+.pz-copy .card-copy p { max-width: none; white-space: nowrap; }
