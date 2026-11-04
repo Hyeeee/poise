@@ -388,7 +388,7 @@ function centreCharts() {
     let cl = Infinity, cr = -Infinity;
     svg.querySelectorAll('rect, circle, text').forEach(e => { const r = e.getBoundingClientRect(); if (r.width) { cl = Math.min(cl, r.left); cr = Math.max(cr, r.right); } });
     if (!isFinite(L) || !isFinite(cl)) return;
-    svg.style.transform = `translateX(${((L + R) / 2 - (cl + cr) / 2).toFixed(1)}px)`;
+    svg.style.transform = `translateX(${((L + R) / 2 - (cl + cr) / 2 - 3).toFixed(1)}px)`;   // 3px left of true centre, optically centred
   });
 }
 addEventListener('resize', centreCharts);
