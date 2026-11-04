@@ -543,7 +543,7 @@ const V1 = (() => {
     card.querySelectorAll('.v1-item').forEach(i => i.classList.toggle('on', i.dataset.k === k));
     if (!sl.classList.contains('open')) { pl.stop(); cur = ''; return; }
     if (cur !== k) { cur = k; pl.play([k]); } };
-  sl.addEventListener('step', sync); new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] });
+  sl.addEventListener('step', sync); new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
 })();
 (() => {
   const st = document.querySelector('.pz-frame .v1-stage'); if (!st) return;

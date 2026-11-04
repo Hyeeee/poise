@@ -1686,3 +1686,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v1-tap::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid rgba(30,107,55,.6); opacity: 0; }
 .v1-tap.press::after { animation: fxRip .6s ease-out; }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .v1-card { grid-template-columns: 1fr; } .v1-side { min-height: 10em; } }
+.pz-cut img { inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 100% 28%; transform: none; }
