@@ -1383,3 +1383,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .hy-card h3 + p { margin-bottom: calc(var(--s) * 16); }
 .hy-vizrow { display: none; } .slide[data-title="Hypothesis"] .hy-box { justify-content: space-between; }
 .hy-line { font-size: max(calc(var(--s) * 38), 18px); line-height: 1.32; } .slide[data-title="Hypothesis"] .hy-box { justify-content: flex-start; gap: calc(var(--s) * 44); } .hy-how { flex: none; }
+/* hypothesis slide: same padding on all four sides for every card; taller research cards; box content pinned top and bottom */
+.slide[data-title="Hypothesis"] .hy-card { padding: calc(var(--s) * 34) !important; }
+.hy-card .hy-key { margin-top: calc(var(--s) * 40); }
+.hy-card h3 + p { margin-bottom: 0; }
+.hy-card { justify-content: space-between; }
+.slide[data-title="Hypothesis"] .hy-box { padding: calc(var(--s) * 34) !important; justify-content: space-between; gap: calc(var(--s) * 28); }
+.hy-card { justify-content: flex-start; } .hy-card h3 { margin-top: calc(var(--s) * 14) !important; } .hy-card h3 + p { margin-top: calc(var(--s) * 8); } .hy-card .hy-key { margin-top: auto; } .hy-card p:not(.hy-src) { margin-bottom: calc(var(--s) * 28); }
