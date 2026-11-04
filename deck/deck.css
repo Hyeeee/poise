@@ -1053,3 +1053,16 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .title span, .chapter-title span, .cover-title span { color: var(--ink); opacity: .42; }
 /* the same gap between exchanges in every card; the conversations sit at the bottom so their last bubbles still end on one line */
 .iv-talk { justify-content: flex-end; gap: calc(var(--s) * 30); }
+/* interview cards flip: after all three are in, each press turns one card to show what I learned and the opportunity */
+.iv-card { display: grid; background: none; padding: 0; box-shadow: none; perspective: 1600px; }
+.iv-face { grid-area: 1 / 1; display: flex; flex-direction: column; background: #fff; border-radius: calc(var(--s) * 30); padding: calc(var(--s) * 26) calc(var(--s) * 28) calc(var(--s) * 52); box-shadow: 0 24px 50px -34px rgba(40,44,36,.4);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: transform .9s cubic-bezier(.4,.1,.2,1); }
+.iv-back { transform: rotateY(-180deg); }
+.iv-card:has(.iv-back.shown) .iv-front { transform: rotateY(180deg); }
+.iv-card:has(.iv-back.shown) .iv-back { transform: none; }
+.iv-learn { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: calc(var(--s) * 40); padding-top: calc(var(--s) * 24); }
+.iv-learn p { font-size: max(calc(var(--s) * 26), 15px); line-height: 1.32; letter-spacing: -.015em; color: var(--ink); font-weight: 500; }
+.iv-learn span { display: inline-block; margin-bottom: calc(var(--s) * 12); font-size: max(calc(var(--s) * 14), 9px); font-weight: 500; letter-spacing: .02em; padding: calc(var(--s) * 5) calc(var(--s) * 12); border-radius: 99px; background: #f2f2f0; color: var(--ink-2); }
+.iv-opp span { background: #e6f4ea; color: #1e7a3c; }
+.iv-back .iv-who { flex: none; }
+.iv-learn p { display: flex; flex-direction: column; align-items: flex-start; }
