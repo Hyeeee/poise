@@ -952,3 +952,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .viz-chart .vbar.hi { fill: var(--ch-ink) !important; }
 .shown .viz-chart .vbar { transform: none; }
 .big-stats .viz-chart .t.in { fill: var(--ink-2); } .big-stats .viz-chart .t.in.hi { fill: #fbfaf6; }
+.big-stats .viz-chart.c-line { overflow: visible; }
