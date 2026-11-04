@@ -1206,3 +1206,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .mk-label { border-bottom: 0; }
 .mk-mark.logo img { width: 56%; height: 56%; object-fit: contain; display: block; }
 .mk-table .mk-mark { font-size: max(calc(var(--s) * 21), 13px); }
+/* one soft shadow for every card on every slide; use var(--card-shadow) for any new card */
+:root { --card-shadow: 0 24px 50px -34px rgba(40,44,36,.4); }
+.card, .glass-card, .form-q, .iv-face, .mk-card, .hy-card { box-shadow: var(--card-shadow) !important; }
