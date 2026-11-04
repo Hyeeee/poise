@@ -1117,3 +1117,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .hy-row { grid-template-columns: 1fr; } }
 .hy-statement { max-width: 48ch; margin-top: calc(var(--s) * 36); }
 .iv-learn { gap: calc(var(--s) * 44); }
+/* market research: 50/50, cards run to the bottom like the other slides, rows share the height evenly; a small mark beside each name */
+.mk-row { grid-template-columns: 1fr 1fr; max-height: none; margin-bottom: calc(var(--s) * 8); }
+.mk-table tbody th, .mk-list li > div { display: grid; grid-template-columns: auto 1fr; column-gap: calc(var(--s) * 14); align-items: center; }
+.mk-table tbody th .mk-mark, .mk-list .mk-mark { grid-row: 1 / span 2; }
+.mk-table tbody th small, .mk-list li > div small { grid-column: 2; }
+.mk-mark { width: calc(var(--s) * 40); height: calc(var(--s) * 40); border-radius: calc(var(--s) * 11); background: #f2f2f0; display: grid; place-items: center; font-style: normal; font-weight: 600; font-size: max(calc(var(--s) * 17), 11px); color: var(--ink-2); }
+.mk-list li { gap: calc(var(--s) * 10); }
+.mk-list span { margin-left: calc(var(--s) * 54); }
