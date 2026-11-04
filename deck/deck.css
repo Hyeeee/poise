@@ -1231,3 +1231,16 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .hy-box.shown mark:nth-of-type(1)::after { transition-delay: .5s; } .hy-box.shown mark:nth-of-type(2)::after { transition-delay: .75s; } .hy-box.shown mark:nth-of-type(3)::after { transition-delay: 1s; }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .hy-box { grid-template-columns: 1fr; row-gap: 12px; } }
 .hy-key { margin-top: auto; } .hy-card h3 + p { margin-bottom: calc(var(--s) * 26); }
+/* comparator widgets: light, diagram-like rather than a real phone screen; more room inside and above the bar */
+.mk-list li > .mk-demo.la { background: #f3f3f0; color: var(--ink); box-shadow: none; border: 1px solid rgba(20,20,18,.06); padding: calc(var(--s) * 18) calc(var(--s) * 22); gap: calc(var(--s) * 14); border-radius: calc(var(--s) * 22); }
+.mk-demo.la p b { color: var(--ink); }
+.mk-demo.la p small { color: var(--ink-3); margin-top: calc(var(--s) * 3); }
+.mk-demo .bar, .sb .steps u { background: rgba(20,20,18,.08); }
+.sb .steps u:nth-child(2) { animation-name: sb2l; } .sb .steps u:nth-child(3) { animation-name: sb3l; }
+@keyframes sb2l { 0%{background:rgba(20,20,18,.08)} 33%{background:#3aa66b} }
+@keyframes sb3l { 0%,33%{background:rgba(20,20,18,.08)} 66%{background:#3aa66b} }
+.ub .road::before { border-top-color: rgba(20,20,18,.25); }
+.ub .road::after { background: var(--ink); }
+.nrc .bar u { background: #9bc53d; }
+.mk-list li { grid-template-columns: minmax(0,1fr) calc(var(--s) * 270); }
+.mk-list li > .mk-demo.la { padding: calc(var(--s) * 15) calc(var(--s) * 22); gap: calc(var(--s) * 12); }
