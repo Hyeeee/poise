@@ -15,9 +15,10 @@ class DeckAvatar extends PostureAvatar {
 const deck = document.getElementById('deck');
 const slides = [...deck.querySelectorAll('.slide')];
 const progress = document.getElementById('progress');
-// The parts of the deck, in order, and how many slides each has (cover and contents come first).
-const PARTS = [['Intro', 2], ['Problem', 1], ['Research', 1], ['Playtest', 1], ['Demo', 1], ['Next', 2]];
-let at = 0;
+// The parts of the deck, in order, and how many slides each has. The cover sits before them
+// (the bar is hidden there), so counting starts at slide 2.
+const PARTS = [['Feedback', 1], ['Problem', 1], ['Research', 1], ['Playtest', 1], ['Demo', 1], ['Next', 2]];
+let at = 1;
 const segs = PARTS.map(([name, n]) => {
   const start = at; at += n;
   const el = document.createElement('button');
