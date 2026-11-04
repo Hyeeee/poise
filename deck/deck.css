@@ -1049,3 +1049,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .title span, .chapter-title span { color: rgba(20,20,18,.42); }
 /* cover headline back on four lines */
 .cover-title, .cover-title span { white-space: normal; }
+/* grey lines: solid ink faded as one layer, so overlapping letters (f+t) don't double up, and the backdrop still shows through */
+.title span, .chapter-title span, .cover-title span { color: var(--ink); opacity: .42; }
