@@ -1016,3 +1016,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* the conversation fills the card, so every card's last bubble ends at the same line above "What I noticed" */
 .iv-talk { flex: 1; justify-content: space-between; }
 .iv-note, .iv-talk + .iv-note { margin-top: 0; }
+/* real profile photos where we have them (Paul, Peter); the emoji stays as the fallback */
+.has-pic .iv-av, .has-pic .iv-a::before { background: #ddd var(--pic) center / cover no-repeat; color: transparent; }
+.has-pic .iv-a::before { content: ""; }
+/* no takeaway row: the conversation ends the card */
+.iv-talk { flex: 0 0 auto; justify-content: flex-start; padding-bottom: calc(var(--s) * 4); }
+.iv-card .iv-talk { margin-bottom: 0; }
+/* answers stop short of the card edge, like a chat */
+.iv-a { max-width: calc(84% - var(--s) * 36); }
