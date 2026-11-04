@@ -971,36 +971,26 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .fq-bars i::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 99px; background: rgba(20,20,18,.22); transition: width 1s cubic-bezier(.3,.7,.2,1) .3s; }
 .fq-bars li.hi i::after { background: var(--ink); }
 .form-q.shown .fq-bars i::after { width: calc(var(--v) * 100%); }
-/* interviews: three people side by side; each card opens and its conversation rises underneath */
-.iv-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--s) * 24); align-items: start; margin-top: calc(var(--s) * 12); }
-.iv-card { background: #fff; border-radius: calc(var(--s) * 30); padding: calc(var(--s) * 28) calc(var(--s) * 30) calc(var(--s) * 30); box-shadow: 0 24px 50px -34px rgba(40,44,36,.4);
-  opacity: 0; transform: translateY(calc(var(--s) * 24)); transition: opacity .6s ease, transform .8s var(--ease); }
+/* interviews: three profiles side by side; each press drops in one person with their whole conversation */
+.iv-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--s) * 24); align-items: stretch; margin-top: calc(var(--s) * 4); }
+.iv-card { display: flex; flex-direction: column; background: #fff; border-radius: calc(var(--s) * 30); padding: calc(var(--s) * 26) calc(var(--s) * 28); box-shadow: 0 24px 50px -34px rgba(40,44,36,.4);
+  opacity: 0; transform: translateY(calc(var(--s) * -28)); transition: opacity .6s ease, transform .9s var(--ease); }
 .iv-card.shown { opacity: 1; transform: none; }
-.iv-row:has(.iv-card.focus) .iv-card.shown:not(.focus) { opacity: .45; }
-.iv-chips { display: flex; gap: calc(var(--s) * 8); }
-.iv-chips span { background: #f2f2f0; border-radius: 99px; padding: calc(var(--s) * 7) calc(var(--s) * 16); font-size: max(calc(var(--s) * 17), 11px); color: var(--ink); }
-.iv-title { margin-top: calc(var(--s) * 56); font-weight: 500; font-size: max(calc(var(--s) * 25), 14px); letter-spacing: -.015em; line-height: 1.3; color: var(--ink); }
-.iv-desc { margin-top: calc(var(--s) * 6); font-size: max(calc(var(--s) * 20), 12px); line-height: 1.45; color: var(--ink-3); }
-.iv-talk { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .7s var(--ease); }
-.iv-talk > div { overflow: hidden; min-height: 0; }
-.iv-card.focus .iv-talk { grid-template-rows: 1fr; }
-.iv-qa { display: flex; flex-direction: column; gap: calc(var(--s) * 8); padding-top: calc(var(--s) * 22); }
-.iv-qa:first-child { margin-top: calc(var(--s) * 8); border-top: 1px solid rgba(20,20,18,.08); }
-.iv-q, .iv-a { max-width: 92%; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 11) calc(var(--s) * 16); font-size: max(calc(var(--s) * 18), 11px); line-height: 1.4; letter-spacing: -.005em; }
+.iv-row:has(.iv-card.focus) .iv-card.shown:not(.focus) { opacity: .4; }
+.iv-who { display: flex; align-items: center; gap: calc(var(--s) * 14); }
+.iv-av { flex: none; width: calc(var(--s) * 56); height: calc(var(--s) * 56); border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 500; font-size: max(calc(var(--s) * 22), 13px); color: var(--ink); background: linear-gradient(135deg, #e6efe4, #f3ead6); background-size: cover; background-position: center; }
+.iv-who b { display: block; font-weight: 500; font-size: max(calc(var(--s) * 23), 14px); letter-spacing: -.015em; color: var(--ink); }
+.iv-who span { display: block; margin-top: calc(var(--s) * 2); font-size: max(calc(var(--s) * 16), 10px); color: var(--ink-3); }
+.iv-pain { margin-top: calc(var(--s) * 20); padding-bottom: calc(var(--s) * 18); border-bottom: 1px solid rgba(20,20,18,.08); font-size: max(calc(var(--s) * 18), 11px); line-height: 1.4; color: var(--ink); min-height: 4.2em; }
+.iv-pain span { display: block; margin-bottom: calc(var(--s) * 4); font-size: max(calc(var(--s) * 14), 9px); color: var(--ink-3); letter-spacing: .02em; }
+.iv-talk { display: flex; flex-direction: column; gap: calc(var(--s) * 16); padding-top: calc(var(--s) * 18); }
+.iv-qa { display: flex; flex-direction: column; gap: calc(var(--s) * 6); }
+.iv-q, .iv-a { max-width: 94%; border-radius: calc(var(--s) * 18); padding: calc(var(--s) * 9) calc(var(--s) * 14); font-size: max(calc(var(--s) * 16), 10px); line-height: 1.4; letter-spacing: -.005em; }
 .iv-q { align-self: flex-end; background: var(--ink); color: #fbfaf6; border-bottom-right-radius: calc(var(--s) * 6); }
 .iv-a { align-self: flex-start; background: #f2f2f0; color: var(--ink); border-bottom-left-radius: calc(var(--s) * 6); }
-.iv-qa > * { opacity: 0; transform: translateY(calc(var(--s) * 14)); transition: opacity .45s ease, transform .6s var(--ease); }
-.iv-qa.shown > * { opacity: 1; transform: none; transition-delay: .25s; }
-.iv-qa.shown > .iv-a { transition-delay: .7s; } .iv-qa.shown > .iv-a + .iv-a { transition-delay: 1.1s; }
-.iv-qa:not(.shown) { display: none; }
+.iv-qa > * { opacity: 0; transform: translateY(calc(var(--s) * 12)); transition: opacity .45s ease, transform .6s var(--ease); }
+.iv-card.shown .iv-qa > * { opacity: 1; transform: none; }
+.iv-card.shown .iv-qa:nth-child(1) > :nth-child(1) { transition-delay: .5s; } .iv-card.shown .iv-qa:nth-child(1) > :nth-child(2) { transition-delay: .8s; }
+.iv-card.shown .iv-qa:nth-child(2) > :nth-child(1) { transition-delay: 1.15s; } .iv-card.shown .iv-qa:nth-child(2) > :nth-child(2) { transition-delay: 1.45s; }
+.iv-card.shown .iv-qa:nth-child(3) > :nth-child(1) { transition-delay: 1.8s; } .iv-card.shown .iv-qa:nth-child(3) > :nth-child(2) { transition-delay: 2.1s; }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .iv-row { grid-template-columns: 1fr; } }
-/* a card keeps its last two exchanges; older ones fold away so it never runs off the slide */
-.iv-qa.shown:has(~ .iv-qa.shown ~ .iv-qa.shown) { display: none; }
-.iv-q { max-width: 100%; }
-.iv-qa:first-child { border-top: 0; }
-.iv-talk > div { box-shadow: inset 0 1px rgba(20,20,18,.08); margin-top: calc(var(--s) * 8); }
-.iv-qa:first-child { margin-top: 0; }
-/* survey labels stay on one line; same label column in every card so the bars start together */
-.fq-bars { display: grid !important; grid-template-columns: 12.5em minmax(0, 1fr) 4.6em; font-size: max(calc(var(--s) * 15), 10px); column-gap: calc(var(--s) * 12); }
-.fq-bars li { grid-column: 1 / -1; grid-template-columns: subgrid !important; }
-.fq-bars li span { white-space: nowrap; }
