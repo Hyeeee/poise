@@ -86,6 +86,14 @@ function wordsIn(slide, delay = 380) {
   slide.querySelectorAll('.title, .cover-title, .chapter-title').forEach(h => h.querySelectorAll('x-w').forEach((w, n) => w.animate(
     [{ transform: 'translateY(.34em)', opacity: 0, filter: 'blur(4px)' }, { transform: 'none', opacity: 1, filter: 'blur(0)' }],
     { duration: 620, delay: delay + n * 45, easing: 'cubic-bezier(.2,.75,.2,1)', fill: 'backwards' })));
+  // Everything else on the slide (subtitles, captions, cards) waits until the headline has landed,
+  // then follows in order, so nothing arrives while the headline is still coming in.
+  const heads = [...slide.querySelectorAll('.title, .cover-title, .chapter-title')];
+  const words = heads.reduce((m, h) => Math.max(m, h.querySelectorAll('x-w').length), 0);
+  if (!words) return;
+  const after = delay + words * 45 + 300;
+  [...slide.querySelectorAll('[data-in]')].filter(el => !heads.some(h => el === h || el.contains(h)))
+    .forEach((el, k) => { el.style.setProperty('--wait', after + 'ms'); el.style.setProperty('--i', k); });
 }
 
 function go(i, atEnd = false) {
