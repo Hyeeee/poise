@@ -1213,3 +1213,21 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .fq-bars { display: grid !important; grid-template-columns: 12.5em minmax(0, 1fr) 4.6em; font-size: max(calc(var(--s) * 15), 10px); column-gap: calc(var(--s) * 12); }
 .fq-bars li { grid-column: 1 / -1; grid-template-columns: subgrid !important; }
 .fq-bars li span { white-space: nowrap; }
+/* hypothesis v2: each research card ends in the one word it gives; the hypothesis box is built from those words */
+.hy-card { display: flex; flex-direction: column; }
+.hy-card h3 { margin-top: calc(var(--s) * 40); }
+.hy-key { margin-top: calc(var(--s) * 26); align-self: flex-start; font-style: normal; font-weight: 500; font-size: max(calc(var(--s) * 15), 10px); color: #1e7a3c; background: #e6f4ea; border-radius: 99px; padding: calc(var(--s) * 6) calc(var(--s) * 14); }
+.hy-key::before { content: "→ "; }
+.hy-statement { display: none; }
+.hy-box { margin-top: calc(var(--s) * 24); background: var(--ink); color: #f4f3ee; border-radius: calc(var(--s) * 30); padding: calc(var(--s) * 36) calc(var(--s) * 44); box-shadow: var(--card-shadow);
+  display: grid; grid-template-columns: calc(var(--s) * 200) 1fr; align-items: center; column-gap: calc(var(--s) * 32);
+  opacity: 0; transform: translateY(calc(var(--s) * 20)); transition: opacity .7s ease, transform .9s var(--ease); }
+.hy-box.shown { opacity: 1; transform: none; }
+.hy-tag { font-size: max(calc(var(--s) * 16), 10px); font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: rgba(255,255,255,.5); }
+.hy-line { font-weight: 500; font-size: max(calc(var(--s) * 32), 16px); line-height: 1.38; letter-spacing: -.02em; }
+.hy-line mark { background: none; color: #8fe0a8; position: relative; }
+.hy-line mark::after { content: ""; position: absolute; left: 0; right: 0; bottom: .05em; height: 2px; border-radius: 2px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .7s var(--ease); }
+.hy-box.shown mark::after { transform: scaleX(1); }
+.hy-box.shown mark:nth-of-type(1)::after { transition-delay: .5s; } .hy-box.shown mark:nth-of-type(2)::after { transition-delay: .75s; } .hy-box.shown mark:nth-of-type(3)::after { transition-delay: 1s; }
+@media (max-width: 860px), (max-aspect-ratio: 1/1) { .hy-box { grid-template-columns: 1fr; row-gap: 12px; } }
+.hy-key { margin-top: auto; } .hy-card h3 + p { margin-bottom: calc(var(--s) * 26); }
