@@ -1279,3 +1279,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .mk-over-line { font-weight: 500; font-size: max(calc(var(--s) * 34), 17px); line-height: 1.3; letter-spacing: -.02em; color: var(--ink); max-width: 22ch; }
 .mk-over-line span { display: block; margin-top: calc(var(--s) * 8); color: rgba(20,20,18,.42); }
 .mk-over-line { max-width: none; font-size: max(calc(var(--s) * 30), 16px); } .mk-over { padding: calc(var(--s) * 48); }
+/* Meet Poise: each card carries its own detail instead of a line under the cards */
+.pz-card { display: flex; flex-direction: column; gap: calc(var(--s) * 18); }
+.pz-list { list-style: none; margin: auto 0 0; padding: 0; display: flex; flex-direction: column; }
+.pz-list li { display: grid; grid-template-columns: calc(var(--s) * 200) 1fr; column-gap: calc(var(--s) * 20); padding: calc(var(--s) * 18) 0; border-top: 1px solid rgba(20,20,18,.08); align-items: baseline; }
+.pz-list b { font-weight: 500; font-size: max(calc(var(--s) * 19), 12px); color: var(--ink); }
+.pz-list span { font-size: max(calc(var(--s) * 18), 11px); line-height: 1.45; color: var(--ink-2); }
