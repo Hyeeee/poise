@@ -919,3 +919,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .chat.one { gap: calc(var(--s) * 26); }
 .chat.one .ex > .bub.me { align-self: start !important; justify-self: end; }
 .chat.one .ex > .bub.them { max-width: 58%; }
+
+/* interviews in pages of two: the next press clears the page and starts the next one */
+.chat.paged { display: grid; align-content: start; }
+.chat.paged .chat-page { grid-area: 1 / 1; display: flex; flex-direction: column; gap: calc(var(--s) * 36); transition: opacity .35s ease, filter .35s ease; }
+.chat.paged .chat-page:has(+ .chat-page .ex.shown) { opacity: 0; filter: blur(6px); pointer-events: none; }
+.chat.paged .chat-page:has(+ .chat-page .ex.shown) .bub { transition-delay: 0s !important; }
+.chat.paged { grid-template-columns: minmax(0,1fr); width: 100%; } .chat.paged .chat-page { width: 100%; }
