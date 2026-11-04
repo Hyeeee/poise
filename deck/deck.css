@@ -1299,3 +1299,15 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .card.pz-card::before, .card.pz-card::after { display: none !important; }
 .hy-box { align-items: stretch; } .hy-main { align-items: flex-start; text-align: left; }
 .mk-card:last-child .mk-over { background: rgba(255,255,255,.38); } .mk-card:last-child .mk-over.shown { backdrop-filter: blur(80px) saturate(1.5); -webkit-backdrop-filter: blur(80px) saturate(1.5); }
+/* hypothesis box: a soft green card that fits the deck, instead of a black block */
+.hy-box { background: #e8f2ea; color: var(--ink); }
+.hy-tag { color: #3f7a52; }
+.hy-line { color: var(--ink); }
+.hy-line mark { color: #1e7a3c; }
+.hy-sub { border-top-color: rgba(30,122,60,.16); }
+.hy-sub em { color: #1e7a3c; }
+.hy-sub p { color: var(--ink-2); }
+.hy-sub p i { color: var(--ink); }
+.hy-sub small { color: var(--ink-2); }
+.hy-sub small span { color: var(--ink-3); }
+.hy-box { background: #dcede1; }
