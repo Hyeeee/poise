@@ -1293,3 +1293,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* frost = blur, not white: a thin tint and a heavy blur so logos and text spread into soft colour */
 .mk-over { background: rgba(255,255,255,.18); }
 .mk-over.shown { backdrop-filter: blur(22px) saturate(1.6); -webkit-backdrop-filter: blur(22px) saturate(1.6); }
+.mk-over.shown { backdrop-filter: blur(48px) saturate(1.8); -webkit-backdrop-filter: blur(48px) saturate(1.8); }
