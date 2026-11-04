@@ -1024,3 +1024,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-card .iv-talk { margin-bottom: 0; }
 /* answers stop short of the card edge, like a chat */
 .iv-a { max-width: calc(84% - var(--s) * 36); }
+/* more room between the caption and the cards; earlier cards stay at full strength */
+.iv-row { margin-top: calc(var(--s) * 28); }
+.iv-row:has(.iv-card.focus) .iv-card.shown:not(.focus) { opacity: 1; }
