@@ -1013,3 +1013,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-a::before { content: var(--emo); position: absolute; left: calc(var(--s) * -40); bottom: 0; width: calc(var(--s) * 30); height: calc(var(--s) * 30); border-radius: 50%; background: #f2f2f0; display: grid; place-items: center; font-size: max(calc(var(--s) * 15), 10px); line-height: 1; }
 .iv-a { margin-left: calc(var(--s) * 36); max-width: calc(100% - var(--s) * 36); }
 .iv-a::before { left: calc(var(--s) * -36); }
+/* the conversation fills the card, so every card's last bubble ends at the same line above "What I noticed" */
+.iv-talk { flex: 1; justify-content: space-between; }
+.iv-note, .iv-talk + .iv-note { margin-top: 0; }
