@@ -108,6 +108,8 @@ function go(i, atEnd = false) {
   slides.forEach(s => s.classList.remove('leaving'));
   if (prev) { prev.classList.remove('open'); prev.classList.add('leaving'); clearTimeout(leaveTimer); leaveTimer = setTimeout(() => prev.classList.remove('leaving'), 700); }
   next.classList.add('open');
+  // the live demo slide loads the real app the first time you reach it (so the camera only asks then)
+  next.querySelectorAll('iframe[data-src]:not([src])').forEach(f => { f.src = f.dataset.src; });
   wordsIn(next, prev ? 380 : 200);
   setStep(next, atEnd ? stepsOf(next) : 0);
   cur = i;
@@ -504,3 +506,9 @@ document.querySelectorAll('.fl-row').forEach(row => {
     new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] });
   });
 })();
+
+// Live demo controls: reload the embedded app. Clicks inside the app stay in the app;
+// click outside it (or the arrow keys once you click the slide) to move on.
+document.querySelectorAll('[data-live="reload"]').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation(); const f = b.closest('.live-frame').querySelector('iframe'); f.src = f.dataset.src;
+}));

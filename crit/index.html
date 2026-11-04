@@ -31,6 +31,19 @@
   .iter span { font-size: var(--t-s); color: var(--ink-2); line-height: 1.45; }
   .iter em { font-style: normal; color: var(--ink-3); }
 </style>
+<style>
+  /* Live demo slide: the real Poise app runs right inside the slide */
+  .live-demo { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: calc(var(--s) * 24); }
+  .live-frame { position: relative; min-height: 0; border-radius: var(--r); overflow: hidden; background: var(--card); box-shadow: 0 0 0 1px rgba(20,20,18,.08); }
+  .live-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #f4f3ef; }
+  .live-bar { position: absolute; right: calc(var(--s) * 16); bottom: calc(var(--s) * 16); display: flex; gap: calc(var(--s) * 8); opacity: .35; transition: opacity .3s; }
+  .live-frame:hover .live-bar { opacity: 1; }
+  .live-btn { font: 500 max(calc(var(--s) * 14), 11px)/1 Inter, sans-serif; color: var(--ink, #141412); background: rgba(255,255,255,.86); border: 1px solid rgba(20,20,18,.12); border-radius: 999px; padding: calc(var(--s) * 10) calc(var(--s) * 16); cursor: pointer; text-decoration: none; backdrop-filter: blur(8px); }
+  .live-cues { overflow: auto; }
+  .live-cues .demo-steps li { font-size: max(calc(var(--s) * 20), 13px); }
+  .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; }
+  @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
+</style>
 </head>
 <body class="on-cover">
 
@@ -126,8 +139,15 @@
     <div class="head">
       <h2 class="title" data-in>Live demo. <span>Sit, drift, come back.</span></h2>
     </div>
-    <div class="cards c-5-7">
-      <div class="card" data-in>
+    <div class="live-demo" data-in>
+      <div class="live-frame">
+        <iframe data-src="../" title="Poise web app, live" allow="camera; microphone; serial; autoplay; fullscreen; clipboard-write"></iframe>
+        <div class="live-bar">
+          <button type="button" class="live-btn" data-live="reload">Reload</button>
+          <a class="live-btn" href="../" target="_blank" rel="noopener">Open in a new tab</a>
+        </div>
+      </div>
+      <div class="card live-cues">
         <div class="card-copy"><h3>What you’ll see</h3></div>
         <ol class="demo-steps">
           <li>Start <span>Camera, light bar, then save my reference.</span></li>
@@ -137,19 +157,7 @@
           <li>Camera off <span>The two distance sensors take over.</span></li>
         </ol>
       </div>
-      <div class="card photos" data-in>
-        <div class="card-copy"><h3>On the desk</h3><p>The light warms slowly as the drift lasts.</p></div>
-        <div class="photo-strip">
-          <figure><img src="../deck/img/light-white.webp" alt="Light bar white while sitting well"><figcaption>White</figcaption></figure>
-          <figure><img src="../deck/img/light-warm.webp" alt="Light bar warming"><figcaption>Warming</figcaption></figure>
-          <figure><img src="../deck/img/light-orange.webp" alt="Light bar orange"><figcaption>Orange</figcaption></figure>
-          <figure><img src="../deck/img/light-red.webp" alt="Light bar red"><figcaption>Red</figcaption></figure>
-        </div>
-      </div>
     </div>
-    <ol class="flow" data-in>
-      <li>Camera</li><li>Web app, MediaPipe</li><li>USB serial</li><li>Arduino Nano Every</li><li>NeoPixel light bar</li>
-    </ol>
   </section>
 
   <!-- 7 · Upcoming design iterations (1 min) -->
