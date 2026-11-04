@@ -1247,3 +1247,23 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .mk-list li > .mk-demo.la { border: 0; padding: calc(var(--s) * 18); background: #f1f1ee; }
 .mk-mark.logo.full { overflow: hidden; } .mk-mark.logo.full img { width: 100%; height: 100%; object-fit: cover; }
 .mk-mark.logo img.nudge { transform: translateX(8%); }
+/* hypothesis box v2: fills the rest of the slide, the main line on top, then one testable piece under each research card */
+.slide[data-title="Hypothesis"] .hy-row { margin-top: calc(var(--s) * 4); }
+.hy-box { flex: 1; margin-top: calc(var(--s) * 24 - var(--s) * 44); margin-bottom: calc(var(--s) * 8); display: flex; flex-direction: column; justify-content: space-between; gap: calc(var(--s) * 36); padding: calc(var(--s) * 40) calc(var(--s) * 40); }
+.hy-main { display: grid; grid-template-columns: calc(var(--s) * 200) 1fr; align-items: baseline; column-gap: calc(var(--s) * 32); }
+.hy-subs { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: calc(var(--s) * 24); }
+.hy-sub { border-top: 1px solid rgba(255,255,255,.14); padding-top: calc(var(--s) * 20); display: flex; flex-direction: column; gap: calc(var(--s) * 10);
+  opacity: 0; transform: translateY(calc(var(--s) * 12)); transition: opacity .6s ease, transform .8s var(--ease); }
+.hy-box.shown .hy-sub { opacity: 1; transform: none; }
+.hy-box.shown .hy-sub:nth-child(1) { transition-delay: 1.2s; } .hy-box.shown .hy-sub:nth-child(2) { transition-delay: 1.4s; } .hy-box.shown .hy-sub:nth-child(3) { transition-delay: 1.6s; }
+.hy-sub em { font-style: normal; font-weight: 500; font-size: max(calc(var(--s) * 15), 10px); color: #8fe0a8; }
+.hy-sub p { font-size: max(calc(var(--s) * 20), 12px); line-height: 1.45; color: rgba(255,255,255,.88); }
+.hy-sub p i { font-style: normal; color: #fff; font-weight: 500; }
+.hy-sub small { margin-top: auto; font-size: max(calc(var(--s) * 14), 9px); color: rgba(255,255,255,.55); }
+.hy-sub small span { color: rgba(255,255,255,.35); margin-right: calc(var(--s) * 8); text-transform: uppercase; letter-spacing: .04em; }
+@media (max-width: 860px), (max-aspect-ratio: 1/1) { .hy-main, .hy-subs { grid-template-columns: 1fr; } }
+.hy-main { display: flex; flex-direction: column; gap: calc(var(--s) * 14); }
+.hy-box { justify-content: space-between; }
+/* the back face is never faded or blurred; only the rotation shows or hides it, so flipping back is as smooth as flipping over */
+.iv-face.iv-back, .iv-face.iv-back.shown { opacity: 1; filter: none; transition: transform .9s cubic-bezier(.4,.1,.2,1); }
+.iv-face.iv-back:not(.shown) { transform: rotateY(-180deg); }
