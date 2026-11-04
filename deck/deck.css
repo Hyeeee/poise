@@ -953,3 +953,12 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .shown .viz-chart .vbar { transform: none; }
 .big-stats .viz-chart .t.in { fill: var(--ink-2); } .big-stats .viz-chart .t.in.hi { fill: #fbfaf6; }
 .big-stats .viz-chart.c-line { overflow: visible; }
+
+/* neck pain as a progress ring: ink to 42%, mid grey on to 63%, the upper bound written in the middle */
+.viz-chart .ring2 { fill: none; stroke-width: 9 !important; stroke-linecap: round !important; }
+.viz-chart .ring2.track { stroke: var(--ch-faint) !important; }
+.viz-chart .ring2.ink, .viz-chart .ring2.mid { --sw: 0; stroke-dasharray: var(--sw) 100; transition: --sw 1.3s cubic-bezier(.4,0,.2,1) .4s; }
+.viz-chart .ring2.ink { stroke: var(--ch-ink) !important; } .viz-chart .ring2.mid { stroke: var(--ch-mid) !important; transition-duration: 1.7s; }
+.shown .viz-chart .ring2.ink, .shown .viz-chart .ring2.mid { --sw: var(--to); }
+.viz-chart .ring-sm { font: 400 11px Inter, sans-serif; fill: var(--ink-3); stroke: none !important; }
+.viz-chart .ring-big { font: 600 30px Inter, sans-serif; letter-spacing: -.02em; fill: var(--ink); stroke: none !important; }
