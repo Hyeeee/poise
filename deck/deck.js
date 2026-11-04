@@ -375,3 +375,23 @@ document.querySelectorAll('.big-stats .count').forEach(el => {
   }).observe(item, { attributes: true, attributeFilter: ['class'] });
   set(0);
 });
+
+// Desk research: the sitting and neck charts sit centred over the width of their own text block
+function centreCharts() {
+  document.querySelectorAll('.big-stats .viz-chart.c-line, .big-stats .viz-chart.c-pie').forEach(svg => {
+    const col = svg.parentElement; svg.style.transform = '';
+    const texts = [...col.querySelectorAll(':scope > b, :scope > span, :scope > em')];
+    if (!texts.length) return;
+    const range = document.createRange();
+    let L = Infinity, R = -Infinity;
+    texts.forEach(t => { range.selectNodeContents(t); [...range.getClientRects()].forEach(r => { L = Math.min(L, r.left); R = Math.max(R, r.right); }); });
+    let cl = Infinity, cr = -Infinity;
+    svg.querySelectorAll('rect, circle, text').forEach(e => { const r = e.getBoundingClientRect(); if (r.width) { cl = Math.min(cl, r.left); cr = Math.max(cr, r.right); } });
+    if (!isFinite(L) || !isFinite(cl)) return;
+    svg.style.transform = `translateX(${((L + R) / 2 - (cl + cr) / 2).toFixed(1)}px)`;
+  });
+}
+addEventListener('resize', centreCharts);
+document.fonts?.ready.then(centreCharts);
+setTimeout(centreCharts, 300);
+document.addEventListener('step', () => setTimeout(centreCharts, 50), true);
