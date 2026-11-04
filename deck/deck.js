@@ -404,3 +404,14 @@ addEventListener('resize', centreCharts);
 document.fonts?.ready.then(centreCharts);
 setTimeout(centreCharts, 300);
 document.addEventListener('step', () => setTimeout(centreCharts, 50), true);
+
+// Version one flow cards: each card's clip starts from the top when it appears, and pauses off screen
+document.querySelectorAll('.fl-row').forEach(row => {
+  const sl = row.closest('.slide');
+  const sync = () => row.querySelectorAll('.fl-card').forEach(c => { const v = c.querySelector('video'); if (!v) return;
+    const on = c.classList.contains('shown') && sl.classList.contains('open');
+    if (on && v.paused) { if (!c.dataset.played) { v.currentTime = 0; c.dataset.played = 1; } v.play().catch(() => {}); }
+    if (!on) { if (!v.paused) v.pause(); if (!c.classList.contains('shown')) delete c.dataset.played; } });
+  sl.addEventListener('step', sync);
+  new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] });
+});

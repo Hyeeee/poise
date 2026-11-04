@@ -1564,3 +1564,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .it-card li b { display: flex; align-items: center; gap: calc(var(--s) * 10); }
 .pr { font-style: normal; font-weight: 500; font-size: max(calc(var(--s) * 13), 9px); padding: calc(var(--s) * 3) calc(var(--s) * 10); border-radius: 99px; }
 .pr.hi { background: #fbe9e7; color: #b3392b; } .pr.mid { background: #fdf3dc; color: #9a6a10; } .pr.lo { background: #f2f2f0; color: var(--ink-3); }
+/* Version one: four cards, each plays a real clip of that part of the app */
+.fl-row { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: calc(var(--s) * 20); }
+.fl-card { background: #fff; border-radius: calc(var(--s) * 30); padding: var(--card-pad); box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: calc(var(--s) * 18); min-height: 0; }
+.fl-copy h3 { font-weight: 600; font-size: max(calc(var(--s) * 24), 14px); letter-spacing: -.015em; color: var(--ink); }
+.fl-copy p { margin-top: calc(var(--s) * 6); font-size: max(calc(var(--s) * 17), 11px); line-height: 1.45; color: var(--ink-2); min-height: 2.9em; }
+.fl-vid { flex: 1; min-height: 0; border-radius: calc(var(--s) * 18); overflow: hidden; background: #efefea; }
+.fl-vid video { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (max-width: 860px), (max-aspect-ratio: 1/1) { .fl-row { grid-template-columns: 1fr 1fr; } }
