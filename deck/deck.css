@@ -1381,3 +1381,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v-early svg { max-height: calc(var(--s) * 92); width: 70%; }
 .v-quiet .mon { height: calc(var(--s) * 80); width: calc(var(--s) * 156); margin-top: calc(var(--s) * 10); }
 .hy-card h3 + p { margin-bottom: calc(var(--s) * 16); }
+.hy-vizrow { display: none; } .slide[data-title="Hypothesis"] .hy-box { justify-content: space-between; }
