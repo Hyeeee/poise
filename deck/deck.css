@@ -1031,3 +1031,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-av { position: relative; }
 .iv-av::after { content: ""; position: absolute; right: 0; bottom: 0; width: calc(var(--s) * 13); height: calc(var(--s) * 13); border-radius: 50%; background: #34c759; box-shadow: 0 0 0 calc(var(--s) * 2.5) #fff; }
 .iv-a::after { content: ""; position: absolute; left: calc(var(--s) * -36 + var(--s) * 22); bottom: 0; width: calc(var(--s) * 8); height: calc(var(--s) * 8); border-radius: 50%; background: #34c759; box-shadow: 0 0 0 calc(var(--s) * 1.5) #fff; }
+/* how each person works, as small chips on the right of the profile */
+.iv-tags { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: calc(var(--s) * 6); max-width: 60%; }
+.iv-tags em { font-style: normal; background: #f2f2f0; border-radius: 99px; padding: calc(var(--s) * 6) calc(var(--s) * 12); font-size: max(calc(var(--s) * 14), 9px); color: var(--ink-2); white-space: nowrap; }
