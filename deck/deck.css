@@ -1044,3 +1044,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-card { padding-bottom: calc(var(--s) * 52); }
 .iv-talk { flex: 1 1 auto; justify-content: space-between; padding-bottom: 0; }
 .iv-who b { font-weight: 600; }
+.iv-tags em { font-weight: 500; }
