@@ -1572,3 +1572,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .fl-vid { flex: 1; min-height: 0; border-radius: calc(var(--s) * 18); overflow: hidden; background: #efefea; }
 .fl-vid video { width: 100%; height: 100%; object-fit: cover; display: block; }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .fl-row { grid-template-columns: 1fr 1fr; } }
+.pz-cut { background: #f3f3f0; } .pz-cut img { position: absolute; inset: 6% 0 0; width: 100%; height: 94%; object-fit: contain; object-position: 50% 0; }
