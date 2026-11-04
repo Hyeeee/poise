@@ -1045,3 +1045,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-talk { flex: 1 1 auto; justify-content: space-between; padding-bottom: 0; }
 .iv-who b { font-weight: 600; }
 .iv-tags em { font-weight: 500; }
+/* every grey headline line uses the cover's style: translucent ink, so the backdrop shows through it */
+.title span, .chapter-title span { color: rgba(20,20,18,.42); }
