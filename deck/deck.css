@@ -1074,3 +1074,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-learn p { font-size: max(calc(var(--s) * 22), 13px); line-height: 1.35; min-height: calc(2 * 1.35em + max(calc(var(--s) * 14), 9px) * 1.2 + var(--s) * 22); }
 .iv-learn { justify-content: center; padding-top: calc(var(--s) * 8); }
 .iv-learn p { text-wrap: balance; }
+/* back: every row is exactly two lines (set by hand), same gaps everywhere, block centred so the space above and below is equal */
+.iv-learn p { min-height: 0; text-wrap: wrap; }
+.iv-back { padding-bottom: 0; }
+.iv-learn { justify-content: center; padding: 0; gap: calc(var(--s) * 32); }
+.iv-learn span { margin-bottom: calc(var(--s) * 10); }
