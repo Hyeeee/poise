@@ -1557,3 +1557,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .it-card li b { font-weight: 500; font-size: max(calc(var(--s) * 20), 12px); color: var(--ink); }
 .it-card li span { font-size: max(calc(var(--s) * 17), 11px); line-height: 1.45; color: var(--ink-2); }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .pt-grid, .an-row, .it-row { grid-template-columns: 1fr; } .pt-grid > * { grid-column: auto !important; grid-row: auto !important; } }
+/* real quotes with who said them; priority chips in the plan */
+.pt-note span { display: block; margin: calc(var(--s) * 8) 0 0; padding: 0; background: none !important; font-size: max(calc(var(--s) * 14), 9px); }
+.pt-note { border-left: calc(var(--s) * 4) solid #8fd1a3; } .pt-note.bad { border-left-color: #eba79d; }
+.pt-note span { color: var(--ink-3) !important; }
+.it-card li b { display: flex; align-items: center; gap: calc(var(--s) * 10); }
+.pr { font-style: normal; font-weight: 500; font-size: max(calc(var(--s) * 13), 9px); padding: calc(var(--s) * 3) calc(var(--s) * 10); border-radius: 99px; }
+.pr.hi { background: #fbe9e7; color: #b3392b; } .pr.mid { background: #fdf3dc; color: #9a6a10; } .pr.lo { background: #f2f2f0; color: var(--ink-3); }

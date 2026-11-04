@@ -230,13 +230,7 @@
       <figure class="pt-ph pt-b" data-in><img src="img/pt-table.webp" alt="Classmates trying Poise at the table"></figure>
       <figure class="pt-ph pt-c" data-in><img src="img/pt-screen.webp" alt="Poise running on a laptop with the light bar on top"></figure>
       <figure class="pt-ph pt-d" data-in><img src="img/pt-talk.webp" alt="Talking through feedback with a classmate"></figure>
-      <div class="pt-notes">
-        <p class="pt-note" data-step="1"><span>Heard</span>It caught a slouch I didn’t notice myself.</p>
-        <p class="pt-note" data-step="1"><span>Heard</span>The stretch break was actually fun.</p>
-        <p class="pt-note bad" data-step="2"><span>Heard</span>Is the camera recording me?</p>
-        <p class="pt-note bad" data-step="2"><span>Heard</span>What does 37 percent mean?</p>
-        <p class="pt-note bad" data-step="2"><span>Heard</span>I never looked at the app while I worked.</p>
-      </div>
+      <div class="pt-notes"><p class="pt-note good" data-step="1">It’s like a real product, the level of completion is really high.<span>Benson</span></p><p class="pt-note good" data-step="1">The feedback on my posture actually felt kinda healthy and didn’t feel like nagging.<span>Peter</span></p><p class="pt-note good" data-step="1">I loved having the options for a break.<span>Daniel</span></p><p class="pt-note bad" data-step="2">Sometimes it’s too sensitive.<span>Benson</span></p><p class="pt-note bad" data-step="2">I wasn’t sure of what the colors meant.<span>Daniel</span></p><p class="pt-note bad" data-step="2">In the mandatory tutorials I kinda just wanted to get on to it.<span>Peter</span></p></div>
     </div>
   </section>
 
@@ -245,12 +239,8 @@
     <div class="head">
       <h2 class="title" data-in>Watching people use it <span>changed what I thought mattered.</span></h2>
     </div>
-    <div class="an-row">
-      <div class="an-card" data-in><p class="an-tag good">What they liked</p><ul><li>It noticed drift they missed</li><li>The break modes, especially stretching</li><li>The light felt calmer than a pop up</li></ul></div>
-      <div class="an-card" data-in><p class="an-tag bad">What got in the way</p><ul><li>The camera turned on before they trusted it</li><li>Too many cards at once at the start</li><li>Numbers with no meaning, like 37%</li><li>Messages far from where they were looking</li></ul></div>
-      <div class="an-card" data-in><p class="an-tag">Different from what I expected</p><ul><li>I designed the app as the main screen, but nobody looked at it while working</li><li>I aimed for accuracy, but people wanted it calm</li><li>I didn’t plan for trust at all</li></ul></div>
-    </div>
-    <div class="an-next" data-step="1"><p class="an-tag good">New direction</p><p class="an-line">Treat the light and a small window next to your work as the real product, and earn trust before the camera turns on.</p></div>
+    <div class="an-row"><div class="an-card" data-in><p class="an-tag good">What they liked</p><ul><li>It told them about changes they couldn’t feel</li><li>The break modes, the strongest part</li><li>A clear signal helped them sit better</li><li>It felt like a real product</li></ul></div><div class="an-card" data-in><p class="an-tag bad">What got in the way</p><ul><li>A light that changed too often felt harsh</li><li>A twelve step guide most people skipped</li><li>Colors and numbers like cm with no label</li><li>Game text lost against dark clothes</li></ul></div><div class="an-card" data-in><p class="an-tag ">Different from what I expected</p><ul><li>Preferences split, some wanted instant cues and some wanted calm</li><li>Some loved the voice, others disliked it</li><li>Nobody opened the web page while working</li></ul></div></div>
+    <div class="an-next" data-step="1"><p class="an-tag good">New direction</p><p class="an-line">Let each person shape their feedback, and put information where they’re already looking.</p></div>
   </section>
 
   <!-- Iteration plan -->
@@ -258,27 +248,7 @@
     <div class="head">
       <h2 class="title" data-in>So I planned the next version <span>from two places.</span></h2>
     </div>
-    <div class="it-row">
-      <div class="it-card" data-step="1">
-        <p class="it-head">From classmates</p>
-        <ol>
-          <li><b>Camera notice first</b><span>Say what the camera does before it turns on, and offer sensor mode instead.</span></li>
-          <li><b>One thing at a time</b><span>Group the twelve step guide so the start isn’t crowded.</span></li>
-          <li><b>Labels on numbers</b><span>Show what a number means, not just the number.</span></li>
-          <li><b>Feedback where you look</b><span>Move messages next to the posture card, not the top of the screen.</span></li>
-          <li><b>A mini window</b><span>A small picture in picture window that sits next to your work.</span></li>
-        </ol>
-      </div>
-      <div class="it-card" data-step="2">
-        <p class="it-head">From my own review</p>
-        <ol>
-          <li><b>A calmer light</b><span>Change color only after a drift holds for five seconds.</span></li>
-          <li><b>Sensor only mode</b><span>Two distance sensors notice leaning and stepping away, no camera.</span></li>
-          <li><b>Feedback that fits you</b><span>Let people pick how gently or quickly Poise speaks up.</span></li>
-          <li><b>A real mount</b><span>Move from cardboard to a 3D printed bar that clips onto a laptop.</span></li>
-        </ol>
-      </div>
-    </div>
+    <div class="it-row"><div class="it-card" data-step="1"><p class="it-head">From classmates’ feedback</p><ol><li><b>Feedback that fits you<em class="pr hi">High</em></b><span>Pick the speed, and light, voice, both or neither, in settings or the Ask Poise bar.</span></li><li><b>A mini window<em class="pr mid">Medium</em></b><span>A small picture in picture window with posture and time left.</span></li><li><b>Labels on numbers<em class="pr mid">Medium</em></b><span>Say what a number is, like 58 cm from the screen.</span></li><li><b>Clearer privacy<em class="pr mid">Medium</em></b><span>Say video is never saved or sent, and suggest sensor mode.</span></li><li><b>Spine condition input<em class="pr lo">Later</em></b><span>First define what it would actually change.</span></li></ol></div><div class="it-card" data-step="2"><p class="it-head">From what I observed</p><ol><li><b>A shorter guide<em class="pr hi">High</em></b><span>Group the twelve steps into three or four.</span></li><li><b>Game how to, up front<em class="pr hi">High</em></b><span>A short how to in the center of the camera view before it starts.</span></li><li><b>Text that adapts<em class="pr hi">High</em></b><span>Light text when the background behind it is dark.</span></li><li><b>Better tracking<em class="pr mid">Medium</em></b><span>Improve MediaPipe accuracy when it loses the body.</span></li></ol></div></div>
   </section>
 
   <section class="slide paper" data-title="Trust first">
