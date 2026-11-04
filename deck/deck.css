@@ -1245,3 +1245,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .mk-list li { grid-template-columns: minmax(0,1fr) calc(var(--s) * 270); }
 .mk-list li > .mk-demo.la { padding: calc(var(--s) * 15) calc(var(--s) * 22); gap: calc(var(--s) * 12); }
 .mk-list li > .mk-demo.la { border: 0; padding: calc(var(--s) * 18); background: #f1f1ee; }
+.mk-mark.logo.full { overflow: hidden; } .mk-mark.logo.full img { width: 100%; height: 100%; object-fit: cover; }
