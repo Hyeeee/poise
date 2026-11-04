@@ -941,3 +941,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .big-stats .viz-chart rect.bar { fill: var(--ch-faint) !important; stroke: none !important; }
 .big-stats .viz-chart rect.bar.hi { fill: var(--ch-ink) !important; }
 .big-stats .viz-chart .t { fill: var(--ink-3); } .big-stats .viz-chart .t.hi { fill: var(--ch-ink); }
+
+/* ranking: names first, then each bar grows in turn and its value lands at the end of it */
+.c-bars text.lab { transition: opacity .4s ease !important; transition-delay: calc(var(--i) * 70ms + 200ms) !important; }
+.big-stats .viz-chart .bar { transition-delay: calc(var(--i) * 160ms + 700ms) !important; }
+.c-bars text.val { transition: opacity .35s ease !important; transition-delay: calc(var(--i) * 160ms + 1500ms) !important; }
