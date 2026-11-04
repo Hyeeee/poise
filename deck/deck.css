@@ -1027,3 +1027,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* more room between the caption and the cards; earlier cards stay at full strength */
 .iv-row { margin-top: calc(var(--s) * 28); }
 .iv-row:has(.iv-card.focus) .iv-card.shown:not(.focus) { opacity: 1; }
+/* green "online" dot on each profile picture, big and small, like a chat app */
+.iv-av { position: relative; }
+.iv-av::after { content: ""; position: absolute; right: 0; bottom: 0; width: calc(var(--s) * 13); height: calc(var(--s) * 13); border-radius: 50%; background: #34c759; box-shadow: 0 0 0 calc(var(--s) * 2.5) #fff; }
+.iv-a::after { content: ""; position: absolute; left: calc(var(--s) * -36 + var(--s) * 22); bottom: 0; width: calc(var(--s) * 8); height: calc(var(--s) * 8); border-radius: 50%; background: #34c759; box-shadow: 0 0 0 calc(var(--s) * 1.5) #fff; }
