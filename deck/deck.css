@@ -1311,3 +1311,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .hy-sub small { color: var(--ink-2); }
 .hy-sub small span { color: var(--ink-3); }
 .hy-box { background: #dcede1; }
+/* hypothesis box: neutral grey */
+.hy-box { background: #ecece8; }
+.hy-tag { color: var(--ink-3); }
+.hy-sub { border-top-color: rgba(20,20,18,.1); }
