@@ -1188,3 +1188,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 @keyframes nrct { 0%{content:"12:10"} 25%{content:"15:04"} 50%{content:"18:31"} 75%{content:"21:27"} }
 .nrc .bar u { display: block; height: 100%; border-radius: 99px; background: #d7ff3a; animation: nrcbar 6s linear infinite; }
 @keyframes nrcbar { from { width: 42% } to { width: 74% } }
+/* rows: name block centred in its row like the marks; only the divider under each title stays */
+.mk-table tbody th { display: table-cell; vertical-align: middle; }
+.mk-table td { vertical-align: middle; }
+.mk-name { display: grid; grid-template-columns: auto 1fr; column-gap: calc(var(--s) * 14); align-items: center; }
+.mk-name .mk-mark { grid-row: 1 / span 2; } .mk-name small { grid-column: 2; }
+.mk-table tbody tr, .mk-list li { border-top: 0 !important; }
