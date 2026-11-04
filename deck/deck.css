@@ -1125,3 +1125,57 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .mk-mark { width: calc(var(--s) * 40); height: calc(var(--s) * 40); border-radius: calc(var(--s) * 11); background: #f2f2f0; display: grid; place-items: center; font-style: normal; font-weight: 600; font-size: max(calc(var(--s) * 17), 11px); color: var(--ink-2); }
 .mk-list li { gap: calc(var(--s) * 10); }
 .mk-list span { margin-left: calc(var(--s) * 54); }
+/* comparators: a small looping UI beside each one, showing the pattern it lends */
+.mk-list li { display: grid; grid-template-columns: minmax(0,1fr) calc(var(--s) * 250); grid-template-rows: auto auto; column-gap: calc(var(--s) * 20); align-content: center; }
+.mk-list li > div:first-child { grid-column: 1; }
+.mk-list li > span { grid-column: 1; }
+.mk-demo { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+.mk-demo.la { background: #1b1b19; color: #f4f3ee; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 11) calc(var(--s) * 14); display: flex; flex-direction: column; gap: calc(var(--s) * 8); box-shadow: 0 14px 30px -20px rgba(0,0,0,.6); }
+.mk-demo.la p b { display: block; font-weight: 600; font-size: max(calc(var(--s) * 15), 10px); color: #fff; }
+.mk-demo.la p small { display: block; margin-top: 1px; font-size: max(calc(var(--s) * 11.5), 8px); color: rgba(255,255,255,.55); }
+.mk-demo em { font-style: normal; }
+/* DoorDash: minutes count down while the bar fills */
+.dd .cd::after { content: "12 min"; animation: ddmin 6s steps(1) infinite; }
+@keyframes ddmin { 0%{content:"12 min"} 25%{content:"9 min"} 50%{content:"6 min"} 75%{content:"3 min"} }
+.mk-demo .bar { display: block; height: calc(var(--s) * 6); border-radius: 99px; background: rgba(255,255,255,.14); overflow: hidden; }
+.dd .bar u { display: block; height: 100%; border-radius: 99px; background: #ff7a59; animation: ddbar 6s linear infinite; }
+@keyframes ddbar { from { width: 18% } to { width: 96% } }
+/* Uber: a car dot moves toward the pin */
+.ub .cd::after { content: "4 min"; animation: ubmin 6s steps(1) infinite; }
+@keyframes ubmin { 0%{content:"4 min"} 33%{content:"3 min"} 66%{content:"1 min"} }
+.ub .road { position: relative; display: block; height: calc(var(--s) * 6); }
+.ub .road::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 2px dotted rgba(255,255,255,.3); }
+.ub .road::after { content: ""; position: absolute; right: 0; top: 50%; width: calc(var(--s) * 9); height: calc(var(--s) * 9); border-radius: 50%; background: #fff; transform: translateY(-50%); }
+.ub .road u { position: absolute; top: 50%; width: calc(var(--s) * 12); height: calc(var(--s) * 12); border-radius: 50%; background: #4aa3ff; box-shadow: 0 0 0 3px rgba(74,163,255,.3); transform: translate(-50%,-50%); animation: ubcar 6s ease-in-out infinite; }
+@keyframes ubcar { from { left: 6% } to { left: 88% } }
+/* Starbucks: Ordered → Preparing → Ready, the screen only changes when the step does */
+.sb .st::after { content: "Order received"; animation: sbst 6s steps(1) infinite; }
+@keyframes sbst { 0%{content:"Order received"} 33%{content:"Preparing your drink"} 66%{content:"Ready for pickup"} }
+.sb .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: calc(var(--s) * 5); }
+.sb .steps u { height: calc(var(--s) * 6); border-radius: 99px; background: rgba(255,255,255,.14); }
+.sb .steps u:nth-child(1) { background: #3aa66b; }
+.sb .steps u:nth-child(2) { animation: sb2 6s steps(1) infinite; } .sb .steps u:nth-child(3) { animation: sb3 6s steps(1) infinite; }
+@keyframes sb2 { 0%{background:rgba(255,255,255,.14)} 33%{background:#3aa66b} }
+@keyframes sb3 { 0%,33%{background:rgba(255,255,255,.14)} 66%{background:#3aa66b} }
+/* HidrateSpark: the bottle glows when it's time */
+.mk-demo.hs { display: flex; align-items: center; justify-content: center; gap: calc(var(--s) * 14); }
+.hs small { font-size: max(calc(var(--s) * 13), 9px); color: var(--ink-3); animation: hstxt 4s ease-in-out infinite; }
+.hs .bottle { position: relative; width: calc(var(--s) * 30); height: calc(var(--s) * 64); border-radius: calc(var(--s) * 9) calc(var(--s) * 9) calc(var(--s) * 11) calc(var(--s) * 11); background: #eef1f2; border: 1.5px solid rgba(20,20,18,.15); overflow: hidden; animation: hsglow 4s ease-in-out infinite; }
+.hs .bottle::before { content: ""; position: absolute; top: calc(var(--s) * -7); left: 25%; width: 50%; height: calc(var(--s) * 9); border-radius: 3px; background: #c9cfd2; }
+.hs .bottle u { position: absolute; left: 0; right: 0; bottom: 0; height: 32%; background: rgba(74,163,255,.35); }
+@keyframes hsglow { 0%,45%,100% { box-shadow: 0 0 0 0 rgba(74,163,255,0); background: #eef1f2; } 60%,85% { box-shadow: 0 0 calc(var(--s) * 22) calc(var(--s) * 4) rgba(74,163,255,.55); background: #e2f0ff; } }
+@keyframes hstxt { 0%,45%,100% { opacity: .25 } 60%,85% { opacity: 1; color: #2a78c7; } }
+.mk-card:not(.shown) .mk-demo * { animation-play-state: paused; }
+/* fixes: the mini UI is not a name block; chips keep their own width */
+.mk-list li > .mk-demo { display: flex; }
+.mk-list li > .mk-demo.la { flex-direction: column; }
+.mk-list li > span { justify-self: start; }
+/* the same divider under both card titles, at the same height */
+.mk-label { padding-bottom: calc(var(--s) * 18); border-bottom: 1px solid rgba(20,20,18,.08); }
+.mk-list { margin-top: 0; } .mk-list li:first-child { border-top: 0; }
+.mk-table { margin-top: 0; } .mk-table thead th { padding-top: calc(var(--s) * 14); }
+.mk-list { justify-content: space-between; } .mk-list li { flex: 0 0 auto; padding: calc(var(--s) * 11) 0; }
+.mk-list li > .mk-demo.la { align-items: stretch; column-gap: 0; }
+.mk-list li { flex: 1 1 0; align-content: center; } .mk-list li:last-child { align-content: end; padding-bottom: calc(var(--s) * 2); } .mk-list li:first-child { align-content: start; padding-top: calc(var(--s) * 16); }
+.mk-list li, .mk-list li:first-child, .mk-list li:last-child { flex: 1 1 0; align-content: center; padding: 0; }
+.mk-card:last-child { padding-bottom: calc(var(--s) * 16); }
