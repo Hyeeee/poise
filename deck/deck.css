@@ -1008,3 +1008,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* a thin line under each profile, the same as the one above "What I noticed" */
 .iv-who { padding-bottom: calc(var(--s) * 20); border-bottom: 1px solid rgba(20,20,18,.08); }
 .iv-talk { padding-top: calc(var(--s) * 20); }
+/* a small profile picture beside each answer, like a group chat */
+.iv-a { position: relative; margin-left: calc(var(--s) * 40); max-width: calc(94% - var(--s) * 40); }
+.iv-a::before { content: var(--emo); position: absolute; left: calc(var(--s) * -40); bottom: 0; width: calc(var(--s) * 30); height: calc(var(--s) * 30); border-radius: 50%; background: #f2f2f0; display: grid; place-items: center; font-size: max(calc(var(--s) * 15), 10px); line-height: 1; }
+.iv-a { margin-left: calc(var(--s) * 36); max-width: calc(100% - var(--s) * 36); }
+.iv-a::before { left: calc(var(--s) * -36); }
