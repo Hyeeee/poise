@@ -1000,3 +1000,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-qa:first-child { border-top: 0; }
 .iv-talk > div { box-shadow: inset 0 1px rgba(20,20,18,.08); margin-top: calc(var(--s) * 8); }
 .iv-qa:first-child { margin-top: 0; }
+/* survey labels stay on one line; same label column in every card so the bars start together */
+.fq-bars { display: grid !important; grid-template-columns: 12.5em minmax(0, 1fr) 4.6em; font-size: max(calc(var(--s) * 15), 10px); column-gap: calc(var(--s) * 12); }
+.fq-bars li { grid-column: 1 / -1; grid-template-columns: subgrid !important; }
+.fq-bars li span { white-space: nowrap; }
