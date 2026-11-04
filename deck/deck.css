@@ -1525,3 +1525,35 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* no zoom on the app screens */
 .pz-stage { animation: none !important; transform: none !important; }
 .pz-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+/* playtest: photo collage with what I heard floating on it */
+.pt-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.15fr 1fr 1fr 1.3fr; grid-template-rows: 1fr 1fr; gap: calc(var(--s) * 16); }
+.pt-ph { margin: 0; border-radius: calc(var(--s) * 22); overflow: hidden; box-shadow: var(--card-shadow); background: #ddd; }
+.pt-ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pt-a { grid-row: 1 / 3; } .pt-b { grid-column: 2 / 4; } .pt-c { grid-column: 2; grid-row: 2; } .pt-d { grid-column: 3; grid-row: 2; }
+.pt-c img { object-position: 50% 70%; }
+.pt-notes { grid-column: 4; grid-row: 1 / 3; display: flex; flex-direction: column; justify-content: center; gap: calc(var(--s) * 12); }
+.pt-note { background: #fff; border-radius: calc(var(--s) * 18); padding: calc(var(--s) * 16) calc(var(--s) * 20); box-shadow: var(--card-shadow); font-size: max(calc(var(--s) * 19), 12px); line-height: 1.4; color: var(--ink); }
+.pt-note span { display: inline-block; margin-right: calc(var(--s) * 8); font-size: max(calc(var(--s) * 13), 9px); font-weight: 500; padding: calc(var(--s) * 3) calc(var(--s) * 10); border-radius: 99px; background: #e6f4ea; color: #1e7a3c; vertical-align: 2px; }
+.pt-note.bad span { background: #fbe9e7; color: #b3392b; }
+/* analysis */
+.an-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: calc(var(--s) * 20); }
+.an-card, .an-next, .it-card { background: #fff; border-radius: calc(var(--s) * 30); padding: var(--card-pad); box-shadow: var(--card-shadow); }
+.an-tag { display: inline-block; font-size: max(calc(var(--s) * 14), 9px); font-weight: 500; padding: calc(var(--s) * 5) calc(var(--s) * 12); border-radius: 99px; background: #f2f2f0; color: var(--ink-2); }
+.an-tag.good { background: #e6f4ea; color: #1e7a3c; } .an-tag.bad { background: #fbe9e7; color: #b3392b; }
+.an-card ul { list-style: none; margin: calc(var(--s) * 18) 0 0; padding: 0; display: flex; flex-direction: column; gap: calc(var(--s) * 12); }
+.an-card li { font-size: max(calc(var(--s) * 19), 12px); line-height: 1.4; color: var(--ink); padding-left: calc(var(--s) * 18); position: relative; }
+.an-card li::before { content: ""; position: absolute; left: 0; top: .6em; width: calc(var(--s) * 6); height: calc(var(--s) * 6); border-radius: 50%; background: rgba(20,20,18,.3); }
+.an-next { margin-top: calc(var(--s) * 20); display: flex; align-items: center; gap: calc(var(--s) * 24); }
+.an-line { font-weight: 500; font-size: max(calc(var(--s) * 26), 15px); line-height: 1.35; letter-spacing: -.015em; color: var(--ink); }
+.an-next, .it-card { opacity: 0; transform: translateY(calc(var(--s) * 20)); transition: opacity .6s ease, transform .8s var(--ease); }
+.an-next.shown, .it-card.shown { opacity: 1; transform: none; }
+/* iteration plan */
+.it-row { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--s) * 20); align-items: start; }
+.it-head { font-weight: 600; font-size: max(calc(var(--s) * 24), 14px); letter-spacing: -.015em; color: var(--ink); padding-bottom: calc(var(--s) * 16); border-bottom: 1px solid rgba(20,20,18,.08); }
+.it-card ol { list-style: none; margin: 0; padding: 0; counter-reset: it; }
+.it-card li { counter-increment: it; display: grid; grid-template-columns: calc(var(--s) * 36) 1fr; row-gap: calc(var(--s) * 4); padding: calc(var(--s) * 16) 0; border-bottom: 1px solid rgba(20,20,18,.06); }
+.it-card li:last-child { border-bottom: 0; padding-bottom: 0; }
+.it-card li::before { content: counter(it); grid-row: 1 / 3; font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-3); padding-top: calc(var(--s) * 3); }
+.it-card li b { font-weight: 500; font-size: max(calc(var(--s) * 20), 12px); color: var(--ink); }
+.it-card li span { font-size: max(calc(var(--s) * 17), 11px); line-height: 1.45; color: var(--ink-2); }
+@media (max-width: 860px), (max-aspect-ratio: 1/1) { .pt-grid, .an-row, .it-row { grid-template-columns: 1fr; } .pt-grid > * { grid-column: auto !important; grid-row: auto !important; } }
