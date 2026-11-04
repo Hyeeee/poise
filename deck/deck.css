@@ -1116,3 +1116,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .hy-statement span { display: block; margin-bottom: calc(var(--s) * 10); font-size: max(calc(var(--s) * 15), 10px); font-weight: 500; color: #1e7a3c; letter-spacing: .02em; }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .hy-row { grid-template-columns: 1fr; } }
 .hy-statement { max-width: 48ch; margin-top: calc(var(--s) * 36); }
+.iv-learn { gap: calc(var(--s) * 44); }
