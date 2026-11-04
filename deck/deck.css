@@ -1005,3 +1005,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* more air between bubbles: each question sits a little apart from its answer, and exchanges sit further apart */
 .iv-talk { gap: calc(var(--s) * 26); }
 .iv-qa { gap: calc(var(--s) * 10); }
+/* a thin line under each profile, the same as the one above "What I noticed" */
+.iv-who { padding-bottom: calc(var(--s) * 20); border-bottom: 1px solid rgba(20,20,18,.08); }
+.iv-talk { padding-top: calc(var(--s) * 20); }
