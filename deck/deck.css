@@ -1400,3 +1400,24 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .mk-list li:last-child { padding-bottom: 0 !important; }
 .form-q { background: #fff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 .mk-table tbody tr:last-child th, .mk-table tbody tr:last-child td { padding-bottom: 0; } .mk-list li:last-child { padding-bottom: 0 !important; } .mk-list li:last-child > .mk-demo { align-self: end; }
+/* Meet Poise: a picture on top of each card, the name and line at the bottom */
+.pz-row { flex: 1; min-height: 0; }
+.card.pz-card { display: flex; flex-direction: column; gap: calc(var(--s) * 24); }
+.pz-visual { flex: 1; min-height: 0; border-radius: calc(var(--s) * 18); background: #f3f3f0; position: relative; overflow: hidden; display: grid; place-items: center; }
+.pz-copy { display: flex; flex-direction: column; gap: calc(var(--s) * 14); }
+.pz-copy .card-copy p { max-width: 40ch; }
+/* software: the app screens cross-fade one after another */
+.pz-screens img { position: absolute; inset: 8%; width: 84%; height: 84%; object-fit: contain; border-radius: calc(var(--s) * 10); opacity: 0; animation: pzFade 15s infinite; animation-delay: calc(var(--k) * 3s); filter: drop-shadow(0 14px 24px rgba(40,44,36,.18)); }
+@keyframes pzFade { 0% { opacity: 0 } 4%, 20% { opacity: 1 } 24%, 100% { opacity: 0 } }
+/* hardware: the cut-out light bar, softly lit underneath */
+.pz-bar img { width: 82%; height: auto; filter: drop-shadow(0 18px 24px rgba(40,44,36,.25)); }
+.pz-bar::after { content: ""; position: absolute; left: 14%; right: 14%; top: 62%; height: calc(var(--s) * 36); background: radial-gradient(closest-side, rgba(143,224,168,.55), transparent); filter: blur(10px); animation: pzGlow 5s ease-in-out infinite; }
+@keyframes pzGlow { 0%,100% { opacity: .5 } 50% { opacity: 1 } }
+
+/* hypothesis: more room under the headline, box hugs its content, highlighter instead of underline */
+.slide[data-title="Hypothesis"] .hy-row { margin-top: calc(var(--s) * 24); }
+.slide[data-title="Hypothesis"] .hy-box { flex: none; gap: calc(var(--s) * 36); }
+.hy-line mark { color: var(--ink); background: linear-gradient(transparent 12%, #d6efdc 12%, #d6efdc 88%, transparent 88%) no-repeat 0 0 / 0 100%; padding: 0 .08em; border-radius: 4px; transition: background-size .8s var(--ease); }
+.hy-line mark::after { display: none !important; }
+.hy-box.shown mark { background-size: 100% 100%; }
+.hy-box.shown mark:nth-of-type(1) { transition-delay: .5s; } .hy-box.shown mark:nth-of-type(2) { transition-delay: .75s; } .hy-box.shown mark:nth-of-type(3) { transition-delay: 1s; }
