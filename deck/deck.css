@@ -926,3 +926,18 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .chat.paged .chat-page:has(+ .chat-page .ex.shown) { opacity: 0; filter: blur(6px); pointer-events: none; }
 .chat.paged .chat-page:has(+ .chat-page .ex.shown) .bub { transition-delay: 0s !important; }
 .chat.paged { grid-template-columns: minmax(0,1fr); width: 100%; } .chat.paged .chat-page { width: 100%; }
+
+/* one chart language for all three: ink for the point, mid grey for the second value, faint grey for context;
+   every drawn line 2.5 wide with round ends, like the trend line */
+:root { --ch-ink: #141412; --ch-mid: rgba(20,20,18,.36); --ch-faint: rgba(20,20,18,.1); --ch-w: 2.5; }
+.big-stats .viz-chart .line { stroke: var(--ch-ink) !important; stroke-width: var(--ch-w) !important; }
+.big-stats .viz-chart .pt { stroke-width: var(--ch-w) !important; }
+.big-stats .viz-chart .ref, .big-stats .viz-chart .axis { stroke: var(--ch-mid) !important; stroke-width: 1.2 !important; }
+.big-stats .viz-chart .span { stroke: var(--ch-mid) !important; stroke-width: var(--ch-w) !important; }
+.big-stats .viz-chart .span.hi { stroke: var(--ch-ink) !important; }
+.big-stats .viz-chart .sweep.dense { stroke: var(--ch-ink) !important; }
+.big-stats .viz-chart .sweep.light { stroke: var(--ch-mid) !important; }
+.big-stats .viz-chart .pie-out { fill: var(--ch-faint) !important; }
+.big-stats .viz-chart rect.bar { fill: var(--ch-faint) !important; stroke: none !important; }
+.big-stats .viz-chart rect.bar.hi { fill: var(--ch-ink) !important; }
+.big-stats .viz-chart .t { fill: var(--ink-3); } .big-stats .viz-chart .t.hi { fill: var(--ch-ink); }
