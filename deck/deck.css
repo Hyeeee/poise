@@ -1037,3 +1037,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* smaller online dots */
 .iv-av::after { width: calc(var(--s) * 10); height: calc(var(--s) * 10); right: calc(var(--s) * 1); bottom: calc(var(--s) * 1); box-shadow: 0 0 0 calc(var(--s) * 2) #fff; }
 .iv-a::after { width: calc(var(--s) * 6); height: calc(var(--s) * 6); left: calc(var(--s) * -12); box-shadow: 0 0 0 calc(var(--s) * 1.2) #fff; }
+/* chips: green = how they work now, red = their pain point */
+.iv-tags em.now { background: #e6f4ea; color: #1e7a3c; }
+.iv-tags em.pain { background: #fbe9e7; color: #b3392b; }
