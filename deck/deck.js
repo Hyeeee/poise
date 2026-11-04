@@ -303,7 +303,7 @@ if (story) {
     ['We drift', 'without noticing.'],
     ['We sit down', 'sitting well.'],
     ['As we work, we prop our chin', 'and lean to one side.'],
-    ['We creep toward the screen,', 'and our posture falls apart.'],
+    ['We creep toward the screen,', 'and our posture drifts.'],
     ['Day after day, the neck', 'and lower back start to hurt.'],
     ['Fixing it later', 'can cost thousands.'],
   ];
