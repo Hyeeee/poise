@@ -1323,3 +1323,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* research cards: plain source label like "Hypothesis", headline sits close under it */
 .hy-src { display: block; font-size: max(calc(var(--s) * 16), 10px); font-weight: 500; color: var(--ink-3); }
 .hy-card h3 { margin-top: calc(var(--s) * 14); }
+.hy-box { flex: none; justify-content: flex-start; gap: calc(var(--s) * 28); padding-top: calc(var(--s) * 32); padding-bottom: calc(var(--s) * 32); }
+.hy-box { background: #fff; }
