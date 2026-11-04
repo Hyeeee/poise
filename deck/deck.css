@@ -1522,3 +1522,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
   96.5% { opacity: 0; transform: translate(-50%,-50%) scale(2.6) }
   }
 .pz-copy .card-copy p { max-width: none; white-space: nowrap; }
+/* no zoom on the app screens */
+.pz-stage { animation: none !important; transform: none !important; }
