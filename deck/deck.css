@@ -1325,3 +1325,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .hy-card h3 { margin-top: calc(var(--s) * 14); }
 .hy-box { flex: none; justify-content: flex-start; gap: calc(var(--s) * 28); padding-top: calc(var(--s) * 32); padding-bottom: calc(var(--s) * 32); }
 .hy-box { background: #fff; }
+.hy-box { flex: 1 1 auto; justify-content: space-between; margin-bottom: 0; }
+.slide[data-title="Hypothesis"] .hy-box { margin-bottom: calc(var(--s) * -7); }
+.slide[data-title="Hypothesis"] .hy-box { justify-content: center; gap: calc(var(--s) * 40); }
