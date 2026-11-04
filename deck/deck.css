@@ -1040,3 +1040,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* chips: green = how they work now, red = their pain point */
 .iv-tags em.now { background: #e6f4ea; color: #1e7a3c; }
 .iv-tags em.pain { background: #fbe9e7; color: #b3392b; }
+/* every card ends with the same roomy gap under its last bubble: the conversation spreads to fill, the bottom padding stays fixed */
+.iv-card { padding-bottom: calc(var(--s) * 52); }
+.iv-talk { flex: 1 1 auto; justify-content: space-between; padding-bottom: 0; }
+.iv-who b { font-weight: 600; }
