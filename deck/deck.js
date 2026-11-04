@@ -45,6 +45,7 @@ function setStep(sl, k) {
   sl.querySelectorAll('[data-step]').forEach(e => e.classList.toggle('shown', +e.dataset.step <= k));
   sl.querySelectorAll('[data-only]').forEach(e => e.classList.toggle('shown', +e.dataset.only === k));
   sl.querySelectorAll('[data-only-from]').forEach(e => e.classList.toggle('shown', +e.dataset.onlyFrom <= k));
+  sl.querySelectorAll('[data-focus]').forEach(e => { const [a, b] = e.dataset.focus.split('-').map(Number); e.classList.toggle('focus', k >= a && k <= b); });
   sl.querySelectorAll('[data-mark]').forEach(e => { e.classList.toggle('done', +e.dataset.mark < k); e.classList.toggle('now', +e.dataset.mark === k); });
   sl.dispatchEvent(new CustomEvent('step', { detail: k }));
   if (slides[cur] === sl) updateProgress();
@@ -69,7 +70,7 @@ function prev() { const sl = slides[cur], k = +(sl.dataset.at || 0); if (k > 0) 
 
 // Main headlines arrive word by word: each word rises a little and sharpens, one after another
 // (the same motion as the problem story's title).
-const HEADS = [...document.querySelectorAll('.slide .title, .slide .cover-title, .slide .chapter-title')];
+const HEADS = [...document.querySelectorAll('.slide .title, .slide .cover-title, .slide .chapter-title, .slide .survey-meta, .slide .cover-sub, .slide .chapter-sub')];
 HEADS.forEach(h => {
   h.removeAttribute('data-in');                       // the words do the entrance now, not the whole block
   const walk = node => [...node.childNodes].forEach(c => {
@@ -83,15 +84,15 @@ HEADS.forEach(h => {
 });
 function wordsIn(slide, delay = 380) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  slide.querySelectorAll('.title, .cover-title, .chapter-title').forEach(h => h.querySelectorAll('x-w').forEach((w, n) => w.animate(
+  // The headline, then its subtitle line, arrive as one run of words: same rise, same blur, same pace.
+  const heads = [...slide.querySelectorAll('.title, .cover-title, .chapter-title, .survey-meta, .cover-sub, .chapter-sub')];
+  let n = 0;
+  heads.forEach(h => h.querySelectorAll('x-w').forEach(w => w.animate(
     [{ transform: 'translateY(.34em)', opacity: 0, filter: 'blur(4px)' }, { transform: 'none', opacity: 1, filter: 'blur(0)' }],
-    { duration: 620, delay: delay + n * 45, easing: 'cubic-bezier(.2,.75,.2,1)', fill: 'backwards' })));
-  // Everything else on the slide (subtitles, captions, cards) waits until the headline has landed,
-  // then follows in order, so nothing arrives while the headline is still coming in.
-  const heads = [...slide.querySelectorAll('.title, .cover-title, .chapter-title')];
-  const words = heads.reduce((m, h) => Math.max(m, h.querySelectorAll('x-w').length), 0);
-  if (!words) return;
-  const after = delay + words * 45 + 300;
+    { duration: 620, delay: delay + (n++) * 45, easing: 'cubic-bezier(.2,.75,.2,1)', fill: 'backwards' })));
+  if (!n) return;
+  // Everything else (cards, charts, rows) follows right after the last word starts.
+  const after = delay + n * 45 + 120;
   [...slide.querySelectorAll('[data-in]')].filter(el => !heads.some(h => el === h || el.contains(h)))
     .forEach((el, k) => { el.style.setProperty('--wait', after + 'ms'); el.style.setProperty('--i', k); });
 }
