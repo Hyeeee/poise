@@ -1267,3 +1267,15 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* the back face is never faded or blurred; only the rotation shows or hides it, so flipping back is as smooth as flipping over */
 .iv-face.iv-back, .iv-face.iv-back.shown { opacity: 1; filter: none; transition: transform .9s cubic-bezier(.4,.1,.2,1); }
 .iv-face.iv-back:not(.shown) { transform: rotateY(-180deg); }
+/* market research takeaway: the card frosts over like glass and my takeaway rises in the middle */
+.mk-card { position: relative; overflow: hidden; }
+.mk-over { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: calc(var(--s) * 56); gap: calc(var(--s) * 16);
+  background: rgba(250,250,247,.55); backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); border-radius: inherit;
+  opacity: 0; transform: none !important; filter: none !important; transition: opacity .6s ease, backdrop-filter .8s ease, -webkit-backdrop-filter .8s ease; }
+.mk-over.shown { opacity: 1; backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2); }
+.mk-over > * { opacity: 0; transform: translateY(calc(var(--s) * 14)); transition: opacity .6s ease .35s, transform .8s var(--ease) .35s; }
+.mk-over.shown > * { opacity: 1; transform: none; }
+.mk-over-tag { font-size: max(calc(var(--s) * 15), 10px); font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+.mk-over-line { font-weight: 500; font-size: max(calc(var(--s) * 34), 17px); line-height: 1.3; letter-spacing: -.02em; color: var(--ink); max-width: 22ch; }
+.mk-over-line span { display: block; margin-top: calc(var(--s) * 8); color: rgba(20,20,18,.42); }
+.mk-over-line { max-width: none; font-size: max(calc(var(--s) * 30), 16px); } .mk-over { padding: calc(var(--s) * 48); }
