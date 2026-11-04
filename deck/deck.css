@@ -1047,3 +1047,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-tags em { font-weight: 500; }
 /* every grey headline line uses the cover's style: translucent ink, so the backdrop shows through it */
 .title span, .chapter-title span { color: rgba(20,20,18,.42); }
+/* cover headline back on four lines */
+.cover-title, .cover-title span { white-space: normal; }
