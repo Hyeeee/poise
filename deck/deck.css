@@ -1421,3 +1421,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .hy-line mark::after { display: none !important; }
 .hy-box.shown mark { background-size: 100% 100%; }
 .hy-box.shown mark:nth-of-type(1) { transition-delay: .5s; } .hy-box.shown mark:nth-of-type(2) { transition-delay: .75s; } .hy-box.shown mark:nth-of-type(3) { transition-delay: 1s; }
+.hy-line mark { color: #1e6b37; }
