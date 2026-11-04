@@ -1066,3 +1066,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-opp span { background: #e6f4ea; color: #1e7a3c; }
 .iv-back .iv-who { flex: none; }
 .iv-learn p { display: flex; flex-direction: column; align-items: flex-start; }
+/* third row on the back: what to keep in mind about this person (red, like the pain chip) */
+.iv-watch span { background: #fbe9e7; color: #b3392b; }
+.iv-learn { gap: calc(var(--s) * 30); }
+/* back of the cards: every row is two lines tall in all three cards, and rows start at the same height so they line up across */
+.iv-learn { justify-content: flex-start; gap: calc(var(--s) * 28); padding-top: calc(var(--s) * 30); }
+.iv-learn p { font-size: max(calc(var(--s) * 22), 13px); line-height: 1.35; min-height: calc(2 * 1.35em + max(calc(var(--s) * 14), 9px) * 1.2 + var(--s) * 22); }
+.iv-learn { justify-content: center; padding-top: calc(var(--s) * 8); }
+.iv-learn p { text-wrap: balance; }
