@@ -1002,3 +1002,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-card .iv-talk { margin-bottom: calc(var(--s) * 22); }
 .iv-note span { display: block; margin-bottom: calc(var(--s) * 4); font-size: max(calc(var(--s) * 14), 9px); color: var(--ink-3); letter-spacing: .02em; }
 .iv-note { opacity: 0; transition: opacity .5s ease; } .iv-card.shown .iv-note { opacity: 1; transition-delay: 2.4s; }
+/* more air between bubbles: each question sits a little apart from its answer, and exchanges sit further apart */
+.iv-talk { gap: calc(var(--s) * 26); }
+.iv-qa { gap: calc(var(--s) * 10); }
