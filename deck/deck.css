@@ -1194,3 +1194,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .mk-name { display: grid; grid-template-columns: auto 1fr; column-gap: calc(var(--s) * 14); align-items: center; }
 .mk-name .mk-mark { grid-row: 1 / span 2; } .mk-name small { grid-column: 2; }
 .mk-table tbody tr, .mk-list li { border-top: 0 !important; }
+/* row dividers back; a left column label so the header row reads as a table */
+.mk-table tbody tr, .mk-list li { border-top: 1px solid rgba(20,20,18,.08) !important; }
+.mk-list li:first-child { border-top: 0 !important; }
+.mk-table thead th:first-child { text-align: left; }
