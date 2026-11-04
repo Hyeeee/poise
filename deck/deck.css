@@ -1390,3 +1390,13 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .hy-card { justify-content: space-between; }
 .slide[data-title="Hypothesis"] .hy-box { padding: calc(var(--s) * 34) !important; justify-content: space-between; gap: calc(var(--s) * 28); }
 .hy-card { justify-content: flex-start; } .hy-card h3 { margin-top: calc(var(--s) * 14) !important; } .hy-card h3 + p { margin-top: calc(var(--s) * 8); } .hy-card .hy-key { margin-top: auto; } .hy-card p:not(.hy-src) { margin-bottom: calc(var(--s) * 28); }
+/* one padding for every card, the same on all four sides; use var(--card-pad) for any new card */
+:root { --card-pad: calc(var(--s) * 34); }
+.card, .glass-card, .form-q, .iv-face, .mk-card, .hy-card, .hy-box, .slide[data-title="Hypothesis"] .hy-card, .slide[data-title="Hypothesis"] .hy-box, .mk-card:first-child, .mk-card:last-child, .card.pz-card { padding: var(--card-pad) !important; }
+.mk-over { padding: var(--card-pad) !important; }
+/* cards hug their content so the padding stays the same on every side */
+.mk-row { flex: none !important; }
+.mk-table { flex: none; }
+.mk-list li:last-child { padding-bottom: 0 !important; }
+.form-q { background: #fff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.mk-table tbody tr:last-child th, .mk-table tbody tr:last-child td { padding-bottom: 0; } .mk-list li:last-child { padding-bottom: 0 !important; } .mk-list li:last-child > .mk-demo { align-self: end; }
