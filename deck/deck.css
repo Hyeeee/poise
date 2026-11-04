@@ -1209,3 +1209,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* one soft shadow for every card on every slide; use var(--card-shadow) for any new card */
 :root { --card-shadow: 0 24px 50px -34px rgba(40,44,36,.4); }
 .card, .glass-card, .form-q, .iv-face, .mk-card, .hy-card { box-shadow: var(--card-shadow) !important; }
+/* survey labels stay on one line; same label column in every card so the bars start together */
+.fq-bars { display: grid !important; grid-template-columns: 12.5em minmax(0, 1fr) 4.6em; font-size: max(calc(var(--s) * 15), 10px); column-gap: calc(var(--s) * 12); }
+.fq-bars li { grid-column: 1 / -1; grid-template-columns: subgrid !important; }
+.fq-bars li span { white-space: nowrap; }
