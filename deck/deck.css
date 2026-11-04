@@ -1438,3 +1438,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 @keyframes pzPress { 0%,12.5%,14.5%,32.5%,34.5%,52.5%,54.5%,72.5%,74.5%,92.5%,94.5%,100% { transform: scale(1) } 13.5%,33.5%,53.5%,73.5%,93.5% { transform: scale(.82) } }
 @keyframes pzRipple { 0%,13%,17%,33%,37%,53%,57%,73%,77%,93%,97%,100% { opacity: 0; transform: scale(.4) } 14%,34%,54%,74%,94% { opacity: 1; transform: scale(.6) } 16%,36%,56%,76%,96% { opacity: 0; transform: scale(1.6) } }
 .pz-card .pz-frame * { animation-play-state: running; } .slide:not(.open) .pz-frame * { animation-play-state: paused; }
+.pz-frame { width: auto; height: 82%; max-width: 88%; }
