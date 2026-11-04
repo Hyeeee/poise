@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Poise · Midterm crit</title>
+<meta name="description" content="Poise, a posture light bar for people who work at a desk. Physical Computing midterm crit by Marin Chung.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Shantell+Sans:wght@500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../deck/deck.css">
+<style>
+  /* Crit only: small additions on top of the case study styles */
+  .ask-list b { font-size: max(calc(var(--s) * 40), 20px); }
+  .who { font-family: var(--serif); font-size: max(calc(var(--s) * 22), 13px); color: var(--ink-3); margin-left: auto; padding-left: calc(var(--s) * 16); white-space: nowrap; }
+  .ticks li, .problems li { align-items: baseline; }
+  .ticks svg { align-self: center; }
+  .idea { font-family: var(--serif); font-size: max(calc(var(--s) * 30), 16px); color: var(--ink-2); max-width: 60ch; }
+  .idea b { font-family: Inter, sans-serif; font-weight: 500; color: var(--ink); }
+  .demo-steps { list-style: none; display: flex; flex-direction: column; gap: calc(var(--s) * 16); counter-reset: d; }
+  .demo-steps li { display: grid; grid-template-columns: calc(var(--s) * 44) 1fr; column-gap: calc(var(--s) * 14); font-size: max(calc(var(--s) * 26), 14px); line-height: 1.35; letter-spacing: -.01em; }
+  .demo-steps li::before { counter-increment: d; content: counter(d); width: 1.7em; height: 1.7em; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; font-size: .72em; font-variant-numeric: tabular-nums; }
+  .demo-steps li span { color: var(--ink-2); }
+  .tag { align-self: flex-start; font-size: var(--t-xs); font-weight: 500; border-radius: 99px; padding: calc(var(--s) * 6) calc(var(--s) * 16); background: rgba(240,240,236,.9); color: var(--ink-2); }
+  .tag.built { background: var(--green); color: var(--green-ink); }
+  .iter { list-style: none; display: flex; flex-direction: column; gap: calc(var(--s) * 18); }
+  .iter li { display: flex; flex-direction: column; gap: calc(var(--s) * 4); padding-bottom: calc(var(--s) * 16); border-bottom: 1px solid var(--hair); }
+  .iter li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .iter b { font-weight: 600; font-size: max(calc(var(--s) * 28), 15px); letter-spacing: -.02em; }
+  .iter span { font-size: var(--t-s); color: var(--ink-2); line-height: 1.45; }
+  .iter em { font-style: normal; color: var(--ink-3); }
+</style>
+</head>
+<body class="on-cover">
+
+<div id="studio" hidden></div>
+<div class="sheet" aria-hidden="true"></div>
+<nav class="progress" id="progress" aria-label="Progress"></nav>
+
+<main class="deck" id="deck">
+
+  <!-- 1 · Concept / device title, your name -->
+  <section class="slide cover" data-title="Cover">
+    <div class="cover-head" data-in>
+      <p class="cover-logo">poise</p>
+      <p class="cover-tag">A posture light bar<br>for people who work at a desk</p>
+    </div>
+    <div class="cover-main">
+      <h1 class="cover-title" data-in>Notice when your posture drifts, <span>without stopping your work.</span></h1>
+      <div class="agent cover-orb" data-in></div>
+    </div>
+    <dl class="facts" data-in>
+      <div><dt>By</dt><dd>Marin Chung</dd></div>
+      <div><dt>Course</dt><dd>Physical Computing, MFA IxD</dd></div>
+      <div><dt>Crit</dt><dd>Midterm, Nov 5, 2026</dd></div>
+      <div><dt>Hardware</dt><dd>Nano Every, NeoPixel, 2× HC-SR04</dd></div>
+      <div><dt>Software</dt><dd>Web app, MediaPipe</dd></div>
+    </dl>
+  </section>
+
+  <!-- 2 · Feedback you'd like to receive (30 sec) -->
+  <section class="slide paper" data-title="Feedback I’d like">
+    <div class="toc">
+      <div class="head">
+        <h2 class="title" data-in>Three things <span>I’d love your eyes on.</span></h2>
+      </div>
+      <ol class="toc-list ask-list">
+        <li data-in><i>01</i><b>The light</b><span>From the bar alone, can you tell what each colour means?</span></li>
+        <li data-in><i>02</i><b>The start</b><span>Is it short enough now that you can just begin?</span></li>
+        <li data-in><i>03</i><b>Something to hold</b><span>Would a squeeze ball for breathing breaks feel playful, or like one more thing on the desk?</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3 · Community focus and problem definition (1 min) -->
+  <section class="slide paper" data-title="Community and problem" data-steps="3">
+    <div class="head">
+      <h2 class="title" data-in>We drift <span>without noticing.</span></h2>
+      <p class="survey-meta" data-in>For students, designers and developers who sit at a computer for hours</p>
+    </div>
+    <div class="big-stats">
+      <div data-step="1"><svg class="viz viz-chart c-line" viewBox="0 0 300 150" role="img" aria-label="Average daily sitting for U.S. adults: 7.1 hours in 2014, 6.5 in 2016, 5.9 in 2020 and 6.0 in 2023"><rect class="vbar" style="--i:0" x="0.0" y="0.0" width="22" height="128.0" rx="6"/><text class="t in" x="11" y="15.0" text-anchor="middle">7.1</text><text class="t" x="11" y="148" text-anchor="middle">2014</text><rect class="vbar" style="--i:1" x="46.0" y="10.8" width="22" height="117.2" rx="6"/><text class="t in" x="57" y="25.8" text-anchor="middle">6.5</text><text class="t" x="57" y="148" text-anchor="middle">2016</text><rect class="vbar" style="--i:2" x="92.0" y="21.6" width="22" height="106.4" rx="6"/><text class="t in" x="103" y="36.6" text-anchor="middle">5.9</text><text class="t" x="103" y="148" text-anchor="middle">2020</text><rect class="vbar hi" style="--i:3" x="138.0" y="19.8" width="22" height="108.2" rx="6"/><text class="t in hi" x="149" y="34.8" text-anchor="middle">6.0</text><text class="t hi" x="149" y="148" text-anchor="middle">2023</text></svg><b>6.0 hrs</b><span>a day the average U.S. adult still spends sitting</span><em>Li et al., JAMA, 2025</em></div>
+      <div data-step="2"><svg class="viz viz-chart c-pie c-ring" viewBox="0 0 300 150" role="img" aria-label="42 to 63 percent of office workers get neck pain in a year"><circle class="ring2 track" cx="75" cy="75" r="66"/><circle class="ring2 mid" cx="75" cy="75" r="66" pathLength="100" transform="rotate(-90 75 75)" style="--to:63"/><circle class="ring2 ink" cx="75" cy="75" r="66" pathLength="100" transform="rotate(-90 75 75)" style="--to:42"/><text class="ring-sm" x="75" y="58" text-anchor="middle">up to</text><text class="ring-big" x="75" y="93" text-anchor="middle">63%</text></svg><b>42<span class="dash">–</span>63%</b><span>of office workers get neck pain in a year</span><em>Chen et al., Physical Therapy, 2018</em></div>
+      <div data-step="3"><svg class="viz viz-chart c-bars" viewBox="0 0 300 150" role="img" aria-label="Back and neck pain is the top U.S. health spending condition at 134.5 billion dollars"><text style="--i:0" class="t lab hi" x="0" y="9.5">Back &amp; neck</text><rect class="bar hi" style="--i:0" x="80" y="1.0" width="159.6" height="10" rx="5"/><text style="--i:0" class="t val hi" x="246.6" y="9.5">$134.5B</text><text style="--i:1" class="t lab" x="0" y="39.5">Other joints</text><rect class="bar" style="--i:1" x="80" y="31.0" width="154.0" height="10" rx="5"/><text style="--i:1" class="t val" x="241.0" y="39.5">$129.8B</text><text style="--i:2" class="t lab" x="0" y="69.5">Diabetes</text><rect class="bar" style="--i:2" x="80" y="61.0" width="132.0" height="10" rx="5"/><text style="--i:2" class="t val" x="219.0" y="69.5">$111.2B</text><text style="--i:3" class="t lab" x="0" y="99.5">Heart disease</text><rect class="bar" style="--i:3" x="80" y="91.0" width="106.0" height="10" rx="5"/><text style="--i:3" class="t val" x="193.0" y="99.5">$89.3B</text><text style="--i:4" class="t lab" x="0" y="129.5">Falls</text><rect class="bar" style="--i:4" x="80" y="121.0" width="103.7" height="10" rx="5"/><text style="--i:4" class="t val" x="190.7" y="129.5">$87.4B</text></svg><b class="count" data-to="134.5" data-pre="$" data-post="B">$134.5B</b><span>spent a year on back and neck pain, the top U.S. health cost</span><em>Dieleman et al., JAMA, 2020</em></div>
+    </div>
+  </section>
+
+  <!-- 4 · Summary of research and discovery (1 min) -->
+  <section class="slide paper" data-title="Research" data-steps="3">
+    <div class="head">
+      <h2 class="title" data-in>So I asked how people work, <span>to see when it drifts, where it hurts, and what they try.</span></h2>
+      <p class="survey-meta" data-in>Google Forms survey · 15 people who work at a desk · Nov 1–3, 2026</p>
+    </div>
+    <div class="forms">
+      <div class="form-q" data-step="1">
+        <p class="fq-title">When do you notice your posture changed?</p><p class="fq-meta">15 responses · one answer</p>
+        <ul class="fq-bars"><li class=""><span>Right away</span><i style="--v:0.133"></i><b>2 <small>(13%)</small></b></li><li class=""><span>Sometimes</span><i style="--v:0.267"></i><b>4 <small>(27%)</small></b></li><li class="hi"><span>Rarely</span><i style="--v:0.200"></i><b>3 <small>(20%)</small></b></li><li class="hi"><span>Only when it starts to hurt</span><i style="--v:0.400"></i><b>6 <small>(40%)</small></b></li></ul>
+        <p class="fq-take"><b>9 of 15</b> rarely notice, or only once it hurts</p>
+      </div>
+      <div class="form-q" data-step="2">
+        <p class="fq-title">Where do you feel pain after a long session?</p><p class="fq-meta">15 responses · all that apply</p>
+        <ul class="fq-bars"><li class="hi"><span>Neck</span><i style="--v:0.467"></i><b>7 <small>(47%)</small></b></li><li class="hi"><span>Lower back</span><i style="--v:0.467"></i><b>7 <small>(47%)</small></b></li><li class=""><span>Shoulders</span><i style="--v:0.333"></i><b>5 <small>(33%)</small></b></li><li class=""><span>Upper back</span><i style="--v:0.133"></i><b>2 <small>(13%)</small></b></li><li class=""><span>None</span><i style="--v:0.067"></i><b>1 <small>(7%)</small></b></li></ul>
+        <p class="fq-take"><b>14 of 15</b> feel it somewhere</p>
+      </div>
+      <div class="form-q" data-step="3">
+        <p class="fq-title">Have you tried anything to fix your posture?</p><p class="fq-meta">15 responses · all that apply</p>
+        <ul class="fq-bars"><li class=""><span>Stretching</span><i style="--v:0.600"></i><b>9 <small>(60%)</small></b></li><li class=""><span>Better chair or desk</span><i style="--v:0.400"></i><b>6 <small>(40%)</small></b></li><li class="hi"><span>Reminders or timers</span><i style="--v:0.133"></i><b>2 <small>(13%)</small></b></li><li class=""><span>Nothing</span><i style="--v:0.133"></i><b>2 <small>(13%)</small></b></li><li class=""><span>Other</span><i style="--v:0.200"></i><b>3 <small>(20%)</small></b></li></ul>
+        <p class="fq-take"><b>2 of 15</b> use anything that catches it in the moment</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · Key themes from playtesting feedback (1 min) -->
+  <!-- 5 · Key themes from playtesting feedback (1 min), from the case study deck -->
+  <section class="slide paper" data-title="What the playtest showed" data-steps="2">
+    <div class="head">
+      <h2 class="title" data-in>Watching people use it <span>changed what I thought mattered.</span></h2>
+    </div>
+    <div class="an-row"><div class="an-card" data-in><p class="an-tag good">What they liked</p><ul><li>It told them about changes they couldn’t feel</li><li>The break modes, the strongest part</li><li>The tone felt healthy, not nagging</li><li>It felt like a real product</li></ul></div><div class="an-card" data-in><p class="an-tag bad">What got in the way</p><ul><li>A light that changed too often felt harsh</li><li>Too much to read before starting</li><li>Colors and numbers with no meaning</li><li>Game text lost against dark clothes</li></ul></div><div class="an-card" data-in><p class="an-tag ">Different from what I expected</p><ul><li>Some wanted instant cues, some wanted calm</li><li>Some loved the voice, others disliked it</li><li>They wanted to start right away and learn while using it</li><li>Nobody opened the web page while working</li></ul></div></div>
+    <div class="an-next" data-step="1"><p class="an-tag good">New direction</p><p class="an-line">Let each person shape their feedback, and put information where they’re already looking.</p></div>
+  </section>
+
+  <!-- 6 · Live demo (3 min) -->
+  <section class="slide paper" data-title="Live demo">
+    <div class="head">
+      <h2 class="title" data-in>Live demo. <span>Sit, drift, come back.</span></h2>
+    </div>
+    <div class="cards c-5-7">
+      <div class="card" data-in>
+        <div class="card-copy"><h3>What you’ll see</h3></div>
+        <ol class="demo-steps">
+          <li>Start <span>Camera, light bar, then save my reference.</span></li>
+          <li>Lean in and hold <span>After a few seconds the bar warms from white toward red.</span></li>
+          <li>Sit back <span>It fades back to white.</span></li>
+          <li>Take a break <span>Steer the boat game by leaning left and right.</span></li>
+          <li>Camera off <span>The two distance sensors take over.</span></li>
+        </ol>
+      </div>
+      <div class="card photos" data-in>
+        <div class="card-copy"><h3>On the desk</h3><p>The light warms slowly as the drift lasts.</p></div>
+        <div class="photo-strip">
+          <figure><img src="../deck/img/light-white.webp" alt="Light bar white while sitting well"><figcaption>White</figcaption></figure>
+          <figure><img src="../deck/img/light-warm.webp" alt="Light bar warming"><figcaption>Warming</figcaption></figure>
+          <figure><img src="../deck/img/light-orange.webp" alt="Light bar orange"><figcaption>Orange</figcaption></figure>
+          <figure><img src="../deck/img/light-red.webp" alt="Light bar red"><figcaption>Red</figcaption></figure>
+        </div>
+      </div>
+    </div>
+    <ol class="flow" data-in>
+      <li>Camera</li><li>Web app, MediaPipe</li><li>USB serial</li><li>Arduino Nano Every</li><li>NeoPixel light bar</li>
+    </ol>
+  </section>
+
+  <!-- 7 · Upcoming design iterations (1 min) -->
+  <!-- 7 · Upcoming design iterations (1 min), from the case study deck -->
+  <section class="slide paper" data-title="Iteration plan" data-steps="2">
+    <div class="head">
+      <h2 class="title" data-in>So I planned the next version <span>from two places.</span></h2>
+    </div>
+    <div class="it-row"><div class="it-card" data-step="1"><p class="it-head">From classmates’ feedback</p><ol><li><b>Feedback that fits you<em class="pr hi">High</em></b><span>Pick the speed, and light, voice, both or neither, in settings or the Ask Poise bar.</span></li><li><b>A shorter start<em class="pr hi">High</em></b><span>Group the twelve step guide into three or four, and explain the rest while it’s in use.</span></li><li><b>Colors and numbers explained<em class="pr mid">Medium</em></b><span>Show what yellow means, and label numbers like 58 cm from the screen.</span></li><li><b>A mini window<em class="pr mid">Medium</em></b><span>A small picture in picture window with posture and time left.</span></li><li><b>Clearer privacy<em class="pr mid">Medium</em></b><span>Say video is never saved or sent, and suggest sensor mode.</span></li><li><b>Ideas to explore<em class="pr lo">Later</em></b><span>A squeeze ball that guides breathing, and spine condition input.</span></li></ol></div><div class="it-card" data-step="2"><p class="it-head">From my own review</p><ol><li><b>Game how to, up front<em class="pr hi">High</em></b><span>A short how to in the center of the camera view before it starts.</span></li><li><b>Text that adapts<em class="pr hi">High</em></b><span>Light text when the background behind it is dark.</span></li><li><b>A real design system<em class="pr mid">Medium</em></b><span>One set of color, type and component tokens, with the light bar using the same state colors as the screen.</span></li><li><b>Better tracking<em class="pr mid">Medium</em></b><span>Improve MediaPipe accuracy when it loses the body.</span></li></ol></div></div>
+  </section>
+
+  <!-- 8 · Thank you -->
+  <section class="slide chapter-slide end" data-title="Thank you">
+    <div class="agent chapter-orb" data-in></div>
+    <div class="chapter-main">
+      <p class="pill glass" data-in>Thank you</p>
+      <h2 class="chapter-title" data-in>Sit well without thinking about it.</h2>
+      <a class="end-link" href="https://poise-lightbar.netlify.app" data-in>poise-lightbar.netlify.app</a>
+    </div>
+  </section>
+
+</main>
+
+<script type="module" src="crit.js"></script>
+</body>
+</html>
