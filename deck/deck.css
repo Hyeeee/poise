@@ -1198,3 +1198,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .mk-table tbody tr, .mk-list li { border-top: 1px solid rgba(20,20,18,.08) !important; }
 .mk-list li:first-child { border-top: 0 !important; }
 .mk-table thead th:first-child { text-align: left; }
+/* equal space between the title divider and the content, and between the content and the card's bottom edge */
+.mk-table thead th { padding-top: calc(var(--s) * 30); }
+.mk-card:first-child { padding-bottom: calc(var(--s) * 14); }
+.mk-card:last-child { padding-bottom: calc(var(--s) * 8); }
+.mk-card:first-child { padding-bottom: calc(var(--s) * 11); } .mk-card:last-child { padding-bottom: 0; }
