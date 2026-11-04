@@ -1328,3 +1328,56 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .hy-box { flex: 1 1 auto; justify-content: space-between; margin-bottom: 0; }
 .slide[data-title="Hypothesis"] .hy-box { margin-bottom: calc(var(--s) * -7); }
 .slide[data-title="Hypothesis"] .hy-box { justify-content: center; gap: calc(var(--s) * 40); }
+/* hypothesis: text back at the top; a small looping graphic above each approach fills the middle */
+.slide[data-title="Hypothesis"] .hy-box { justify-content: space-between; gap: calc(var(--s) * 20); }
+.hy-how { flex: 1; justify-content: flex-end; gap: calc(var(--s) * 18); }
+.hy-vizrow { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: calc(var(--s) * 24); min-height: calc(var(--s) * 90); }
+.hy-viz { display: flex; align-items: center; justify-content: flex-start; }
+/* notice early: posture line drifts up toward the pain zone, and gets caught early */
+.v-early svg { width: 78%; height: 100%; max-height: calc(var(--s) * 110); overflow: visible; }
+.v-early .pain { fill: #fbe9e7; }
+.v-early .base { stroke: rgba(20,20,18,.12); stroke-width: 2; stroke-dasharray: 4 6; fill: none; }
+.v-early .drift { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 260; stroke-dashoffset: 260; animation: hyDraw 4s ease-in-out infinite; }
+.v-early .catch { fill: #3aa66b; transform-box: fill-box; transform-origin: center; transform: scale(0); animation: hyCatch 4s ease-in-out infinite; }
+@keyframes hyDraw { 0% { stroke-dashoffset: 260 } 30%,40% { stroke-dashoffset: 170 } 70%,100% { stroke-dashoffset: 170 } }
+@keyframes hyCatch { 0%,26% { transform: scale(0) } 34% { transform: scale(1.5); box-shadow: 0 0 0 0 } 42%,85% { transform: scale(1) } 100% { transform: scale(0) } }
+/* a clear cue: one light that shifts colour, nothing to read */
+.v-cue { flex-direction: column; align-items: flex-start; justify-content: center; gap: calc(var(--s) * 16); }
+.v-cue .bar { width: 70%; height: calc(var(--s) * 16); border-radius: 99px; background: rgba(20,20,18,.06); overflow: hidden; }
+.v-cue .bar i { display: block; height: 100%; border-radius: 99px; animation: hyCue 5s ease-in-out infinite; }
+@keyframes hyCue { 0%,25% { background: #3aa66b; box-shadow: 0 0 calc(var(--s) * 24) #3aa66b88 } 50% { background: #e9c046; box-shadow: 0 0 calc(var(--s) * 24) #e9c04688 } 70% { background: #e8894a; box-shadow: 0 0 calc(var(--s) * 24) #e8894a88 } 100% { background: #3aa66b; box-shadow: 0 0 calc(var(--s) * 24) #3aa66b88 } }
+.v-cue .dots { display: flex; gap: calc(var(--s) * 8); }
+.v-cue .dots b { width: calc(var(--s) * 10); height: calc(var(--s) * 10); border-radius: 50%; background: rgba(20,20,18,.1); }
+.v-cue .dots b:nth-child(1) { animation: hyD1 5s infinite; } .v-cue .dots b:nth-child(2) { animation: hyD2 5s infinite; } .v-cue .dots b:nth-child(3) { animation: hyD3 5s infinite; }
+@keyframes hyD1 { 0%,30%,90%,100% { background: #3aa66b } 31%,89% { background: rgba(20,20,18,.1) } }
+@keyframes hyD2 { 0%,40%,85%,100% { background: rgba(20,20,18,.1) } 41%,60% { background: #e9c046 } }
+@keyframes hyD3 { 0%,60%,85%,100% { background: rgba(20,20,18,.1) } 61%,84% { background: #e8894a } }
+/* no interruptions: the light at the top glows while the work on screen keeps going */
+.v-quiet .mon { position: relative; width: calc(var(--s) * 170); height: calc(var(--s) * 96); border-radius: calc(var(--s) * 10); border: 2px solid rgba(20,20,18,.18); padding: calc(var(--s) * 16) calc(var(--s) * 14) 0; }
+.v-quiet .lb { position: absolute; left: 22%; right: 22%; top: calc(var(--s) * -9); height: calc(var(--s) * 7); border-radius: 99px; animation: hyCue 5s ease-in-out infinite; }
+.v-quiet .scr { display: flex; flex-direction: column; gap: calc(var(--s) * 9); }
+.v-quiet .scr u { display: block; height: calc(var(--s) * 7); border-radius: 99px; background: rgba(20,20,18,.14); width: 0; animation: hyType 5s linear infinite; }
+.v-quiet .scr u:nth-child(2) { animation-delay: .8s; } .v-quiet .scr u:nth-child(3) { animation-delay: 1.6s; }
+@keyframes hyType { 0% { width: 0 } 40%,100% { width: 88% } }
+.hy-box:not(.shown) .hy-viz * { animation-play-state: paused; }
+.hy-vizrow { flex: 1 1 0; min-height: 0; }
+.hy-how { min-height: 0; gap: calc(var(--s) * 14); }
+.slide[data-title="Hypothesis"] .hy-box { min-height: 0; overflow: hidden; }
+.v-early svg { max-height: calc(var(--s) * 80); width: 72%; }
+.v-early .pain { stroke: none; }
+.v-early .base { stroke-dasharray: 3 7; }
+.v-quiet .mon { height: calc(var(--s) * 76); width: calc(var(--s) * 150); }
+.v-cue .bar { width: 64%; }
+/* make room for the graphics: research cards hug their content, graphics get a fixed band */
+.hy-card .hy-key { margin-top: calc(var(--s) * 18); }
+.hy-card h3 + p { margin-bottom: 0; }
+.hy-row { align-items: stretch; }
+.hy-card { justify-content: flex-start; }
+.hy-card .hy-key { margin-top: auto; }
+.hy-card { padding-bottom: calc(var(--s) * 24); padding-top: calc(var(--s) * 24); }
+.hy-vizrow { flex: none; height: calc(var(--s) * 92); }
+.hy-how { flex: none; gap: calc(var(--s) * 18); }
+.slide[data-title="Hypothesis"] .hy-box { justify-content: space-between; padding-top: calc(var(--s) * 28); padding-bottom: calc(var(--s) * 28); }
+.v-early svg { max-height: calc(var(--s) * 92); width: 70%; }
+.v-quiet .mon { height: calc(var(--s) * 80); width: calc(var(--s) * 156); margin-top: calc(var(--s) * 10); }
+.hy-card h3 + p { margin-bottom: calc(var(--s) * 16); }
