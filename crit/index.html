@@ -43,6 +43,13 @@
   .live-cues .demo-steps li { font-size: max(calc(var(--s) * 20), 13px); }
   .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
+  /* Feedback slide: one card per question */
+  .ask-cards { flex: 0 1 auto; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ask-cards .card { gap: calc(var(--s) * 56); }
+  .ask-n { font-style: normal; font-size: max(calc(var(--s) * 18), 12px); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .ask-cards .card h3 { font-size: max(calc(var(--s) * 40), 20px); }
+  .ask-cards .card-copy p { font-size: max(calc(var(--s) * 22), 14px); max-width: none; }
+  @media (max-width: 760px) { .ask-cards { grid-template-columns: 1fr; } .ask-cards .card { min-height: 0; } }
 </style>
 </head>
 <body class="on-cover">
@@ -74,15 +81,13 @@
 
   <!-- 2 · Feedback you'd like to receive (30 sec) -->
   <section class="slide paper" data-title="Feedback I’d like">
-    <div class="toc">
-      <div class="head">
-        <h2 class="title" data-in>Feedback I’d like. <span>Three things to look at.</span></h2>
-      </div>
-      <ol class="toc-list ask-list">
-        <li data-in><i>01</i><b>The light</b><span>From the bar alone, can you tell what each colour means?</span></li>
-        <li data-in><i>02</i><b>The start</b><span>Is it short enough now that you can just begin?</span></li>
-        <li data-in><i>03</i><b>Something to hold</b><span>Would a squeeze ball for breathing breaks feel playful, or like one more thing on the desk?</span></li>
-      </ol>
+    <div class="head">
+      <h2 class="title" data-in>Feedback I’d like. <span>Three things to look at.</span></h2>
+    </div>
+    <div class="cards ask-cards">
+      <div class="card" data-in><i class="ask-n">01</i><div class="card-copy"><h3>The light</h3><p>From the bar alone, can you tell what each colour means?</p></div></div>
+      <div class="card" data-in><i class="ask-n">02</i><div class="card-copy"><h3>The start</h3><p>Is it short enough now that you can just begin?</p></div></div>
+      <div class="card" data-in><i class="ask-n">03</i><div class="card-copy"><h3>Something to hold</h3><p>Would a squeeze ball for breathing breaks feel playful, or like one more thing on the desk?</p></div></div>
     </div>
   </section>
 
