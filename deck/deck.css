@@ -1034,3 +1034,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* how each person works, as small chips on the right of the profile */
 .iv-tags { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: calc(var(--s) * 6); max-width: 60%; }
 .iv-tags em { font-style: normal; background: #f2f2f0; border-radius: 99px; padding: calc(var(--s) * 6) calc(var(--s) * 12); font-size: max(calc(var(--s) * 14), 9px); color: var(--ink-2); white-space: nowrap; }
+/* smaller online dots */
+.iv-av::after { width: calc(var(--s) * 10); height: calc(var(--s) * 10); right: calc(var(--s) * 1); bottom: calc(var(--s) * 1); box-shadow: 0 0 0 calc(var(--s) * 2) #fff; }
+.iv-a::after { width: calc(var(--s) * 6); height: calc(var(--s) * 6); left: calc(var(--s) * -12); box-shadow: 0 0 0 calc(var(--s) * 1.2) #fff; }
