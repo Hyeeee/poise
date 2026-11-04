@@ -50,6 +50,11 @@
   .ask-cards .card h3 { font-size: max(calc(var(--s) * 40), 20px); }
   .ask-cards .card-copy p { font-size: max(calc(var(--s) * 22), 14px); max-width: none; }
   @media (max-width: 760px) { .ask-cards { grid-template-columns: 1fr; } .ask-cards .card { min-height: 0; } }
+  /* Cover: four line title, and only name, course and date underneath */
+  .cover .cover-title, .cover .cover-title span { white-space: nowrap; }
+  .cover .facts { grid-template-columns: repeat(3, max-content); column-gap: calc(var(--s) * 120); }
+  .cover .facts > div { padding-right: 0; }
+  @media (max-width: 760px) { .cover .cover-title, .cover .cover-title span { white-space: normal; } .cover .facts { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body class="on-cover">
@@ -64,18 +69,15 @@
   <section class="slide cover" data-title="Cover">
     <div class="cover-head" data-in>
       <p class="cover-logo">poise</p>
-      <p class="cover-tag">A posture light bar<br>for people who work at a desk</p>
     </div>
     <div class="cover-main">
-      <h1 class="cover-title" data-in>Notice when your posture drifts, <span>without stopping your work.</span></h1>
+      <h1 class="cover-title" data-in>Notice when<br>your posture drifts, <span>without stopping<br>your work.</span></h1>
       <div class="agent cover-orb" data-in></div>
     </div>
     <dl class="facts" data-in>
       <div><dt>By</dt><dd>Marin Chung</dd></div>
       <div><dt>Course</dt><dd>Physical Computing, MFA IxD</dd></div>
       <div><dt>Crit</dt><dd>Midterm, Nov 5, 2026</dd></div>
-      <div><dt>Hardware</dt><dd>Nano Every, NeoPixel, 2× HC-SR04</dd></div>
-      <div><dt>Software</dt><dd>Web app, MediaPipe</dd></div>
     </dl>
   </section>
 
