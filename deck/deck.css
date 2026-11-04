@@ -1441,3 +1441,83 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .pz-frame { width: auto; height: 82%; max-width: 88%; }
 .pz-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
 .pz-photo { background: #d4d2cf; } .pz-photo img { object-fit: cover; object-position: 50% 45%; }
+
+/* software card v2: a soft touch dot instead of a mouse; each tap zooms the screen in on the button, with a hover lift first */
+.pz-stage { position: absolute; inset: 0; animation: pzZoom 18s cubic-bezier(.45,0,.2,1) infinite; will-change: transform; }
+.pz-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; animation: pzFade2 18s infinite; animation-delay: calc(var(--k) * 3.6s); }
+.pz-cursor { display: none !important; }
+.pz-tap { position: absolute; z-index: 3; width: 0; height: 0; animation: pzTap 18s cubic-bezier(.45,0,.2,1) infinite; }
+.pz-tap::before { content: ""; position: absolute; left: 0; top: 0; width: calc(var(--s) * 30); height: calc(var(--s) * 30); border-radius: 50%; border: 2px solid rgba(255,255,255,.95); box-shadow: 0 4px 14px rgba(0,0,0,.25), inset 0 0 0 1px rgba(0,0,0,.06); backdrop-filter: blur(2px); animation: pzTapLook 18s ease infinite; }
+.pz-tap b { position: absolute; left: 0; top: 0; width: calc(var(--s) * 30); height: calc(var(--s) * 30); border-radius: 50%; border: 2px solid rgba(30,107,55,.6); opacity: 0; animation: pzRip 18s ease-out infinite; }
+.slide:not(.open) .pz-frame *, .slide:not(.open) .pz-frame *::before { animation-play-state: paused; }
+@keyframes pzZoom {
+  0% { transform-origin: 50% 69.4%; transform: scale(1) }
+  7% { transform-origin: 50% 69.4%; transform: scale(1) }
+  11%, 16% { transform-origin: 50% 69.4%; transform: scale(1.7) }
+  19.5% { transform-origin: 50% 69.4%; transform: scale(1) }
+  20% { transform-origin: 44% 56%; transform: scale(1) }
+  27% { transform-origin: 44% 56%; transform: scale(1) }
+  31%, 36% { transform-origin: 44% 56%; transform: scale(1.7) }
+  39.5% { transform-origin: 44% 56%; transform: scale(1) }
+  40% { transform-origin: 92.6% 30.5%; transform: scale(1) }
+  47% { transform-origin: 92.6% 30.5%; transform: scale(1) }
+  51%, 56% { transform-origin: 92.6% 30.5%; transform: scale(1.7) }
+  59.5% { transform-origin: 92.6% 30.5%; transform: scale(1) }
+  60% { transform-origin: 85.8% 61.5%; transform: scale(1) }
+  67% { transform-origin: 85.8% 61.5%; transform: scale(1) }
+  71%, 76% { transform-origin: 85.8% 61.5%; transform: scale(1.7) }
+  79.5% { transform-origin: 85.8% 61.5%; transform: scale(1) }
+  80% { transform-origin: 64.8% 80.6%; transform: scale(1) }
+  87% { transform-origin: 64.8% 80.6%; transform: scale(1) }
+  91%, 96% { transform-origin: 64.8% 80.6%; transform: scale(1.7) }
+  99.5% { transform-origin: 64.8% 80.6%; transform: scale(1) }
+  100% { transform-origin: 50% 69.4%; transform: scale(1) }
+  }
+@keyframes pzTap {
+  0% { left: 64.8%; top: 80.6% }
+  9%, 17% { left: 50%; top: 69.4% }
+  29%, 37% { left: 44%; top: 56% }
+  49%, 57% { left: 92.6%; top: 30.5% }
+  69%, 77% { left: 85.8%; top: 61.5% }
+  89%, 97% { left: 64.8%; top: 80.6% }
+  100% { left: 64.8%; top: 80.6% }
+  }
+@keyframes pzTapLook {
+  1%, 8% { transform: translate(-50%,-50%) scale(1); background: rgba(255,255,255,.55) }
+  10%, 12.8% { transform: translate(-50%,-50%) scale(1.25); background: rgba(255,255,255,.75) }
+  13.6% { transform: translate(-50%,-50%) scale(.8); background: rgba(30,107,55,.55) }
+  15%, 19% { transform: translate(-50%,-50%) scale(1); background: rgba(255,255,255,.55) }
+  21%, 28% { transform: translate(-50%,-50%) scale(1); background: rgba(255,255,255,.55) }
+  30%, 32.8% { transform: translate(-50%,-50%) scale(1.25); background: rgba(255,255,255,.75) }
+  33.6% { transform: translate(-50%,-50%) scale(.8); background: rgba(30,107,55,.55) }
+  35%, 39% { transform: translate(-50%,-50%) scale(1); background: rgba(255,255,255,.55) }
+  41%, 48% { transform: translate(-50%,-50%) scale(1); background: rgba(255,255,255,.55) }
+  50%, 52.8% { transform: translate(-50%,-50%) scale(1.25); background: rgba(255,255,255,.75) }
+  53.6% { transform: translate(-50%,-50%) scale(.8); background: rgba(30,107,55,.55) }
+  55%, 59% { transform: translate(-50%,-50%) scale(1); background: rgba(255,255,255,.55) }
+  61%, 68% { transform: translate(-50%,-50%) scale(1); background: rgba(255,255,255,.55) }
+  70%, 72.8% { transform: translate(-50%,-50%) scale(1.25); background: rgba(255,255,255,.75) }
+  73.6% { transform: translate(-50%,-50%) scale(.8); background: rgba(30,107,55,.55) }
+  75%, 79% { transform: translate(-50%,-50%) scale(1); background: rgba(255,255,255,.55) }
+  81%, 88% { transform: translate(-50%,-50%) scale(1); background: rgba(255,255,255,.55) }
+  90%, 92.8% { transform: translate(-50%,-50%) scale(1.25); background: rgba(255,255,255,.75) }
+  93.6% { transform: translate(-50%,-50%) scale(.8); background: rgba(30,107,55,.55) }
+  95%, 99% { transform: translate(-50%,-50%) scale(1); background: rgba(255,255,255,.55) }
+  }
+@keyframes pzRip {
+  13.4% { opacity: 0; transform: translate(-50%,-50%) scale(.6) }
+  13.8% { opacity: .9; transform: translate(-50%,-50%) scale(.8) }
+  16.5% { opacity: 0; transform: translate(-50%,-50%) scale(2.6) }
+  33.4% { opacity: 0; transform: translate(-50%,-50%) scale(.6) }
+  33.8% { opacity: .9; transform: translate(-50%,-50%) scale(.8) }
+  36.5% { opacity: 0; transform: translate(-50%,-50%) scale(2.6) }
+  53.4% { opacity: 0; transform: translate(-50%,-50%) scale(.6) }
+  53.8% { opacity: .9; transform: translate(-50%,-50%) scale(.8) }
+  56.5% { opacity: 0; transform: translate(-50%,-50%) scale(2.6) }
+  73.4% { opacity: 0; transform: translate(-50%,-50%) scale(.6) }
+  73.8% { opacity: .9; transform: translate(-50%,-50%) scale(.8) }
+  76.5% { opacity: 0; transform: translate(-50%,-50%) scale(2.6) }
+  93.4% { opacity: 0; transform: translate(-50%,-50%) scale(.6) }
+  93.8% { opacity: .9; transform: translate(-50%,-50%) scale(.8) }
+  96.5% { opacity: 0; transform: translate(-50%,-50%) scale(2.6) }
+  }
