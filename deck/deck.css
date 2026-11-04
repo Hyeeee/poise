@@ -962,3 +962,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .shown .viz-chart .ring2.ink, .shown .viz-chart .ring2.mid { --sw: var(--to); }
 .viz-chart .ring-sm { font: 400 11px Inter, sans-serif; fill: var(--ink-3); stroke: none !important; }
 .viz-chart .ring-big { font: 600 30px Inter, sans-serif; letter-spacing: -.02em; fill: var(--ink); stroke: none !important; }
+.fq-title { min-height: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fq-meta { margin-top: calc(var(--s) * 4) !important; }
