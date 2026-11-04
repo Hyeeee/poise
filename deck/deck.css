@@ -964,3 +964,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .viz-chart .ring-big { font: 600 30px Inter, sans-serif; letter-spacing: -.02em; fill: var(--ink); stroke: none !important; }
 .fq-title { min-height: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fq-meta { margin-top: calc(var(--s) * 4) !important; }
+/* rule: line under a headline sits a little further down, and starts on the headline's optical left edge */
+.head > .title + * { margin-top: calc(var(--s) * 24) !important; padding-left: calc(var(--s) * 4); }
