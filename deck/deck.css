@@ -1203,3 +1203,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .mk-card:first-child { padding-bottom: calc(var(--s) * 14); }
 .mk-card:last-child { padding-bottom: calc(var(--s) * 8); }
 .mk-card:first-child { padding-bottom: calc(var(--s) * 11); } .mk-card:last-child { padding-bottom: 0; }
+.mk-label { border-bottom: 0; }
