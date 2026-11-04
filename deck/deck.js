@@ -415,3 +415,92 @@ document.querySelectorAll('.fl-row').forEach(row => {
   sl.addEventListener('step', sync);
   new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] });
 });
+
+// Version one flow cards: vector scenes that replay the app's own steps with a tap dot.
+(() => {
+  const W = ms => new Promise(r => setTimeout(r, ms));
+  const run = new Map();
+  const tapAt = async (box, el, { hold = 380 } = {}) => {
+    const t = box.querySelector('.tap'); if (!t || !el) return;
+    const b = box.getBoundingClientRect(), r = el.getBoundingClientRect();
+    t.style.left = ((r.left + r.width / 2 - b.left) / b.width * 100) + '%';
+    t.style.top = ((r.top + r.height / 2 - b.top) / b.height * 100) + '%';
+    await W(720); t.classList.add('hover'); el.classList.add('hov'); await W(hold);
+    t.classList.remove('hover'); t.classList.add('press'); el.classList.add('press'); await W(170);
+    t.classList.remove('press'); el.classList.remove('press', 'hov');
+  };
+  const typeIn = async (el, text, ms = 32) => { el.textContent = ''; for (const ch of text) { el.textContent += ch; await W(ms); } };
+  const S = {
+    async onb(box, alive) {
+      const q = [...box.querySelectorAll('.q')], t = box.querySelector('.tap');
+      q.forEach(x => x.classList.remove('on')); t.style.left = '70%'; t.style.top = '108%';
+      box.querySelectorAll('.on,.pick-on').forEach(x => { if (!x.classList.contains('q')) x.classList.remove('on'); });
+      const sl = q[0].querySelector('.sl'); sl.style.setProperty('--p', '25%'); q[0].querySelector('.n').textContent = '30';
+      q[0].classList.add('on'); await typeIn(q[0].querySelector('h4'), q[0].querySelector('h4').dataset.type); if (!alive()) return;
+      const p60 = q[0].querySelector('.t60'); await tapAt(box, p60); p60.classList.add('on'); sl.style.setProperty('--p', '50%');
+      for (const n of [40, 50, 60]) { q[0].querySelector('.n').textContent = n; await W(140); }
+      await W(500); await tapAt(box, q[0].querySelector('.go')); if (!alive()) return;
+      q[0].classList.remove('on'); await W(350); q[1].classList.add('on');
+      await typeIn(q[1].querySelector('h4'), q[1].querySelector('h4').dataset.type); if (!alive()) return;
+      const pick = q[1].querySelector('.pick'); await tapAt(box, pick, { hold: 600 }); pick.classList.add('on'); await W(700);
+      q[1].classList.remove('on'); await W(350); q[2].classList.add('on'); await W(1600); if (!alive()) return;
+      await tapAt(box, q[2].querySelector('.go2')); await W(1400);
+    },
+    async work(box, alive) {
+      const fx = box, s1 = fx.querySelector('.s1'), s2 = fx.querySelector('.s2'), bar = fx.querySelector('.bar i'), pc = fx.querySelector('.pc'), ck = fx.querySelector('.clock'), t = fx.querySelector('.tap');
+      fx.classList.remove('lean', 'report'); t.style.left = '70%'; t.style.top = '108%';
+      s1.textContent = 'Aligned.'; s2.textContent = 'Close to your reference.'; bar.style.width = '0'; pc.textContent = '0';
+      let sec = 24 * 60 + 58; const tick = setInterval(() => { sec--; ck.textContent = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; }, 1000);
+      try {
+        await W(1800); if (!alive()) return; fx.classList.add('lean');
+        for (let v = 0; v <= 87; v += 6) { pc.textContent = v; bar.style.width = v + '%'; await W(90); }
+        s1.textContent = 'Leaning forward.'; s2.textContent = 'Bring your head back over your shoulders.'; await W(2600); if (!alive()) return;
+        fx.classList.remove('lean');
+        for (let v = 87; v >= 0; v -= 8) { pc.textContent = Math.max(0, v); bar.style.width = Math.max(0, v) + '%'; await W(80); }
+        s1.textContent = 'Back in balance.'; s2.textContent = 'Nice correction.'; await W(1800); if (!alive()) return;
+        await tapAt(box, fx.querySelector('.tm .btn')); fx.classList.add('report'); await W(4200);
+      } finally { clearInterval(tick); }
+    },
+    async brk(box, alive) {
+      const fx = box, m = fx.querySelector('.m'), hold = fx.querySelector('.hold i'), pts = fx.querySelector('.pts'), cnt = fx.querySelector('.cnt'), pr = fx.querySelector('.prog i'), pn = fx.querySelector('.pn');
+      const poses = [['Side reach, left', 'lean', 'Raise both arms and lean gently to the left.'], ['Overhead reach', 'up', 'Reach both arms up and stretch tall.']];
+      let score = 0;
+      for (let i = 0; i < poses.length; i++) {
+        const [name, cls, tip] = poses[i]; pn.textContent = name; fx.querySelector('.pi').textContent = tip;
+        cnt.textContent = `${i + 1} / 10`; pr.style.setProperty('--pp', `${(i + 1) * 10}%`);
+        fx.classList.remove('up', 'lean'); hold.style.width = '0'; m.textContent = '0'; await W(700); if (!alive()) return;
+        fx.classList.add('up'); if (cls === 'lean') { await W(500); fx.classList.add('lean'); }
+        for (let v = 0; v <= 92; v += 7) { m.textContent = v; await W(70); }
+        hold.style.width = '100%'; await W(1700); score += 40; pts.textContent = `${score} points`; await W(700); if (!alive()) return;
+      }
+      fx.classList.remove('up', 'lean'); await W(800);
+    },
+    async set(box, alive) {
+      const fx = box, t = fx.querySelector('.tap'), sl = fx.querySelector('.sl'), fl = fx.querySelector('.fl'), me = fx.querySelector('.me'), ai = fx.querySelector('.ai'), ty = fx.querySelector('.ty');
+      fx.classList.remove('chat', 'typing'); me.classList.remove('on'); ai.classList.remove('on'); ty.textContent = ''; t.style.left = '70%'; t.style.top = '108%';
+      const c1 = fx.querySelector('.c1'), c2 = fx.querySelector('.c2'), sw = fx.querySelector('.tg .sw'), seg = [...fx.querySelectorAll('.seg3 span')];
+      c1.classList.add('on'); c2.classList.remove('on'); sw.classList.remove('on'); seg.forEach((x, i) => x.classList.toggle('on', i === 1)); sl.style.setProperty('--p', '50%'); fl.textContent = '60 min';
+      await W(900); if (!alive()) return;
+      await tapAt(box, c2); c1.classList.remove('on'); c2.classList.add('on'); sl.style.setProperty('--p', '40%'); fl.textContent = '50 min'; await W(600);
+      await tapAt(box, seg[0]); seg.forEach((x, i) => x.classList.toggle('on', i === 0)); await W(400);
+      await tapAt(box, sw); sw.classList.add('on'); await W(900); if (!alive()) return;
+      fx.classList.add('chat'); await tapAt(box, fx.querySelector('.bar2')); fx.classList.add('typing');
+      await typeIn(ty, 'Make my focus 50 min and breaks with breathing', 38); await W(300);
+      await tapAt(box, fx.querySelector('.send')); me.textContent = ty.textContent; ty.textContent = ''; fx.classList.remove('typing');
+      me.classList.add('on'); await W(900); ai.classList.add('on'); await W(2600);
+    },
+  };
+  const start = card => {
+    const box = card.querySelector('.fx'), key = card.querySelector('[data-scene]')?.dataset.scene;
+    if (!box || !S[key] || run.has(card)) return;
+    const token = {}; run.set(card, token);
+    const alive = () => run.get(card) === token && card.classList.contains('shown') && card.closest('.slide').classList.contains('open');
+    (async () => { while (alive()) { await S[key](box, alive); await W(400); } run.delete(card); })();
+  };
+  document.querySelectorAll('.fl-row').forEach(row => {
+    const sl = row.closest('.slide');
+    const sync = () => row.querySelectorAll('.fl-card').forEach(c => { if (c.classList.contains('shown') && sl.classList.contains('open')) start(c); else run.delete(c); });
+    sl.addEventListener('step', sync);
+    new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] });
+  });
+})();
