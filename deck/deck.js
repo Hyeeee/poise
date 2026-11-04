@@ -16,7 +16,7 @@ const deck = document.getElementById('deck');
 const slides = [...deck.querySelectorAll('.slide')];
 const progress = document.getElementById('progress');
 // The parts of the deck, in order, and how many slides each has (cover and contents come first).
-const PARTS = [['Intro', 2], ['The problem', 2], ['UX research', 4], ['Version one', 2], ['Iteration', 3], ['Version two', 6], ['What I learned', 3]];
+const PARTS = [['Intro', 2], ['The problem', 2], ['UX research', 4], ['Version one', 2], ['Iteration', 3], ['Version two', 7], ['What I learned', 3]];
 let at = 0;
 const segs = PARTS.map(([name, n]) => {
   const start = at; at += n;
@@ -549,5 +549,20 @@ const V1 = (() => {
   const st = document.querySelector('.pz-frame .v1-stage'); if (!st) return;
   const sl = st.closest('.slide'), pl = V1.player(st); let on = false;
   const sync = () => { const o = sl.classList.contains('open'); if (o && !on) { on = true; pl.play(['onb', 'work', 'brk', 'set']); } if (!o && on) { on = false; pl.stop(); } };
+  new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
+})();
+
+// Light bar v2 slide: version one jumps to yellow almost at once and flashes green; version two follows the chosen sensitivity
+(() => {
+  const sl = document.querySelector('[data-title="Light bar, version two"]'); if (!sl) return;
+  const v1 = sl.querySelector('.v1lb i'), v2 = sl.querySelector('.v2lb i'), seg = [...sl.querySelectorAll('.hw-seg span')];
+  const W = ms => new Promise(r => setTimeout(r, ms)); let tok = 0;
+  const C = { white: '#f6f4ec', yellow: '#f0c34e', orange: '#ec8a3c', green: '#59b77a' };
+  const set = (el, c, ms) => { el.style.transition = `background ${ms}ms ease, box-shadow ${ms}ms ease`; el.style.background = C[c]; el.style.boxShadow = `0 0 calc(var(--s) * 40) ${C[c]}`; };
+  const loop1 = async my => { while (my === tok) { set(v1, 'white', 200); await W(1400); set(v1, 'yellow', 150); await W(500); set(v1, 'orange', 150); await W(900); set(v1, 'green', 120); await W(500); set(v1, 'white', 200); await W(700); set(v1, 'yellow', 150); await W(600); set(v1, 'white', 150); await W(900); } };
+  const loop2 = async my => { const D = { g: 2600, b: 1500, f: 700 }; const order = ['b', 'g', 'f'];
+    while (my === tok) for (const k of order) { if (my !== tok) return; seg.forEach(x => x.classList.toggle('on', x.dataset.s === k)); set(v2, 'white', 400);
+      await W(900); set(v2, 'yellow', D[k]); await W(D[k] + 800); set(v2, 'white', 900); await W(1600); } };
+  const sync = () => { if (sl.classList.contains('open')) { if (!sl._on) { sl._on = 1; const my = ++tok; loop1(my); loop2(my); } } else { sl._on = 0; tok++; } };
   new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
 })();

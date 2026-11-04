@@ -1687,3 +1687,30 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v1-tap.press::after { animation: fxRip .6s ease-out; }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .v1-card { grid-template-columns: 1fr; } .v1-side { min-height: 10em; } }
 .pz-cut img { inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 100% 28%; transform: none; }
+/* light bar version two */
+.hw-row { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--s) * 20); }
+.hw-card { background: #fff; border-radius: calc(var(--s) * 30); padding: var(--card-pad); box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: calc(var(--s) * 24); }
+.hw-card .an-tag { align-self: flex-start; }
+.hw-bar { position: relative; height: calc(var(--s) * 120); border-radius: calc(var(--s) * 20); background: #2a2a28; display: flex; align-items: flex-end; justify-content: center; padding: 0 calc(var(--s) * 30) calc(var(--s) * 26); }
+.hw-bar::before { content: ""; position: absolute; left: calc(var(--s) * 30); right: calc(var(--s) * 30); top: calc(var(--s) * 28); height: calc(var(--s) * 34); border-radius: 99px; background: #8b8f8f; }
+.hw-bar i { display: block; width: 100%; height: calc(var(--s) * 10); border-radius: 99px; background: #f6f4ec; box-shadow: 0 0 calc(var(--s) * 40) #f6f4ec; }
+.hw-seg { display: inline-flex; align-self: flex-start; gap: calc(var(--s) * 4); background: rgba(20,20,18,.05); border-radius: 99px; padding: calc(var(--s) * 5); }
+.hw-seg span { font-size: max(calc(var(--s) * 15), 10px); padding: calc(var(--s) * 7) calc(var(--s) * 16); border-radius: 99px; color: var(--ink-2); transition: background .3s, color .3s; }
+.hw-seg span.on { background: var(--ink); color: #fff; }
+.hw-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: calc(var(--s) * 10); }
+.hw-list li { font-size: max(calc(var(--s) * 19), 12px); line-height: 1.45; color: var(--ink); padding-left: calc(var(--s) * 18); position: relative; }
+.hw-list li::before { content: ""; position: absolute; left: 0; top: .6em; width: calc(var(--s) * 6); height: calc(var(--s) * 6); border-radius: 50%; background: rgba(20,20,18,.3); }
+/* what's next: 3D printed bar mockup */
+.next-hw { margin-top: calc(var(--s) * 20); background: #fff; border-radius: calc(var(--s) * 30); padding: var(--card-pad); box-shadow: var(--card-shadow); display: grid; grid-template-columns: 1.4fr 1fr; gap: calc(var(--s) * 30); align-items: center; }
+.next-hw-img { background: #f3f3f0; border-radius: calc(var(--s) * 18); padding: calc(var(--s) * 20); }
+.next-hw-img img { width: 100%; display: block; }
+.next-hw .card-copy h3 { font-size: max(calc(var(--s) * 26), 15px); }
+.next-hw .an-tag { margin-top: calc(var(--s) * 14); }
+.slide[data-title="What I’d do next"] .cards.short { flex: none !important; height: auto !important; }
+.slide[data-title="What I’d do next"] .cards.short .card { background: #fff !important; backdrop-filter: none !important; min-height: 0; height: auto; flex-direction: row; align-items: center; gap: calc(var(--s) * 18); }
+.slide[data-title="What I’d do next"] .cards.short .card .card-copy.push { margin-top: 0 !important; }
+.next-hw { flex: 1; min-height: 0; margin-top: 0; }
+.next-hw-img { height: 100%; display: grid; place-items: center; box-sizing: border-box; }
+.next-hw-img img { max-height: 100%; object-fit: contain; }
+.next-hw .an-tag { display: inline-block; align-self: flex-start; width: auto; }
+.next-hw .card-copy { display: flex; flex-direction: column; align-items: flex-start; }
