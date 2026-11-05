@@ -33,16 +33,76 @@
 </style>
 <style>
   /* Live demo slide: the real Poise app runs right inside the slide */
-  .live-demo { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: calc(var(--s) * 24); }
+  .live-demo { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); gap: calc(var(--s) * 24); }
   .live-frame { position: relative; min-height: 0; border-radius: var(--r); overflow: hidden; background: var(--card); box-shadow: 0 0 0 1px rgba(20,20,18,.08); }
   .live-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #f4f3ef; }
   .live-bar { position: absolute; right: calc(var(--s) * 16); bottom: calc(var(--s) * 16); display: flex; gap: calc(var(--s) * 8); opacity: .35; transition: opacity .3s; }
   .live-frame:hover .live-bar { opacity: 1; }
   .live-btn { font: 500 max(calc(var(--s) * 14), 11px)/1 Inter, sans-serif; color: var(--ink, #141412); background: rgba(255,255,255,.86); border: 1px solid rgba(20,20,18,.12); border-radius: 999px; padding: calc(var(--s) * 10) calc(var(--s) * 16); cursor: pointer; text-decoration: none; backdrop-filter: blur(8px); }
   .live-cues { overflow: auto; }
+  .live-cues { gap: calc(var(--s) * 36); }
+  .live-cues .demo-steps { gap: calc(var(--s) * 22); }
+  .live-cues .demo-steps li { align-items: start; }
+  .live-cues .demo-steps { gap: 0; }
+  .live-cues .demo-steps li { padding: calc(var(--s) * 20) 0; }
+  .live-cues .demo-steps li:first-child { padding-top: 0; }
+  .live-cues .demo-steps li:last-child { padding-bottom: 0; }
+  .live-cues .demo-steps li + li { border-top: 1px solid rgba(20,20,18,.1); }
+  .live-cues .demo-steps li::before { content: counter(d); width: auto; height: auto; border-radius: 0; background: none; display: block; color: var(--ink-3, rgba(20,20,18,.42)); font-size: .78em; padding-top: .28em; }
   .live-cues .demo-steps li { font-size: max(calc(var(--s) * 20), 13px); }
-  .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; }
+  .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
+  /* Feedback slide: one card per question */
+  .ask-cards { flex: 0 1 auto; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ask-card { gap: calc(var(--s) * 40); }
+  .ask-card h3 { font-size: max(calc(var(--s) * 40), 20px); }
+  .ask-qs { list-style: none; display: flex; flex-direction: column; gap: calc(var(--s) * 22); counter-reset: q; }
+  .ask-qs li { display: grid; grid-template-columns: calc(var(--s) * 52) 1fr; row-gap: calc(var(--s) * 6); }
+  .ask-qs li.ask-sep { display: block; height: 0; border-top: 1px solid rgba(20,20,18,.1); }
+  .ask-qs li:not(.ask-sep)::before { counter-increment: q; content: counter(q); grid-row: span 2; font-size: max(calc(var(--s) * 18), 12px); color: var(--ink-2); font-variant-numeric: tabular-nums; padding-top: .35em; }
+  .ask-qs b { font-weight: 600; font-size: max(calc(var(--s) * 28), 16px); letter-spacing: -.02em; }
+  .ask-qs span { font-size: max(calc(var(--s) * 21), 13px); line-height: 1.45; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 760px) { .ask-cards { grid-template-columns: 1fr; } .ask-qs { gap: 20px; } .ask-qs span { white-space: normal; } }
+  /* Cover: four line title, and only name, course and date underneath */
+  .cover .cover-title, .cover .cover-title span { white-space: nowrap; }
+  .cover .facts { grid-template-columns: repeat(3, max-content); column-gap: calc(var(--s) * 120); }
+  .cover .facts > div { padding-right: 0; }
+  @media (max-width: 760px) { .cover .cover-title, .cover .cover-title span { white-space: normal; } .cover .facts { grid-template-columns: 1fr; } }
+  /* Playtest themes: each card opens with a real quote, then the themes as clean rows */
+  .slide[data-title="Playtesting themes"] .an-row { flex: 0 1 auto; margin-top: calc(var(--s) * 28); }
+  .slide[data-title="Playtesting themes"] .an-card { display: flex; flex-direction: column; gap: calc(var(--s) * 32); }
+  .slide[data-title="Playtesting themes"] .an-tag { align-self: flex-start; font-size: max(calc(var(--s) * 16), 11px); padding: calc(var(--s) * 6) calc(var(--s) * 14); }
+  .pt-quote { padding-bottom: calc(var(--s) * 24); border-bottom: 1px solid rgba(20,20,18,.1); }
+  .pt-quote p { min-height: 3.66em; font-family: var(--serif); font-size: max(calc(var(--s) * 30), 17px); line-height: 1.22; letter-spacing: -.01em; color: var(--ink); text-wrap: pretty; }
+  .pt-quote small { display: block; margin-top: calc(var(--s) * 10); font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-2); }
+  .slide[data-title="Playtesting themes"] .an-card ul { margin: calc(var(--s) * 12) 0 0; gap: calc(var(--s) * 18); justify-content: flex-start; }
+  .pt-take { margin-top: calc(var(--s) * 20); background: #f4f4f1; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 24); display: flex; flex-direction: column; gap: calc(var(--s) * 8); }
+  .pt-take small { font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-2); }
+  .pt-take p { font-size: max(calc(var(--s) * 21), 13px); font-weight: 500; line-height: 1.35; letter-spacing: -.01em; color: var(--ink); text-wrap: pretty; }
+  .slide[data-title="Playtesting themes"] .an-card li { font-size: max(calc(var(--s) * 20), 13px); line-height: 1.4; text-wrap: pretty; padding-left: calc(var(--s) * 34); }
+  .slide[data-title="Playtesting themes"] .an-card li::before { content: counter(pt); counter-increment: pt; width: auto; height: auto; border-radius: 0; background: none; top: .2em; font-size: .72em; color: var(--ink-3, rgba(20,20,18,.4)); font-variant-numeric: tabular-nums; }
+  .slide[data-title="Playtesting themes"] .an-card ul { counter-reset: pt; }
+  .an-tag.new { background: #e7eefb; color: #2f5fb3; }
+  .slide[data-title="Playtesting themes"] .an-next { margin-top: calc(var(--s) * -24); }
+  .end-copy { display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--s) * 28); }
+  .end-copy .cover-title { margin-left: -.055em; }
+  .end-copy .end-link { margin-left: calc(var(--s) * 8); color: rgba(20,20,18,.5); border-color: rgba(20,20,18,.3); text-decoration-color: rgba(20,20,18,.3); }
+  .story.intro .key .k2 { color: var(--ink); }
+  .slide[data-title="Playtesting themes"] .an-line { font-size: max(calc(var(--s) * 28), 16px); }
+  @media (max-width: 860px) { .slide[data-title="Playtesting themes"] .an-card ul { gap: 14px; } }
+  /* Iteration plan: both cards the same height, items spread evenly */
+  .it-img { position: relative; background: #f4f4f1; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 28) calc(var(--s) * 28) calc(var(--s) * 40); margin-top: calc(var(--s) * 20); display: grid; place-items: center; }
+  .slide[data-title="Upcoming iterations"] .it-img { height: calc(var(--s) * 270); padding: 0; overflow: hidden; }
+  .it-img img { width: 82%; height: 100%; object-fit: contain; }
+  .it-img.app { background: #eef9f1; }
+  .it-img.app img { width: auto; height: calc(var(--s) * 250); max-width: 100%; object-fit: contain; border-radius: calc(var(--s) * 16); }
+  .it-img small { position: absolute; left: calc(var(--s) * 20); bottom: calc(var(--s) * 14); font-size: max(calc(var(--s) * 14), 10px); color: var(--ink-2); }
+  .slide[data-title="Upcoming iterations"] .it-row { flex: 0 1 auto; align-items: stretch; }
+  .slide[data-title="Upcoming iterations"] .it-card { display: flex; flex-direction: column; }
+  .slide[data-title="Upcoming iterations"] .it-head { border-bottom: 0; padding-bottom: 0; }
+  .slide[data-title="Upcoming iterations"] .it-card ol { display: flex; flex-direction: column; gap: calc(var(--s) * 20); }
+  .slide[data-title="Upcoming iterations"] .it-card li { padding: 0; border-bottom: 0; }
+  .slide[data-title="Upcoming iterations"] .it-card ol { padding-top: calc(var(--s) * 20); }
 </style>
 </head>
 <body class="on-cover">
@@ -57,39 +117,58 @@
   <section class="slide cover" data-title="Cover">
     <div class="cover-head" data-in>
       <p class="cover-logo">poise</p>
-      <p class="cover-tag">A posture light bar<br>for people who work at a desk</p>
     </div>
     <div class="cover-main">
-      <h1 class="cover-title" data-in>Notice when your posture drifts, <span>without stopping your work.</span></h1>
+      <h1 class="cover-title" data-in>Notice when<br>your posture drifts, <span>without stopping<br>your work.</span></h1>
       <div class="agent cover-orb" data-in></div>
     </div>
     <dl class="facts" data-in>
       <div><dt>By</dt><dd>Marin Chung</dd></div>
       <div><dt>Course</dt><dd>Physical Computing, MFA IxD</dd></div>
       <div><dt>Crit</dt><dd>Midterm, Nov 5, 2026</dd></div>
-      <div><dt>Hardware</dt><dd>Nano Every, NeoPixel, 2× HC-SR04</dd></div>
-      <div><dt>Software</dt><dd>Web app, MediaPipe</dd></div>
     </dl>
   </section>
 
   <!-- 2 · Feedback you'd like to receive (30 sec) -->
   <section class="slide paper" data-title="Feedback I’d like">
-    <div class="toc">
-      <div class="head">
-        <h2 class="title" data-in>Feedback I’d like. <span>Three things to look at.</span></h2>
-      </div>
-      <ol class="toc-list ask-list">
-        <li data-in><i>01</i><b>The light</b><span>From the bar alone, can you tell what each colour means?</span></li>
-        <li data-in><i>02</i><b>The start</b><span>Is it short enough now that you can just begin?</span></li>
-        <li data-in><i>03</i><b>Something to hold</b><span>Would a squeeze ball for breathing breaks feel playful, or like one more thing on the desk?</span></li>
-      </ol>
+    <div class="head">
+      <h2 class="title" data-in>Feedback I’d like. <span>On the light bar and the app.</span></h2>
+    </div>
+    <div class="cards ask-cards">
+      <div class="card ask-card" data-in><h3>Hardware</h3><ol class="ask-qs"><li><b>The light</b><span>From the bar alone, can you tell what each colour means?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>The shape</b><span>Does it sit well on top of a laptop, and should the next one be 3D printed?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Sensor only mode</b><span>With the camera off, do the two distance sensors feel like enough?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Something to hold</b><span>Would a squeeze ball for breathing breaks feel playful, or like clutter?</span></li></ol></div>
+      <div class="card ask-card" data-in><h3>Software</h3><ol class="ask-qs"><li><b>The start</b><span>Is it short enough now that you can just begin?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Feedback that fits you</b><span>Light, voice, both or neither. Which one would you pick?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Break games</b><span>Does steering the boat by leaning feel like a real break?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Privacy</b><span>When the camera turns on, do you feel okay about it?</span></li></ol></div>
+    </div>
+  </section>
+
+  <!-- 3a · The problem story, the same changing figure as the case study deck -->
+  <section class="slide paper story" data-title="The problem" data-steps="5">
+    <div class="receipt bill" data-only-from="5">
+      <p class="r-head">Neck pain</p>
+      <p><span>First visit<br><small>Physical therapy</small></span><b>$150–400</b></p>
+      <p><span>Physical therapy<br><small>2× a week, 12 weeks</small></span><b>$1,200–8,400</b></p>
+      <p class="r-total"><span>Total</span><b>$1,350–8,800</b></p>
+      <p class="r-note">U.S. self-pay prices · Sword Health, 2025</p>
+    </div>
+    <div class="receipt bill receipt-right" data-only-from="5">
+      <p class="r-head">Lower back pain</p>
+      <p><span>MRI<br><small>Lower spine, one scan</small></span><b>$300–3,000</b></p>
+      <p><span>Physical therapy<br><small>2× a week, 12 weeks</small></span><b>$1,200–8,400</b></p>
+      <p class="r-total"><span>Total</span><b>$1,500–11,400</b></p>
+      <p class="r-note">U.S. self-pay prices · CareRoute, 2025</p>
+    </div>
+    <h2 class="key" aria-live="polite"><span class="k1">We drift</span><span class="k2">without noticing.</span></h2>
+    <div class="story-stage" role="img" aria-label="A seated figure props its chin, leans toward the screen, then seen from the side shows neck and lower back pain">
+      <canvas class="fig3d" id="story-3d"></canvas>
+      <p class="pain-tag neck" data-only="4">Neck pain</p>
+      <p class="pain-tag back" data-only="4">Lower back pain</p>
+      <p class="pain-tag disc" data-only="4">Herniated disc</p>
     </div>
   </section>
 
   <!-- 3 · Community focus and problem definition (1 min) -->
   <section class="slide paper" data-title="Community and problem" data-steps="3">
     <div class="head">
-      <h2 class="title" data-in>Community and problem. <span>We drift without noticing.</span></h2>
+      <h2 class="title" data-in>Community and problem. <span>It adds up over time.</span></h2>
       <p class="survey-meta" data-in>For students, designers and developers who sit at a computer for hours</p>
     </div>
     <div class="big-stats">
@@ -99,10 +178,28 @@
     </div>
   </section>
 
-  <!-- 4 · Summary of research and discovery (1 min) -->
-  <section class="slide paper" data-title="Research and discovery" data-steps="3">
+  <!-- 4a · Market research, from the case study deck -->
+  <section class="slide paper" data-title="Market research" data-steps="2">
     <div class="head">
-      <h2 class="title" data-in>Research and discovery. <span>When it drifts, where it hurts, what they try.</span></h2>
+      <h2 class="title" data-in>Market research. <span>Finding the gap I could fill.</span></h2>
+    </div>
+    <div class="mk-row">
+      <div class="mk-card" data-step="1">
+        <p class="mk-label">Competitors <em>Posture tools and fixes</em></p>
+        <table class="mk-table">
+          <thead><tr><th>Product</th><th>Notice early</th><th>A clear cue</th><th>No interruptions</th></tr></thead>
+          <tbody><tr><th><div class="mk-name"><i class="mk-mark">📳</i><b>Upright Go</b><small>A wearable that buzzes when you slouch</small></div></th><td class="y" aria-label="yes"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></td><td class="y" aria-label="yes"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></td><td class="n" aria-label="no"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></td></tr><tr><th><div class="mk-name"><i class="mk-mark">📷</i><b>Nekoze</b><small>A Mac app that watches through the webcam</small></div></th><td class="y" aria-label="yes"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></td><td class="y" aria-label="yes"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></td><td class="n" aria-label="no"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></td></tr><tr><th><div class="mk-name"><i class="mk-mark">🎧</i><b>Posture Pal</b><small>Tracks your head through AirPods</small></div></th><td class="y" aria-label="yes"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></td><td class="y" aria-label="yes"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></td><td class="n" aria-label="no"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></td></tr><tr><th><div class="mk-name"><i class="mk-mark">📱</i><b>Apple Screen Distance</b><small>Blocks the iPhone screen when it’s too close</small></div></th><td class="y" aria-label="yes"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></td><td class="y" aria-label="yes"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></td><td class="n" aria-label="no"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></td></tr><tr><th><div class="mk-name"><i class="mk-mark">🪑</i><b>Ergonomic chair</b><small>A common fix people buy</small></div></th><td class="n" aria-label="no"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></td><td class="n" aria-label="no"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></td><td class="y" aria-label="yes"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></td></tr><tr><th><div class="mk-name"><i class="mk-mark">🧘</i><b>PT, Pilates, exercise</b><small>What people try first</small></div></th><td class="n" aria-label="no"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></td><td class="n" aria-label="no"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></td><td class="y" aria-label="yes"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></td></tr></tbody>
+        </table></div>
+      <div class="mk-card" data-step="2">
+        <p class="mk-label">Comparators <em>Other fields, the right idea</em></p>
+        <ul class="mk-list"><li><div><i class="mk-mark logo" style="background:#FF3008"><img src="../deck/logos/doordash.svg" alt="DoorDash logo"></i><b>DoorDash</b><small>Order status on the lock screen</small></div><span>Status without opening the app</span><div class="mk-demo la dd"><p><b>Arriving in <em class="cd"></em></b><small>Your Dasher is on the way</small></p><i class="bar"><u></u></i></div></li><li><div><i class="mk-mark logo" style="background:#000"><img src="../deck/logos/uber.svg" alt="Uber logo"></i><b>Uber</b><small>Your ride’s ETA on the lock screen</small></div><span>Updates that wait for your glance</span><div class="mk-demo la ub"><p><b>Driver <em class="cd"></em> away</b><small>Gray sedan · 7KX 204</small></p><i class="road"><u></u></i></div></li><li><div><i class="mk-mark logo full" style="background:#2f6f47"><img src="../deck/logos/starbucks.png" alt="Starbucks logo"></i><b>Starbucks</b><small>Live Activity when your order is ready</small></div><span>Only speaks when something changes</span><div class="mk-demo la sb"><p><b class="st"></b><small>Pick up at the counter</small></p><i class="steps"><u></u><u></u><u></u></i></div></li><li><div><i class="mk-mark logo" style="background:#111"><img class="nudge" src="../deck/logos/nike.svg" alt="Nike logo"></i><b>Nike Run Club</b><small>Your run’s distance and pace on the lock screen</small></div><span>Glance mid-run, keep running</span><div class="mk-demo la nrc"><p><b><em class="km"></em> km · <em class="pace"></em> /km</b><small>Outdoor run · <em class="tm"></em></small></p><i class="bar"><u></u></i></div></li></ul></div>
+    </div>
+  </section>
+
+  <!-- 4 · Summary of research and discovery (1 min) -->
+  <section class="slide paper" data-title="User research" data-steps="3">
+    <div class="head">
+      <h2 class="title" data-in>User research. <span>When it drifts, where it hurts, what they try.</span></h2>
       <p class="survey-meta" data-in>Google Forms survey · 15 people who work at a desk · Nov 1–3, 2026</p>
     </div>
     <div class="forms">
@@ -126,19 +223,15 @@
 
   <!-- 5 · Key themes from playtesting feedback (1 min) -->
   <!-- 5 · Key themes from playtesting feedback (1 min), from the case study deck -->
-  <section class="slide paper" data-title="Playtesting themes" data-steps="2">
+  <section class="slide paper" data-title="Playtesting themes">
     <div class="head">
       <h2 class="title" data-in>Key themes from playtesting. <span>It changed what I thought mattered.</span></h2>
     </div>
-    <div class="an-row"><div class="an-card" data-in><p class="an-tag good">What they liked</p><ul><li>It told them about changes they couldn’t feel</li><li>The break modes, the strongest part</li><li>The tone felt healthy, not nagging</li><li>It felt like a real product</li></ul></div><div class="an-card" data-in><p class="an-tag bad">What got in the way</p><ul><li>A light that changed too often felt harsh</li><li>Too much to read before starting</li><li>Colors and numbers with no meaning</li><li>Game text lost against dark clothes</li></ul></div><div class="an-card" data-in><p class="an-tag ">Different from what I expected</p><ul><li>Some wanted instant cues, some wanted calm</li><li>Some loved the voice, others disliked it</li><li>They wanted to start right away and learn while using it</li><li>Nobody opened the web page while working</li></ul></div></div>
-    <div class="an-next" data-step="1"><p class="an-tag good">New direction</p><p class="an-line">Let each person shape their feedback, and put information where they’re already looking.</p></div>
+    <div class="an-row"><div class="an-card" data-in><p class="an-tag good">Positive</p><ul><li>It caught me slouching before I even noticed</li><li>I loved having the options for a break</li><li>The voice was clearer than the light for me</li><li>The light bar and the sensor eyes delighted me</li><li>Being able to shut off the camera was great</li><li>It’s like a real product</li></ul><div class="pt-take"><small>In short</small><p>It really helps people notice their posture.</p></div></div><div class="an-card" data-in><p class="an-tag bad">Negative</p><ul><li>Sometimes it’s too sensitive</li><li>I’m not a fan of voice with computers</li><li>There was a lot to read before I could start</li><li>I wasn’t sure what the colors meant</li><li>I don’t love the camera always on me</li><li>I couldn’t read the game text on my dark shirt</li></ul><div class="pt-take"><small>In short</small><p>It talks too much and reacts too often.</p></div></div><div class="an-card" data-in><p class="an-tag new">New ideas</p><ul><li>I wish it would just start and talk to me</li><li>I’d like a small window while I work</li><li>Let me pick quick alerts or calm ones</li><li>I’d just look at the light to check my posture</li><li>Maybe a squeeze ball to help me breathe</li><li>Let me enter my own spine condition</li></ul><div class="pt-take"><small>In short</small><p>People want to set it up their own way.</p></div></div></div>
   </section>
 
   <!-- 6 · Live demo (3 min) -->
   <section class="slide paper" data-title="Live demo">
-    <div class="head">
-      <h2 class="title" data-in>Live demo. <span>Sit, drift, come back.</span></h2>
-    </div>
     <div class="live-demo" data-in>
       <div class="live-frame">
         <iframe data-src="../" title="Poise web app, live" allow="camera; microphone; serial; autoplay; fullscreen; clipboard-write"></iframe>
@@ -148,14 +241,8 @@
         </div>
       </div>
       <div class="card live-cues">
-        <div class="card-copy"><h3>What you’ll see</h3></div>
-        <ol class="demo-steps">
-          <li>Start <span>Camera, light bar, then save my reference.</span></li>
-          <li>Lean in and hold <span>After a few seconds the bar warms from white toward red.</span></li>
-          <li>Sit back <span>It fades back to white.</span></li>
-          <li>Take a break <span>Steer the boat game by leaning left and right.</span></li>
-          <li>Camera off <span>The two distance sensors take over.</span></li>
-        </ol>
+        <div class="card-copy"><h3>What I changed from feedback</h3></div>
+        <ol class="demo-steps"><li>A no voice option <span>In setup you can now pick no voice at all.</span></li><li>Trust before tracking <span>The camera starts off, or use the sensors instead.</span></li><li>A shorter start <span>Three quick cards instead of a twelve step guide.</span></li><li>Better tracking and feedback <span>A figure shows your lean, with tips right beside it.</span></li><li>A mini window <span>A small PIP view stays on top while you work.</span></li><li>More ways to make it yours <span>Pick light, voice or both, and how fast it reacts.</span></li><li>The figure on breaks too <span>The same figure leads stretches and games.</span></li></ol>
       </div>
     </div>
   </section>
@@ -164,18 +251,19 @@
   <!-- 7 · Upcoming design iterations (1 min), from the case study deck -->
   <section class="slide paper" data-title="Upcoming iterations" data-steps="2">
     <div class="head">
-      <h2 class="title" data-in>Upcoming design iterations. <span>Planned from two places.</span></h2>
+      <h2 class="title" data-in>Upcoming design iterations. <span>What I’ll build next.</span></h2>
     </div>
-    <div class="it-row"><div class="it-card" data-step="1"><p class="it-head">From classmates’ feedback</p><ol><li><b>Feedback that fits you<em class="pr hi">High</em></b><span>Pick the speed, and light, voice, both or neither, in settings or the Ask Poise bar.</span></li><li><b>A shorter start<em class="pr hi">High</em></b><span>Group the twelve step guide into three or four, and explain the rest while it’s in use.</span></li><li><b>Colors and numbers explained<em class="pr mid">Medium</em></b><span>Show what yellow means, and label numbers like 58 cm from the screen.</span></li><li><b>A mini window<em class="pr mid">Medium</em></b><span>A small picture in picture window with posture and time left.</span></li><li><b>Clearer privacy<em class="pr mid">Medium</em></b><span>Say video is never saved or sent, and suggest sensor mode.</span></li><li><b>Ideas to explore<em class="pr lo">Later</em></b><span>A squeeze ball that guides breathing, and spine condition input.</span></li></ol></div><div class="it-card" data-step="2"><p class="it-head">From my own review</p><ol><li><b>Game how to, up front<em class="pr hi">High</em></b><span>A short how to in the center of the camera view before it starts.</span></li><li><b>Text that adapts<em class="pr hi">High</em></b><span>Light text when the background behind it is dark.</span></li><li><b>A real design system<em class="pr mid">Medium</em></b><span>One set of color, type and component tokens, with the light bar using the same state colors as the screen.</span></li><li><b>Better tracking<em class="pr mid">Medium</em></b><span>Improve MediaPipe accuracy when it loses the body.</span></li></ol></div></div>
+    <div class="it-row"><div class="it-card" data-step="1"><p class="it-head">The app</p><div class="it-img app"><img src="img/app-game.webp" alt="The boat game in break mode"><small>Break mode, boat game</small></div><ol><li><b>Game how to, up front<em class="pr hi">High</em></b><span>A short how to in the middle of the camera view before a game starts.</span></li><li><b>Text that adapts<em class="pr hi">High</em></b><span>Light text when the background behind it is dark, like a dark shirt.</span></li><li><b>Better tracking<em class="pr mid">Medium</em></b><span>Keep following the body when MediaPipe loses it.</span></li></ol></div><div class="it-card it-bar" data-step="2"><p class="it-head">The light bar</p><div class="it-img"><img src="img/lightbar-3d.webp" alt="Mockup of the 3D printed Poise light bar"><small>Mockup of the printed bar</small></div><ol><li><b>A 3D printed bar<em class="pr hi">High</em></b><span>Print the bar so it clips onto a MacBook like a real product.</span></li><li><b>Sensor mode on its own<em class="pr mid">Medium</em></b><span>The two distance sensors catch leaning and stepping away with no camera.</span></li><li><b>A squeeze ball<em class="pr lo">Later</em></b><span>Something to hold that paces your breathing on breaks.</span></li></ol></div></div>
   </section>
 
   <!-- 8 · Thank you -->
-  <section class="slide chapter-slide end" data-title="Thank you">
-    <div class="agent chapter-orb" data-in></div>
-    <div class="chapter-main">
-      <p class="pill glass" data-in>Thank you</p>
-      <h2 class="chapter-title" data-in>Sit well without thinking about it.</h2>
-      <a class="end-link" href="https://poise-lightbar.netlify.app" data-in>poise-lightbar.netlify.app</a>
+  <section class="slide cover end-cover" data-title="Thank you">
+    <div class="cover-main">
+      <div class="end-copy">
+        <h2 class="cover-title" data-in>Thank you</h2>
+        <a class="end-link" href="https://poise-lightbar.netlify.app" data-in>poise-lightbar.netlify.app</a>
+      </div>
+      <div class="agent cover-orb" data-in></div>
     </div>
   </section>
 
