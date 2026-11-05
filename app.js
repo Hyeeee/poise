@@ -1338,7 +1338,7 @@ if (Recognition) {
         const lvl = Math.min(1, Math.sqrt(sum / data.length) / 28);
         // Same mark as the voice cards: a gentle idle wave, taller when you speak.
         const t = performance.now() / 1000;
-        bars.forEach((b, i) => { const idle = .35 + .2 * (Math.sin(t * 6 + i * 1.1) + 1) / 2; b.style.transform = `scaleY(${Math.min(1, idle + lvl * [0.6, .8, .7][i])})`; });
+        bars.forEach((b, i) => { const idle = .35 + .2 * (Math.sin(t * 6 + i * 1.1) + 1) / 2; b.style.height = `${(16 * Math.min(1, idle + lvl * [0.6, .8, .7][i])).toFixed(1)}px`;   // height, not scale, so the round ends stay round });
         raf = requestAnimationFrame(tick);
       };
       tick();

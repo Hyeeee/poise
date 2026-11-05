@@ -1971,3 +1971,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* the three labels read as card titles, not chips */
 .an-th .an-tag, .an-th .an-tag.good, .an-th .an-tag.bad, .an-th .an-tag.new { background: none; padding: 0; border-radius: 0; color: var(--ink); font-weight: 600; font-size: max(calc(var(--s) * 24), 14px); letter-spacing: -.015em; }
 .an-th .an-card { gap: calc(var(--s) * 20); }
+/* voice bars: change the bar height (centered), never scale it, so the round ends keep the same radius */
+.ls-w { transform: none !important; animation: lsWaveH 1s ease-in-out infinite; }
+@keyframes lsWaveH { 0%, 100% { height: calc(var(--h) * 1px); y: calc(var(--h) * -.5px); } 50% { height: calc(var(--h) * .45px); y: calc(var(--h) * -.225px); } }

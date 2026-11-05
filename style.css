@@ -1209,13 +1209,13 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 .vo-play { position: absolute; top: 14px; right: 14px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
   background: rgba(255,255,255,.7); color: var(--ink-2); box-shadow: inset 0 0 0 1px rgba(13,13,13,.08); transition: background .4s, color .4s, transform .4s cubic-bezier(.22,1,.36,1); }
 .vo-play svg { width: 14px; height: 14px; fill: currentColor; stroke: none; margin-left: 2px; }
-.vo-play i { display: none; width: 2.5px; border-radius: 2px; background: currentColor; }
+.vo-play i { display: none; width: 2.5px; border-radius: 99px; background: currentColor; }
 .voice-opt:hover .vo-play { color: var(--ink); background: #fff; transform: scale(1.08); }
 .voice-opt.playing .vo-play { background: #0d0d0d; color: #fff; display: flex; gap: 2.5px; align-items: center; justify-content: center; }
 .voice-opt.playing .vo-play svg { display: none; }
 .voice-opt.playing .vo-play i { display: block; height: 10px; animation: voBar .9s ease-in-out infinite; }
 .voice-opt.playing .vo-play i:nth-child(3) { animation-delay: .15s; } .voice-opt.playing .vo-play i:nth-child(4) { animation-delay: .3s; }
-@keyframes voBar { 0%, 100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+@keyframes voBar { 0%, 100% { height: 3.5px; } 50% { height: 10px; } }   /* height, not scale, so the round ends stay round */
 
 /* Settings drawer v2: translucent header, whiter controls so they stand out on the glass, no wrapping labels */
 #modes.drawer .sheet-head { background: rgba(255,255,255,.28) !important; -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
@@ -1577,7 +1577,7 @@ body .report-card.pop::before { display: none !important; }
 /* Mic: while listening it turns into live level bars (same mark as the voice cards) */
 #mic { position: relative; }
 #mic .mic-bars { display: none; gap: 3px; align-items: center; justify-content: center; height: 16px; }
-#mic .mic-bars i { display: block; width: 3px; height: 16px; border-radius: 3px; background: currentColor; transform: scaleY(.3); transition: transform .08s linear; }
+#mic .mic-bars i { display: block; width: 3px; height: 5px; border-radius: 99px; background: currentColor; transition: height .08s linear; }
 #mic.listening svg { display: none; }
 #mic.listening .mic-bars { display: flex; }
 #mic.listening { background: #fff !important; color: #0d0d0d !important; box-shadow: inset 0 0 0 1.5px #0d0d0d !important; }
