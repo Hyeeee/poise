@@ -151,16 +151,16 @@ export class PostureAvatar {
     // You.
     if (this.alpha < .02) return;
     ctx.globalAlpha = this.alpha;
-    // Leaning in toward the screen: only the head grows (it comes closer); the body and hands stay
-    // the same size, so they never run out of the box.
-    place(1);
+    // Closer / farther: the whole figure (head and body) grows or shrinks. It scales from the
+    // bottom of the box, so the hands stay at the same height and don't run out of it.
+    place(c.zoom);
     ctx.translate(c.bx, 0);
     // Keep the hands inside the box: a lean tips one side down (about 45 units x sin(lean) at the hand)
     // and a slouch drops the body, so lift the hands and elbows by that much at most.
     const floor = -14 - 45 * Math.abs(Math.sin(c.bend)) - c.drop, arms = clone(this.arms);
     for (const k of ['wL', 'wR']) arms[k][1] = Math.min(arms[k][1], floor);
     for (const k of ['eL', 'eR']) arms[k][1] = Math.min(arms[k][1], floor - 20);
-    drawFigure(ctx, { ...base, ...arms, bend: c.bend, head: c.head, hx: c.hx, fwd: c.fwd, drop: c.drop, headZoom: c.zoom },
+    drawFigure(ctx, { ...base, ...arms, bend: c.bend, head: c.head, hx: c.hx, fwd: c.fwd, drop: c.drop, headZoom: 1 },
       { j: (i, a) => this.j(i, a), shirt: this.color, legs: false });
     ctx.restore();
     ctx.globalAlpha = 1;
