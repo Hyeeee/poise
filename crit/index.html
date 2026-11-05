@@ -64,14 +64,14 @@
   .cover .facts > div { padding-right: 0; }
   @media (max-width: 760px) { .cover .cover-title, .cover .cover-title span { white-space: normal; } .cover .facts { grid-template-columns: 1fr; } }
   /* Playtest themes: each card opens with a real quote, then the themes as clean rows */
-  .slide[data-title="Playtesting themes"] .an-row { flex: 1; min-height: 0; }
+  .slide[data-title="Playtesting themes"] .an-row { flex: 0 1 auto; margin-top: calc(var(--s) * 28); }
   .slide[data-title="Playtesting themes"] .an-card { display: flex; flex-direction: column; gap: calc(var(--s) * 32); }
   .slide[data-title="Playtesting themes"] .an-tag { align-self: flex-start; font-size: max(calc(var(--s) * 16), 11px); padding: calc(var(--s) * 6) calc(var(--s) * 14); }
   .pt-quote { padding-bottom: calc(var(--s) * 24); border-bottom: 1px solid rgba(20,20,18,.1); }
   .pt-quote p { min-height: 3.66em; font-family: var(--serif); font-size: max(calc(var(--s) * 30), 17px); line-height: 1.22; letter-spacing: -.01em; color: var(--ink); text-wrap: pretty; }
   .pt-quote small { display: block; margin-top: calc(var(--s) * 10); font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-2); }
   .slide[data-title="Playtesting themes"] .an-card ul { margin: calc(var(--s) * 12) 0 0; gap: calc(var(--s) * 18); justify-content: flex-start; }
-  .pt-take { margin-top: auto; background: #f4f4f1; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 24); display: flex; flex-direction: column; gap: calc(var(--s) * 8); }
+  .pt-take { margin-top: calc(var(--s) * 20); background: #f4f4f1; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 24); display: flex; flex-direction: column; gap: calc(var(--s) * 8); }
   .pt-take small { font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-2); }
   .pt-take p { font-size: max(calc(var(--s) * 21), 13px); font-weight: 500; line-height: 1.35; letter-spacing: -.01em; color: var(--ink); text-wrap: pretty; }
   .slide[data-title="Playtesting themes"] .an-card li { font-size: max(calc(var(--s) * 20), 13px); line-height: 1.4; text-wrap: pretty; padding-left: calc(var(--s) * 34); }
