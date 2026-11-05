@@ -1178,7 +1178,10 @@ function showSensorCard() {
     : '<b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span>';
   $('enable').textContent = on ? 'Use the camera instead' : 'Turn on camera';
   $('enable').classList.add('primary'); $('enable').classList.remove('ghost'); $('enable').classList.toggle('end-wide', on);
+  $('cam-skip').hidden = on;
 }
+// Skip the camera: Poise runs on the light bar's distance sensor instead (added for the deck demo).
+$('cam-skip').onclick = () => { if (screen !== 'work') setScreen('work'); calibrateSensor(); };
 $('sensor-mode').onclick = () => { if (screen !== 'work') setScreen('work'); calibrateSensor(); };
 sensor.on(() => {
   const now = performance.now();

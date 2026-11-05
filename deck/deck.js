@@ -564,9 +564,13 @@ const V1 = Layers('v1');
   new ResizeObserver(fit).observe(box); fit();
   const vis = (d, id) => { const e = d.getElementById(id); return !!e && !e.hidden && (e.checkVisibility ? e.checkVisibility({ opacityProperty: true, visibilityProperty: true }) : e.offsetParent !== null); };
   // welcome, the setup questions and the first prompts count as onboarding; after that it is work unless break or settings is up
+  // checked in order: whatever is in front wins
   const stateOf = d => vis(d, 'modes') ? 'set'
+    : vis(d, 'tour') ? 'tour'
+    : d.activeElement?.id === 'ask-input' || vis(d, 'thread') ? 'ask'
     : ['break-panel', 'game-panel', 'breathe-panel'].some(id => vis(d, id)) ? 'brk'
-    : ['welcome', 'setup', 'bar-prompt', 'ref-prompt'].some(id => vis(d, id)) ? 'onb' : 'work';
+    : ['welcome', 'setup', 'bar-prompt', 'ref-prompt'].some(id => vis(d, id)) ? 'onb'
+    : vis(d, 'empty-camera') && !d.getElementById('empty-camera').classList.contains('sensor-on') ? 'cam' : 'work';
   let cur = '', timer = 0;
   const show = k => { if (k === cur) return; cur = k; card.querySelectorAll('.v1-item').forEach(i => i.classList.toggle('on', i.dataset.k === k)); };
   const poll = () => { try { const d = fr.contentDocument; if (d && d.body) show(stateOf(d)); } catch {} };
