@@ -1964,3 +1964,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.open.an-th li:nth-child(5) mark.hl { transition-delay: 1.3s; } .slide.open.an-th li:nth-child(6) mark.hl { transition-delay: 1.5s; }
 /* positives worth building on: the same pen in green */
 .an-th mark.hl.keep { background-image: linear-gradient(100deg, rgba(130,214,160,0) .4%, rgba(130,214,160,.55) 2.2%, rgba(130,214,160,.42) 50%, rgba(130,214,160,.58) 97%, rgba(130,214,160,0) 99.6%); }
+/* the pen takes the colour of its card's chip */
+.an-th .an-card:has(.an-tag.good) mark.hl { background-image: linear-gradient(100deg, rgba(130,214,160,0) .4%, rgba(130,214,160,.55) 2.2%, rgba(130,214,160,.42) 50%, rgba(130,214,160,.58) 97%, rgba(130,214,160,0) 99.6%); }
+.an-th .an-card:has(.an-tag.bad) mark.hl { background-image: linear-gradient(100deg, rgba(240,150,138,0) .4%, rgba(240,150,138,.5) 2.2%, rgba(240,150,138,.38) 50%, rgba(240,150,138,.54) 97%, rgba(240,150,138,0) 99.6%); }
+.an-th .an-card:has(.an-tag.new) mark.hl { background-image: linear-gradient(100deg, rgba(140,175,240,0) .4%, rgba(140,175,240,.5) 2.2%, rgba(140,175,240,.38) 50%, rgba(140,175,240,.54) 97%, rgba(140,175,240,0) 99.6%); }
