@@ -57,7 +57,9 @@ export class PostureAvatar {
       hx: clamp(-(delta.x || 0) * 80 * E, -24, 24),
       fwd: clamp((delta.y || 0) * 7, 0, 1),
       drop: clamp((delta.sink || 0) * 80 * 1.5, 0, 26),
-      zoom: clamp(1 + (widthRatio - 1) * 1.6, .82, 1.16),
+      // Closer / farther: only a clear size change counts (8% dead zone), and it fades out while
+      // tilting, since a sideways lean also makes the shoulders look a little wider to the camera.
+      zoom: clamp(1 + Math.sign(widthRatio - 1) * Math.max(0, Math.abs(widthRatio - 1) - .08) * 1.6 * Math.max(0, 1 - Math.abs(bend) / .2), .82, 1.16),
     };
     // Keep the head inside the box: where it ends up is the body slide + the head shift + the lean
     // (the lean swings the head about 150 units around the waist). If that is too far, scale the
@@ -158,7 +160,7 @@ export class PostureAvatar {
     const floor = -14 - 45 * Math.abs(Math.sin(c.bend)) - c.drop, arms = clone(this.arms);
     for (const k of ['wL', 'wR']) arms[k][1] = Math.min(arms[k][1], floor);
     for (const k of ['eL', 'eR']) arms[k][1] = Math.min(arms[k][1], floor - 20);
-    drawFigure(ctx, { ...base, ...arms, bend: c.bend, head: c.head, hx: c.hx, fwd: c.fwd, drop: c.drop, headZoom: Math.max(1, c.zoom) },
+    drawFigure(ctx, { ...base, ...arms, bend: c.bend, head: c.head, hx: c.hx, fwd: c.fwd, drop: c.drop, headZoom: c.zoom },
       { j: (i, a) => this.j(i, a), shirt: this.color, legs: false });
     ctx.restore();
     ctx.globalAlpha = 1;
