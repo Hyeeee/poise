@@ -43,7 +43,12 @@
   .live-cues { gap: calc(var(--s) * 36); }
   .live-cues .demo-steps { gap: calc(var(--s) * 22); }
   .live-cues .demo-steps li { align-items: start; }
-  .live-cues .demo-steps li::before { margin-top: .16em; }
+  .live-cues .demo-steps { gap: 0; }
+  .live-cues .demo-steps li { padding: calc(var(--s) * 20) 0; }
+  .live-cues .demo-steps li:first-child { padding-top: 0; }
+  .live-cues .demo-steps li:last-child { padding-bottom: 0; }
+  .live-cues .demo-steps li + li { border-top: 1px solid rgba(20,20,18,.1); }
+  .live-cues .demo-steps li::before { content: "0" counter(d); width: auto; height: auto; border-radius: 0; background: none; display: block; color: var(--ink-3, rgba(20,20,18,.42)); font-size: .78em; padding-top: .28em; }
   .live-cues .demo-steps li { font-size: max(calc(var(--s) * 20), 13px); }
   .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
