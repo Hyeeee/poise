@@ -1289,7 +1289,7 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 #work-panel #posture-hint { margin-top: 0; }
 
 /* Avatar box: closer to square */
-.avatar-box { height: auto !important; aspect-ratio: 1 / .9; flex: none; }
+.avatar-box { height: auto !important; aspect-ratio: 1 / 1; flex: none; }
 
 /* Break cards: white by default; the top glows like the light bar only when you match (or miss) the pose */
 .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before {

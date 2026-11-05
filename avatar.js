@@ -121,7 +121,7 @@ export class PostureAvatar {
   j(i, amp = .9) { const x = Math.sin((i + 1) * 12.9898 + this.seed * 78.233) * 43758.5453; return (x - Math.floor(x) - .5) * 2 * amp; }
   draw() { this.render(this.ctx, this.w, this.h); }
   // Draw into any 2D context (the panel, or the mini window's canvas).
-  render(ctx, w, h, { fit = [240, 230], anchor = .87 } = {}) {   // whole figure inside the box with a little air top and bottom
+  render(ctx, w, h, { fit = [240, 239], anchor = .918 } = {}) {   // same size and head position as before; the box is taller so the hands show
     const c = this.cur;
     ctx.clearRect(0, 0, w, h);
     const s = Math.min(w / fit[0], h / fit[1]);
