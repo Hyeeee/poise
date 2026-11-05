@@ -476,7 +476,11 @@ function updateWork(p, now) {
   // The distance sensor is more exact about leaning toward the screen than the camera.
   let widthRatio = c.width / reference.width;
   // Shoulders sinking in the frame = sliding down / leaning back in the chair.
-  const sink = reference.sy != null ? Math.max(0, (c.sy - reference.sy) / reference.width) : 0;
+  // Leaning in toward a laptop camera (which sits above you) also moves the shoulders down in the
+  // frame and makes them wider. So when the shoulders look bigger, that drop is closeness, not a
+  // slouch: fade the slouch out fully once you're ~10% closer.
+  const closeK = Math.max(0, 1 - Math.max(0, widthRatio - 1) / .1);
+  const sink = reference.sy != null ? Math.max(0, (c.sy - reference.sy) / reference.width) * closeK : 0;
   d = Math.min(100, d + Math.round(Math.max(0, sink - .03) * 90));
   // Sensor (camera on): only counts when you're really close, under the good range (55 cm), not small moves.
   if (sensor.live && sensor.cm > 0 && sensor.cm < SENSOR_GOOD[0] - 3) { widthRatio = Math.max(widthRatio, (SENSOR_GOOD[0] - 3) / sensor.cm); }
