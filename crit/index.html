@@ -46,10 +46,10 @@
   .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
   /* Feedback slide: one card per question */
-  .ask-cards { flex: 1; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ask-cards { flex: 0 1 auto; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ask-card { gap: calc(var(--s) * 40); }
   .ask-card h3 { font-size: max(calc(var(--s) * 40), 20px); }
-  .ask-qs { list-style: none; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; counter-reset: q; }
+  .ask-qs { list-style: none; display: flex; flex-direction: column; gap: calc(var(--s) * 22); counter-reset: q; }
   .ask-qs li { display: grid; grid-template-columns: calc(var(--s) * 52) 1fr; row-gap: calc(var(--s) * 6); }
   .ask-qs li.ask-sep { display: block; height: 0; border-top: 1px solid rgba(20,20,18,.1); }
   .ask-qs li:not(.ask-sep)::before { counter-increment: q; content: "0" counter(q); grid-row: span 2; font-size: max(calc(var(--s) * 18), 12px); color: var(--ink-2); font-variant-numeric: tabular-nums; padding-top: .35em; }
