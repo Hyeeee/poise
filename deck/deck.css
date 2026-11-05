@@ -1910,3 +1910,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v2-text.out { opacity: 0; transform: translateY(calc(var(--s) * 8)); }
 .v2-copy .v2-text { display: flex; flex-direction: column; gap: calc(var(--s) * 12); }
 .v2-copy .v2-lead { color: var(--ink); font-size: max(calc(var(--s) * 24), 14px); }
+
+/* Iteration plan: each change with what it costs */
+.it-plan .it-card li { grid-template-rows: auto auto auto; padding: calc(var(--s) * 12) 0; }
+.it-plan .it-card li::before { grid-row: 1 / 4; }
+.it-plan .it-card li span { font-size: max(calc(var(--s) * 16), 11px); }
+.it-plan .it-trade { grid-column: 2; font-style: normal; font-size: max(calc(var(--s) * 15), 10px); line-height: 1.4; color: var(--ink-3); }
