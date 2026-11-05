@@ -153,15 +153,19 @@ export class PostureAvatar {
     // You.
     if (this.alpha < .02) return;
     ctx.globalAlpha = this.alpha;
-    // Closer / farther: the whole figure grows or shrinks around the chest.
-    place(c.zoom);
+    // Closer: the whole figure grows around the chest, as if you came toward the screen.
+    // Farther: the figure stays where it is and tips back from the waist instead of shrinking.
+    // Seen from the front, the top of a body leaning back moves away from you: the shoulders narrow a
+    // little, the head sinks toward them and gets smaller, and the face tips up. The waist stays put.
+    const back = clamp((1 - c.zoom) / .15, 0, 1);
+    place(Math.max(1, c.zoom));
     ctx.translate(c.bx, 0);
     // Keep the hands inside the box: a lean tips one side down (about 45 units x sin(lean) at the hand)
     // and a slouch drops the body, so lift the hands and elbows by that much at most.
     const floor = -14 - 45 * Math.abs(Math.sin(c.bend)) - c.drop, arms = clone(this.arms);
     for (const k of ['wL', 'wR']) arms[k][1] = Math.min(arms[k][1], floor);
     for (const k of ['eL', 'eR']) arms[k][1] = Math.min(arms[k][1], floor - 20);
-    drawFigure(ctx, { ...base, ...arms, bend: c.bend, head: c.head, hx: c.hx, fwd: c.fwd, drop: c.drop, headZoom: 1 },
+    drawFigure(ctx, { ...base, ...arms, bend: c.bend, head: c.head, hx: c.hx, fwd: c.fwd, drop: c.drop, headZoom: 1, tipBack: back },
       { j: (i, a) => this.j(i, a), shirt: this.color, legs: false });
     ctx.restore();
     ctx.globalAlpha = 1;
