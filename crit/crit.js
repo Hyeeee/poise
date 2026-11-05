@@ -305,8 +305,8 @@ if (story) {
   const TITLES = [
     ['We drift', 'without noticing.'],
     ['We sit down', 'sitting well.'],
-    ['As we work, we prop our chin', 'and lean to one side.'],
-    ['We creep toward the screen,', 'and our posture drifts.'],
+    ['Then we rest our chin on our hand', 'and tilt to one side.'],
+    ['Bit by bit, we lean in', 'closer to the screen.'],
     ['Day after day, the neck', 'and lower back start to hurt.'],
     ['Fixing it later', 'can cost thousands.'],
   ];
