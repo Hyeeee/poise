@@ -93,6 +93,8 @@
   .slide[data-title="Playtesting themes"] .an-card li { font-size: max(calc(var(--s) * 20), 13px); line-height: 1.4; text-wrap: pretty; padding-left: calc(var(--s) * 34); }
   .slide[data-title="Playtesting themes"] .an-card li::before { content: counter(pt); counter-increment: pt; width: auto; height: auto; border-radius: 0; background: none; top: .2em; font-size: .72em; color: var(--ink-3, rgba(20,20,18,.4)); font-variant-numeric: tabular-nums; }
   .slide[data-title="Playtesting themes"] .an-card ul { counter-reset: pt; }
+  .slide[data-title="Playtesting themes"] .an-card { opacity: 0; transform: translateY(calc(var(--s) * 20)); transition: opacity .6s ease, transform .8s var(--ease); }
+  .slide[data-title="Playtesting themes"] .an-card.shown { opacity: 1; transform: none; }
   .an-tag.new { background: #e7eefb; color: #2f5fb3; }
   .slide[data-title="Playtesting themes"] .an-next { margin-top: calc(var(--s) * -24); }
   .end-copy { display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--s) * 28); }
@@ -242,11 +244,11 @@
 
   <!-- 5 · Key themes from playtesting feedback (1 min) -->
   <!-- 5 · Key themes from playtesting feedback (1 min), from the case study deck -->
-  <section class="slide paper" data-title="Playtesting themes">
+  <section class="slide paper" data-title="Playtesting themes" data-steps="3">
     <div class="head">
       <h2 class="title" data-in>Key themes from playtesting. <span>It changed what I thought mattered.</span></h2>
     </div>
-    <div class="an-row"><div class="an-card" data-in><p class="an-tag good">Positive</p><ul><li>It caught me slouching before I even noticed</li><li>I loved having the options for a break</li><li>The voice was clearer than the light for me</li><li>The light bar and the sensor eyes delighted me</li><li>Being able to shut off the camera was great</li><li>It’s like a real product</li></ul><div class="pt-take"><small>In short</small><p>It really helps people notice their posture.</p></div></div><div class="an-card" data-in><p class="an-tag bad">Negative</p><ul><li>Sometimes it’s too sensitive</li><li>I’m not a fan of voice with computers</li><li>There was a lot to read before I could start</li><li>I wasn’t sure what the colors meant</li><li>I don’t love the camera always on me</li><li>I couldn’t read the game text on my dark shirt</li></ul><div class="pt-take"><small>In short</small><p>It talks too much and reacts too often.</p></div></div><div class="an-card" data-in><p class="an-tag new">New ideas</p><ul><li>I wish it would just start and talk to me</li><li>I’d like a small window while I work</li><li>Let me pick quick alerts or calm ones</li><li>I’d just look at the light to check my posture</li><li>Maybe a squeeze ball to help me breathe</li><li>Let me enter my own spine condition</li></ul><div class="pt-take"><small>In short</small><p>People want to set it up their own way.</p></div></div></div>
+    <div class="an-row"><div class="an-card" data-step="1"><p class="an-tag good">Positive</p><ul><li>It caught me slouching before I even noticed</li><li>I loved having the options for a break</li><li>The voice was clearer than the light for me</li><li>The light bar and the sensor eyes delighted me</li><li>Being able to shut off the camera was great</li><li>It’s like a real product</li></ul><div class="pt-take"><small>In short</small><p>It really helps people notice their posture.</p></div></div><div class="an-card" data-step="2"><p class="an-tag bad">Negative</p><ul><li>Sometimes it’s too sensitive</li><li>I’m not a fan of voice with computers</li><li>There was a lot to read before I could start</li><li>I wasn’t sure what the colors meant</li><li>I don’t love the camera always on me</li><li>I couldn’t read the game text on my dark shirt</li></ul><div class="pt-take"><small>In short</small><p>It talks too much and reacts too often.</p></div></div><div class="an-card" data-step="3"><p class="an-tag new">New ideas</p><ul><li>I wish it would just start and talk to me</li><li>I’d like a small window while I work</li><li>Let me pick quick alerts or calm ones</li><li>I’d just look at the light to check my posture</li><li>Maybe a squeeze ball to help me breathe</li><li>Let me enter my own spine condition</li></ul><div class="pt-take"><small>In short</small><p>People want to set it up their own way.</p></div></div></div>
   </section>
 
   <!-- 6 · Live demo (3 min) -->
