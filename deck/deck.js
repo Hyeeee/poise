@@ -603,3 +603,62 @@ const V1 = Layers('v1');
   const sync = () => { if (sl.classList.contains('open')) { if (!sl._on) { sl._on = 1; const my = ++tok; loop1(my); loop2(my); } } else { sl._on = 0; tok++; } };
   new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
 })();
+
+// Version two slides: one live copy of the real app, shared by all five slides, so what you do on one
+// slide carries on to the next. It floats over the laptop mockup of whichever of these slides is open,
+// starts at the camera card, and unloads (camera off) once you leave these slides.
+// Clicking a part of the app, or a new card coming up, changes the text card next to it.
+(() => {
+  const slots = [...document.querySelectorAll('.v2-slot')]; if (!slots.length) return;
+  const T = [
+    ['#enable, #stop', 'Camera', 'On only when you say so.', 'The video stays on this laptop and is never saved or sent.'],
+    ['#cam-off-sensor, #sensor-chip', 'Sensor mode', 'No camera at all.', 'The distance sensor in the light bar notices when you lean in or step away.'],
+    ['#bar-prompt, #connect', 'Light bar', 'Plug it in over USB.', 'It glows with your posture at the edge of your view, so you notice early.'],
+    ['#ref-prompt, #calibrate', 'Your reference', 'Sit the way you want to stay.', 'Poise compares everything to this, so it fits your own body.'],
+    ['#avatar-box, #posture-state, #posture-hint', 'Your figure', 'A figure, not a number.', 'It moves with you next to a dashed outline of your reference, so you see which way you drifted.'],
+    ['.say-bubble', 'Right by the figure', 'Feedback where you already look.', 'A speech bubble by the figure, and the card takes the colour of your state.'],
+    ['#timer, #pause, #timer-bar, #next-break', 'Focus timer', 'Starts when you set a reference.', 'When it ends, your break begins.'],
+    ['#end-session, #report', 'Your report', 'How the session went.', 'A chart you can hover to see each moment, and three numbers.'],
+    ['#pip', 'A small window', 'Poise next to your work.', 'The same figure and one line of state over any app, so you never switch tabs.'],
+    ['#open-modes, #modes', 'Settings', 'Pick how it tells you.', 'Light, voice, both or none, and how gently it reacts.'],
+    ['#ask, #ask-input, #mic, #thread', 'Ask Poise', 'Change anything by just asking.', 'Type or say it, like quieter alerts, and Poise changes the setting for you.'],
+    ['#break, #break-panel, #game-panel, #breathe-panel', 'Break', 'Stretch, breathe or play.', 'The camera checks each stretch, and points add up as you hold the pose.'],
+    ['#work', 'Focus', 'Back to work.', 'The figure picks up where you left off.'],
+    ['#tour', 'Guide', 'Four short steps.', 'It explains each part while you use it, and you can skip it any time.'],
+  ];
+  // cards that come up on their own also change the text, the topmost first
+  const SHOWN = ['#modes', '#report', '#tour', '#bar-prompt', '#ref-prompt', '#break-panel, #game-panel, #breathe-panel'];
+  const wrap = document.createElement('div'); wrap.className = 'v2-live';
+  const fr = document.createElement('iframe'); fr.title = 'Poise version two, live'; fr.allow = 'camera; microphone; serial; autoplay; fullscreen';
+  wrap.append(fr); document.body.append(wrap);
+  let on = false, slot = null, poll = 0, lastShown = '';
+  const copyOf = s => s.closest('.slide').querySelector('.v2-copy');
+  const say = (card, row) => { const t = card.querySelector('.v2-text'); if (t.dataset.k === row[0]) return;
+    t.classList.add('out'); setTimeout(() => { t.dataset.k = row[0]; t.innerHTML = `<h3>${row[1]}</h3><p class="v2-lead">${row[2]}</p><p>${row[3]}</p>`; t.classList.remove('out'); }, 220); };
+  const reset = s => { const t = copyOf(s).querySelector('.v2-text'); if (!t._def) t._def = t.innerHTML; t.innerHTML = t._def; t.dataset.k = ''; };
+  const vis = (d, sel) => [...d.querySelectorAll(sel)].some(e => !e.hidden && e.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }));
+  const until = async (fn, ms = 8000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { try { if (fn()) return true; } catch {} await new Promise(r => setTimeout(r, 150)); } return false; };
+  async function boot() {
+    fr.src = '../'; await new Promise(r => fr.onload = r);
+    const d = fr.contentDocument;
+    d.addEventListener('click', e => { if (!slot) return; const row = T.find(r => e.target.closest?.(r[0])); if (row) say(copyOf(slot), row); }, true);
+    // straight to the camera card: Begin, then skip the setup questions
+    if (await until(() => vis(d, '#start'))) d.getElementById('start').click();
+    if (await until(() => vis(d, '#setup-skip'))) d.getElementById('setup-skip').click();
+    poll = setInterval(() => { if (!slot) return; const k = SHOWN.find(sel => vis(d, sel)) || ''; if (k !== lastShown) { lastShown = k; if (k) { const row = T.find(r => r[0].split(', ').some(x => k.includes(x))); if (row) say(copyOf(slot), row); } } }, 300);
+  }
+  const fit = () => {
+    if (slot) { const r = slot.getBoundingClientRect(), sh = slot.closest('.ba-shot');
+      wrap.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;opacity:${getComputedStyle(sh).opacity}`;
+      fr.style.transform = `scale(${r.width / 1440})`; }
+    if (on) requestAnimationFrame(fit);
+  };
+  const sync = () => {
+    const open = slots.find(s => s.closest('.slide').classList.contains('open')) || null;
+    if (open !== slot) { slot = open; lastShown = ''; if (open) reset(open); }
+    if (open && !on) { on = true; wrap.classList.add('on'); boot(); fit(); }
+    if (!open && on) { on = false; wrap.classList.remove('on'); clearInterval(poll); fr.onload = null; fr.src = 'about:blank'; }
+  };
+  slots.forEach(s => new MutationObserver(sync).observe(s.closest('.slide'), { attributes: true, attributeFilter: ['class'] }));
+  sync();
+})();
