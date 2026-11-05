@@ -1962,3 +1962,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.open.an-th mark.hl { background-size: 100% 62%; }
 .slide.open.an-th li:nth-child(2) mark.hl { transition-delay: .9s; } .slide.open.an-th li:nth-child(3) mark.hl { transition-delay: 1.1s; }
 .slide.open.an-th li:nth-child(5) mark.hl { transition-delay: 1.3s; } .slide.open.an-th li:nth-child(6) mark.hl { transition-delay: 1.5s; }
+/* positives worth building on: the same pen in green */
+.an-th mark.hl.keep { background-image: linear-gradient(100deg, rgba(130,214,160,0) .4%, rgba(130,214,160,.55) 2.2%, rgba(130,214,160,.42) 50%, rgba(130,214,160,.58) 97%, rgba(130,214,160,0) 99.6%); }
