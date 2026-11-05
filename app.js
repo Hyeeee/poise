@@ -520,7 +520,11 @@ function applyPosture(d, now, delta, widthRatio) {
   live.d = live.d == null ? d : live.d * .6 + d * .4;
   if (!silent()) avatar.set(delta, widthRatio || 1);
   // The number updates twice a second at most, so it reads calmly.
-  if (now - (applyPosture.shown || 0) > 500) { applyPosture.shown = now; text('deviation', d); }
+  if (now - (applyPosture.shown || 0) > 500) {
+    applyPosture.shown = now; text('deviation', d);
+    // Small live readout on the figure: how far off you are vs. the point where a reminder starts.
+    text('off-now', d + '%'); text('off-lim', threshold() + '%'); $('avatar-off').classList.toggle('over', d > threshold());
+  }
   $('deviation-bar').style.width = d + '%';
   let state, rgb = null, tone = null;
   if (d > threshold()) {
@@ -1083,7 +1087,7 @@ function renderEditor() {
   if (tab === 'work') {
     html += field('Focus length', numSeg('focus', CHOICES.focus, m.focus, v => v + ' min'));
     html += field('Sensitivity', ddHTML('s:sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
-    html += field('Strong cue after', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
+    html += field('Remind me after', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
   } else {
     html += field('Style', ddHTML('s:style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
     html += m.style === 'stretch' ? field('Stretches', numSeg('count', CHOICES.count, m.count, v => v + ' stretches'))
