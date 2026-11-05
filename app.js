@@ -1134,16 +1134,23 @@ $('pref-voice').onchange = e => {
   if (!e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
   syncVoicePick();
 };
+// One dropdown for voice: a voice name, or "No voice" to turn spoken guidance off.
 function syncVoicePick() {
-  setDD($('voice-seg'), store.state.voiceId || 'ava');
+  setDD($('voice-seg'), store.state.voice ? (store.state.voiceId || 'ava') : 'off');
 }
 wireDD($('voice-seg'), () => {});        // picks are handled by the click listener below
 wireDD($('bright-seg'), () => {});
 $('voice-seg').addEventListener('click', e => {
   const b = e.target.closest('button[data-v]'); if (!b) return;
-  // The voice can be picked even while voice guidance is off; it only plays a preview when it's on.
-  store.update(s => { s.voiceId = b.dataset.v; }); syncVoicePick();
-  if (store.state.voice) speak('All set.', $('ask-orb'));
+  const v = b.dataset.v;
+  if (v === 'off') {
+    store.update(s => { s.voice = false; });
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+  } else {
+    store.update(s => { s.voiceId = v; s.voice = true; });
+    speak('All set.', $('ask-orb'));                 // short preview of the chosen voice
+  }
+  $('pref-voice').checked = store.state.voice; syncVoicePick();
 });
 // Light bar brightness: pick a level, the light updates on its next message (within a frame).
 function syncBright() {
