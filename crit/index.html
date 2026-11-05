@@ -48,7 +48,7 @@
   .live-cues .demo-steps li:first-child { padding-top: 0; }
   .live-cues .demo-steps li:last-child { padding-bottom: 0; }
   .live-cues .demo-steps li + li { border-top: 1px solid rgba(20,20,18,.1); }
-  .live-cues .demo-steps li::before { content: "0" counter(d); width: auto; height: auto; border-radius: 0; background: none; display: block; color: var(--ink-3, rgba(20,20,18,.42)); font-size: .78em; padding-top: .28em; }
+  .live-cues .demo-steps li::before { content: counter(d); width: auto; height: auto; border-radius: 0; background: none; display: block; color: var(--ink-3, rgba(20,20,18,.42)); font-size: .78em; padding-top: .28em; }
   .live-cues .demo-steps li { font-size: max(calc(var(--s) * 20), 13px); }
   .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
@@ -59,7 +59,7 @@
   .ask-qs { list-style: none; display: flex; flex-direction: column; gap: calc(var(--s) * 22); counter-reset: q; }
   .ask-qs li { display: grid; grid-template-columns: calc(var(--s) * 52) 1fr; row-gap: calc(var(--s) * 6); }
   .ask-qs li.ask-sep { display: block; height: 0; border-top: 1px solid rgba(20,20,18,.1); }
-  .ask-qs li:not(.ask-sep)::before { counter-increment: q; content: "0" counter(q); grid-row: span 2; font-size: max(calc(var(--s) * 18), 12px); color: var(--ink-2); font-variant-numeric: tabular-nums; padding-top: .35em; }
+  .ask-qs li:not(.ask-sep)::before { counter-increment: q; content: counter(q); grid-row: span 2; font-size: max(calc(var(--s) * 18), 12px); color: var(--ink-2); font-variant-numeric: tabular-nums; padding-top: .35em; }
   .ask-qs b { font-weight: 600; font-size: max(calc(var(--s) * 28), 16px); letter-spacing: -.02em; }
   .ask-qs span { font-size: max(calc(var(--s) * 21), 13px); line-height: 1.45; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .ask-cards { grid-template-columns: 1fr; } .ask-qs { gap: 20px; } .ask-qs span { white-space: normal; } }
@@ -80,21 +80,27 @@
   .pt-take small { font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-2); }
   .pt-take p { font-size: max(calc(var(--s) * 21), 13px); font-weight: 500; line-height: 1.35; letter-spacing: -.01em; color: var(--ink); text-wrap: pretty; }
   .slide[data-title="Playtesting themes"] .an-card li { font-size: max(calc(var(--s) * 20), 13px); line-height: 1.4; text-wrap: pretty; padding-left: calc(var(--s) * 34); }
-  .slide[data-title="Playtesting themes"] .an-card li::before { content: counter(pt, decimal-leading-zero); counter-increment: pt; width: auto; height: auto; border-radius: 0; background: none; top: .2em; font-size: .72em; color: var(--ink-3, rgba(20,20,18,.4)); font-variant-numeric: tabular-nums; }
+  .slide[data-title="Playtesting themes"] .an-card li::before { content: counter(pt); counter-increment: pt; width: auto; height: auto; border-radius: 0; background: none; top: .2em; font-size: .72em; color: var(--ink-3, rgba(20,20,18,.4)); font-variant-numeric: tabular-nums; }
   .slide[data-title="Playtesting themes"] .an-card ul { counter-reset: pt; }
   .an-tag.new { background: #e7eefb; color: #2f5fb3; }
   .slide[data-title="Playtesting themes"] .an-next { margin-top: calc(var(--s) * -24); }
   .end-copy { display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--s) * 28); }
+  .end-copy .cover-title { margin-left: -.055em; }
+  .end-copy .end-link { color: rgba(20,20,18,.5); border-color: rgba(20,20,18,.3); text-decoration-color: rgba(20,20,18,.3); }
   .story.intro .key .k2 { color: var(--ink); }
   .slide[data-title="Playtesting themes"] .an-line { font-size: max(calc(var(--s) * 28), 16px); }
   @media (max-width: 860px) { .slide[data-title="Playtesting themes"] .an-card ul { gap: 14px; } }
   /* Iteration plan: both cards the same height, items spread evenly */
   .it-img { position: relative; background: #f4f4f1; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 28) calc(var(--s) * 28) calc(var(--s) * 40); margin-top: calc(var(--s) * 20); display: grid; place-items: center; }
-  .it-img img { width: 100%; height: auto; max-height: calc(var(--s) * 210); object-fit: contain; }
+  .slide[data-title="Upcoming iterations"] .it-img { height: calc(var(--s) * 270); padding: 0; overflow: hidden; }
+  .it-img img { width: 82%; height: 100%; object-fit: contain; }
+  .it-img.app { background: #eef9f1; }
+  .it-img.app img { width: auto; height: calc(var(--s) * 250); max-width: 100%; object-fit: contain; border-radius: calc(var(--s) * 16); }
   .it-img small { position: absolute; left: calc(var(--s) * 20); bottom: calc(var(--s) * 14); font-size: max(calc(var(--s) * 14), 10px); color: var(--ink-2); }
-  .slide[data-title="Upcoming iterations"] .it-row { flex: 1; min-height: 0; align-items: stretch; }
+  .slide[data-title="Upcoming iterations"] .it-row { flex: 0 1 auto; align-items: stretch; }
   .slide[data-title="Upcoming iterations"] .it-card { display: flex; flex-direction: column; }
-  .slide[data-title="Upcoming iterations"] .it-card ol { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+  .slide[data-title="Upcoming iterations"] .it-head { border-bottom: 0; padding-bottom: 0; }
+  .slide[data-title="Upcoming iterations"] .it-card ol { display: flex; flex-direction: column; gap: calc(var(--s) * 20); }
   .slide[data-title="Upcoming iterations"] .it-card li { padding: 0; border-bottom: 0; }
   .slide[data-title="Upcoming iterations"] .it-card ol { padding-top: calc(var(--s) * 20); }
 </style>
@@ -247,14 +253,14 @@
     <div class="head">
       <h2 class="title" data-in>Upcoming design iterations. <span>What I’ll build next.</span></h2>
     </div>
-    <div class="it-row"><div class="it-card" data-step="1"><p class="it-head">The app</p><ol><li><b>Game how to, up front<em class="pr hi">High</em></b><span>A short how to in the middle of the camera view before a game starts.</span></li><li><b>Text that adapts<em class="pr hi">High</em></b><span>Light text when the background behind it is dark, like a dark shirt.</span></li><li><b>A real design system<em class="pr mid">Medium</em></b><span>One set of color, type and component tokens across every screen.</span></li><li><b>Better tracking<em class="pr mid">Medium</em></b><span>Improve MediaPipe accuracy when it loses the body.</span></li><li><b>Spine condition input<em class="pr lo">Later</em></b><span>Let people enter a back or neck condition, once I know what it should change.</span></li></ol></div><div class="it-card it-bar" data-step="2"><p class="it-head">The light bar</p><div class="it-img"><img src="img/lightbar-3d.webp" alt="Mockup of the 3D printed Poise light bar"><small>Mockup of the printed bar</small></div><ol><li><b>A 3D printed bar<em class="pr hi">High</em></b><span>Print the bar so it clips onto a MacBook like a real product.</span></li><li><b>Sensor mode on its own<em class="pr mid">Medium</em></b><span>The two distance sensors catch leaning and stepping away with no camera.</span></li><li><b>A squeeze ball<em class="pr lo">Later</em></b><span>Something to hold that paces your breathing on breaks.</span></li></ol></div></div>
+    <div class="it-row"><div class="it-card" data-step="1"><p class="it-head">The app</p><div class="it-img app"><img src="img/app-game.webp" alt="The boat game in break mode"><small>Break mode, boat game</small></div><ol><li><b>Game how to, up front<em class="pr hi">High</em></b><span>A short how to in the middle of the camera view before a game starts.</span></li><li><b>Text that adapts<em class="pr hi">High</em></b><span>Light text when the background behind it is dark, like a dark shirt.</span></li><li><b>Better tracking<em class="pr mid">Medium</em></b><span>Keep following the body when MediaPipe loses it.</span></li></ol></div><div class="it-card it-bar" data-step="2"><p class="it-head">The light bar</p><div class="it-img"><img src="img/lightbar-3d.webp" alt="Mockup of the 3D printed Poise light bar"><small>Mockup of the printed bar</small></div><ol><li><b>A 3D printed bar<em class="pr hi">High</em></b><span>Print the bar so it clips onto a MacBook like a real product.</span></li><li><b>Sensor mode on its own<em class="pr mid">Medium</em></b><span>The two distance sensors catch leaning and stepping away with no camera.</span></li><li><b>A squeeze ball<em class="pr lo">Later</em></b><span>Something to hold that paces your breathing on breaks.</span></li></ol></div></div>
   </section>
 
   <!-- 8 · Thank you -->
   <section class="slide cover end-cover" data-title="Thank you">
     <div class="cover-main">
       <div class="end-copy">
-        <h2 class="cover-title" data-in>Thank you.</h2>
+        <h2 class="cover-title" data-in>Thank you</h2>
         <a class="end-link" href="https://poise-lightbar.netlify.app" data-in>poise-lightbar.netlify.app</a>
       </div>
       <div class="agent cover-orb" data-in></div>
