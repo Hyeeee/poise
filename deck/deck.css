@@ -1933,3 +1933,19 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .it-plan .it-card li::before { padding-top: calc(var(--s) * 4); }
 .it-plan .it-card li .tr { align-items: center; }
 .it-plan .tr i { line-height: 1.5; }
+/* three each: more air between them */
+.it-plan .it-card li { padding: calc(var(--s) * 26) 0; row-gap: calc(var(--s) * 10); }
+.it-plan .it-card li:first-child { padding-top: calc(var(--s) * 18); }
+.it-plan .it-card li:last-child { padding-bottom: 0; }
+.it-plan .tr i { width: calc(var(--s) * 78); }
+/* three each: the cards fill the slide, items sit evenly, type a little larger */
+.it-plan .it-row { flex: 1; min-height: 0; align-items: stretch; }
+.it-plan .it-card { display: flex; flex-direction: column; }
+.it-plan .it-card ol { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+.it-plan .it-card li { padding: calc(var(--s) * 28) 0; }
+.it-plan .it-card li:first-child { padding-top: calc(var(--s) * 24); }
+.it-plan .it-card li b { font-size: max(calc(var(--s) * 24), 14px); }
+.it-plan .it-card li .tr { font-size: max(calc(var(--s) * 19), 12px); }
+/* each item takes an equal share of the card, its content centered, the divider halfway between items */
+.it-plan .it-card ol { justify-content: stretch; }
+.it-plan .it-card li, .it-plan .it-card li:first-child, .it-plan .it-card li:last-child { flex: 1; padding: 0; align-content: center; }
