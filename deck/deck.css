@@ -1956,3 +1956,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .it-plan .it-off span { font-size: inherit; color: inherit; }
 .it-plan .it-card li .it-gain { font-size: max(calc(var(--s) * 19), 12px); }
 .it-plan .it-card li .it-off, .it-plan .it-card li .it-off span { font-size: max(calc(var(--s) * 17), 11px); }
+
+/* Playtest themes: the feedback that became the plan, marked like a highlighter pen, drawn in when the slide opens */
+.an-th mark.hl { color: inherit; background: linear-gradient(100deg, rgba(255,214,90,0) .4%, rgba(255,214,90,.62) 2.2%, rgba(255,214,90,.5) 50%, rgba(255,214,90,.66) 97%, rgba(255,214,90,0) 99.6%) no-repeat 0 72% / 0% 62%; padding: 0 .12em; margin: 0 -.12em; border-radius: .2em .5em .3em .4em; -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background-size .7s cubic-bezier(.6,0,.3,1); }
+.slide.open.an-th mark.hl { background-size: 100% 62%; }
+.slide.open.an-th li:nth-child(2) mark.hl { transition-delay: .9s; } .slide.open.an-th li:nth-child(3) mark.hl { transition-delay: 1.1s; }
+.slide.open.an-th li:nth-child(5) mark.hl { transition-delay: 1.3s; } .slide.open.an-th li:nth-child(6) mark.hl { transition-delay: 1.5s; }
