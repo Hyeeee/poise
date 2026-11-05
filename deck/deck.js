@@ -555,15 +555,28 @@ const V1 = Layers('v1');
     new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
   });
 })();
+// Version one: the real app runs live in the laptop. The text card follows whatever screen is up in the app.
 (() => {
   const card = document.querySelector('.v1-card'); if (!card) return;
-  const sl = card.closest('.slide'), pl = V1.player(card.querySelector('.v1-stage')), KEYS = ['onb', 'work', 'brk', 'set'];
-  let cur = '';
-  const sync = () => { const k = KEYS[Math.min(3, +(sl.dataset.at || 0))];
-    card.querySelectorAll('.v1-item').forEach(i => i.classList.toggle('on', i.dataset.k === k));
-    if (!sl.classList.contains('open')) { pl.stop(); cur = ''; return; }
-    if (cur !== k) { cur = k; pl.play([k]); } };
-  sl.addEventListener('step', sync); new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
+  const sl = card.closest('.slide'), box = card.querySelector('.live-v1'), fr = box.querySelector('iframe');
+  // the app is laid out at 1440 x 900 like a laptop, then scaled down to fit the mockup
+  const fit = () => { fr.style.transform = `scale(${box.clientWidth / 1440})`; };
+  new ResizeObserver(fit).observe(box); fit();
+  const vis = (d, id) => { const e = d.getElementById(id); return !!e && !e.hidden && (e.checkVisibility ? e.checkVisibility({ opacityProperty: true, visibilityProperty: true }) : e.offsetParent !== null); };
+  // welcome, the setup questions and the first prompts count as onboarding; after that it is work unless break or settings is up
+  const stateOf = d => vis(d, 'modes') ? 'set'
+    : ['break-panel', 'game-panel', 'breathe-panel'].some(id => vis(d, id)) ? 'brk'
+    : ['welcome', 'setup', 'bar-prompt', 'ref-prompt'].some(id => vis(d, id)) ? 'onb' : 'work';
+  let cur = '', timer = 0;
+  const show = k => { if (k === cur) return; cur = k; card.querySelectorAll('.v1-item').forEach(i => i.classList.toggle('on', i.dataset.k === k)); };
+  const poll = () => { try { const d = fr.contentDocument; if (d && d.body) show(stateOf(d)); } catch {} };
+  const sync = () => {
+    const open = sl.classList.contains('open');
+    if (open && !fr._on) { fr._on = 1; show('onb'); fr.src = fr.dataset.src; timer = setInterval(poll, 250); }
+    // leaving the slide unloads the app, which also turns the camera off
+    if (!open && fr._on) { fr._on = 0; clearInterval(timer); fr.src = 'about:blank'; cur = ''; }
+  };
+  new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); show('onb'); sync();
 })();
 (() => {
   const st = document.querySelector('.pz-frame .v1-stage'); if (!st) return;
