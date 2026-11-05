@@ -45,14 +45,15 @@
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
   /* Feedback slide: one card per question */
   .ask-cards { flex: 1; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .ask-card { gap: calc(var(--s) * 28); }
+  .ask-card { gap: calc(var(--s) * 40); }
   .ask-card h3 { font-size: max(calc(var(--s) * 40), 20px); }
   .ask-qs { list-style: none; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; counter-reset: q; }
-  .ask-qs li { display: grid; grid-template-columns: calc(var(--s) * 52) 1fr; row-gap: calc(var(--s) * 6); padding-top: calc(var(--s) * 22); border-top: 1px solid rgba(20,20,18,.1); }
-  .ask-qs li::before { counter-increment: q; content: "0" counter(q); grid-row: span 2; font-size: max(calc(var(--s) * 18), 12px); color: var(--ink-2); font-variant-numeric: tabular-nums; padding-top: .35em; }
+  .ask-qs li { display: grid; grid-template-columns: calc(var(--s) * 52) 1fr; row-gap: calc(var(--s) * 6); }
+  .ask-qs li.ask-sep { display: block; height: 0; border-top: 1px solid rgba(20,20,18,.1); }
+  .ask-qs li:not(.ask-sep)::before { counter-increment: q; content: "0" counter(q); grid-row: span 2; font-size: max(calc(var(--s) * 18), 12px); color: var(--ink-2); font-variant-numeric: tabular-nums; padding-top: .35em; }
   .ask-qs b { font-weight: 600; font-size: max(calc(var(--s) * 28), 16px); letter-spacing: -.02em; }
-  .ask-qs span { font-size: max(calc(var(--s) * 21), 13px); line-height: 1.45; color: var(--ink-2); }
-  @media (max-width: 760px) { .ask-cards { grid-template-columns: 1fr; } .ask-qs { gap: 20px; } }
+  .ask-qs span { font-size: max(calc(var(--s) * 21), 13px); line-height: 1.45; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 760px) { .ask-cards { grid-template-columns: 1fr; } .ask-qs { gap: 20px; } .ask-qs span { white-space: normal; } }
   /* Cover: four line title, and only name, course and date underneath */
   .cover .cover-title, .cover .cover-title span { white-space: nowrap; }
   .cover .facts { grid-template-columns: repeat(3, max-content); column-gap: calc(var(--s) * 120); }
@@ -90,8 +91,8 @@
       <h2 class="title" data-in>Feedback I’d like. <span>On the light bar and the app.</span></h2>
     </div>
     <div class="cards ask-cards">
-      <div class="card ask-card" data-in><h3>Hardware</h3><ol class="ask-qs"><li><b>The light</b><span>From the bar alone, can you tell what each colour means?</span></li><li><b>The shape</b><span>Does it sit well on top of a laptop, and should the next one be 3D printed?</span></li><li><b>Sensor only mode</b><span>With the camera off, do the two distance sensors feel like enough?</span></li><li><b>Something to hold</b><span>Would a squeeze ball for breathing breaks feel playful, or like one more thing on the desk?</span></li></ol></div>
-      <div class="card ask-card" data-in><h3>Software</h3><ol class="ask-qs"><li><b>The start</b><span>Is it short enough now that you can just begin?</span></li><li><b>Feedback that fits you</b><span>Light, voice, both or neither. Which one would you pick?</span></li><li><b>Break games</b><span>Does steering the boat by leaning feel like a real break?</span></li><li><b>Privacy</b><span>When the camera turns on, do you feel okay about it?</span></li></ol></div>
+      <div class="card ask-card" data-in><h3>Hardware</h3><ol class="ask-qs"><li><b>The light</b><span>From the bar alone, can you tell what each colour means?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>The shape</b><span>Does it sit well on top of a laptop, and should the next one be 3D printed?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Sensor only mode</b><span>With the camera off, do the two distance sensors feel like enough?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Something to hold</b><span>Would a squeeze ball for breathing breaks feel playful, or like clutter?</span></li></ol></div>
+      <div class="card ask-card" data-in><h3>Software</h3><ol class="ask-qs"><li><b>The start</b><span>Is it short enough now that you can just begin?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Feedback that fits you</b><span>Light, voice, both or neither. Which one would you pick?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Break games</b><span>Does steering the boat by leaning feel like a real break?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Privacy</b><span>When the camera turns on, do you feel okay about it?</span></li></ol></div>
     </div>
   </section>
 
