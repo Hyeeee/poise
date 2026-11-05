@@ -1916,3 +1916,20 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .it-plan .it-card li::before { grid-row: 1 / 4; }
 .it-plan .it-card li span { font-size: max(calc(var(--s) * 16), 11px); }
 .it-plan .it-trade { grid-column: 2; font-style: normal; font-size: max(calc(var(--s) * 15), 10px); line-height: 1.4; color: var(--ink-3); }
+
+/* Iteration plan: five each, what it gains and what it costs on their own lines */
+.it-plan .it-card li { grid-template-rows: auto auto auto; row-gap: calc(var(--s) * 6); padding: calc(var(--s) * 16) 0; }
+.it-plan .it-card li b { margin-bottom: calc(var(--s) * 2); }
+.it-plan .it-card li .tr { grid-column: 2; display: flex; align-items: baseline; gap: calc(var(--s) * 12); font-size: max(calc(var(--s) * 17), 11px); line-height: 1.4; color: var(--ink-2); }
+.it-plan .tr i { flex: none; width: calc(var(--s) * 52); font-style: normal; font-size: max(calc(var(--s) * 13), 9px); font-weight: 500; text-align: center; padding: calc(var(--s) * 2) 0; border-radius: 99px; }
+.it-plan .tr.g i { background: #e6f4ea; color: #1e7a3c; }
+.it-plan .tr.c i { background: #fbe9e7; color: #b3392b; }
+/* even rhythm: same gap under the card title as between items, nothing extra at the bottom */
+.it-plan .it-row { flex: 0 1 auto; align-items: start; }
+.it-plan .it-card ol { padding-top: calc(var(--s) * 4); }
+.it-plan .it-card li { padding: calc(var(--s) * 18) 0; row-gap: calc(var(--s) * 8); }
+.it-plan .it-card li:first-child { padding-top: calc(var(--s) * 14); }
+.it-plan .it-card li:last-child { padding-bottom: 0; }
+.it-plan .it-card li::before { padding-top: calc(var(--s) * 4); }
+.it-plan .it-card li .tr { align-items: center; }
+.it-plan .tr i { line-height: 1.5; }
