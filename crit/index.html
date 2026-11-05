@@ -40,7 +40,8 @@
   .live-frame:hover .live-bar { opacity: 1; }
   .live-btn { font: 500 max(calc(var(--s) * 14), 11px)/1 Inter, sans-serif; color: var(--ink, #141412); background: rgba(255,255,255,.86); border: 1px solid rgba(20,20,18,.12); border-radius: 999px; padding: calc(var(--s) * 10) calc(var(--s) * 16); cursor: pointer; text-decoration: none; backdrop-filter: blur(8px); }
   .live-cues { overflow: auto; }
-  .live-cues .demo-steps { flex: 1; justify-content: space-between; }
+  .live-cues { gap: calc(var(--s) * 36); }
+  .live-cues .demo-steps { gap: calc(var(--s) * 22); }
   .live-cues .demo-steps li { font-size: max(calc(var(--s) * 20), 13px); }
   .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
@@ -228,7 +229,7 @@
       </div>
       <div class="card live-cues">
         <div class="card-copy"><h3>What I changed from feedback</h3></div>
-        <ol class="demo-steps"><li>Camera off at the start <span>It explains first, or use the distance sensors.</span></li><li>One thing at a time <span>Three short cards instead of a twelve step tour.</span></li><li>A figure, not a number <span>You see which way you lean against an outline.</span></li><li>Feedback where you look <span>A bubble by the figure’s head, not a toast up top.</span></li><li>Next to your work <span>A small window over any app, no tab switching.</span></li><li>A calmer light <span>It only warms after a drift lasts, at your speed.</span></li></ol>
+        <ol class="demo-steps"><li>The camera starts off <span>You choose to turn it on, or just use the sensors.</span></li><li>A shorter start <span>Three quick cards instead of a twelve step guide.</span></li><li>See your posture, not a number <span>A little figure shows which way you lean.</span></li><li>Tips near your eyes <span>Messages show up next to the figure, not up top.</span></li><li>A mini window <span>Keep it on screen while you work in other apps.</span></li><li>A gentler light <span>It only changes if you stay slouched for a while.</span></li></ol>
       </div>
     </div>
   </section>
