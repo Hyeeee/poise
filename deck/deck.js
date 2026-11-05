@@ -507,12 +507,13 @@ document.querySelectorAll('.fl-row').forEach(row => {
 
 // Version one screens: real version one layers played on one backdrop, with a tap dot.
 // Used by the Version one card (one part per press) and the Meet Poise software card (all parts in a loop).
-const V1 = (() => {
+const Layers = base => {
   const W = ms => new Promise(r => setTimeout(r, ms));
-  let man = null; const ready = fetch('v1/manifest.json').then(r => r.json()).then(m => { man = m; m.steps.forEach(s => { const i = new Image(); i.src = 'v1/' + s.img; }); return m; });
+  let man = null, loaded = null; const ready = () => loaded || (loaded = fetch(base + '/manifest.json').then(r => r.json()).then(m => { man = m; m.steps.forEach(s => { const i = new Image(); i.src = base + '/' + s.img; }); return m; }));
+  if (base === 'v1') ready();
   function player(stage) {
     const A = stage.querySelector('.v1-a'), B = stage.querySelector('.v1-b'), bg = stage.querySelector('.v1-bg'), tap = stage.querySelector('.v1-tap');
-    bg.src = 'v1/bg.webp'; let front = A, token = 0;
+    bg.src = base + '/bg.webp'; let front = A, token = 0;
     const show = src => new Promise(res => { const back = front === A ? B : A; let done = false;
       const go = () => { if (done) return; done = true; back.classList.add('on'); front.classList.remove('on'); front = back; res(); };
       back.onload = go; back.src = src; if (back.complete && back.naturalWidth) go(); });
@@ -520,12 +521,12 @@ const V1 = (() => {
       await W(720); tap.classList.add('hover'); await W(380); tap.classList.remove('hover'); tap.classList.add('press'); await W(180); tap.classList.remove('press'); };
     const park = () => { tap.style.left = '72%'; tap.style.top = '112%'; };
     async function play(keys) {
-      const my = ++token; await ready; if (my !== token) return;
+      const my = ++token; await ready(); if (my !== token) return;
       tap.style.transition = 'none'; park(); tap.offsetWidth; tap.style.transition = '';
       while (my === token) {
         for (const key of keys) for (const s of man.steps.filter(x => x.scene === key)) {
           if (my !== token) return; if (s.hover) continue;
-          await show('v1/' + s.img); await W(s.hold); if (my !== token) return;
+          await show(base + '/' + s.img); await W(s.hold); if (my !== token) return;
           if (s.tap) await tapTo(s.tap.x, s.tap.y);
         }
         await W(500); park();
@@ -534,6 +535,25 @@ const V1 = (() => {
     return { play, stop: () => { token++; } };
   }
   return { player };
+};
+const V1 = Layers('v1');
+// Version two slides: real version one and version two layers play in each before and after mockup while the slide is open
+(() => {
+  const L = { v1: V1, v1p: Layers('v1p'), v2: Layers('v2') };
+  document.querySelectorAll('.lp-stage').forEach(st => {
+    const sl = st.closest('.slide'), pl = L[st.dataset.base].player(st), keys = st.dataset.keys.split(','); let on = false;
+    const sync = () => { const o = sl.classList.contains('open'); if (o && !on) { on = true; pl.play(keys); } if (!o && on) { on = false; pl.stop(); } };
+    new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
+  });
+  // the mini window: its real frames, on a plain stand in for whatever app you are working in
+  document.querySelectorAll('.mini-stage').forEach(async st => {
+    const sl = st.closest('.slide'), img = st.querySelector('.mini-win img'); const m = await fetch('v2/mini/manifest.json').then(r => r.json());
+    m.steps.forEach(s => { const i = new Image(); i.src = 'v2/mini/' + s.img; });
+    let tok = 0; const W = ms => new Promise(r => setTimeout(r, ms));
+    const loop = async my => { while (my === tok) for (const s of m.steps) { if (my !== tok) return; img.src = 'v2/mini/' + s.img; await W(s.hold); } };
+    const sync = () => { const o = sl.classList.contains('open'); if (o && !st._on) { st._on = 1; loop(++tok); } if (!o) { st._on = 0; tok++; } };
+    new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
+  });
 })();
 (() => {
   const card = document.querySelector('.v1-card'); if (!card) return;

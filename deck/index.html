@@ -250,11 +250,10 @@
     <div class="head">
       <h2 class="title" data-in>Trust comes <span>before the camera turns on.</span></h2>
     </div>
-    <div class="cards c-6-6">
-      <div class="card muted screen" data-in><div class="card-copy"><h3>Before</h3><p>The camera turned on first, the explanation came after.</p></div><div class="shot part screen-img"><img src="shots/v1-camera-part.webp" alt="Version one, camera on straight away" loading="lazy" decoding="async"></div></div>
-      <div class="card tint-green" data-in><div class="card-copy"><h3>After</h3><p>Camera off at the start. The first card says what it does, then you choose. Or use the distance sensor instead.</p></div><div class="shot part screen-img"><img src="shots/v2-camera-part.webp" alt="Version two camera card, turn on camera or use sensor" loading="lazy" decoding="async"></div></div>
+    <div class="ba-grid">
+      <div class="ba-shot" data-in><div class="ba-screen"><div class="lp-stage v1-stage" data-base="v1p" data-keys="pop"><img class="v1-bg" alt=""><img class="v1-a" alt=""><img class="v1-b" alt=""><i class="v1-tap"></i></div></div></div><div class="ba-shot" data-in><div class="ba-screen"><div class="lp-stage v1-stage" data-base="v2" data-keys="cam"><img class="v1-bg" alt=""><img class="v1-a" alt=""><img class="v1-b" alt=""><i class="v1-tap"></i></div></div></div>
+      <div class="ba-copy" data-in><h3>Before</h3><p>The camera turned on first, the explanation came after.</p></div><div class="ba-copy" data-in><h3>After</h3><p>Camera off at the start. The card says what it does, then you choose, or use the sensor.</p></div>
     </div>
-    <p class="learned-row" data-in><span>What I learned</span>Explaining after the fact felt like an excuse.</p>
   </section>
 
   <!-- 13 · One thing at a time -->
@@ -262,25 +261,9 @@
     <div class="head">
       <h2 class="title" data-in>One thing <span>at a time.</span></h2>
     </div>
-    <div class="cards c-4-8">
-      <div class="card muted" data-in>
-        <div class="card-copy"><h3>Before</h3><p>Two popups at once, then a 12 step tour.</p></div>
-        <div class="shots-col"><div class="shot part"><img src="shots/v1-camera-part.webp" alt="Version one, two popups at once" loading="lazy" decoding="async"></div><div class="shot part"><img src="shots/v1-tour-part.webp" alt="Version one tour, step 7 of 12" loading="lazy" decoding="async"></div></div>
-      </div>
-      <div class="card tint" data-in>
-        <div class="card-copy"><h3>After</h3><p>Three start cards, one at a time. The card stays put and only its inside changes.</p></div>
-        <div class="shots-row">
-          <figure><div class="shot part"><img src="shots/v2-camera-part.webp" alt="Start card 1, turn on your camera" loading="lazy" decoding="async"></div><figcaption>1</figcaption></figure>
-          <figure><div class="shot part"><img src="shots/v2-bar-part.webp" alt="Start card 2, connect your light bar" loading="lazy" decoding="async"></div><figcaption>2</figcaption></figure>
-          <figure><div class="shot part"><img src="shots/v2-ref-part.webp" alt="Start card 3, save your reference" loading="lazy" decoding="async"></div><figcaption>3</figcaption></figure>
-        </div>
-      </div>
-    </div>
-    <div class="stats" data-in>
-      <div><b>12 → 4</b><span>tour steps</span></div>
-      <div><b>2 → 1</b><span>popup on screen at a time</span></div>
-      <div><b>3</b><span>start cards in one fixed place</span></div>
-      <div class="note-stat"><span>What I learned</span><p>Every extra card is one more reason to skip.</p></div>
+    <div class="ba-grid">
+      <div class="ba-shot" data-in><div class="ba-screen"><div class="lp-stage v1-stage" data-base="v1p" data-keys="pop"><img class="v1-bg" alt=""><img class="v1-a" alt=""><img class="v1-b" alt=""><i class="v1-tap"></i></div></div></div><div class="ba-shot" data-in><div class="ba-screen"><div class="lp-stage v1-stage" data-base="v2" data-keys="cam,bar,ref"><img class="v1-bg" alt=""><img class="v1-a" alt=""><img class="v1-b" alt=""><i class="v1-tap"></i></div></div></div>
+      <div class="ba-copy" data-in><h3>Before</h3><p>Two popups at once, then a 12 step tour.</p></div><div class="ba-copy" data-in><h3>After</h3><p>Three start cards, one at a time, in one place.</p></div>
     </div>
   </section>
 
@@ -289,21 +272,13 @@
     <div class="head">
       <h2 class="title" data-in>People didn’t read the number. <span>They read themselves.</span></h2>
     </div>
-    <div class="cards c-4-8">
-      <div class="card muted" data-in>
-        <div class="card-copy"><h3>Before</h3><p>A percent shift nobody could read.</p></div>
-        <div class="shot part screen-img"><img src="shots/v1-aligned-part.webp" alt="Version one card with a percent shift number" loading="lazy" decoding="async"></div>
-      </div>
-      <div class="card live" id="live-card" data-in>
+    <div class="ba-grid">
+      <div class="ba-shot" data-in><div class="ba-screen"><div class="lp-stage v1-stage" data-base="v1" data-keys="work"><img class="v1-bg" alt=""><img class="v1-a" alt=""><img class="v1-b" alt=""><i class="v1-tap"></i></div></div></div><div class="ba-shot" data-in><div class="ba-screen live-screen"><div class="card live" id="live-card">
         <div class="card-copy"><h3 id="live-state">Aligned</h3><p id="live-hint">Close to your reference.</p></div>
         <span class="live-tag">Live</span>
         <div class="live-figure" id="live-figure"></div>
-      </div>
-    </div>
-    <div class="features" data-in>
-      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8"/></svg></span><h4>A chart first</h4><p>A live graph was still hard to read at a glance.</p></div>
-      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg></span><h4>Then a figure</h4><p>It follows you, so you see which way you lean.</p></div>
-      <div><span class="icon-dot"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8" ry="9" stroke-dasharray="3 3"/></svg></span><h4>Your outline</h4><p>The gap to the dashed outline says more than any number.</p></div>
+      </div></div></div>
+      <div class="ba-copy" data-in><h3>Before</h3><p>A percent shift nobody could read.</p></div><div class="ba-copy" data-in><h3>After</h3><p>A figure that moves with you, next to your outline.</p></div>
     </div>
   </section>
 
@@ -312,11 +287,10 @@
     <div class="head">
       <h2 class="title" data-in>Feedback belongs <span>where you’re already looking.</span></h2>
     </div>
-    <div class="cards c-4-8">
-      <div class="card muted screen" data-in><div class="card-copy"><h3>Before</h3><p>A toast at the top of the screen, far from your eyes.</p></div><div class="shot full screen-img"><img src="shots/v1-drifting.webp" alt="Version one, feedback at the top of the screen" loading="lazy" decoding="async"></div></div>
-      <div class="card tint-green" data-in><div class="card-copy"><h3>After</h3><p>A handwritten speech bubble next to the figure’s head, following it as you move. The top of the card takes the colour of your state.</p></div><div class="shot part screen-img"><img src="shots/v2-bubble-part.webp" alt="Ink figure with a handwritten speech bubble saying got it, that is your reference now" loading="lazy" decoding="async"></div></div>
+    <div class="ba-grid">
+      <div class="ba-shot" data-in><div class="ba-screen"><div class="lp-stage v1-stage" data-base="v1" data-keys="work"><img class="v1-bg" alt=""><img class="v1-a" alt=""><img class="v1-b" alt=""><i class="v1-tap"></i></div></div></div><div class="ba-shot" data-in><div class="ba-screen"><div class="lp-stage v1-stage" data-base="v2" data-keys="say"><img class="v1-bg" alt=""><img class="v1-a" alt=""><img class="v1-b" alt=""><i class="v1-tap"></i></div></div></div>
+      <div class="ba-copy" data-in><h3>Before</h3><p>A toast at the top of the screen, far from your eyes.</p></div><div class="ba-copy" data-in><h3>After</h3><p>A speech bubble by the figure, and the card takes the colour of your state.</p></div>
     </div>
-    <p class="learned-row" data-in><span>What I learned</span>A message far from your eyes is a message missed.</p>
   </section>
 
   <!-- 16 · Next to your work -->
@@ -324,12 +298,9 @@
     <div class="head">
       <h2 class="title" data-in>Poise has to live next to your work, <span>not in front of it.</span></h2>
     </div>
-    <div class="cards c-4-8">
-      <div class="card muted screen" data-in><div class="card-copy"><h3>Before</h3><p>To check your state you had to switch back to the Poise tab.</p></div><div class="shot full screen-img"><img src="shots/v1-aligned.webp" alt="Version one, the full Poise tab" loading="lazy" decoding="async"></div></div>
-      <div class="card photo-card top" data-in>
-        <img class="cover-img" src="img/mini-corner.webp" alt="The Poise mini window floating over another app on a laptop">
-        <div class="card-copy on-photo dark"><h3>After</h3><p>A small window over any app with the same figure, one line of state and End session.</p></div>
-      </div>
+    <div class="ba-grid">
+      <div class="ba-shot" data-in><div class="ba-screen"><div class="lp-stage v1-stage" data-base="v1" data-keys="work"><img class="v1-bg" alt=""><img class="v1-a" alt=""><img class="v1-b" alt=""><i class="v1-tap"></i></div></div></div><div class="ba-shot" data-in><div class="ba-screen mini-stage"><div class="mini-desk"><div class="md-bar"><i></i><i></i><i></i></div><div class="md-doc"><b></b><span></span><span></span><span></span><span class="s"></span><span></span><span class="s"></span></div></div><div class="mini-win"><img alt="The Poise mini window"></div></div></div>
+      <div class="ba-copy" data-in><h3>Before</h3><p>To check your state you had to switch back to the Poise tab.</p></div><div class="ba-copy" data-in><h3>After</h3><p>A small window over any app with the same figure and one line of state.</p></div>
     </div>
   </section>
 
