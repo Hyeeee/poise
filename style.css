@@ -2014,3 +2014,9 @@ body .say-bubble, body .say-bubble .sb-text { font-family: 'Shantell Sans', 'Pat
 .ls-value > span { line-height: 1 !important; padding-bottom: .26em; }
 /* Unit label and slider ends: a deeper grey so they hold up on the strong backdrop colours. */
 .ls-value > span, .ls-ends { color: #55564f !important; }
+
+/* Live "Off by 12% · reminds at 20%" readout, top right of the posture figure */
+.avatar-off { position: absolute; z-index: 2; right: 12px; top: 10px; font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.avatar-off b { font-weight: 600; color: var(--ink, #141412); }
+.avatar-off.over b { color: #c2742f; }
+.avatar-box:has(.say-bubble.show) .avatar-off { opacity: 0; }
