@@ -476,7 +476,11 @@ function updateWork(p, now) {
   // The distance sensor is more exact about leaning toward the screen than the camera.
   let widthRatio = c.width / reference.width;
   // Shoulders sinking in the frame = sliding down / leaning back in the chair.
-  const sink = reference.sy != null ? Math.max(0, (c.sy - reference.sy) / reference.width) : 0;
+  // Leaning in toward a laptop camera (which sits above you) also moves the shoulders down in the
+  // frame and makes them wider. So when the shoulders look bigger, that drop is closeness, not a
+  // slouch: fade the slouch out fully once you're ~10% closer.
+  const closeK = Math.max(0, 1 - Math.max(0, widthRatio - 1) / .1);
+  const sink = reference.sy != null ? Math.max(0, (c.sy - reference.sy) / reference.width) * closeK : 0;
   d = Math.min(100, d + Math.round(Math.max(0, sink - .03) * 90));
   // Sensor (camera on): only counts when you're really close, under the good range (55 cm), not small moves.
   if (sensor.live && sensor.cm > 0 && sensor.cm < SENSOR_GOOD[0] - 3) { widthRatio = Math.max(widthRatio, (SENSOR_GOOD[0] - 3) / sensor.cm); }
@@ -520,7 +524,11 @@ function applyPosture(d, now, delta, widthRatio) {
   live.d = live.d == null ? d : live.d * .6 + d * .4;
   if (!silent()) avatar.set(delta, widthRatio || 1);
   // The number updates twice a second at most, so it reads calmly.
-  if (now - (applyPosture.shown || 0) > 500) { applyPosture.shown = now; text('deviation', d); }
+  if (now - (applyPosture.shown || 0) > 500) {
+    applyPosture.shown = now; text('deviation', d);
+    // Small live readout on the figure: how far off you are vs. the point where a reminder starts.
+    text('off-now', d + '%'); text('off-lim', threshold() + '%'); $('avatar-off').classList.toggle('over', d > threshold());
+  }
   $('deviation-bar').style.width = d + '%';
   let state, rgb = null, tone = null;
   if (d > threshold()) {
@@ -1083,7 +1091,7 @@ function renderEditor() {
   if (tab === 'work') {
     html += field('Focus length', numSeg('focus', CHOICES.focus, m.focus, v => v + ' min'));
     html += field('Sensitivity', ddHTML('s:sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
-    html += field('Strong cue after', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
+    html += field('Remind me after', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
   } else {
     html += field('Style', ddHTML('s:style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
     html += m.style === 'stretch' ? field('Stretches', numSeg('count', CHOICES.count, m.count, v => v + ' stretches'))
@@ -1795,7 +1803,7 @@ async function togglePip() {
     if (cv.width !== Math.round(r.width * dpr) || cv.height !== Math.round(r.height * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); }
     pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     avatar.step(performance.now());
-    avatar.render(pctx, r.width, r.height, { fit: [165, 205] });
+    avatar.render(pctx, r.width, r.height, { fit: [165, 205], anchor: 1.02 });
     pipWin.requestAnimationFrame(frame);
   };
   pipWin.requestAnimationFrame(frame);

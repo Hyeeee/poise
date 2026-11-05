@@ -57,7 +57,9 @@ export class PostureAvatar {
       hx: clamp(-(delta.x || 0) * 80 * E, -24, 24),
       fwd: clamp((delta.y || 0) * 7, 0, 1),
       drop: clamp((delta.sink || 0) * 80 * 1.5, 0, 26),
-      zoom: clamp(1 + (widthRatio - 1) * 1.6, .82, 1.16),
+      // Closer / farther: only a clear size change counts (8% dead zone), and it fades out while
+      // tilting, since a sideways lean also makes the shoulders look a little wider to the camera.
+      zoom: clamp(1 + Math.sign(widthRatio - 1) * Math.max(0, Math.abs(widthRatio - 1) - .08) * 1.6 * Math.max(0, 1 - Math.abs(bend) / .2), .82, 1.16),
     };
     // Keep the head inside the box: where it ends up is the body slide + the head shift + the lean
     // (the lean swings the head about 150 units around the waist). If that is too far, scale the
@@ -121,13 +123,13 @@ export class PostureAvatar {
   j(i, amp = .9) { const x = Math.sin((i + 1) * 12.9898 + this.seed * 78.233) * 43758.5453; return (x - Math.floor(x) - .5) * 2 * amp; }
   draw() { this.render(this.ctx, this.w, this.h); }
   // Draw into any 2D context (the panel, or the mini window's canvas).
-  render(ctx, w, h, { fit = [240, 215] } = {}) {
+  render(ctx, w, h, { fit = [240, 239], anchor = .918 } = {}) {   // same size and head position as before; the box is taller so the hands show
     const c = this.cur;
     ctx.clearRect(0, 0, w, h);
     const s = Math.min(w / fit[0], h / fit[1]);
     const breath = Math.sin(this.t * 1.4) * 1.2;
     const base = { lean: 0, bend: 0, look: 0, shrug: 0, breath, ...REST_ARMS };
-    const place = zoom => { ctx.save(); ctx.translate(w / 2, h * 1.02); ctx.scale(s * zoom, s * zoom); ctx.translate(0, 8); };
+    const place = zoom => { ctx.save(); ctx.translate(w / 2, h * anchor); ctx.scale(s * zoom, s * zoom); ctx.translate(0, 8); };
 
     // Reference: just a dashed outline of head and shoulders where you sat when you saved it.
     if (this.hasRef) {
@@ -149,9 +151,16 @@ export class PostureAvatar {
     // You.
     if (this.alpha < .02) return;
     ctx.globalAlpha = this.alpha;
-    place(c.zoom);
+    // Leaning in toward the screen: only the head grows (it comes closer); the body and hands stay
+    // the same size, so they never run out of the box.
+    place(1);
     ctx.translate(c.bx, 0);
-    drawFigure(ctx, { ...base, ...this.arms, bend: c.bend, head: c.head, hx: c.hx, fwd: c.fwd, drop: c.drop },
+    // Keep the hands inside the box: a lean tips one side down (about 45 units x sin(lean) at the hand)
+    // and a slouch drops the body, so lift the hands and elbows by that much at most.
+    const floor = -14 - 45 * Math.abs(Math.sin(c.bend)) - c.drop, arms = clone(this.arms);
+    for (const k of ['wL', 'wR']) arms[k][1] = Math.min(arms[k][1], floor);
+    for (const k of ['eL', 'eR']) arms[k][1] = Math.min(arms[k][1], floor - 20);
+    drawFigure(ctx, { ...base, ...arms, bend: c.bend, head: c.head, hx: c.hx, fwd: c.fwd, drop: c.drop, headZoom: c.zoom },
       { j: (i, a) => this.j(i, a), shirt: this.color, legs: false });
     ctx.restore();
     ctx.globalAlpha = 1;

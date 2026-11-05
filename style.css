@@ -1289,7 +1289,7 @@ body .pop .ghost:hover, body .pop-actions .ghost:hover { background: rgba(13,13,
 #work-panel #posture-hint { margin-top: 0; }
 
 /* Avatar box: closer to square */
-.avatar-box { height: auto !important; aspect-ratio: 1 / .9; flex: none; }
+.avatar-box { height: auto !important; aspect-ratio: 1 / 1; flex: none; }
 
 /* Break cards: white by default; the top glows like the light bar only when you match (or miss) the pose */
 .studio .panel :is(#break-panel, #breathe-panel, #game-panel)::before {
@@ -2014,3 +2014,10 @@ body .say-bubble, body .say-bubble .sb-text { font-family: 'Shantell Sans', 'Pat
 .ls-value > span { line-height: 1 !important; padding-bottom: .26em; }
 /* Unit label and slider ends: a deeper grey so they hold up on the strong backdrop colours. */
 .ls-value > span, .ls-ends { color: #55564f !important; }
+
+/* Live "Off by 12% · reminds at 20%" readout, top right of the posture figure */
+.avatar-off { position: absolute; z-index: 2; right: 12px; top: 10px; font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.avatar-off b { font-weight: 600; color: var(--ink, #141412); }
+.avatar-off.over b { color: #c2742f; }
+.avatar-box:has(.say-bubble.show) .avatar-off { opacity: 0; }
+.avatar-off .off-lim { display: none; }
