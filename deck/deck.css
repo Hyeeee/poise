@@ -1879,3 +1879,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .solo-copy h3 { font-size: max(calc(var(--s) * 40), 20px); letter-spacing: -.025em; }
 .solo-copy p { font-size: max(calc(var(--s) * 20), 13px); }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .solo-row { grid-template-columns: 1fr; grid-template-rows: auto; } .solo-row .ba-screen { width: 100%; height: auto; } }
+.slide[data-title="Cover"] .facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
