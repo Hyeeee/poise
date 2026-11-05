@@ -59,7 +59,7 @@ export class PostureAvatar {
       drop: clamp((delta.sink || 0) * 80 * 1.5, 0, 26),
       // Closer / farther: only a clear size change counts (8% dead zone), and it fades out while
       // tilting, since a sideways lean also makes the shoulders look a little wider to the camera.
-      zoom: clamp(1 + Math.sign(widthRatio - 1) * Math.max(0, Math.abs(widthRatio - 1) - .08) * 1.6 * Math.max(0, 1 - Math.abs(bend) / .2), .82, 1.16),
+      zoom: clamp(1 + Math.sign(widthRatio - 1) * Math.max(0, Math.abs(widthRatio - 1) - .08) * 1.6 * Math.max(0, 1 - Math.abs(bend) / .2), .85, 1.12),
     };
     // Keep the head inside the box: where it ends up is the body slide + the head shift + the lean
     // (the lean swings the head about 150 units around the waist). If that is too far, scale the
@@ -129,7 +129,9 @@ export class PostureAvatar {
     const s = Math.min(w / fit[0], h / fit[1]);
     const breath = Math.sin(this.t * 1.4) * 1.2;
     const base = { lean: 0, bend: 0, look: 0, shrug: 0, breath, ...REST_ARMS };
-    const place = zoom => { ctx.save(); ctx.translate(w / 2, h * anchor); ctx.scale(s * zoom, s * zoom); ctx.translate(0, 8); };
+    // Grows or shrinks around the chest (y = -100), not the bottom edge: leaning in looks like the
+    // whole person coming toward you, the proportions stay the same and nothing gets stretched taller.
+    const place = zoom => { ctx.save(); ctx.translate(w / 2, h * anchor + s * -100 * (1 - zoom)); ctx.scale(s * zoom, s * zoom); ctx.translate(0, 8); };
 
     // Reference: just a dashed outline of head and shoulders where you sat when you saved it.
     if (this.hasRef) {
@@ -151,8 +153,7 @@ export class PostureAvatar {
     // You.
     if (this.alpha < .02) return;
     ctx.globalAlpha = this.alpha;
-    // Closer / farther: the whole figure (head and body) grows or shrinks. It scales from the
-    // bottom of the box, so the hands stay at the same height and don't run out of it.
+    // Closer / farther: the whole figure grows or shrinks around the chest.
     place(c.zoom);
     ctx.translate(c.bx, 0);
     // Keep the hands inside the box: a lean tips one side down (about 45 units x sin(lean) at the hand)
