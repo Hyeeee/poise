@@ -87,9 +87,10 @@ export function drawFigure(ctx, P, { j = () => 0, ink = '#141412', paper = '#fbf
 
 // Upper body placed in a box (waist at the bottom edge), used by the Reset breathing card.
 const REST_ARMS = { eL: [-58, -66], wL: [-40, -14], eR: [58, -66], wR: [40, -14] };
-export function drawSeated(ctx, w, h, P = {}, { fit = [240, 215], j } = {}) {
+// Same framing as the focus avatar: the waist sits a little above the bottom edge so the hands always show.
+export function drawSeated(ctx, w, h, P = {}, { fit = [240, 239], j, anchor = .918 } = {}) {
   const s = Math.min(w / fit[0], h / fit[1]);
-  ctx.save(); ctx.translate(w / 2, h * 1.02); ctx.scale(s, s); ctx.translate(0, 8);
+  ctx.save(); ctx.translate(w / 2, h * anchor); ctx.scale(s, s); ctx.translate(0, 8);
   drawFigure(ctx, { lean: 0, bend: 0, look: 0, shrug: 0, head: 0, ...REST_ARMS, ...P }, { legs: false, j });
   ctx.restore();
 }
@@ -123,7 +124,7 @@ export class BreathFigure {
       // eye rest: the head looks slowly left and right
       const look = m === 'eyes' ? Math.sin(this.t * .9) : 0;
       drawSeated(c, r.width, r.height, { shrug: this.lv * 14, head: -this.lv * .04, look, breath: 0, mouth: m === 'breathe' ? this.mouth : 0,
-        eL: [-58 - this.lv * 4, -66 - this.lv * 6], eR: [58 + this.lv * 4, -66 - this.lv * 6] }, { fit: [230, 220] });
+        eL: [-58 - this.lv * 4, -66 - this.lv * 6], eR: [58 + this.lv * 4, -66 - this.lv * 6] }, { fit: [230, 244] });
     };
     requestAnimationFrame(loop);
   }
