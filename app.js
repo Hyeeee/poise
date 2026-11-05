@@ -1135,16 +1135,15 @@ $('pref-voice').onchange = e => {
   syncVoicePick();
 };
 function syncVoicePick() {
-  $('pref-voice-pick').classList.toggle('dim', !store.state.voice);
   setDD($('voice-seg'), store.state.voiceId || 'ava');
 }
 wireDD($('voice-seg'), () => {});        // picks are handled by the click listener below
 wireDD($('bright-seg'), () => {});
 $('voice-seg').addEventListener('click', e => {
   const b = e.target.closest('button[data-v]'); if (!b) return;
-  store.update(s => { s.voiceId = b.dataset.v; s.voice = true; });
-  $('pref-voice').checked = true; syncVoicePick();
-  speak('All set.', $('ask-orb'));
+  // The voice can be picked even while voice guidance is off; it only plays a preview when it's on.
+  store.update(s => { s.voiceId = b.dataset.v; }); syncVoicePick();
+  if (store.state.voice) speak('All set.', $('ask-orb'));
 });
 // Light bar brightness: pick a level, the light updates on its next message (within a frame).
 function syncBright() {
