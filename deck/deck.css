@@ -1765,3 +1765,31 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* Iteration plan: both cards the same height, no line under the title */
 .it-plan .it-row { align-items: stretch; }
 .it-plan .it-head { border-bottom: 0; padding-bottom: 0; }
+
+/* Thank you, same as the midterm crit */
+.end-copy { display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--s) * 28); }
+.end-copy .cover-title { margin-left: -.055em; }
+.end-copy .end-link { margin-left: calc(var(--s) * 8); color: rgba(20,20,18,.5); border-color: rgba(20,20,18,.3); text-decoration-color: rgba(20,20,18,.3); }
+
+/* Same app, two versions: the comparison table and the numbers side by side */
+.vv-row { flex: 1; min-height: 0; display: grid; grid-template-columns: 7fr 4fr; gap: calc(var(--s) * 20); align-items: stretch; margin-top: calc(var(--s) * 8); }
+.vv-card { background: #fff; border-radius: calc(var(--s) * 30); padding: var(--card-pad); box-shadow: var(--card-shadow); display: flex; flex-direction: column; }
+.vv-table table { width: 100%; height: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+.vv-table th, .vv-table td { text-align: left; vertical-align: middle; padding: calc(var(--s) * 14) calc(var(--s) * 18); border-bottom: 1px solid rgba(20,20,18,.06); font-size: max(calc(var(--s) * 17), 11px); line-height: 1.4; }
+.vv-table tbody tr:last-child > * { border-bottom: 0; }
+.vv-table col, .vv-table th:first-child { width: 22%; }
+.vv-table tbody th { font-weight: 500; color: var(--ink); padding-left: 0; }
+.vv-table td { color: var(--ink-2); }
+.vv-table thead th { font-size: max(calc(var(--s) * 18), 12px); font-weight: 600; color: var(--ink); padding-top: 0; border-bottom: 1px solid rgba(20,20,18,.08); }
+.vv-table thead th:nth-child(2) { color: var(--ink-3); }
+.vv-table td:nth-child(3), .vv-table thead th:nth-child(3) { background: #eef6f0; color: var(--ink); }
+.vv-table thead th:nth-child(3) { border-radius: calc(var(--s) * 14) calc(var(--s) * 14) 0 0; padding-top: calc(var(--s) * 14); color: #1e6b37; }
+.vv-table tbody tr:last-child td:nth-child(3) { border-radius: 0 0 calc(var(--s) * 14) calc(var(--s) * 14); }
+.vv-stats { justify-content: space-between; }
+.vv-stats .it-head { border-bottom: 0; padding-bottom: 0; }
+.vv-stats > div { display: flex; flex-direction: column; gap: calc(var(--s) * 4); padding-top: calc(var(--s) * 18); border-top: 1px solid rgba(20,20,18,.06); }
+.vv-stats > div:first-of-type { border-top: 0; }
+.vv-stats b { font-weight: 500; font-size: max(calc(var(--s) * 44), 24px); letter-spacing: -.03em; line-height: 1.05; color: var(--ink); }
+.vv-stats span { font-size: max(calc(var(--s) * 17), 11px); color: var(--ink-2); }
+@media (max-width: 860px), (max-aspect-ratio: 1/1) { .vv-row { grid-template-columns: 1fr; } }
+.vv-table thead th { padding-top: calc(var(--s) * 14); }
