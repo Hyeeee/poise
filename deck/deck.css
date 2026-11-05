@@ -1793,3 +1793,54 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .vv-stats span { font-size: max(calc(var(--s) * 17), 11px); color: var(--ink-2); }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .vv-row { grid-template-columns: 1fr; } }
 .vv-table thead th { padding-top: calc(var(--s) * 14); }
+
+/* What I learned: tall cards, a small motion in the open space of each */
+.slide[data-title="What I learned"] .lessons { flex: 1; min-height: 0; }
+.slide[data-title="What I learned"] .lessons li { min-height: 0; padding: var(--card-pad); background: #fff !important; box-shadow: var(--card-shadow); gap: calc(var(--s) * 14); }
+.slide[data-title="What I learned"] .lessons i { margin-bottom: 0; }
+.ls-art { flex: 1; min-height: calc(var(--s) * 160); width: 100%; margin: calc(var(--s) * 10) 0 calc(var(--s) * 20); background: #f4f4f1; border-radius: calc(var(--s) * 20); stroke: none; }
+.ls-bg { fill: #fff; }
+.ls-sig { animation: lsPick 6s ease-in-out infinite; transform-box: fill-box; }
+.ls-sig .ls-bg { transition: fill .3s; }
+.ls-sig.s2 { animation-delay: -4s; } .ls-sig.s3 { animation-delay: -2s; }
+@keyframes lsPick { 0%, 30% { opacity: 1; } 36%, 94% { opacity: .35; } 100% { opacity: 1; } }
+.ls-glow { opacity: .7; animation: lsGlow 2s ease-in-out infinite; }
+@keyframes lsGlow { 50% { opacity: .25; } }
+.ls-w { transform-box: fill-box; transform-origin: 50% 50%; animation: lsWave 1s ease-in-out infinite; }
+.ls-w:nth-child(2) { animation-delay: -.25s; } .ls-w:nth-child(3) { animation-delay: -.5s; } .ls-w:nth-child(4) { animation-delay: -.75s; }
+@keyframes lsWave { 50% { transform: scaleY(.45); } }
+.ls-type { transform-box: fill-box; transform-origin: 0 50%; animation: lsType 6s linear infinite; }
+.ls-type.t2 { animation-delay: .5s; } .ls-type.t3 { animation-delay: 1s; } .ls-type.t4 { animation-delay: 1.5s; } .ls-type.t5 { animation-delay: 2s; }
+@keyframes lsType { 0% { transform: scaleX(0); } 12%, 88% { transform: scaleX(1); } 100% { transform: scaleX(1); opacity: 0; } }
+.ls-nudge { animation: lsNudge 6s ease-in-out infinite; }
+@keyframes lsNudge { 0%, 30% { opacity: 0; } 40%, 60% { opacity: 1; } 72%, 100% { opacity: 0; } }
+.ls-num { animation: lsNum 6s ease-in-out infinite; }
+.ls-fig { animation: lsFig 6s ease-in-out infinite; }
+.ls-lean { transform-box: view-box; animation: lsLean 6s ease-in-out infinite; }
+@keyframes lsNum { 0%, 30% { opacity: 1; filter: none; } 42%, 92% { opacity: 0; filter: blur(6px); } 100% { opacity: 1; } }
+@keyframes lsFig { 0%, 32% { opacity: 0; } 44%, 90% { opacity: 1; } 98%, 100% { opacity: 0; } }
+@keyframes lsLean { 0%, 48% { transform: translate(14px, 10px) rotate(8deg) scale(1.05); } 70%, 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ls-sig, .ls-glow, .ls-w, .ls-type, .ls-nudge, .ls-num, .ls-fig, .ls-lean { animation: none; } }
+
+/* Version one card: the screen at the real 16:10 laptop ratio on the left, text on the right, nothing cropped */
+.v1-card { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: calc(var(--s) * 56); }
+.v1-card .v1-screen { order: -1; height: 100%; width: auto; max-width: 100%; max-height: none; aspect-ratio: 16 / 10; justify-self: start; margin: calc(var(--s) * 10); height: calc(100% - var(--s) * 20); }
+.v1-stage img { object-fit: contain; }
+/* Meet Poise: the old slideshow fade hid the layer images; the layer player sets their opacity now */
+.pz-screens .pz-frame .v1-stage img { animation: none; border-radius: 0; }
+.pz-screens .pz-frame .v1-bg { opacity: 1; }
+.pz-screens .pz-frame .v1-a, .pz-screens .pz-frame .v1-b { opacity: 0; transition: opacity .32s linear; }
+.pz-screens .pz-frame .v1-a.on, .pz-screens .pz-frame .v1-b.on { opacity: 1; }
+/* playtest quotes: sans, one line each, the two cards line up with the two photo rows */
+.pt-grid { grid-template-columns: 1fr .85fr .85fr 1.8fr; }
+.pt-notes { display: grid; grid-template-rows: 1fr 1fr; gap: calc(var(--s) * 16); }
+.pt-group { display: flex; flex-direction: column; min-height: 0; }
+.pt-group ul { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; margin-top: calc(var(--s) * 4); }
+.pt-group li { padding: 0; border: 0; }
+.pt-group q { font-family: var(--sans, Inter, sans-serif); font-size: max(calc(var(--s) * 18), 11px); line-height: 1.35; letter-spacing: -.005em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-group li span { margin-top: calc(var(--s) * 3); }
+/* Version one: the laptop mockup stands on its own on the left, the words sit in their own card on the right */
+.v1-card { background: none; box-shadow: none; padding: 0; border-radius: 0; gap: calc(var(--s) * 28); }
+.v1-card .v1-screen { margin: calc(var(--s) * 10); }
+.v1-card .v1-side { background: #fff; border-radius: calc(var(--s) * 30); box-shadow: var(--card-shadow); }
+.v1-card .v1-item { padding: var(--card-pad); }
