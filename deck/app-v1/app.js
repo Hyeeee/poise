@@ -993,8 +993,8 @@ async function maybeTour() {
   store.update(s => { s.toured = true; });
   if (wasRunning && hasRef()) { timerRunning = true; timerLast = performance.now(); renderPause(); }
 }
-$('start').onclick = () => begin(true);
-$('preview').onclick = () => begin(true, true);
+$('start').onclick = () => begin(false);   // in the deck: the camera stays off until you turn it on
+$('preview').onclick = () => begin(false, true);
 $('enable').onclick = start;
 $('stop').onclick = () => (active ? stop() : start());
 $('home').onclick = () => { reel.stop(); stopBreathe(); stop(); closeThread(); $('studio').hidden = true; $('welcome').hidden = false; };
