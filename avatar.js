@@ -151,7 +151,12 @@ export class PostureAvatar {
     ctx.globalAlpha = this.alpha;
     place(c.zoom);
     ctx.translate(c.bx, 0);
-    drawFigure(ctx, { ...base, ...this.arms, bend: c.bend, head: c.head, hx: c.hx, fwd: c.fwd, drop: c.drop },
+    // Keep the hands inside the box: a lean tips one side down (about 45 units x sin(lean) at the hand)
+    // and a slouch drops the body, so lift the hands and elbows by that much at most.
+    const floor = -14 - 45 * Math.abs(Math.sin(c.bend)) - c.drop, arms = clone(this.arms);
+    for (const k of ['wL', 'wR']) arms[k][1] = Math.min(arms[k][1], floor);
+    for (const k of ['eL', 'eR']) arms[k][1] = Math.min(arms[k][1], floor - 20);
+    drawFigure(ctx, { ...base, ...arms, bend: c.bend, head: c.head, hx: c.hx, fwd: c.fwd, drop: c.drop },
       { j: (i, a) => this.j(i, a), shirt: this.color, legs: false });
     ctx.restore();
     ctx.globalAlpha = 1;
