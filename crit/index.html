@@ -73,6 +73,7 @@
   .slide[data-title="Playtesting themes"] .an-card ul { counter-reset: pt; }
   .an-tag.new { background: #e7eefb; color: #2f5fb3; }
   .slide[data-title="Playtesting themes"] .an-next { margin-top: calc(var(--s) * -24); }
+  .end-cover .facts .end-link { font-size: inherit; }
   .slide[data-title="Playtesting themes"] .an-line { font-size: max(calc(var(--s) * 28), 16px); }
   @media (max-width: 860px) { .slide[data-title="Playtesting themes"] .an-card ul { gap: 14px; } }
   /* Iteration plan: both cards the same height, items spread evenly */
@@ -238,13 +239,19 @@
   </section>
 
   <!-- 8 · Thank you -->
-  <section class="slide chapter-slide end" data-title="Thank you">
-    <div class="agent chapter-orb" data-in></div>
-    <div class="chapter-main">
-      <p class="pill glass" data-in>Thank you</p>
-      <h2 class="chapter-title" data-in>Sit well without thinking about it.</h2>
-      <a class="end-link" href="https://poise-lightbar.netlify.app" data-in>poise-lightbar.netlify.app</a>
+  <section class="slide cover end-cover" data-title="Thank you">
+    <div class="cover-head" data-in>
+      <p class="cover-logo">poise</p>
     </div>
+    <div class="cover-main">
+      <h2 class="cover-title" data-in>Thank you. <span>Sit well without<br>thinking about it.</span></h2>
+      <div class="agent cover-orb" data-in></div>
+    </div>
+    <dl class="facts" data-in>
+      <div><dt>Try it</dt><dd><a class="end-link" href="https://poise-lightbar.netlify.app">poise-lightbar.netlify.app</a></dd></div>
+      <div><dt>By</dt><dd>Marin Chung</dd></div>
+      <div><dt>Course</dt><dd>Physical Computing, MFA IxD</dd></div>
+    </dl>
   </section>
 
 </main>
