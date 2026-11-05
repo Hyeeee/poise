@@ -53,6 +53,7 @@
   .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
   /* Feedback slide: one card per question */
+  .slide[data-title="Community and problem"] .survey-meta { line-height: 1.55; }
   .ask-cards { flex: 1; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: calc(var(--s) * 28); }
   .slide .ask-cards .card, .slide .card.live-cues { background: #fff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-radius: calc(var(--s) * 30); padding: var(--card-pad); box-shadow: var(--card-shadow); }
   .ask-card { gap: calc(var(--s) * 40); }
@@ -190,7 +191,7 @@
   <section class="slide paper" data-title="Community and problem" data-steps="3">
     <div class="head">
       <h2 class="title" data-in>Community and problem. <span>It adds up over time.</span></h2>
-      <p class="survey-meta" data-in>For students, designers and developers who sit at a computer for hours</p>
+      <p class="survey-meta" data-in>The average US adult still sits about six hours a day, and up to 63% of office workers get neck pain each year.<br>Back and neck pain is the biggest health cost in the US, about 134 billion dollars a year.</p>
     </div>
     <div class="big-stats">
       <div data-step="1"><svg class="viz viz-chart c-line" viewBox="0 0 300 150" role="img" aria-label="Average daily sitting for U.S. adults: 7.1 hours in 2014, 6.5 in 2016, 5.9 in 2020 and 6.0 in 2023"><rect class="vbar" style="--i:0" x="0.0" y="0.0" width="22" height="128.0" rx="6"/><text class="t in" x="11" y="15.0" text-anchor="middle">7.1</text><text class="t" x="11" y="148" text-anchor="middle">2014</text><rect class="vbar" style="--i:1" x="46.0" y="10.8" width="22" height="117.2" rx="6"/><text class="t in" x="57" y="25.8" text-anchor="middle">6.5</text><text class="t" x="57" y="148" text-anchor="middle">2016</text><rect class="vbar" style="--i:2" x="92.0" y="21.6" width="22" height="106.4" rx="6"/><text class="t in" x="103" y="36.6" text-anchor="middle">5.9</text><text class="t" x="103" y="148" text-anchor="middle">2020</text><rect class="vbar hi" style="--i:3" x="138.0" y="19.8" width="22" height="108.2" rx="6"/><text class="t in hi" x="149" y="34.8" text-anchor="middle">6.0</text><text class="t hi" x="149" y="148" text-anchor="middle">2023</text></svg><b>6.0 hrs</b><span>a day the average US adult still sits</span><em>Li et al., JAMA, 2025</em></div>
