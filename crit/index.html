@@ -42,7 +42,7 @@
   .live-cues { overflow: auto; }
   .live-cues .demo-steps { flex: 1; justify-content: space-between; }
   .live-cues .demo-steps li { font-size: max(calc(var(--s) * 20), 13px); }
-  .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; text-wrap: pretty; }
+  .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
   /* Feedback slide: one card per question */
   .ask-cards { flex: 1; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -222,7 +222,7 @@
       </div>
       <div class="card live-cues">
         <div class="card-copy"><h3>What I changed from feedback</h3></div>
-        <ol class="demo-steps"><li>Camera off at the start <span>It says what it does first, then you choose. Or use the distance sensors.</span></li><li>One thing at a time <span>Three short start cards instead of popups and a twelve step tour.</span></li><li>A figure, not a number <span>You see yourself against a dashed outline, so you know which way you lean.</span></li><li>Feedback where you look <span>A speech bubble next to the figure’s head instead of a toast up top.</span></li><li>Next to your work <span>A small window over any app, so you never switch tabs.</span></li><li>A calmer light <span>The bar only warms after a drift lasts, at the speed you set.</span></li></ol>
+        <ol class="demo-steps"><li>Camera off at the start <span>It explains first, or use the distance sensors.</span></li><li>One thing at a time <span>Three short cards instead of a twelve step tour.</span></li><li>A figure, not a number <span>You see which way you lean against an outline.</span></li><li>Feedback where you look <span>A bubble by the figure’s head, not a toast up top.</span></li><li>Next to your work <span>A small window over any app, no tab switching.</span></li><li>A calmer light <span>It only warms after a drift lasts, at your speed.</span></li></ol>
       </div>
     </div>
   </section>
