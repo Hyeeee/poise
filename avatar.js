@@ -121,13 +121,13 @@ export class PostureAvatar {
   j(i, amp = .9) { const x = Math.sin((i + 1) * 12.9898 + this.seed * 78.233) * 43758.5453; return (x - Math.floor(x) - .5) * 2 * amp; }
   draw() { this.render(this.ctx, this.w, this.h); }
   // Draw into any 2D context (the panel, or the mini window's canvas).
-  render(ctx, w, h, { fit = [240, 215] } = {}) {
+  render(ctx, w, h, { fit = [240, 230], anchor = .87 } = {}) {   // whole figure inside the box with a little air top and bottom
     const c = this.cur;
     ctx.clearRect(0, 0, w, h);
     const s = Math.min(w / fit[0], h / fit[1]);
     const breath = Math.sin(this.t * 1.4) * 1.2;
     const base = { lean: 0, bend: 0, look: 0, shrug: 0, breath, ...REST_ARMS };
-    const place = zoom => { ctx.save(); ctx.translate(w / 2, h * 1.02); ctx.scale(s * zoom, s * zoom); ctx.translate(0, 8); };
+    const place = zoom => { ctx.save(); ctx.translate(w / 2, h * anchor); ctx.scale(s * zoom, s * zoom); ctx.translate(0, 8); };
 
     // Reference: just a dashed outline of head and shoulders where you sat when you saved it.
     if (this.hasRef) {

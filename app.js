@@ -1799,7 +1799,7 @@ async function togglePip() {
     if (cv.width !== Math.round(r.width * dpr) || cv.height !== Math.round(r.height * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); }
     pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     avatar.step(performance.now());
-    avatar.render(pctx, r.width, r.height, { fit: [165, 205] });
+    avatar.render(pctx, r.width, r.height, { fit: [165, 205], anchor: 1.02 });
     pipWin.requestAnimationFrame(frame);
   };
   pipWin.requestAnimationFrame(frame);
