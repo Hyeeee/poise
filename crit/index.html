@@ -42,6 +42,8 @@
   .live-cues { overflow: auto; }
   .live-cues { gap: calc(var(--s) * 36); }
   .live-cues .demo-steps { gap: calc(var(--s) * 22); }
+  .live-cues .demo-steps li { align-items: start; }
+  .live-cues .demo-steps li::before { margin-top: .16em; }
   .live-cues .demo-steps li { font-size: max(calc(var(--s) * 20), 13px); }
   .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
@@ -211,7 +213,7 @@
     <div class="head">
       <h2 class="title" data-in>Key themes from playtesting. <span>It changed what I thought mattered.</span></h2>
     </div>
-    <div class="an-row"><div class="an-card" data-in><p class="an-tag good">Positive</p><ul><li>It caught posture changes they couldn’t feel</li><li>The break modes were the strongest part</li><li>Some found the voice clearer than the light</li><li>The light bar and the sensor eyes were a delight</li><li>Being able to turn the camera off</li><li>It felt like a real product</li></ul><div class="pt-take"><small>What they share</small><p>The core idea works. It shows people what they can’t feel.</p></div></div><div class="an-card" data-in><p class="an-tag bad">Negative</p><ul><li>Fixing posture at every light change felt harsh</li><li>The AI voice put some people off</li><li>Too much to read before starting</li><li>Not sure what the colors or cm numbers meant</li><li>Worried about the camera always watching</li><li>Game text lost against dark clothes</li></ul><div class="pt-take"><small>What they share</small><p>Too much, too often. People want less text and calmer cues.</p></div></div><div class="an-card" data-in><p class="an-tag new">New ideas</p><ul><li>Start right away and talk to me while I work</li><li>A small window to see posture while working</li><li>Pick instant cues or calm ones</li><li>A light bar clear enough to read on its own</li><li>A squeeze ball for breathing breaks</li><li>Enter your own spine condition</li></ul><div class="pt-take"><small>What they share</small><p>Everyone wants it their own way, so it has to be adjustable.</p></div></div></div>
+    <div class="an-row"><div class="an-card" data-in><p class="an-tag good">Positive</p><ul><li>It told them when they slouched without noticing</li><li>They loved the break modes most</li><li>Some liked the voice more than the light</li><li>The light bar and sensors looked fun</li><li>They liked that the camera can turn off</li><li>It felt like a real product</li></ul><div class="pt-take"><small>What they share</small><p>The core idea works. It shows people what they can’t feel.</p></div></div><div class="an-card" data-in><p class="an-tag bad">Negative</p><ul><li>The light changed too often, it felt stressful</li><li>Some didn’t like the AI voice</li><li>Too much reading before they could start</li><li>The colors and numbers were confusing</li><li>The camera felt like it was always watching</li><li>Game text was hard to see on dark clothes</li></ul><div class="pt-take"><small>What they share</small><p>Too much, too often. People want less text and calmer cues.</p></div></div><div class="an-card" data-in><p class="an-tag new">New ideas</p><ul><li>Just start, and explain things as I go</li><li>A small window to check posture while working</li><li>Choose fast alerts or slow, calm ones</li><li>Make the light easy to read at a glance</li><li>A squeeze ball to help with breathing</li><li>Add your own back or neck condition</li></ul><div class="pt-take"><small>What they share</small><p>Everyone wants it their own way, so it has to be adjustable.</p></div></div></div>
   </section>
 
   <!-- 6 · Live demo (3 min) -->
@@ -229,7 +231,7 @@
       </div>
       <div class="card live-cues">
         <div class="card-copy"><h3>What I changed from feedback</h3></div>
-        <ol class="demo-steps"><li>The camera starts off <span>You choose to turn it on, or just use the sensors.</span></li><li>A shorter start <span>Three quick cards instead of a twelve step guide.</span></li><li>See your posture, not a number <span>A little figure shows which way you lean.</span></li><li>Tips near your eyes <span>Messages show up next to the figure, not up top.</span></li><li>A mini window <span>Keep it on screen while you work in other apps.</span></li><li>A gentler light <span>It only changes if you stay slouched for a while.</span></li></ol>
+        <ol class="demo-steps"><li>Trust before tracking <span>The camera starts off, or use the sensors instead.</span></li><li>A shorter start <span>Three quick cards instead of a twelve step guide.</span></li><li>Better tracking and feedback <span>A figure shows your lean, with tips right beside it.</span></li><li>A mini window <span>A small PIP view stays on top while you work.</span></li><li>More ways to make it yours <span>Pick light, voice or both, and how fast it reacts.</span></li><li>The figure on breaks too <span>The same figure leads stretches and games.</span></li></ol>
       </div>
     </div>
   </section>
