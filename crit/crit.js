@@ -239,7 +239,7 @@ if (story) {
     if (showSpine > .01) {
       for (let i = 0; i <= 16; i++) { const u = .07 + i / 16 * .9, c = spine(u);
         const dz = u < .38 ? 7 * Math.sin(Math.PI * u / .38) : -(5 + 2 * s) * Math.sin(Math.PI * (u - .38) / .62);
-        col.push({ p: [0, c[1], c[2] - 3 + dz], hot: Math.max(S.back * Math.max(0, 1 - Math.abs(u - .2) / .16), S.disc * Math.max(0, 1 - Math.abs(u - .14) / .07)), u }); }
+        col.push({ p: [0, c[1], c[2] - 3 + dz], hot: Math.max(S.back * Math.max(0, 1 - Math.abs(u - .295) / .16), S.disc * Math.max(0, 1 - Math.abs(u - .1825) / .07)), u }); }
       const n0 = col[col.length - 1].p;
       // neck vertebrae run down the middle of the neck itself, so they stay inside it
       for (let i = 0; i < 4; i++) { const v = .12 + i * .26;
@@ -292,12 +292,12 @@ if (story) {
     const ache = (x, y, r, a, seed) => { if (a < .05) return; g.save(); g.strokeStyle = `rgba(214,60,44,${a})`; g.lineWidth = 2.4; g.lineCap = 'round';
       for (let j = 0; j < 3; j++) { const an = seed + j * .55, r0 = r * (1 + .12 * Math.sin(t / 200 + j)), r1 = r0 + 9;
         g.beginPath(); g.moveTo(x + Math.cos(an) * r0, y + Math.sin(an) * r0); g.lineTo(x + Math.cos(an) * r1, y + Math.sin(an) * r1); g.stroke(); } g.restore(); };
-    const nk = P([0, lerp(SH[1], neckTop[1], .5), lerp(SH[2], neckTop[2], .5) - 4]); glow(nk[0], nk[1], 40, S.neck * pulse);
-    const lo = P(col.length ? col[Math.round(.2 * 16)].p : spine(.2)); glow(lo[0], lo[1], 44, S.back * .85 * pulse);
+    const nk = P(col.length > 18 ? col[18].p : [0, lerp(SH[1], neckTop[1], .5), lerp(SH[2], neckTop[2], .5)]); glow(nk[0], nk[1], 40, S.neck * pulse);
+    const lo = P(col.length ? col[4].p : spine(.295)); glow(lo[0], lo[1], 44, S.back * .85 * pulse);
     const sideOn = Math.max(0, sy - .5) * 2;
     ache(nk[0], nk[1], 26, S.neck * sideOn * (S.disc > .5 ? .5 : 1), -2.1);
     ache(lo[0], lo[1], 28, S.back * sideOn * (S.disc > .5 ? .5 : 1), 2.4);
-    if (S.disc > .02 && col.length) { const q = P(col[Math.round(.14 * 16)].p); glow(q[0] - 9 * sy, q[1], 22, S.disc * pulse); }
+    if (S.disc > .02 && col.length) { const q = P(col[2].p); glow(q[0], q[1], 22, S.disc * pulse); }
   }
   (function loop(t) { if (story.classList.contains('open') || story.classList.contains('leaving')) draw3d(t); requestAnimationFrame(loop); })(0);
 
