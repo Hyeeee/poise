@@ -67,7 +67,10 @@
   .pt-quote { padding-bottom: calc(var(--s) * 24); border-bottom: 1px solid rgba(20,20,18,.1); }
   .pt-quote p { min-height: 3.66em; font-family: var(--serif); font-size: max(calc(var(--s) * 30), 17px); line-height: 1.22; letter-spacing: -.01em; color: var(--ink); text-wrap: pretty; }
   .pt-quote small { display: block; margin-top: calc(var(--s) * 10); font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-2); }
-  .slide[data-title="Playtesting themes"] .an-card ul { flex: 1; margin: 0; gap: 0; justify-content: space-between; }
+  .slide[data-title="Playtesting themes"] .an-card ul { margin: calc(var(--s) * 12) 0 0; gap: calc(var(--s) * 18); justify-content: flex-start; }
+  .pt-take { margin-top: auto; background: #f4f4f1; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 24); display: flex; flex-direction: column; gap: calc(var(--s) * 8); }
+  .pt-take small { font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-2); }
+  .pt-take p { font-size: max(calc(var(--s) * 21), 13px); font-weight: 500; line-height: 1.35; letter-spacing: -.01em; color: var(--ink); text-wrap: pretty; }
   .slide[data-title="Playtesting themes"] .an-card li { font-size: max(calc(var(--s) * 20), 13px); line-height: 1.4; text-wrap: pretty; padding-left: calc(var(--s) * 34); }
   .slide[data-title="Playtesting themes"] .an-card li::before { content: counter(pt, decimal-leading-zero); counter-increment: pt; width: auto; height: auto; border-radius: 0; background: none; top: .2em; font-size: .72em; color: var(--ink-3, rgba(20,20,18,.4)); font-variant-numeric: tabular-nums; }
   .slide[data-title="Playtesting themes"] .an-card ul { counter-reset: pt; }
@@ -203,11 +206,11 @@
 
   <!-- 5 · Key themes from playtesting feedback (1 min) -->
   <!-- 5 · Key themes from playtesting feedback (1 min), from the case study deck -->
-  <section class="slide paper" data-title="Playtesting themes" data-steps="2">
+  <section class="slide paper" data-title="Playtesting themes">
     <div class="head">
       <h2 class="title" data-in>Key themes from playtesting. <span>It changed what I thought mattered.</span></h2>
     </div>
-    <div class="an-row"><div class="an-card" data-in><p class="an-tag good">Positive</p><ul><li>It caught posture changes they couldn’t feel</li><li>The break modes were the strongest part</li><li>Some found the voice clearer than the light</li><li>The light bar and the sensor eyes were a delight</li><li>Being able to turn the camera off</li><li>It felt like a real product</li></ul></div><div class="an-card" data-in><p class="an-tag bad">Negative</p><ul><li>Fixing posture at every light change felt harsh</li><li>The AI voice put some people off</li><li>Too much to read before starting</li><li>Not sure what the colors or cm numbers meant</li><li>Worried about the camera always watching</li><li>Game text lost against dark clothes</li></ul></div><div class="an-card" data-in><p class="an-tag new">New ideas</p><ul><li>Start right away and talk to me while I work</li><li>A small window to see posture while working</li><li>Pick instant cues or calm ones</li><li>A light bar clear enough to read on its own</li><li>A squeeze ball for breathing breaks</li><li>Enter your own spine condition</li></ul></div></div><div class="an-next" data-step="1"><p class="an-tag good">New direction</p><p class="an-line">Let each person shape their feedback, and put information where they’re already looking.</p></div>
+    <div class="an-row"><div class="an-card" data-in><p class="an-tag good">Positive</p><ul><li>It caught posture changes they couldn’t feel</li><li>The break modes were the strongest part</li><li>Some found the voice clearer than the light</li><li>The light bar and the sensor eyes were a delight</li><li>Being able to turn the camera off</li><li>It felt like a real product</li></ul><div class="pt-take"><small>What they share</small><p>The core idea works. It shows people what they can’t feel.</p></div></div><div class="an-card" data-in><p class="an-tag bad">Negative</p><ul><li>Fixing posture at every light change felt harsh</li><li>The AI voice put some people off</li><li>Too much to read before starting</li><li>Not sure what the colors or cm numbers meant</li><li>Worried about the camera always watching</li><li>Game text lost against dark clothes</li></ul><div class="pt-take"><small>What they share</small><p>Too much, too often. People want less text and calmer cues.</p></div></div><div class="an-card" data-in><p class="an-tag new">New ideas</p><ul><li>Start right away and talk to me while I work</li><li>A small window to see posture while working</li><li>Pick instant cues or calm ones</li><li>A light bar clear enough to read on its own</li><li>A squeeze ball for breathing breaks</li><li>Enter your own spine condition</li></ul><div class="pt-take"><small>What they share</small><p>Everyone wants it their own way, so it has to be adjustable.</p></div></div></div>
   </section>
 
   <!-- 6 · Live demo (3 min) -->
