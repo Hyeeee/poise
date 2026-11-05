@@ -38,7 +38,7 @@ export function drawFigure(ctx, P, { j = () => 0, ink = '#141412', paper = '#fbf
   poly([[SL[0] - 2, SL[1] + 1], [NECK[0] - 11, NECK[1] + 7], [NECK[0] + 11, NECK[1] + 7], [SR[0] + 2, SR[1] + 1], [37, SR[1] + 22], [34, -12], [-34, -12], [-37, SL[1] + 22]]);
 
   // Head on the neck: tilted (head), shifted (hx), and lower + a little bigger when it juts forward (fwd).
-  const tilt = P.head || 0, look = P.look || 0, neckLen = 38 - fwd * 14, hs = 1 + fwd * .14;
+  const tilt = P.head || 0, look = P.look || 0, neckLen = 38 - fwd * 14, hs = (1 + fwd * .14) * (P.headZoom || 1);   // headZoom: head looks bigger when you lean in
   const hX = NECK[0] + hx * .65 + Math.sin(tilt) * neckLen + look * 7, hY = NECK[1] - Math.cos(tilt) * neckLen;
   limb(NECK, [NECK[0] + (hX - NECK[0]) * .42, NECK[1] + (hY - NECK[1]) * .42], 13);
   // Remember where the head ended up on this canvas (device px), so a speech bubble can follow it.
