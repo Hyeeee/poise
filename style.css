@@ -2020,3 +2020,4 @@ body .say-bubble, body .say-bubble .sb-text { font-family: 'Shantell Sans', 'Pat
 .avatar-off b { font-weight: 600; color: var(--ink, #141412); }
 .avatar-off.over b { color: #c2742f; }
 .avatar-box:has(.say-bubble.show) .avatar-off { opacity: 0; }
+.avatar-off .off-lim { display: none; }
