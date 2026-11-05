@@ -500,8 +500,9 @@ function sensorShift() {
 //  3. Fade to red: if you're still shifted 20 s later (or the shift is large, 80%+),
 //     it blends from yellow to red over another 6 s.
 //  4. Back in position for 1 s → green for a moment, then white again.
-const GRACE_MS = () => Math.max(5000, strongDelay());
-const FADE_MS = 6000, RED_AFTER_MS = 20000, SETTLE_MS = 1000;
+const GRACE_MS = () => strongDelay();                  // exactly the delay the person chose (3, 5 or 10 s)
+const FADE_MS = 2000, SETTLE_MS = 1000;
+const RED_AFTER_MS = () => Math.max(8000, strongDelay() * 2);   // red comes later for gentler settings
 const WHITE = [140, 140, 130], PALE = [255, 205, 60], YELLOW = [255, 130, 0], RED = [255, 0, 0];
 // Screen versions of the same steps: neutral → pale yellow → warm yellow → soft red.
 // On screen, sitting well is a soft green (the LED stays white), so the card always shows your state.
@@ -532,11 +533,11 @@ function applyPosture(d, now, delta, widthRatio) {
     } else {
       cueShown = true;
       const toYellow = Math.min(1, (held - grace) / FADE_MS);
-      const redStart = d >= 80 ? grace + FADE_MS : grace + RED_AFTER_MS;
+      const redStart = d >= 80 ? grace + FADE_MS : grace + RED_AFTER_MS();
       const toRed = Math.max(0, Math.min(1, (held - redStart) / FADE_MS));
       rgb = toRed > 0 ? mix(YELLOW, RED, toRed) : toWarm(toYellow, WHITE, PALE, YELLOW);
       tone = toRed > 0 ? mix(S_YELLOW, S_RED, toRed) : toWarm(toYellow, S_WHITE, S_PALE, S_YELLOW);
-      state = toRed >= 1 ? 'red' : toYellow > .5 ? 'amber' : 'white';
+      state = toRed >= 1 ? 'red' : toYellow > .3 ? 'amber' : 'white';
     }
     recoverAt = 0;
   } else {
@@ -1133,17 +1134,23 @@ $('pref-voice').onchange = e => {
   if (!e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
   syncVoicePick();
 };
+// One dropdown for voice: a voice name, or "No voice" to turn spoken guidance off.
 function syncVoicePick() {
-  $('pref-voice-pick').classList.toggle('dim', !store.state.voice);
-  setDD($('voice-seg'), store.state.voiceId || 'ava');
+  setDD($('voice-seg'), store.state.voice ? (store.state.voiceId || 'ava') : 'off');
 }
 wireDD($('voice-seg'), () => {});        // picks are handled by the click listener below
 wireDD($('bright-seg'), () => {});
 $('voice-seg').addEventListener('click', e => {
   const b = e.target.closest('button[data-v]'); if (!b) return;
-  store.update(s => { s.voiceId = b.dataset.v; s.voice = true; });
-  $('pref-voice').checked = true; syncVoicePick();
-  speak('All set.', $('ask-orb'));
+  const v = b.dataset.v;
+  if (v === 'off') {
+    store.update(s => { s.voice = false; });
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+  } else {
+    store.update(s => { s.voiceId = v; s.voice = true; });
+    speak('All set.', $('ask-orb'));                 // short preview of the chosen voice
+  }
+  $('pref-voice').checked = store.state.voice; syncVoicePick();
 });
 // Light bar brightness: pick a level, the light updates on its next message (within a frame).
 function syncBright() {
