@@ -16,7 +16,7 @@ const deck = document.getElementById('deck');
 const slides = [...deck.querySelectorAll('.slide')];
 const progress = document.getElementById('progress');
 // The parts of the deck, in order, and how many slides each has (cover and contents come first).
-const PARTS = [['Intro', 2], ['The problem', 2], ['UX research', 4], ['Version one', 2], ['Iteration', 3], ['Version two', 8], ['What I learned', 3]];
+const PARTS = [['Intro', 2], ['The problem', 2], ['UX research', 4], ['Version one', 2], ['Iteration', 3], ['Version two', 4], ['What I learned', 3]];
 let at = 0;
 const segs = PARTS.map(([name, n]) => {
   const start = at; at += n;
@@ -611,20 +611,20 @@ const V1 = Layers('v1');
 (() => {
   const slots = [...document.querySelectorAll('.v2-slot')]; if (!slots.length) return;
   const T = [
-    ['#enable, #stop', 'Camera', 'On only when you say so.', 'The video stays on this laptop and is never saved or sent.'],
+    ['#enable, #stop, #empty-camera', 'A clearer camera card', 'One card, one choice.', 'An icon, a plain title and one line on privacy, then the camera or the sensor. The video stays on this laptop.'],
     ['#cam-off-sensor, #sensor-chip', 'Sensor mode', 'No camera at all.', 'The distance sensor in the light bar notices when you lean in or step away.'],
     ['#bar-prompt, #connect', 'Light bar', 'Plug it in over USB.', 'It glows with your posture at the edge of your view, so you notice early.'],
     ['#ref-prompt, #calibrate', 'Your reference', 'Sit the way you want to stay.', 'Poise compares everything to this, so it fits your own body.'],
-    ['#avatar-box, #posture-state, #posture-hint', 'Your figure', 'A figure, not a number.', 'It moves with you next to a dashed outline of your reference, so you see which way you drifted.'],
+    ['#avatar-box, #posture-state, #posture-hint', 'A figure, not a number', 'People read themselves, not a percent.', 'The figure moves with you next to a dashed outline of your reference, and the card takes the colour of your state.'],
     ['.say-bubble', 'Right by the figure', 'Feedback where you already look.', 'A speech bubble by the figure, and the card takes the colour of your state.'],
     ['#timer, #pause, #timer-bar, #next-break', 'Focus timer', 'Starts when you set a reference.', 'When it ends, your break begins.'],
     ['#end-session, #report', 'Your report', 'How the session went.', 'A chart you can hover to see each moment, and three numbers.'],
-    ['#pip', 'A small window', 'Poise next to your work.', 'The same figure and one line of state over any app, so you never switch tabs.'],
+    ['#pip', 'A small window', 'Poise next to your work, not in front of it.', 'The same figure and one line of state over any app, so you never switch tabs.'],
     ['#open-modes, #modes', 'Settings', 'Pick how it tells you.', 'Light, voice, both or none, and how gently it reacts.'],
     ['#ask, #ask-input, #mic, #thread', 'Ask Poise', 'Change anything by just asking.', 'Type or say it, like quieter alerts, and Poise changes the setting for you.'],
     ['#break, #break-panel, #game-panel, #breathe-panel', 'Break', 'Stretch, breathe or play.', 'The camera checks each stretch, and points add up as you hold the pose.'],
     ['#work', 'Focus', 'Back to work.', 'The figure picks up where you left off.'],
-    ['#tour', 'Guide', 'Four short steps.', 'It explains each part while you use it, and you can skip it any time.'],
+    ['#tour', 'A shorter guide', 'Twelve steps became four.', 'Grouped by what they cover, and the rest is explained while you use it.'],
   ];
   // cards that come up on their own also change the text, the topmost first
   const SHOWN = ['#modes', '#report', '#tour', '#bar-prompt', '#ref-prompt', '#break-panel, #game-panel, #breathe-panel'];
