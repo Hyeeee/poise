@@ -53,14 +53,23 @@
   .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
   /* Feedback slide: one card per question */
-  .ask-cards { flex: 0 1 auto; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: calc(var(--s) * 28); }
+  .ask-cards { flex: 1; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: calc(var(--s) * 28); }
   .slide .ask-cards .card, .slide .card.live-cues { background: #fff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-radius: calc(var(--s) * 30); padding: var(--card-pad); box-shadow: var(--card-shadow); }
   .ask-card { gap: calc(var(--s) * 40); }
   .ask-card h3 { font-size: max(calc(var(--s) * 40), 20px); }
-  .ask-qs { list-style: none; display: flex; flex-direction: column; gap: calc(var(--s) * 22); counter-reset: q; }
+  .ask-qs { list-style: none; display: flex; flex-direction: column; gap: calc(var(--s) * 20); counter-reset: q; }
+  .ask-img { position: relative; flex: 1; min-height: 0; border-radius: calc(var(--s) * 20); overflow: hidden; background: #f4f4f1; margin-bottom: calc(var(--s) * 6); }
+  .ask-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .ask-img.photo img { object-position: center 55%; }
+  .ask-img.sw img { object-position: center 62%; }
+  .ask-card { gap: calc(var(--s) * 22); }
+  .ask-img.app { background: #eef6f0; }
+  .ask-img.app img { inset: 8% 0; height: 84%; object-fit: contain; }
+  .ask-card { display: flex; flex-direction: column; }
+  .ask-qs li b { white-space: nowrap; }
   .ask-qs li { display: grid; grid-template-columns: calc(var(--s) * 52) 1fr; row-gap: calc(var(--s) * 6); }
   .ask-qs li.ask-sep { display: block; height: 0; border-top: 1px solid rgba(20,20,18,.1); }
-  .ask-qs li:not(.ask-sep)::before { counter-increment: q; content: counter(q); grid-row: span 2; font-size: max(calc(var(--s) * 18), 12px); color: var(--ink-2); font-variant-numeric: tabular-nums; padding-top: .35em; }
+  .ask-qs li:not(.ask-sep)::before { counter-increment: q; content: counter(q); grid-row: span 1; font-size: max(calc(var(--s) * 18), 12px); color: var(--ink-2); font-variant-numeric: tabular-nums; padding-top: .35em; }
   .ask-qs b { font-weight: 600; font-size: max(calc(var(--s) * 28), 16px); letter-spacing: -.02em; }
   .ask-qs span { font-size: max(calc(var(--s) * 21), 13px); line-height: 1.45; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 760px) { .ask-cards { grid-template-columns: 1fr; } .ask-qs { gap: 20px; } .ask-qs span { white-space: normal; } }
@@ -144,8 +153,8 @@
       <h2 class="title" data-in>Feedback I’d like. <span>On the light bar and the app.</span></h2>
     </div>
     <div class="cards ask-cards">
-      <div class="card ask-card" data-in><h3>Hardware</h3><ol class="ask-qs"><li><b>The light</b><span>From the bar alone, can you tell what each colour means?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>The shape</b><span>Does it sit well on top of a laptop, and should the next one be 3D printed?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Sensor only mode</b><span>With the camera off, do the two distance sensors feel like enough?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Something to hold</b><span>Would a squeeze ball for breathing breaks feel playful, or like clutter?</span></li></ol></div>
-      <div class="card ask-card" data-in><h3>Software</h3><ol class="ask-qs"><li><b>The start</b><span>Is it short enough now that you can just begin?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Feedback that fits you</b><span>Light, voice, both or neither. Which one would you pick?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Break games</b><span>Does steering the boat by leaning feel like a real break?</span></li><li class="ask-sep" aria-hidden="true"></li><li><b>Anything else</b><span>What would you add, or what should I fix next?</span></li></ol></div>
+      <div class="card ask-card" data-in><h3>Hardware</h3><div class="ask-img photo"><img src="../deck/img/pt-bar.webp" alt="The cardboard light bar glowing on a laptop"></div><ol class="ask-qs"><li><b>Was anything awkward or hard to use?</b></li><li class="ask-sep" aria-hidden="true"></li><li><b>Could you tell your posture changed from the LED color?</b></li><li class="ask-sep" aria-hidden="true"></li><li><b>What do you think of the hardware design?</b></li></ol></div>
+      <div class="card ask-card" data-in><h3>Software</h3><div class="ask-img photo sw"><img src="../deck/img/pt-screen.webp" alt="The Poise app running on a laptop under the light bar"></div><ol class="ask-qs"><li><b>How was the onboarding?</b></li><li class="ask-sep" aria-hidden="true"></li><li><b>Was anything awkward in focus mode?</b></li><li class="ask-sep" aria-hidden="true"></li><li><b>Would the break games help you loosen up after work?</b></li></ol></div>
     </div>
   </section>
 
