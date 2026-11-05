@@ -33,15 +33,16 @@
 </style>
 <style>
   /* Live demo slide: the real Poise app runs right inside the slide */
-  .live-demo { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: calc(var(--s) * 24); }
+  .live-demo { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); gap: calc(var(--s) * 24); }
   .live-frame { position: relative; min-height: 0; border-radius: var(--r); overflow: hidden; background: var(--card); box-shadow: 0 0 0 1px rgba(20,20,18,.08); }
   .live-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #f4f3ef; }
   .live-bar { position: absolute; right: calc(var(--s) * 16); bottom: calc(var(--s) * 16); display: flex; gap: calc(var(--s) * 8); opacity: .35; transition: opacity .3s; }
   .live-frame:hover .live-bar { opacity: 1; }
   .live-btn { font: 500 max(calc(var(--s) * 14), 11px)/1 Inter, sans-serif; color: var(--ink, #141412); background: rgba(255,255,255,.86); border: 1px solid rgba(20,20,18,.12); border-radius: 999px; padding: calc(var(--s) * 10) calc(var(--s) * 16); cursor: pointer; text-decoration: none; backdrop-filter: blur(8px); }
   .live-cues { overflow: auto; }
+  .live-cues .demo-steps { flex: 1; justify-content: space-between; }
   .live-cues .demo-steps li { font-size: max(calc(var(--s) * 20), 13px); }
-  .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; }
+  .live-cues .demo-steps li span { grid-column: 2; display: block; font-size: .86em; margin-top: .15em; text-wrap: pretty; }
   @media (max-width: 760px) { .live-demo { grid-template-columns: 1fr; } .live-frame { min-height: 70svh; } }
   /* Feedback slide: one card per question */
   .ask-cards { flex: 1; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -212,14 +213,8 @@
         </div>
       </div>
       <div class="card live-cues">
-        <div class="card-copy"><h3>What you’ll see</h3></div>
-        <ol class="demo-steps">
-          <li>Start <span>Camera, light bar, then save my reference.</span></li>
-          <li>Lean in and hold <span>After a few seconds the bar warms from white toward red.</span></li>
-          <li>Sit back <span>It fades back to white.</span></li>
-          <li>Take a break <span>Steer the boat game by leaning left and right.</span></li>
-          <li>Camera off <span>The two distance sensors take over.</span></li>
-        </ol>
+        <div class="card-copy"><h3>What I changed from feedback</h3></div>
+        <ol class="demo-steps"><li>Camera off at the start <span>It says what it does first, then you choose. Or use the distance sensors.</span></li><li>One thing at a time <span>Three short start cards instead of popups and a twelve step tour.</span></li><li>A figure, not a number <span>You see yourself against a dashed outline, so you know which way you lean.</span></li><li>Feedback where you look <span>A speech bubble next to the figure’s head instead of a toast up top.</span></li><li>Next to your work <span>A small window over any app, so you never switch tabs.</span></li><li>A calmer light <span>The bar only warms after a drift lasts, at the speed you set.</span></li></ol>
       </div>
     </div>
   </section>
