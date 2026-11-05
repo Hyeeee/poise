@@ -93,12 +93,12 @@
   @media (max-width: 860px) { .slide[data-title="Playtesting themes"] .an-card ul { gap: 14px; } }
   /* Iteration plan: both cards the same height, items spread evenly */
   .it-img { position: relative; background: #f4f4f1; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 28) calc(var(--s) * 28) calc(var(--s) * 40); margin-top: calc(var(--s) * 20); display: grid; place-items: center; }
-  .slide[data-title="Upcoming iterations"] .it-img { height: calc(var(--s) * 270); padding: 0; overflow: hidden; }
-  .it-img img { width: 82%; height: 100%; object-fit: contain; }
+  .slide[data-title="Upcoming iterations"] .it-img { flex: 1; min-height: calc(var(--s) * 220); padding: 0; overflow: hidden; margin-bottom: calc(var(--s) * 8); }
+  .it-img img { position: absolute; inset: 8% 8% 16%; width: 84%; height: 76%; object-fit: contain; }
   .it-img.app { background: #eef9f1; }
-  .it-img.app img { width: auto; height: calc(var(--s) * 250); max-width: 100%; object-fit: contain; border-radius: calc(var(--s) * 16); }
+  .it-img.app img { inset: 6% 0 12%; width: 100%; height: 82%; }
   .it-img small { position: absolute; left: calc(var(--s) * 20); bottom: calc(var(--s) * 14); font-size: max(calc(var(--s) * 14), 10px); color: var(--ink-2); }
-  .slide[data-title="Upcoming iterations"] .it-row { flex: 0 1 auto; align-items: stretch; }
+  .slide[data-title="Upcoming iterations"] .it-row { flex: 1; min-height: 0; align-items: stretch; }
   .slide[data-title="Upcoming iterations"] .it-card { display: flex; flex-direction: column; }
   .slide[data-title="Upcoming iterations"] .it-head { border-bottom: 0; padding-bottom: 0; }
   .slide[data-title="Upcoming iterations"] .it-card ol { display: flex; flex-direction: column; gap: calc(var(--s) * 20); }
