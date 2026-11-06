@@ -231,8 +231,8 @@
     <h3 class="drawer-h">Voice and light</h3>
     <div class="pref-group">
       <label class="pref-row"><span>Voice guidance<small>Spoken posture cues and summaries</small></span><span class="toggle"><input type="checkbox" id="pref-voice"></span></label>
-      <div class="pref-row" id="pref-voice-pick"><span>Voice</span><nav class="segmented" id="voice-seg"><button data-v="ava">Ava</button><button data-v="sonia">Sonia</button><button data-v="andrew">Andrew</button></nav></div>
-      <div class="pref-row" id="pref-bright"><span>Light bar brightness<small>How bright the light bar glows</small></span><nav class="segmented" id="bright-seg"><button data-b="25">Low</button><button data-b="50">Soft</button><button data-b="75">Medium</button><button data-b="100">Full</button></nav></div>
+      <div class="pref-row" id="pref-voice-pick"><span>Voice</span><select class="fsel" id="voice-sel" aria-label="Voice"><option value="ava">Ava</option><option value="sonia">Sonia</option><option value="andrew">Andrew</option></select><nav class="segmented" id="voice-seg" hidden><button data-v="ava">Ava</button><button data-v="sonia">Sonia</button><button data-v="andrew">Andrew</button></nav></div>
+      <div class="pref-row" id="pref-bright"><span>Light bar brightness<small>How bright the light bar glows</small></span><select class="fsel" id="bright-sel" aria-label="Light bar brightness"><option value="25">Low</option><option value="50">Soft</option><option value="75">Medium</option><option value="100">Full</option></select><nav class="segmented" id="bright-seg" hidden><button data-b="25">Low</button><button data-b="50">Soft</button><button data-b="75">Medium</button><button data-b="100">Full</button></nav></div>
       <label class="pref-row"><span>Background music</span><span class="toggle"><input type="checkbox" id="pref-music"></span></label>
     </div>
     <h3 class="drawer-h">Display</h3>

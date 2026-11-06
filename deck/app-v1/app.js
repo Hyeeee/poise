@@ -770,16 +770,20 @@ function renderEditor() {
   const ed = $('editor');
   const m = tab === 'work' ? store.work() : store.brk();
   const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-  let html = field('Name', `<input type="text" data-k="name" maxlength="32" value="${esc(m.name)}">`);
+  // every choice is the same control: a field with a dropdown, like version two
+  const opt = (k, opts, v, fmt) => { const list = opts.includes(v) ? opts : [...opts, v].sort((a, b) => a - b);
+    return `<select class="fsel" data-k="${k}" data-num="1">${list.map(o => `<option value="${o}"${o === v ? ' selected' : ''}>${fmt(o)}</option>`).join('')}</select>`; };
+  const pick = (k, opts, v) => `<select class="fsel" data-k="${k}">${opts.map(([o, l]) => `<option value="${o}"${o === v ? ' selected' : ''}>${l}</option>`).join('')}</select>`;
+  let html = field('Name', `<input type="text" class="fsel ftext" data-k="name" maxlength="32" value="${esc(m.name)}">`);
   if (tab === 'work') {
-    html += field('Focus length', `<input type="range" data-k="focus" min="5" max="90" step="5" value="${m.focus}">`, `<output>${m.focus} min</output>`);
-    html += field('Sensitivity', segmented('sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
-    html += field('Remind me after', `<input type="range" data-k="delay" min="2" max="20" step="1" value="${m.delay}">`, `<output>${m.delay}s</output>`);
+    html += field('Focus length', opt('focus', [15, 25, 30, 45, 60, 90], m.focus, v => v >= 60 ? (v / 60) + (v === 60 ? ' hour' : ' hours') : v + ' min'));
+    html += field('Sensitivity', pick('sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
+    html += field('Remind me after', opt('delay', [3, 5, 10, 20], m.delay, v => v + ' sec'));
   } else {
-    html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Reset'], ['game', 'Game']], m.style));
+    html += field('Style', pick('style', [['stretch', 'Stretch'], ['breathe', 'Reset'], ['game', 'Game']], m.style));
     html += m.style === 'stretch'
-      ? field('Stretches', `<input type="range" data-k="count" min="1" max="10" step="1" value="${m.count}">`, `<output>${m.count}</output>`)
-      : field('Length', `<input type="range" data-k="minutes" min="1" max="10" step="1" value="${m.minutes}">`, `<output>${m.minutes} min</output>`);
+      ? field('Stretches', opt('count', [3, 5, 10], m.count, v => v + ' stretches'))
+      : field('Length', opt('minutes', [1, 2, 3, 5], m.minutes, v => v + ' min'));
     html += field('Start automatically', toggle('auto', m.auto));
   }
   const list = tab === 'work' ? store.state.works : store.state.breaks;
@@ -787,6 +791,7 @@ function renderEditor() {
   if (list.length > 1) html += `<div class="field del-row"><button type="button" class="danger" id="delete-mode">Delete this mode</button></div>`;
   ed.innerHTML = `<div class="pref-group">${html}</div>`;
 
+  ed.querySelectorAll('select.fsel').forEach(sel => sel.onchange = () => { patchMode(tab, { [sel.dataset.k]: sel.dataset.num ? Number(sel.value) : sel.value }); if (sel.dataset.k === 'style') renderEditor(); });
   ed.querySelectorAll('input[type=range]').forEach(inp => inp.oninput = () => {
     const v = Number(inp.value); patchMode(tab, { [inp.dataset.k]: v });
     const unit = { focus: ' min', minutes: ' min', delay: 's', count: '' }[inp.dataset.k];
@@ -804,7 +809,11 @@ $('pref-voice').onchange = e => {
   if (!e.target.checked && 'speechSynthesis' in window) speechSynthesis.cancel();
   syncVoicePick();
 };
-function syncVoicePick() {
+// Voice and brightness are dropdowns now; they press the original (hidden) buttons so the old logic still runs.
+['voice', 'bright'].forEach(n => { const sel = $(n + '-sel'); if (!sel) return;
+  sel.onchange = () => $(n + '-seg').querySelector(`button[data-${n === 'voice' ? 'v' : 'b'}="${sel.value}"]`)?.click(); });
+function syncSelects() { if ($('voice-sel')) $('voice-sel').value = store.state.voiceId || 'ava'; if ($('bright-sel')) $('bright-sel').value = String(store.state.brightness ?? 100); }
+function syncVoicePick() { syncSelects();
   $('pref-voice-pick').classList.toggle('dim', !store.state.voice);
   document.querySelectorAll('#voice-seg button').forEach(b => b.classList.toggle('active', b.dataset.v === (store.state.voiceId || 'ava')));
 }
@@ -815,7 +824,7 @@ $('voice-seg').addEventListener('click', e => {
   speak('All set.', $('ask-orb'));
 });
 // Light bar brightness: pick a level, the light updates on its next message (within a frame).
-function syncBright() {
+function syncBright() { syncSelects();
   document.querySelectorAll('#bright-seg button').forEach(b => b.classList.toggle('active', +b.dataset.b === (store.state.brightness ?? 100)));
 }
 $('bright-seg').addEventListener('click', e => {

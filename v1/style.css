@@ -821,3 +821,17 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 #modes .prefs > .drawer-h:first-child { margin-top: 22px; }
 #modes .editor { margin-bottom: 0; padding-bottom: 0; } #modes .prefs > .drawer-h:first-child { margin-top: 18px; }
 #modes .editor .pref-group:last-child, #modes .editor > :last-child { margin-bottom: 0; } #modes .prefs > .drawer-h:first-child { margin-top: 6px; }
+
+/* Settings: every choice is one field style, a soft pill with the value and a chevron, label on the left */
+#modes .editor .field { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; padding: 8px 0 !important; border-bottom: 1px solid rgba(20,20,18,.06) !important; }
+#modes .editor .field:last-child { border-bottom: 0 !important; }
+#modes .editor .field > span { font-size: 15px; color: var(--ink); }
+#modes .editor .field output { display: none; }
+#modes .fsel { appearance: none; -webkit-appearance: none; min-width: 150px; height: 38px; padding: 0 38px 0 14px; border: 0; border-radius: 12px; background: rgba(20,20,18,.05) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23141412' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E") no-repeat right 12px center / 16px; font: 500 14px var(--ui); color: var(--ink); cursor: pointer; }
+#modes .fsel:hover { background-color: rgba(20,20,18,.08); }
+#modes .ftext { background-image: none; padding-right: 14px; cursor: text; width: 190px; }
+#modes .pref-row .fsel { flex: none; }
+#modes .del-row { justify-content: flex-start !important; }
+#modes .editor .field:first-child { display: flex !important; flex-direction: row !important; grid-template-columns: none; }
+#modes .ftext { width: 150px; min-width: 150px; height: 38px; }
+#modes .pref-row.link { border-radius: 0 !important; overflow: visible; }
