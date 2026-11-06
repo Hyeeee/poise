@@ -860,7 +860,7 @@ function addMessage(who, msg) {
 }
 function openThread(suggestions = SUGGEST) {
   $('thread').hidden = false; $('studio').classList.add('chatting');
-  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, eye care, your breaks, or a new mode.');
+  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, your breaks, or a new mode.');
   $('suggest').innerHTML = '';
   suggestions.forEach(s => {
     const b = document.createElement('button'); b.type = 'button'; b.textContent = s;

@@ -835,3 +835,6 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 #modes .editor .field:first-child { display: flex !important; flex-direction: row !important; grid-template-columns: none; }
 #modes .ftext { width: 150px; min-width: 150px; height: 38px; }
 #modes .pref-row.link { border-radius: 0 !important; overflow: visible; }
+/* Ask Poise: the thread and the input in the same sans as the rest */
+#thread, #thread *, #messages, #messages *, #ask-input, #suggest button { font-family: var(--ui) !important; letter-spacing: -.005em; }
+#messages .msg, #thread p { font-size: 17px; line-height: 1.45; }
