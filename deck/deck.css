@@ -2014,3 +2014,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .pz-live iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; pointer-events: none; background: #eef1e8; }
 .pz-live .v1-tap { transition: left .7s cubic-bezier(.45,0,.2,1), top .7s cubic-bezier(.45,0,.2,1), transform .15s, background .15s; }
 .pz-frame.pz-live { width: 88%; height: auto; max-width: 88%; aspect-ratio: 16 / 10; }
+
+/* the virtual light bar, as simple as the light bar slide: a dark bar, a grey strip, the LED line under it */
+.vbar { width: 52%; height: calc(var(--s) * 52); bottom: calc(100% - var(--s) * 4); border-radius: calc(var(--s) * 12); background: #2a2a28; box-shadow: 0 calc(var(--s) * 10) calc(var(--s) * 22) calc(var(--s) * -10) rgba(20,20,18,.45); display: block; padding: 0; }
+.vbar::before { content: ""; position: absolute; left: calc(var(--s) * 16); right: calc(var(--s) * 16); top: calc(var(--s) * 11); height: calc(var(--s) * 15); border-radius: 99px; background: #8b8f8f; }
+.vbar .vb-led { left: calc(var(--s) * 16); right: calc(var(--s) * 16); bottom: calc(var(--s) * 10); height: calc(var(--s) * 5); background: color-mix(in srgb, var(--led) calc(25% + var(--led-on) * 75%), #55554f); box-shadow: 0 0 calc(var(--s) * 18) color-mix(in srgb, var(--led) calc(var(--led-on) * 85%), transparent); }
