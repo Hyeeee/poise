@@ -2126,3 +2126,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.demo .ba-shot > .cam-dot { top: calc(var(--s) * 15); }
 .slide.demo .ba-shot > .lbar { bottom: calc(100% - var(--s) * 4); }
 .v1-card .v1-dev > .lbar { bottom: calc(100% + var(--s) * 6); }
+.v1-motion .lbar { background:
+    linear-gradient(180deg, rgba(255,250,240,.18), transparent 30%, transparent 75%, rgba(60,45,30,.18)),
+    repeating-linear-gradient(90deg, rgba(255,245,230,.05) 0 calc(var(--s) * 2), rgba(70,50,30,.05) calc(var(--s) * 2) calc(var(--s) * 4)),
+    #b39674; }
