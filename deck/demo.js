@@ -8,8 +8,6 @@
   const q = new URLSearchParams(location.search), state = q.get('demo');
   if (!state) return;
   document.documentElement.classList.add('demo');
-  // the stand-in camera is a flat grey picture, so keep it out of view and let the painted backdrop show
-  document.addEventListener('DOMContentLoaded', () => { const st = document.createElement('style'); st.textContent = '#camera, .studio > video { visibility: hidden !important; }'; document.head.append(st); });
 
   // 1. Storage in memory
   const mem = () => { const m = new Map(); return { getItem: k => m.has(k) ? m.get(k) : null, setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), clear: () => m.clear(), key: i => [...m.keys()][i] ?? null, get length() { return m.size; } }; };
@@ -21,7 +19,41 @@
   document.currentScript.after(im);
 
   // 3. Camera → a blank canvas stream
-  const fakeStream = () => { const c = document.createElement('canvas'); c.width = 640; c.height = 360; const g = c.getContext('2d'); g.fillStyle = '#d8d6d0'; g.fillRect(0, 0, 640, 360); setInterval(() => { g.fillStyle = '#d8d6d0'; g.fillRect(0, 0, 4, 4); }, 200); return c.captureStream(15); };
+  // A drawn office as the stand-in camera: a wall, a window, a shelf and a plant, and a person at the desk
+  // drawn from the same pose the stand-in tracking reports (window.__P), so the figure and the lines move together.
+  const fakeStream = () => {
+    const W = 640, H = 360, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+    const rr = (x, y, w, h, r) => { g.beginPath(); g.roundRect(x, y, w, h, r); };
+    const scene = () => {
+      // wall and floor light
+      let gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#ece6dc'); gr.addColorStop(1, '#d9d1c4'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      // window with daylight
+      g.fillStyle = '#c9c0b2'; rr(38, 40, 170, 150, 6); g.fill();
+      gr = g.createLinearGradient(0, 46, 0, 184); gr.addColorStop(0, '#dfeaf0'); gr.addColorStop(1, '#eef2ef'); g.fillStyle = gr; rr(46, 48, 154, 134, 3); g.fill();
+      g.fillStyle = '#c9c0b2'; g.fillRect(121, 48, 4, 134); g.fillRect(46, 112, 154, 4);
+      // shelf with books
+      g.fillStyle = '#b9a58b'; g.fillRect(450, 92, 150, 7);
+      [['#7d8f86', 18, 40], ['#c48f6a', 14, 34], ['#e2d6c2', 20, 42], ['#5f6f78', 12, 30], ['#d9b47a', 16, 38]].reduce((x, [col, w, h]) => { g.fillStyle = col; g.fillRect(x, 92 - h, w, h); return x + w + 3; }, 462);
+      // plant
+      g.fillStyle = '#b98b6a'; rr(560, 230, 44, 50, 6); g.fill();
+      g.fillStyle = '#6f8f6a'; for (const [x, y, rx, ry, a] of [[572, 214, 12, 30, -.5], [592, 210, 12, 32, .4], [582, 200, 10, 34, 0]]) { g.beginPath(); g.ellipse(x, y, rx, ry, a, 0, Math.PI * 2); g.fill(); }
+    };
+    const person = () => {
+      const P = Object.assign({ lean: 0, shift: 0, fwd: 0, near: 1, away: 0 }, window.__P || {}); if (P.away) return;
+      // same numbers as the stand-in tracking, in pixels
+      const cx = (.5 + P.shift) * W, sy = .64 * H, hw = .085 * P.near * W, ly = P.lean * H;
+      const hx = cx + P.lean * 1.4 * W, hy = (.64 - .24 * P.near + P.fwd * .07) * H, hr = .052 * W * P.near * (1 + P.fwd * .12);
+      g.fillStyle = '#3e4a52';   // a dark top
+      g.beginPath(); g.moveTo(cx - hw - 26, H); g.lineTo(cx - hw - 6, sy - ly + 14); g.quadraticCurveTo(cx - hw, sy - ly - 6, cx - hw * .4, sy - ly - 10);
+      g.lineTo(cx + hw * .4, sy + ly - 10); g.quadraticCurveTo(cx + hw, sy + ly - 6, cx + hw + 6, sy + ly + 14); g.lineTo(cx + hw + 26, H); g.closePath(); g.fill();
+      g.fillStyle = '#d8b9a0'; g.fillRect((cx + hx) / 2 - 9, hy + hr * .7, 18, sy - hy - hr * .7);   // neck
+      g.beginPath(); g.ellipse(hx, hy, hr * .86, hr, P.lean * 2, 0, Math.PI * 2); g.fill();          // face
+      g.fillStyle = '#2b2622'; g.beginPath(); g.ellipse(hx, hy - hr * .32, hr * .92, hr * .74, P.lean * 2, Math.PI, Math.PI * 2); g.fill();   // hair
+    };
+    const draw = () => { scene(); person(); };
+    draw(); setInterval(draw, 66);
+    return c.captureStream(15);
+  };
   if (navigator.mediaDevices) navigator.mediaDevices.getUserMedia = async () => fakeStream();
 
   // 4. Silence

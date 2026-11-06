@@ -5,6 +5,7 @@
 // The real camera, voice and light bar all work as normal.
 (function () {
   if (window.parent === window) return;
+  window.__bridge = true;
   const mem = () => { const m = new Map(); return { getItem: k => m.has(k) ? m.get(k) : null, setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), clear: () => m.clear(), key: i => [...m.keys()][i] ?? null, get length() { return m.size; } }; };
   try { Object.defineProperty(window, 'localStorage', { value: mem(), configurable: true }); Object.defineProperty(window, 'sessionStorage', { value: mem(), configurable: true }); } catch {}
   // In the deck the app is shown, not navigated with a keyboard, so the keyboard focus ring is hidden.
@@ -18,9 +19,9 @@
       walk(rules); }
     const h = document.createElement('style'); h.textContent = extra.join('\n'); document.head.append(h);
   });
-  const KEYS = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'];
+  const KEYS = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'];
   addEventListener('keydown', e => {
-    if (!KEYS.includes(e.key) || e.target.closest?.('input, textarea, [contenteditable]')) return;
+    if (!KEYS.includes(e.key) || e.target.closest?.('textarea, [contenteditable], input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=button])')) return;
     e.preventDefault(); window.parent.dispatchEvent(new KeyboardEvent('keydown', { key: e.key }));
   }, true);
 })();

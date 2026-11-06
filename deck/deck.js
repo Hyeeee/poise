@@ -98,6 +98,8 @@ function wordsIn(slide, delay = 380) {
 }
 
 function go(i, atEnd = false) {
+  // if a live app had the keyboard (you clicked in it), take it back so the arrows keep driving the deck
+  if (document.activeElement && document.activeElement.tagName === 'IFRAME') { document.activeElement.blur(); window.focus(); }
   i = Math.max(0, Math.min(slides.length - 1, i));
   if (i === cur) return;
   const prev = slides[cur], next = slides[i];
@@ -120,6 +122,10 @@ function go(i, atEnd = false) {
 }
 
 // Keys, clicks (right two thirds forward, left third back), wheel, and #number in the URL.
+// when focus has gone into a live app frame and that frame is emptied, bring the keyboard back to the deck
+setInterval(() => { const a = document.activeElement; if (a && a.tagName === 'IFRAME') { let ok = false; try { ok = !!a.contentWindow.__bridge; } catch {}
+  // frames that only play on their own (Meet Poise, version one) never keep the keyboard
+  if (!ok || a.closest('.pz-live, .v1-motion')) { a.blur(); window.focus(); } } }, 250);
 addEventListener('keydown', e => {
   if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); next(); }
   else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
