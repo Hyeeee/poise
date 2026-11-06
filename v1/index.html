@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#a9bbd3">
+<title>Poise</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Welcome -->
+<section id="welcome" class="welcome">
+  <button class="icon-btn music-btn welcome-music" aria-label="Background music" aria-pressed="true"><svg class="i-on" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><svg class="i-off" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/><path d="M4 4l16 16"/></svg></button>
+  <main class="welcome-main">
+    <div class="agent hero" aria-hidden="true"></div>
+        <p class="lede"><b>Poise.</b> <span>Sit well without thinking about it.</span></p>
+    <div class="cta">
+      <button id="start" class="primary">Begin</button>
+      <button id="preview" class="text-btn">Look around first</button>
+    </div>
+    <p id="start-status" class="status" role="status"></p>
+  </main>
+  <p class="privacy">Your camera is processed on this device and never uploaded.</p>
+</section>
+
+<!-- Voice-guided setup -->
+<section id="setup" class="setup" hidden>
+  <div class="setup-top">
+    <div class="setup-progress" aria-hidden="true"><i id="setup-bar"></i></div>
+    <button id="setup-voice" class="icon-btn" aria-label="Mute voice" aria-pressed="true">
+      <svg class="i-on" viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+      <svg class="i-off" viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg>
+    </button>
+    <button id="setup-skip" class="text-btn">Skip</button>
+  </div>
+  <div class="setup-stage">
+    <div class="agent" id="setup-orb" data-dots="70" data-dot="2.4" aria-hidden="true"></div>
+    <p class="setup-line" id="setup-line" aria-live="polite"></p>
+    <div class="setup-choices" id="setup-choices"></div>
+    <button id="setup-back" class="text-btn setup-back">← Back</button>
+  </div>
+</section>
+
+<!-- Studio -->
+<section id="studio" class="studio" hidden>
+  <video id="camera" autoplay playsinline muted></video>
+  <canvas id="skeleton"></canvas>
+  <canvas id="game-canvas" hidden></canvas>
+  <canvas id="mini-canvas" hidden></canvas>
+  <div class="veil" aria-hidden="true"></div>
+  <div id="lightbar" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <button id="home" class="brand" aria-label="Back to start"><span class="agent mini" data-shape="sphere" data-dots="44" data-dot="0.75" aria-hidden="true"></span>poise</button>
+    <nav class="segmented glass" aria-label="Mode">
+      <button id="work" class="active">Focus</button>
+      <button id="break">Break</button>
+    </nav>
+    <div class="tools">
+      <button class="icon-btn glass music-btn" aria-label="Background music" aria-pressed="true" title="Music"><svg class="i-on" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><svg class="i-off" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/><path d="M4 4l16 16"/></svg></button>
+      <button id="connect" class="icon-btn glass" aria-label="Connect light bar" title="Connect light bar">
+        <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="4" rx="2"/><path d="M8 15h8M12 11v8"/></svg>
+      </button>
+      <button id="stop" class="icon-btn glass" aria-label="Turn camera on" title="Camera">
+        <svg viewBox="0 0 24 24"><rect x="3" y="6.5" width="13" height="11" rx="3"/><path d="m16 10.5 5-3v9l-5-3"/></svg>
+      </button>
+      <button id="open-modes" class="icon-btn glass" aria-label="Modes and settings" title="Modes">
+        <svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="empty-camera" class="empty card">
+    <p class="say"><b>Camera off.</b> <span>Turn it on and I will start watching your posture.</span></p>
+    <button class="primary" id="enable">Turn on camera</button>
+    <button class="text-btn" id="cam-skip">Use sensor</button>
+    <button class="ghost" id="sensor-mode" hidden>Use the distance sensor instead</button>
+  </div>
+
+  <span id="tracking" class="chip glass">Camera off</span>
+  <span id="sensor-chip" class="chip glass sensor-chip" hidden>— cm</span>
+
+  <div id="bar-prompt" class="empty card" hidden>
+    <p class="say"><b>Connect your light bar.</b> <span>Plug it in over USB, then connect it here so it can glow with your posture.</span></p>
+    <div class="row"><button class="primary" id="bar-connect">Connect light bar</button><button class="text-btn" id="bar-skip">Skip for now</button></div>
+  </div>
+
+  <div id="ref-prompt" class="empty card" hidden>
+    <p class="say"><b>Set your reference.</b> <span>Sit the way you want to stay, with your back tall and shoulders soft, then save it. Poise compares everything to this.</span></p>
+    <button class="primary" id="ref-set">Set reference</button>
+  </div>
+
+  <aside class="panel" aria-label="Session">
+    <!-- Focus -->
+    <div id="work-panel" class="stack">
+      <section class="card state">
+        <p class="say"><b id="posture-state">Set a reference</b> <span id="posture-hint">Sit the way you want to stay, then save it.</span></p>
+        <div class="meter"><div id="deviation-bar"></div></div>
+        <div class="card-foot">
+          <div class="agent glyph" id="state-agent" data-mood="idle" aria-hidden="true" hidden></div>
+          <span class="stat"><b id="deviation">—</b><small id="dev-label">% shift</small></span>
+          <span class="stat" id="sensor-row" hidden><b id="sensor-dist">—</b><small>cm</small></span>
+          <button class="ghost" id="calibrate">Set reference</button>
+        </div>
+      </section>
+      <section class="card session">
+        <button class="mode-name" id="work-mode-name" title="Change focus mode"></button>
+        <div class="timer">
+          <span id="timer">25:00</span>
+          <div class="timer-btns"><button id="pause" class="round" aria-label="Start timer"></button></div>
+        </div>
+        <div class="meter thin"><div id="timer-bar"></div></div>
+        <p class="sub" id="next-break"></p>
+        <button id="end-session" class="ghost end-wide" hidden>End session</button>
+      </section>
+      <section class="card stats" hidden>
+        <div id="eye-stat"><b id="blinks">—</b><small>blinks/min</small></div>
+        <div id="dist-stat"><b id="distance">—</b><small>distance</small></div>
+      </section>
+    </div>
+
+    <nav id="break-switch" class="segmented glass break-switch" aria-label="Break type" hidden>
+      <button data-style="stretch">Stretch</button><button data-style="breathe">Reset</button><button data-style="game">Game</button>
+    </nav>
+
+    <!-- Break: movement game -->
+    <div id="game-panel" class="card" hidden>
+      <div class="stage-box"><canvas id="game-map"></canvas></div>
+      <div class="game-chips" id="game-chips"><button data-g="bubbles">Bubbles</button><button data-g="boat">Boat</button><button data-g="bells">Bells</button><button data-g="seeds">Seeds</button></div>
+      <h2 id="game-title">Pop the bubbles</h2>
+      <p class="sub" id="game-tip">Reach up, out and down to pop them with your hands. Gold ones are for your head, so lean over to touch them.</p>
+      <div class="match"><span><b id="game-score">0</b> <span id="game-unit">points</span></span><span id="game-left" class="sub">1:00</span></div>
+      <div class="meter"><div id="game-bar"></div></div>
+      <p id="game-label" class="sub">Step back so your arms fit in the frame.</p>
+      <button id="game-end" class="ghost end-wide">End break</button>
+    </div>
+
+    <!-- Break: stretch -->
+    <div id="break-panel" class="card" hidden>
+      <div class="reel-head">
+        <div class="reel-progress" id="reel-progress" aria-label="Stretch progress"></div>
+        <span id="round" class="sub">1 / 5</span>
+      </div>
+      <div class="reel-video">
+        <div id="reel-player"></div>
+        <div class="reel-ctrl">
+          <button id="prev-pose" class="icon-btn" aria-label="Previous stretch" title="Previous"><svg viewBox="0 0 24 24"><path d="M18 6l-8 6 8 6z" fill="currentColor" stroke="none"/><path d="M7 6v12"/></svg></button>
+          <button id="replay" class="icon-btn" aria-label="Replay" title="Replay"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg></button>
+          <button id="reel-play" class="icon-btn" aria-label="Pause guide"></button>
+          <button id="skip" class="icon-btn" aria-label="Skip to next stretch" title="Skip"><svg viewBox="0 0 24 24"><path d="M6 6l8 6-8 6z" fill="currentColor" stroke="none"/><path d="M17 6v12"/></svg></button>
+          <button id="reel-sound" class="icon-btn glass" aria-label="Turn guide sound on"></button>
+        </div>
+      </div>
+      <p id="reel-status" class="tiny" role="status"></p>
+      <h2 id="pose-name"></h2>
+      <p id="pose-instruction" class="sub"></p>
+      <div class="match"><span><b id="match-score">—</b>% match</span><span id="points" class="sub">0 points</span></div>
+      <div class="meter"><div id="hold-bar"></div></div>
+      <p id="hold-label" class="sub"></p>
+      <div class="row" id="pose-actions">
+      </div>
+      <div class="row" id="reel-complete" hidden>
+        <button id="restart-break" class="ghost">Again</button>
+        <button id="return-work" class="primary">Back to focus</button>
+      </div>
+      <button id="end-break" class="ghost end-wide">End break</button>
+    </div>
+
+    <!-- Break: breathe -->
+    <div id="breathe-panel" class="card" hidden>
+      <div class="breath-stage"><div class="agent breath" id="breath-orb" data-shape="sphere" data-dots="90" data-dot="2.2" aria-hidden="true"></div></div>
+      <h2 id="breath-cue">Breathe in</h2>
+      <p class="sub" id="breath-tip">Breathe in slowly through your nose.</p>
+      <div class="match"><span><b id="reset-cm">0.0</b> cm lowered</span><span id="reset-count" class="sub">Breath 1</span></div>
+      <div class="meter"><div id="reset-bar"></div></div>
+      <p class="breath-metric" id="breath-metric"></p>
+      <div class="meter thin" hidden><div id="breath-bar"></div></div>
+      <div class="state-foot">
+        <span class="sub" id="breath-left"></span>
+      </div>
+      <button id="breath-end" class="ghost end-wide">End break</button>
+      <div hidden>
+        
+      </div>
+    </div>
+  </aside>
+
+  <div class="ask" id="ask">
+    <div class="thread glass" id="thread" hidden>
+      <div class="messages" id="messages" aria-live="polite"></div>
+      <div class="suggest" id="suggest"></div>
+    </div>
+    <form class="askbar glass" id="ask-form" autocomplete="off">
+      <span class="agent mini" id="ask-orb" aria-hidden="true"></span>
+      <input id="ask-input" aria-label="Ask Poise" placeholder="Ask Poise to change anything">
+      <button type="button" id="mic" class="icon-btn" aria-label="Speak instead" hidden>
+        <svg viewBox="0 0 24 24"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v3"/></svg>
+      </button>
+      <button type="submit" class="send" aria-label="Send">
+        <svg viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
+      </button>
+    </form>
+  </div>
+
+  <div id="toast" class="toast glass" role="status" hidden></div>
+</section>
+
+<!-- Modes -->
+<dialog id="modes" class="sheet">
+  <header class="sheet-head">
+    <h2>Modes</h2>
+    <button class="icon-btn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+    </button>
+  </header>
+  <nav class="segmented" id="modes-tabs" aria-label="Mode type">
+    <button data-tab="work" class="active">Focus</button>
+    <button data-tab="break">Break</button>
+  </nav>
+  <div class="mode-list" id="mode-list"></div>
+  <div class="editor" id="editor"></div>
+  <footer class="prefs">
+    <div class="pref-group">
+      <label class="pref-row"><span>Voice guidance<small>Spoken posture cues and summaries</small></span><span class="toggle"><input type="checkbox" id="pref-voice"></span></label>
+      <div class="pref-row" id="pref-voice-pick"><span>Voice</span><nav class="segmented" id="voice-seg"><button data-v="ava">Ava</button><button data-v="sonia">Sonia</button><button data-v="andrew">Andrew</button></nav></div>
+      <div class="pref-row" id="pref-bright"><span>Light bar brightness<small>How bright the light bar glows</small></span><nav class="segmented" id="bright-seg"><button data-b="25">Low</button><button data-b="50">Soft</button><button data-b="75">Medium</button><button data-b="100">Full</button></nav></div>
+      <label class="pref-row"><span>Background music</span><span class="toggle"><input type="checkbox" id="pref-music"></span></label>
+    </div>
+    <label class="toggle"><input type="checkbox" id="pref-joints"><span>Show joints</span></label>
+    <button class="text-btn" id="pref-tour">Show tour</button>
+    <button class="text-btn" id="pref-setup">Run setup again</button>
+  </footer>
+</dialog>
+
+<!-- Session report -->
+<div id="report" class="report" hidden>
+  <div class="report-card" role="dialog" aria-labelledby="report-title">
+    <div class="report-head">
+      <div class="agent glyph" data-shape="sphere" aria-hidden="true"></div>
+      <span id="report-len" class="sub"></span>
+    </div>
+    <p class="say report-say"><b id="report-title"></b> <span id="report-line"></span></p>
+    <div id="report-chart" class="report-chart"></div>
+    <div class="report-legend" id="report-legend"><span><i style="background:var(--aligned)"></i>Aligned</span><span><i style="background:var(--drift)"></i>Drifting</span><span><i style="background:var(--reset)"></i>Reset</span><span class="sub">line = how far you moved from your reference</span></div>
+    <div class="report-stats">
+      <div><b id="rep-aligned">—</b><small id="rep-aligned-l">in good posture</small></div>
+      <div><b id="rep-recover">—</b><small id="rep-recover-l">average time to correct</small></div>
+      <div><b id="rep-drifts">0</b><small id="rep-drift-note">drifts</small></div>
+    </div>
+    <h3 class="report-h" id="rep-causes-h">What pulled you out of position</h3>
+    <div id="rep-causes" class="causes"></div>
+    <p id="rep-tip" class="say report-tip"></p>
+    <div class="report-actions">
+      <button id="report-done" class="text-btn">Done</button>
+      <span class="tour-gap"></span>
+      <button id="report-new" class="ghost">New session</button>
+      <button id="report-break" class="primary">Take a break</button>
+    </div>
+  </div>
+</div>
+
+<!-- Guided tour -->
+<div id="tour" class="tour" hidden>
+  <div id="tour-spot" class="tour-spot"></div>
+  <div id="tour-card" class="tour-card" role="dialog" aria-live="polite" aria-labelledby="tour-title">
+    <div class="tour-head"><span id="tour-count" class="tiny"></span></div>
+    <p class="say"><b id="tour-title"></b> <span id="tour-text"></span></p>
+    <div class="tour-actions"><button id="tour-skip" class="text-btn">Skip tour</button><span class="tour-gap"></span><button id="tour-back" class="ghost">Back</button><button id="tour-next" class="primary">Next</button></div>
+  </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
