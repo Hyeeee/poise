@@ -611,8 +611,11 @@ const mirrorLight = (fr, slide) => {
     const until = async (s, ms = 12000) => { const t = Date.now() + ms; while (alive() && Date.now() < t) { if (vis(s)) return true; await W(150); } return false; };
     // move the dot to the element, hover, press, then click it for real
     const press = async (s, hold = 380) => { if (!alive() || !(await until(s, 6000))) return false; const e = d().querySelector(s), r = e.getBoundingClientRect();
-      tap.style.left = ((r.left + r.width / 2) / 1440 * 100) + '%'; tap.style.top = ((r.top + r.height / 2) / 900 * 100) + '%';
-      await W(720); tap.classList.add('hover'); e.classList.add('__hover'); await W(hold); tap.classList.remove('hover'); tap.classList.add('press'); await W(170); tap.classList.remove('press'); if (alive()) e.click(); await W(260); e.classList.remove('__hover'); return true; };
+      const x = (r.left + r.width / 2) / 1440 * 100, y = (r.top + r.height / 2) / 900 * 100;
+      // the dot only shows for a tap: it fades in a little below and to the right, glides in, presses, then fades away
+      tap.style.transition = 'none'; tap.style.left = (x + 5) + '%'; tap.style.top = (y + 7) + '%'; tap.offsetWidth; tap.style.transition = '';
+      tap.classList.add('on'); await W(60); tap.style.left = x + '%'; tap.style.top = y + '%';
+      await W(720); tap.classList.add('hover'); e.classList.add('__hover'); await W(hold); tap.classList.remove('hover'); tap.classList.add('press'); await W(170); tap.classList.remove('press'); if (alive()) e.click(); await W(260); e.classList.remove('__hover'); tap.classList.remove('on'); await W(350); return true; };
     const pose = P => { try { win().__P = P; } catch {} };
     while (alive()) {
       park(); fr.src = 'app-v1/?demo=welcome&paint=1'; await new Promise(r => fr.onload = r); if (!alive()) return;

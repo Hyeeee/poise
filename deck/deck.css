@@ -2025,3 +2025,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* the tap dot: pressing just fills it white, no green */
 .v1-tap.press { background: rgba(255,255,255,.95); }
 .v1-tap::after { border-color: rgba(255,255,255,.8); }
+/* Meet Poise: the tap dot is hidden between taps */
+.pz-live .v1-tap { opacity: 0; transition: left .7s cubic-bezier(.45,0,.2,1), top .7s cubic-bezier(.45,0,.2,1), transform .15s, background .15s, opacity .3s ease; }
+.pz-live .v1-tap.on { opacity: 1; }
