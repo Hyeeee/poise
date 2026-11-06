@@ -1980,3 +1980,31 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .meta-chips { display: flex; flex-wrap: wrap; gap: calc(var(--s) * 8); margin-top: calc(var(--s) * 6); }
 .meta-chips span { font-size: max(calc(var(--s) * 16), 11px); color: var(--ink-2); padding: calc(var(--s) * 6) calc(var(--s) * 14); border-radius: 99px; background: rgba(255,255,255,.62); box-shadow: inset 0 0 0 1px rgba(20,20,18,.07); }
 .head:has(.meta-chips) { gap: calc(var(--s) * 14); }
+
+/* Live demo slides: no title, the laptop with a virtual light bar clipped on top, and plain text beside it */
+.slide.demo { --led: rgb(110,120,130); --led-on: 0; }
+.slide.demo .v1-card, .slide.demo .solo-row { flex: 1; min-height: 0; margin-top: calc(var(--s) * 40); }
+.v1-card .v1-dev { order: -1; position: relative; height: 100%; aspect-ratio: 16 / 10; max-width: 100%; justify-self: start; }
+.v1-card .v1-dev .v1-screen { order: 0; position: absolute; inset: calc(var(--s) * 10); width: auto; height: auto; margin: 0; }
+.slide.demo .ba-shot { position: relative; }
+
+/* the light bar: a matte housing with the two distance sensor eyes, an LED strip along its lower edge */
+.vbar { position: absolute; z-index: 3; left: 50%; bottom: calc(100% - var(--s) * 6); translate: -50% 0; width: 56%; height: calc(var(--s) * 34); border-radius: calc(var(--s) * 9); background: linear-gradient(#efece6, #dcd8cf); box-shadow: 0 calc(var(--s) * 8) calc(var(--s) * 18) calc(var(--s) * -8) rgba(20,20,18,.35), inset 0 1px 0 rgba(255,255,255,.8); display: flex; align-items: center; justify-content: space-between; padding: 0 calc(var(--s) * 14); pointer-events: none; }
+.vb-eye { width: calc(var(--s) * 15); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #5a5d60 0 18%, #1d1f21 22% 62%, #9a978f 66%); box-shadow: calc(var(--s) * 18) 0 0 0 transparent; position: relative; }
+.vb-eye::after { content: ""; position: absolute; left: 120%; top: 0; width: 100%; height: 100%; border-radius: 50%; background: inherit; }
+.vb-eye:last-of-type::after { left: auto; right: 120%; }
+.vb-led { position: absolute; left: calc(var(--s) * 18); right: calc(var(--s) * 18); bottom: calc(var(--s) * -2); height: calc(var(--s) * 5); border-radius: 99px; background: color-mix(in srgb, var(--led) calc(var(--led-on) * 100%), #77736b); box-shadow: 0 0 calc(var(--s) * 10) calc(var(--s) * 1) color-mix(in srgb, var(--led) calc(var(--led-on) * 90%), transparent), 0 calc(var(--s) * 6) calc(var(--s) * 30) calc(var(--s) * 4) color-mix(in srgb, var(--led) calc(var(--led-on) * 55%), transparent); transition: background 1.2s ease, box-shadow 1.2s ease; }
+.vb-glow { position: absolute; left: 4%; right: 4%; top: 100%; height: calc(var(--s) * 120); background: radial-gradient(60% 100% at 50% 0, color-mix(in srgb, var(--led) calc(var(--led-on) * 40%), transparent), transparent 70%); transition: background 1.2s ease; pointer-events: none; mix-blend-mode: screen; }
+
+/* text beside the demo: no box, an eyebrow with a short line in the LED colour, then the words */
+.slide.demo .v1-side, .slide.demo .v2-copy { background: none !important; box-shadow: none !important; border-radius: 0; padding: 0 0 0 calc(var(--s) * 8); }
+.slide.demo .v1-item { padding: 0; }
+.demo-eyebrow { display: flex; align-items: center; gap: calc(var(--s) * 10); margin-bottom: calc(var(--s) * 18); font-size: max(calc(var(--s) * 15), 10px); font-weight: 500; letter-spacing: .01em; color: var(--ink-3); }
+.demo-eyebrow i { width: calc(var(--s) * 28); height: calc(var(--s) * 4); border-radius: 99px; background: color-mix(in srgb, var(--led) calc(30% + var(--led-on) * 70%), #c9c6bf); box-shadow: 0 0 calc(var(--s) * 10) color-mix(in srgb, var(--led) calc(var(--led-on) * 70%), transparent); transition: background 1.2s ease, box-shadow 1.2s ease; }
+.slide.demo .v1-item h3, .slide.demo .v2-copy h3 { font-size: max(calc(var(--s) * 48), 24px); letter-spacing: -.03em; line-height: 1.05; }
+.slide.demo .v1-lead, .slide.demo .v2-copy .v2-lead { font-size: max(calc(var(--s) * 24), 14px); color: var(--ink); margin-top: calc(var(--s) * 14); }
+.slide.demo .v1-body, .slide.demo .v2-copy .v2-text > p:last-child { font-size: max(calc(var(--s) * 18), 12px); line-height: 1.55; color: var(--ink-2); max-width: 30ch; margin-top: calc(var(--s) * 14); }
+.slide.demo .v2-copy .v2-text { gap: 0; }
+.slide.demo .v2-copy .demo-eyebrow { font-size: max(calc(var(--s) * 15), 10px); margin-bottom: calc(var(--s) * 18); }
+.slide.demo .v1-item h3, .slide.demo .v2-copy h3 { font-size: max(calc(var(--s) * 42), 22px); }
+.slide.demo .v2-copy .v2-lead { line-height: 1.3; }

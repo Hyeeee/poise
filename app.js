@@ -69,6 +69,8 @@ function light(state, rgb, fast, tone) {
   const bright = (store.state.brightness ?? 100) / 100;
   if (bright < 1) rgb = (rgb || PRESET_RGB[state] || PRESET_RGB.idle).map(v => Math.round(v * bright));
   $('state-agent').dataset.mood = state === 'white' ? 'green' : state;
+  // the deck mirrors the LED on a virtual light bar when the app runs inside it
+  dispatchEvent(new CustomEvent('poise-light', { detail: { state, rgb: rgb || PRESET_RGB[state] || PRESET_RGB.idle } }));
   const msg = rgb ? `RGB ${rgb.join(' ')}${fast ? ' ' + fast : ''}` : state.toUpperCase();
   if (writer && (lastSerial !== msg || performance.now() - lastSerialTime > 1000) && !serialBusy) {
     serialBusy = true;
@@ -1338,7 +1340,7 @@ if (Recognition) {
         const lvl = Math.min(1, Math.sqrt(sum / data.length) / 28);
         // Same mark as the voice cards: a gentle idle wave, taller when you speak.
         const t = performance.now() / 1000;
-        bars.forEach((b, i) => { const idle = .35 + .2 * (Math.sin(t * 6 + i * 1.1) + 1) / 2; b.style.height = `${(16 * Math.min(1, idle + lvl * [0.6, .8, .7][i])).toFixed(1)}px`;   // height, not scale, so the round ends stay round });
+        bars.forEach((b, i) => { const idle = .35 + .2 * (Math.sin(t * 6 + i * 1.1) + 1) / 2; b.style.height = `${(16 * Math.min(1, idle + lvl * [0.6, .8, .7][i])).toFixed(1)}px`; });   // height, not scale, so the round ends stay round
         raf = requestAnimationFrame(tick);
       };
       tick();

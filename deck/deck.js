@@ -555,10 +555,22 @@ const V1 = Layers('v1');
     new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
   });
 })();
+// Virtual light bar: mirrors what the app sends to the real bar. The app fires 'poise-light' with the
+// LED colour each time it sends one; the colour is scaled up to full brightness for the strip and its
+// brightness drives how strong the glow is (idle is nearly off, white is soft, amber and red glow).
+const mirrorLight = (fr, slide) => {
+  const set = rgb => { const m = Math.max(...rgb, 1), k = 255 / m, c = rgb.map(v => Math.round(v * k));
+    slide.style.setProperty('--led', `rgb(${c.join(',')})`); slide.style.setProperty('--led-on', Math.min(1, (m - 30) / 160).toFixed(2)); };
+  set([40, 45, 50]);
+  fr.addEventListener('load', () => { try { fr.contentWindow.addEventListener('poise-light', e => set(e.detail.rgb)); } catch {} });
+};
 // Version one: the real app runs live in the laptop. The text card follows whatever screen is up in the app.
 (() => {
   const card = document.querySelector('.v1-card'); if (!card) return;
   const sl = card.closest('.slide'), box = card.querySelector('.live-v1'), fr = box.querySelector('iframe');
+  mirrorLight(fr, sl);
+  // the eyebrow over each text: a small line in the LED colour
+  card.querySelectorAll('.v1-item').forEach(i => i.insertAdjacentHTML('afterbegin', '<p class="demo-eyebrow"><i></i>Version one, live</p>'));
   // the app is laid out at 1440 x 900 like a laptop, then scaled down to fit the mockup
   const fit = () => { fr.style.transform = `scale(${box.clientWidth / 1440})`; };
   new ResizeObserver(fit).observe(box); fit();
@@ -631,13 +643,14 @@ const V1 = Layers('v1');
   const wrap = document.createElement('div'); wrap.className = 'v2-live';
   const fr = document.createElement('iframe'); fr.title = 'Poise version two, live'; fr.allow = 'camera; microphone; serial; autoplay; fullscreen';
   wrap.append(fr); document.body.append(wrap);
+  mirrorLight(fr, slots[0].closest('.slide'));
   let on = false, slot = null, poll = 0, lastShown = '';
   const copyOf = s => s.closest('.slide').querySelector('.v2-copy');
   const say = (card, row) => { const t = card.querySelector('.v2-text'); if (t.dataset.k === row[0]) return;
     t.classList.add('out'); setTimeout(() => { t.dataset.k = row[0]; t.innerHTML = `<h3>${row[1]}</h3><p class="v2-lead">${row[2]}</p><p>${row[3]}</p>`; t.classList.remove('out'); }, 220); };
   const reset = s => { const t = copyOf(s).querySelector('.v2-text'); if (!t._def) t._def = t.innerHTML; t.innerHTML = t._def; t.dataset.k = ''; };
   const vis = (d, sel) => [...d.querySelectorAll(sel)].some(e => !e.hidden && e.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }));
-  const until = async (fn, ms = 8000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { try { if (fn()) return true; } catch {} await new Promise(r => setTimeout(r, 150)); } return false; };
+  const until = async (fn, ms = 20000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { try { if (fn()) return true; } catch {} await new Promise(r => setTimeout(r, 150)); } return false; };
   async function boot() {
     fr.src = '../'; await new Promise(r => fr.onload = r);
     const d = fr.contentDocument;

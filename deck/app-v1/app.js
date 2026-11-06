@@ -56,6 +56,8 @@ function light(state, rgb, fast) {
   const bright = (store.state.brightness ?? 100) / 100;
   if (bright < 1) rgb = (rgb || PRESET_RGB[state] || PRESET_RGB.idle).map(v => Math.round(v * bright));
   $('state-agent').dataset.mood = state === 'white' ? 'green' : state;
+  // the deck mirrors the LED on a virtual light bar when the app runs inside it
+  dispatchEvent(new CustomEvent('poise-light', { detail: { state, rgb: rgb || PRESET_RGB[state] || PRESET_RGB.idle } }));
   const msg = rgb ? `RGB ${rgb.join(' ')}${fast ? ' ' + fast : ''}` : state.toUpperCase();
   if (writer && (lastSerial !== msg || performance.now() - lastSerialTime > 1000) && !serialBusy) {
     serialBusy = true;
