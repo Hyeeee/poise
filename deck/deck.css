@@ -2022,3 +2022,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* fit the 16:10 app inside the grey box on any screen: as wide as it can be while keeping room above and below */
 .pz-visual.pz-screens { container-type: size; }
 .pz-frame.pz-live { width: min(88cqw, 82cqh * 1.6); max-width: none; height: auto; }
+/* the tap dot: pressing just fills it white, no green */
+.v1-tap.press { background: rgba(255,255,255,.95); }
+.v1-tap::after { border-color: rgba(255,255,255,.8); }
