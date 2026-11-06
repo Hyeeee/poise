@@ -577,7 +577,7 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
 (() => {
   const card = document.querySelector('.v1-motion .v1-card'); if (!card) return;
   const sl = card.closest('.slide'), box = card.querySelector('.live-v1'), fr = box.querySelector('iframe'), tap = box.querySelector('.v1-tap');
-  const KEYS = ['onb', 'work', 'brk', 'report', 'ai', 'set'];
+  const KEYS = ['onb', 'work', 'brk', 'ai', 'set'];
   // where each part starts: a demo route that fast forwards the app to that screen
   const START = { onb: 'welcome', work: 'aligned', brk: 'aligned', report: 'aligned', ai: 'aligned', set: 'aligned' };
   mirrorLight(fr, sl);
