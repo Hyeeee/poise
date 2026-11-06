@@ -776,3 +776,9 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 #empty-camera:not(.sensor-on)[hidden] { display: none; }
 #empty-camera #cam-skip { margin: 0; }
 #empty-camera:not(.sensor-on) #enable, #empty-camera:not(.sensor-on) #cam-skip { white-space: nowrap; }
+/* camera, light bar and reference cards share one pattern: the main action fills the card, a plain text choice sits under it */
+#empty-camera:not(.sensor-on), #bar-prompt .row { display: flex; flex-direction: column; align-items: stretch; gap: 6px; flex-wrap: nowrap; }
+#empty-camera:not(.sensor-on)[hidden] { display: none; }
+#empty-camera:not(.sensor-on) .say { flex-basis: auto; }
+#empty-camera #enable, #bar-prompt #bar-connect, #ref-prompt #ref-set { width: 100%; margin: 0; }
+#empty-camera #cam-skip, #bar-prompt #bar-skip { align-self: center; margin: 0; }
