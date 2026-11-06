@@ -594,10 +594,60 @@ const mirrorLight = (fr, slide) => {
   };
   new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); show('onb'); sync();
 })();
+// Meet Poise: the real version one app plays itself in the frame. It runs in demo mode (a stand-in camera
+// and pose, no sound) and a script taps through it like a person would, so every transition is the app's own.
 (() => {
-  const st = document.querySelector('.pz-frame .v1-stage'); if (!st) return;
-  const sl = st.closest('.slide'), pl = V1.player(st); let on = false;
-  const sync = () => { const o = sl.classList.contains('open'); if (o && !on) { on = true; pl.play(['onb', 'work', 'brk', 'set']); } if (!o && on) { on = false; pl.stop(); } };
+  const box = document.querySelector('.pz-live'); if (!box) return;
+  const sl = box.closest('.slide'), fr = box.querySelector('iframe'), tap = box.querySelector('.v1-tap');
+  const fit = () => { fr.style.transform = `scale(${box.clientWidth / 1440})`; };
+  new ResizeObserver(fit).observe(box); fit();
+  let run = 0;
+  const W = ms => new Promise(r => setTimeout(r, ms));
+  const park = () => { tap.style.left = '72%'; tap.style.top = '112%'; };
+  async function play(my) {
+    const alive = () => my === run;
+    const d = () => fr.contentDocument, win = () => fr.contentWindow;
+    const vis = s => { try { const e = d().querySelector(s); return !!e && !e.hidden && e.checkVisibility({ opacityProperty: true, visibilityProperty: true }); } catch { return false; } };
+    const until = async (s, ms = 12000) => { const t = Date.now() + ms; while (alive() && Date.now() < t) { if (vis(s)) return true; await W(150); } return false; };
+    // move the dot to the element, hover, press, then click it for real
+    const press = async (s, hold = 380) => { if (!alive() || !(await until(s, 6000))) return false; const e = d().querySelector(s), r = e.getBoundingClientRect();
+      tap.style.left = ((r.left + r.width / 2) / 1440 * 100) + '%'; tap.style.top = ((r.top + r.height / 2) / 900 * 100) + '%';
+      await W(720); tap.classList.add('hover'); await W(hold); tap.classList.remove('hover'); tap.classList.add('press'); await W(170); tap.classList.remove('press'); if (alive()) e.click(); return true; };
+    const pose = P => { try { win().__P = P; } catch {} };
+    while (alive()) {
+      park(); fr.src = 'app-v1/?demo=welcome&paint=1'; await new Promise(r => fr.onload = r); if (!alive()) return;
+      await W(1800);
+      // onboarding: a few answers, then save
+      await press('#start'); await W(1200);
+      for (let i = 0; i < 9 && alive(); i++) {
+        await until('#setup-choices.in button', 15000); await W(1300);
+        if (vis('#setup-save')) { await press('#setup-save'); break; }
+        if (d().querySelector('#setup-choices .quick-chip')) { await press('#setup-choices .quick-chip:nth-of-type(2)'); await W(500); await press('#setup-choices .choice.next'); }
+        else await press('#setup-choices button.choice');
+        await W(700);
+      }
+      await W(1500);
+      // into work: camera on, skip the light bar, save the reference, skip the tour
+      pose({});
+      for (const s of ['#enable', '#bar-skip', '#ref-set']) { if (await until(s, 4000)) { await press(s); await W(1400); } }
+      if (await until('#tour-skip', 4000)) { await W(1200); await press('#tour-skip'); }
+      park(); await W(2500);
+      // lean in, the card warms; sit back, it settles
+      pose({ fwd: 2.4 }); await W(7000); pose({}); await W(4500);
+      // a break, then settings
+      await press('#break'); await W(1200);
+      for (let i = 0; i < 14 && alive() && vis('#tour-next'); i++) { d().querySelector('#tour-next').click(); await W(250); }
+      park(); await W(6500);
+      await press('#work'); await W(1500);
+      await press('#open-modes'); await W(1800);
+      await press('#modes-tabs [data-tab="break"]'); await W(1800);
+      await press('#modes .sheet-head .icon-btn'); await W(1500);
+      park(); await W(1200);
+    }
+  }
+  const sync = () => { const o = sl.classList.contains('open');
+    if (o && !box._on) { box._on = 1; play(++run); }
+    if (!o && box._on) { box._on = 0; run++; fr.onload = null; fr.src = 'about:blank'; } };
   new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); sync();
 })();
 
