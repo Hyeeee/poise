@@ -1092,8 +1092,10 @@ function renderEditor() {
     </div></div>`;
   if (tab === 'work') {
     html += field('Focus length', numSeg('focus', CHOICES.focus, m.focus, v => v + ' min'));
-    html += field('Sensitivity', ddHTML('s:sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
-    html += field('Remind me after', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
+    // plain names: what counts as drifting, and how long to wait before the cue
+    const NOTICE = { gentle: 'Only big changes', balanced: 'Clear slouches', firm: 'Small shifts' };
+    html += field('When to notice', ddHTML('s:sensitivity', SENS_ORDER.map(k => [k, NOTICE[k]]), m.sensitivity));
+    html += field('Cue after drifting for', numSeg('delay', CHOICES.delay, m.delay, v => v + ' sec'));
   } else {
     html += field('Style', ddHTML('s:style', [['stretch', 'Stretch'], ['breathe', 'Breathe'], ['game', 'Game']], m.style));
     html += m.style === 'stretch' ? field('Stretches', numSeg('count', CHOICES.count, m.count, v => v + ' stretches'))
