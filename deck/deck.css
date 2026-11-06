@@ -2055,21 +2055,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .vb-clip::after { content: ""; position: absolute; left: 0; right: 0; top: calc(var(--s) * 9); height: calc(var(--s) * 16); border-radius: calc(var(--s) * 5) calc(var(--s) * 5) calc(var(--s) * 7) calc(var(--s) * 7); background: linear-gradient(#c8cacd, #a3a6aa); box-shadow: 0 calc(var(--s) * 4) calc(var(--s) * 8) rgba(20,20,18,.3); }
 .vb-eyes i { width: calc(var(--s) * 24); } .vb-eyes { gap: calc(var(--s) * 8); }
 
-/* One chip for the whole deck: frosted glass, no outline, a soft lift. Colour only lives in the text. */
-.meta-chips span, .iv-tags em, .mk-over-tag, .hy-tag, .slide:not(.an-th) .an-tag, .pain-tag, .it-card li b .pr {
-  background: rgba(255,255,255,.42) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5);
-  border: 0 !important; outline: 0;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(20,20,18,.03), 0 calc(var(--s) * 6) calc(var(--s) * 18) calc(var(--s) * -8) rgba(20,20,18,.22) !important;
-  border-radius: 99px; }
-/* on a white card the glass needs a faint tint to read as a chip */
-.card .meta-chips span, .iv-card .iv-tags em, .an-card .an-tag, .it-card li b .pr, .hy-main .hy-tag, .mk-over .mk-over-tag, .next-hw .an-tag { background: rgba(244,243,238,.8) !important; }
-.meta-chips span { color: var(--ink-2); }
+
 /* interview card backs: the same space under the divider as above it, the three notes spread down to the card's padding */
 .iv-back .iv-who { padding-bottom: calc(var(--s) * 24); }
 .iv-back .iv-learn { padding-top: calc(var(--s) * 24); justify-content: space-between; gap: calc(var(--s) * 24); }
 /* chips on a flipping card keep the glass look without the backdrop blur, which shows through the turned face */
-.iv-card .iv-tags em { -webkit-backdrop-filter: none; backdrop-filter: none; }
 .iv-face { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 /* Version one parts: no title, a bigger laptop, the step number alone (no line) */
 .v1-motion .v1-card { margin-top: calc(var(--s) * 56); }
@@ -2136,3 +2126,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.demo .ba-screen { box-shadow: 0 0 0 calc(var(--s) * 26) #1b1b1b, 0 calc(var(--s) * 30) calc(var(--s) * 60) calc(var(--s) * -24) rgba(20,20,18,.45); }
 .v1-card .v1-dev > .cam-dot, .slide.demo .ba-shot > .cam-dot { top: calc(var(--s) * 13); }
 .slide.demo .ba-shot > .lbar { bottom: calc(100% + var(--s) * 6); }
+/* more air between the light bar and the top of the bezel */
+.v1-card .v1-dev > .lbar, .slide.demo .ba-shot > .lbar { bottom: calc(100% + var(--s) * 22); }
+.slide.demo .v1-card, .slide.demo .solo-row { margin-top: calc(var(--s) * 64); }
+.meta-chips span { box-shadow: none; background: rgba(255,255,255,.7); }
