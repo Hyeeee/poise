@@ -2218,3 +2218,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .qm-b small + i.v2 ~ em, .qm-b:has(.v2) small { color: #2e8a4f; }
 .slide.open .qm-b i { width: calc(var(--w) * 60%); }
 .qm-bars { gap: calc(var(--s) * 18); }
+/* version one: the same gap between the box and the light strip as version two */
+.v1-motion .lbar .vb-led { bottom: calc(var(--s) * -7); left: calc(var(--s) * 34); right: calc(var(--s) * 34); height: calc(var(--s) * 5); }
