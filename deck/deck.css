@@ -2213,3 +2213,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .meta-chips .draft-chip { background: #fbe9e7 !important; color: #b3392b !important; }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .qm-row { grid-template-columns: 1fr; } }
 .qm-row { flex: 0 1 auto; } .qm-bars { margin-top: calc(var(--s) * 36); padding-top: calc(var(--s) * 28); border-top: 1px solid rgba(20,20,18,.07); gap: calc(var(--s) * 22); } .qm-b { height: calc(var(--s) * 22); } .qm-b i { height: calc(var(--s) * 12); }
+/* bars labelled in place, no separate legend */
+.qm-b small { flex: none; width: calc(var(--s) * 92); font-size: max(calc(var(--s) * 13), 9px); color: var(--ink-3); }
+.qm-b small + i.v2 ~ em, .qm-b:has(.v2) small { color: #2e8a4f; }
+.slide.open .qm-b i { width: calc(var(--w) * 60%); }
+.qm-bars { gap: calc(var(--s) * 18); }
