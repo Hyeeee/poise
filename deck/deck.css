@@ -1989,7 +1989,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.demo .ba-shot { position: relative; }
 
 /* the light bar: a matte housing with the two distance sensor eyes, an LED strip along its lower edge */
-.vbar { position: absolute; z-index: 3; left: 50%; bottom: calc(100% - var(--s) * 6); translate: -50% 0; width: 56%; height: calc(var(--s) * 34); border-radius: calc(var(--s) * 9); background: linear-gradient(#efece6, #dcd8cf); box-shadow: 0 calc(var(--s) * 8) calc(var(--s) * 18) calc(var(--s) * -8) rgba(20,20,18,.35), inset 0 1px 0 rgba(255,255,255,.8); display: flex; align-items: center; justify-content: space-between; padding: 0 calc(var(--s) * 14); pointer-events: none; }
+.lbar { position: absolute; z-index: 3; left: 50%; bottom: calc(100% - var(--s) * 6); translate: -50% 0; width: 56%; height: calc(var(--s) * 34); border-radius: calc(var(--s) * 9); background: linear-gradient(#efece6, #dcd8cf); box-shadow: 0 calc(var(--s) * 8) calc(var(--s) * 18) calc(var(--s) * -8) rgba(20,20,18,.35), inset 0 1px 0 rgba(255,255,255,.8); display: flex; align-items: center; justify-content: space-between; padding: 0 calc(var(--s) * 14); pointer-events: none; }
 .vb-eye { width: calc(var(--s) * 15); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #5a5d60 0 18%, #1d1f21 22% 62%, #9a978f 66%); box-shadow: calc(var(--s) * 18) 0 0 0 transparent; position: relative; }
 .vb-eye::after { content: ""; position: absolute; left: 120%; top: 0; width: 100%; height: 100%; border-radius: 50%; background: inherit; }
 .vb-eye:last-of-type::after { left: auto; right: 120%; }
@@ -2016,9 +2016,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .pz-frame.pz-live { width: 88%; height: auto; max-width: 88%; aspect-ratio: 16 / 10; }
 
 /* the virtual light bar, as simple as the light bar slide: a dark bar, a grey strip, the LED line under it */
-.vbar { width: 52%; height: calc(var(--s) * 52); bottom: calc(100% - var(--s) * 4); border-radius: calc(var(--s) * 12); background: #2a2a28; box-shadow: 0 calc(var(--s) * 10) calc(var(--s) * 22) calc(var(--s) * -10) rgba(20,20,18,.45); display: block; padding: 0; }
-.vbar::before { content: ""; position: absolute; left: calc(var(--s) * 16); right: calc(var(--s) * 16); top: calc(var(--s) * 11); height: calc(var(--s) * 15); border-radius: 99px; background: #8b8f8f; }
-.vbar .vb-led { left: calc(var(--s) * 16); right: calc(var(--s) * 16); bottom: calc(var(--s) * 10); height: calc(var(--s) * 5); background: color-mix(in srgb, var(--led) calc(25% + var(--led-on) * 75%), #55554f); box-shadow: 0 0 calc(var(--s) * 18) color-mix(in srgb, var(--led) calc(var(--led-on) * 85%), transparent); }
+.lbar { width: 52%; height: calc(var(--s) * 52); bottom: calc(100% - var(--s) * 4); border-radius: calc(var(--s) * 12); background: #2a2a28; box-shadow: 0 calc(var(--s) * 10) calc(var(--s) * 22) calc(var(--s) * -10) rgba(20,20,18,.45); display: block; padding: 0; }
+.lbar::before { content: ""; position: absolute; left: calc(var(--s) * 16); right: calc(var(--s) * 16); top: calc(var(--s) * 11); height: calc(var(--s) * 15); border-radius: 99px; background: #8b8f8f; }
+.lbar .vb-led { left: calc(var(--s) * 16); right: calc(var(--s) * 16); bottom: calc(var(--s) * 10); height: calc(var(--s) * 5); background: color-mix(in srgb, var(--led) calc(25% + var(--led-on) * 75%), #55554f); box-shadow: 0 0 calc(var(--s) * 18) color-mix(in srgb, var(--led) calc(var(--led-on) * 85%), transparent); }
 /* fit the 16:10 app inside the grey box on any screen: as wide as it can be while keeping room above and below */
 .pz-visual.pz-screens { container-type: size; }
 .pz-frame.pz-live { width: min(88cqw, 82cqh * 1.6); max-width: none; height: auto; }
@@ -2039,14 +2039,14 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 
 /* the virtual light bar: a silver bar about as wide as the screen, sensor eyes at each end, a light strip
    underneath, held on top of the screen by a small clip */
-.vbar { width: 94%; height: calc(var(--s) * 36); bottom: calc(100% + var(--s) * 10); border-radius: 99px; padding: 0 calc(var(--s) * 22);
+.lbar { width: 94%; height: calc(var(--s) * 36); bottom: calc(100% + var(--s) * 10); border-radius: 99px; padding: 0 calc(var(--s) * 22);
   background: linear-gradient(180deg, #d9dadb 0%, #c3c5c7 45%, #a9acaf 100%);
   box-shadow: inset 0 calc(var(--s) * 2) calc(var(--s) * 2) rgba(255,255,255,.6), inset 0 calc(var(--s) * -3) calc(var(--s) * 4) rgba(0,0,0,.12), 0 calc(var(--s) * 14) calc(var(--s) * 24) calc(var(--s) * -12) rgba(20,20,18,.45);
   display: flex; align-items: center; justify-content: space-between; }
-.vbar::before { content: none; }
+.lbar::before { content: none; }
 .vb-eyes { display: flex; gap: calc(var(--s) * 7); position: relative; z-index: 1; }
 .vb-eyes i { display: block; width: calc(var(--s) * 20); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 50% 50%, #3b3d3f 0 30%, #232426 34% 60%, #9fa2a5 64% 72%, #6f7275 76%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.35); }
-.vbar .vb-led { position: absolute; left: calc(var(--s) * 18); right: calc(var(--s) * 18); bottom: calc(var(--s) * 2); height: calc(var(--s) * 4); border-radius: 99px;
+.lbar .vb-led { position: absolute; left: calc(var(--s) * 18); right: calc(var(--s) * 18); bottom: calc(var(--s) * 2); height: calc(var(--s) * 4); border-radius: 99px;
   background: color-mix(in srgb, var(--led) calc(20% + var(--led-on) * 80%), #e9e7e1);
   box-shadow: 0 calc(var(--s) * 2) calc(var(--s) * 10) color-mix(in srgb, var(--led) calc(var(--led-on) * 90%), transparent), 0 calc(var(--s) * 8) calc(var(--s) * 34) calc(var(--s) * 6) color-mix(in srgb, var(--led) calc(var(--led-on) * 55%), transparent); }
 /* the clip: a short neck under the middle of the bar and a lip that hooks over the top of the screen */
@@ -2054,3 +2054,14 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .vb-clip::before { content: ""; position: absolute; left: 18%; right: 18%; top: 0; height: calc(var(--s) * 12); background: linear-gradient(#b9bcbf, #9a9da1); }
 .vb-clip::after { content: ""; position: absolute; left: 0; right: 0; top: calc(var(--s) * 9); height: calc(var(--s) * 16); border-radius: calc(var(--s) * 5) calc(var(--s) * 5) calc(var(--s) * 7) calc(var(--s) * 7); background: linear-gradient(#c8cacd, #a3a6aa); box-shadow: 0 calc(var(--s) * 4) calc(var(--s) * 8) rgba(20,20,18,.3); }
 .vb-eyes i { width: calc(var(--s) * 24); } .vb-eyes { gap: calc(var(--s) * 8); }
+
+/* One chip for the whole deck: frosted glass, no outline, a soft lift. Colour only lives in the text. */
+.meta-chips span, .iv-tags em, .mk-over-tag, .hy-tag, .slide:not(.an-th) .an-tag, .pain-tag, .it-card li b .pr {
+  background: rgba(255,255,255,.42) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5);
+  border: 0 !important; outline: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(20,20,18,.03), 0 calc(var(--s) * 6) calc(var(--s) * 18) calc(var(--s) * -8) rgba(20,20,18,.22) !important;
+  border-radius: 99px; }
+/* on a white card the glass needs a faint tint to read as a chip */
+.card .meta-chips span, .iv-card .iv-tags em, .an-card .an-tag, .it-card li b .pr, .hy-main .hy-tag, .mk-over .mk-over-tag, .next-hw .an-tag { background: rgba(244,243,238,.8) !important; }
+.meta-chips span { color: var(--ink-2); }
