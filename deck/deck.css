@@ -2065,3 +2065,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* on a white card the glass needs a faint tint to read as a chip */
 .card .meta-chips span, .iv-card .iv-tags em, .an-card .an-tag, .it-card li b .pr, .hy-main .hy-tag, .mk-over .mk-over-tag, .next-hw .an-tag { background: rgba(244,243,238,.8) !important; }
 .meta-chips span { color: var(--ink-2); }
+/* interview card backs: the same space under the divider as above it, the three notes spread down to the card's padding */
+.iv-back .iv-who { padding-bottom: calc(var(--s) * 24); }
+.iv-back .iv-learn { padding-top: calc(var(--s) * 24); justify-content: space-between; gap: calc(var(--s) * 24); }
+/* chips on a flipping card keep the glass look without the backdrop blur, which shows through the turned face */
+.iv-card .iv-tags em { -webkit-backdrop-filter: none; backdrop-filter: none; }
+.iv-face { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
