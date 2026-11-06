@@ -1974,3 +1974,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* voice bars: change the bar height (centered), never scale it, so the round ends keep the same radius */
 .ls-w { transform: none !important; animation: lsWaveH 1s ease-in-out infinite; }
 @keyframes lsWaveH { 0%, 100% { height: calc(var(--h) * 1px); y: calc(var(--h) * -.5px); } 50% { height: calc(var(--h) * .45px); y: calc(var(--h) * -.225px); } }
+.story.intro .key .k2 { color: var(--ink); }
