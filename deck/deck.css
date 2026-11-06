@@ -2182,3 +2182,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* version two playtest has fewer notes: the cards sit lower, centred in the space under the title */
 .slide[data-title="Testing version two"] .an-row { margin-top: auto; margin-bottom: auto; }
 .vv-table .it-head { border-bottom: 0; padding-bottom: 0; margin-bottom: calc(var(--s) * 12); } .vv-table table { height: auto; flex: 1; }
+.draft-tag { margin-left: calc(var(--s) * 10); font-style: normal; font-size: max(calc(var(--s) * 13), 9px); font-weight: 500; padding: calc(var(--s) * 4) calc(var(--s) * 10); border-radius: 99px; background: #fbe9e7; color: #b3392b; vertical-align: 3px; }
