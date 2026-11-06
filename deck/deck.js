@@ -730,13 +730,14 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
     ['#work', 'Focus', 'Back to work.', 'The figure picks up where you left off.'],
     ['#tour', 'A shorter guide', 'Twelve steps became four.', 'Grouped by what they cover, and the rest is explained while you use it.'],
   ];
+  const FOCUS = ['#work-panel', 'Focus mode', 'You, at a glance.', 'The figure follows how you sit next to a dashed outline of your reference, and the card takes the colour of your state. The light bar says the same at the edge of your view.'];
   // cards that come up on their own also change the text, the topmost first
-  const SHOWN = ['#modes', '#report', '#tour', '#bar-prompt', '#ref-prompt', '#break-panel, #game-panel, #breathe-panel'];
+  const SHOWN = ['#modes', '#report', '#tour', '#bar-prompt', '#ref-prompt', '#break-panel, #game-panel, #breathe-panel', '#empty-camera'];
   const wrap = document.createElement('div'); wrap.className = 'v2-live';
   const fr = document.createElement('iframe'); fr.title = 'Poise version two, live'; fr.allow = 'camera; microphone; serial; autoplay; fullscreen';
   wrap.append(fr); document.body.append(wrap);
   mirrorLight(fr, slots[0].closest('.slide'));
-  let on = false, slot = null, poll = 0, lastShown = '';
+  let on = false, slot = null, poll = 0, lastShown = '', focusSaid = false;
   const copyOf = s => s.closest('.slide').querySelector('.v2-copy');
   const say = (card, row) => { const t = card.querySelector('.v2-text'); if (t.dataset.k === row[0]) return;
     t.classList.add('out'); setTimeout(() => { t.dataset.k = row[0]; t.innerHTML = `<h3>${row[1]}</h3><p>${row[3]}</p>`; t.classList.remove('out'); }, 220); };
@@ -750,7 +751,9 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
     // straight to the camera card: Begin, then skip the setup questions
     if (await until(() => vis(d, '#start'))) d.getElementById('start').click();
     if (await until(() => vis(d, '#setup-skip'))) d.getElementById('setup-skip').click();
-    poll = setInterval(() => { if (!slot) return; const k = SHOWN.find(sel => vis(d, sel)) || ''; if (k !== lastShown) { lastShown = k; if (k) { const row = T.find(r => r[0].split(', ').some(x => k.includes(x))); if (row) say(copyOf(slot), row); } } }, 300);
+    poll = setInterval(() => { if (!slot) return; const k = SHOWN.find(sel => vis(d, sel)) || ''; if (k !== lastShown) { lastShown = k; if (k) { focusSaid = false; const row = T.find(r => r[0].split(', ').some(x => k.includes(x))); if (row) say(copyOf(slot), row); } }
+      // no card up and the focus screen is showing: explain focus mode once, until another card comes up
+      if (!k && !focusSaid && vis(d, '#work-panel')) { focusSaid = true; say(copyOf(slot), FOCUS); } }, 300);
   }
   const fit = () => {
     if (slot) { const r = slot.getBoundingClientRect(), sh = slot.closest('.ba-shot');
@@ -760,7 +763,7 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
   };
   const sync = () => {
     const open = slots.find(s => s.closest('.slide').classList.contains('open')) || null;
-    if (open !== slot) { slot = open; lastShown = ''; if (open) reset(open); }
+    if (open !== slot) { slot = open; lastShown = ''; focusSaid = false; if (open) reset(open); }
     if (open && !on) { on = true; wrap.classList.add('on'); boot(); fit(); }
     if (!open && on) { on = false; wrap.classList.remove('on'); clearInterval(poll); fr.onload = null; fr.src = 'about:blank'; }
   };
