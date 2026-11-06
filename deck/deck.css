@@ -2141,3 +2141,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .pt-c img { object-position: 50% 8%; }
 /* no browser focus ring anywhere in the deck (the progress bar parts, links, cards); keys still work */
 .deck *:focus, .deck *:focus-visible, :focus-visible { outline: none !important; }
+/* version one text: every part starts at the same spot, and only the words cross fade */
+.v1-motion .v1-item { justify-content: flex-start; padding-top: 36%; transform: none !important; transition: opacity .45s ease; }
+.v1-motion .v1-item:not(.on) { transition-duration: .25s; }
+.v1-motion .v1-item { padding-top: 0; inset: auto 0 auto 0; top: 36%; }
