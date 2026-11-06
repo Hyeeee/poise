@@ -8,6 +8,8 @@
   const q = new URLSearchParams(location.search), state = q.get('demo');
   if (!state) return;
   document.documentElement.classList.add('demo');
+  // the stand-in camera is a flat grey picture, so keep it out of view and let the painted backdrop show
+  document.addEventListener('DOMContentLoaded', () => { const st = document.createElement('style'); st.textContent = '#camera, .studio > video { visibility: hidden !important; }'; document.head.append(st); });
 
   // 1. Storage in memory
   const mem = () => { const m = new Map(); return { getItem: k => m.has(k) ? m.get(k) : null, setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), clear: () => m.clear(), key: i => [...m.keys()][i] ?? null, get length() { return m.size; } }; };
@@ -26,7 +28,7 @@
   HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
   if ('speechSynthesis' in window) { speechSynthesis.speak = u => setTimeout(() => { u.onstart?.(); u.onend?.(); }, 10); }
   // a sound engine that accepts every call and does nothing
-  const noop = new Proxy(function () {}, { get: (_, k) => k === 'currentTime' ? 0 : k === 'state' ? 'suspended' : k === 'value' ? 0 : k === Symbol.toPrimitive ? () => 0 : k === 'then' ? undefined : noop, apply: () => noop, construct: () => noop, set: () => true });
+  const noop = new Proxy(function () {}, { get: (_, k) => ['resume', 'suspend', 'close'].includes(k) ? () => Promise.resolve() : k === 'currentTime' ? 0 : k === 'state' ? 'suspended' : k === 'value' ? 0 : k === Symbol.toPrimitive ? () => 0 : k === 'then' ? undefined : noop, apply: () => noop, construct: () => noop, set: () => true });
   window.AudioContext = window.webkitAudioContext = noop;
 
   // 5. No painted backdrop unless asked (keeps the number of WebGL contexts down in the deck)

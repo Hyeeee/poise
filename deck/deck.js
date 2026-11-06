@@ -564,35 +564,66 @@ const mirrorLight = (fr, slide) => {
   set([40, 45, 50]);
   fr.addEventListener('load', () => { try { fr.contentWindow.addEventListener('poise-light', e => set(e.detail.rgb)); } catch {} });
 };
-// Version one: the real app runs live in the laptop. The text card follows whatever screen is up in the app.
+// Version one: one part of the app per step. Each part is the real version one app in demo mode (a stand-in
+// camera and pose, no sound), brought to the right screen, then a script plays that part on a loop with a tap dot.
 (() => {
-  const card = document.querySelector('.v1-card'); if (!card) return;
-  const sl = card.closest('.slide'), box = card.querySelector('.live-v1'), fr = box.querySelector('iframe');
+  const card = document.querySelector('.v1-motion .v1-card'); if (!card) return;
+  const sl = card.closest('.slide'), box = card.querySelector('.live-v1'), fr = box.querySelector('iframe'), tap = box.querySelector('.v1-tap');
+  const KEYS = ['onb', 'work', 'brk', 'report', 'ai', 'set'];
+  // where each part starts: a demo route that fast forwards the app to that screen
+  const START = { onb: 'welcome', work: 'aligned', brk: 'aligned', report: 'aligned', ai: 'aligned', set: 'aligned' };
   mirrorLight(fr, sl);
-  // the eyebrow over each text: a small line in the LED colour
-  card.querySelectorAll('.v1-item').forEach(i => i.insertAdjacentHTML('afterbegin', '<p class="demo-eyebrow"><i></i>Version one, live</p>'));
-  // the app is laid out at 1440 x 900 like a laptop, then scaled down to fit the mockup
   const fit = () => { fr.style.transform = `scale(${box.clientWidth / 1440})`; };
   new ResizeObserver(fit).observe(box); fit();
-  const vis = (d, id) => { const e = d.getElementById(id); return !!e && !e.hidden && (e.checkVisibility ? e.checkVisibility({ opacityProperty: true, visibilityProperty: true }) : e.offsetParent !== null); };
-  // welcome, the setup questions and the first prompts count as onboarding; after that it is work unless break or settings is up
-  // checked in order: whatever is in front wins
-  const stateOf = d => vis(d, 'modes') ? 'set'
-    : vis(d, 'tour') ? 'tour'
-    : d.activeElement?.id === 'ask-input' || vis(d, 'thread') ? 'ask'
-    : ['break-panel', 'game-panel', 'breathe-panel'].some(id => vis(d, id)) ? 'brk'
-    : ['welcome', 'setup', 'bar-prompt', 'ref-prompt'].some(id => vis(d, id)) ? 'onb'
-    : vis(d, 'empty-camera') && !d.getElementById('empty-camera').classList.contains('sensor-on') ? 'cam' : 'work';
-  let cur = '', timer = 0;
-  const show = k => { if (k === cur) return; cur = k; card.querySelectorAll('.v1-item').forEach(i => i.classList.toggle('on', i.dataset.k === k)); };
-  const poll = () => { try { const d = fr.contentDocument; if (d && d.body) show(stateOf(d)); } catch {} };
+  const W = ms => new Promise(r => setTimeout(r, ms));
+  let run = 0, cur = '';
+  async function play(key, my) {
+    const alive = () => my === run;
+    const d = () => fr.contentDocument, win = () => fr.contentWindow;
+    const vis = q => { try { const e = d().querySelector(q); return !!e && !e.hidden && e.checkVisibility({ opacityProperty: true, visibilityProperty: true }); } catch { return false; } };
+    const until = async (q, ms = 12000) => { const t = Date.now() + ms; while (alive() && Date.now() < t) { if (vis(q)) return true; await W(150); } return false; };
+    const press = async (q, hold = 380) => { if (!alive() || !(await until(q, 6000))) return false; const e = d().querySelector(q), r = e.getBoundingClientRect();
+      const x = (r.left + r.width / 2) / 1440 * 100, y = (r.top + r.height / 2) / 900 * 100;
+      tap.style.transition = 'none'; tap.style.left = (x + 5) + '%'; tap.style.top = (y + 7) + '%'; tap.offsetWidth; tap.style.transition = '';
+      tap.classList.add('on'); await W(60); tap.style.left = x + '%'; tap.style.top = y + '%';
+      await W(720); tap.classList.add('hover'); e.classList.add('__hover'); await W(hold); tap.classList.remove('hover'); tap.classList.add('press'); await W(170); tap.classList.remove('press');
+      if (alive()) e.click(); await W(260); e.classList.remove('__hover'); tap.classList.remove('on'); await W(350); return true; };
+    const pose = P => { try { win().__P = P; } catch {} };
+    const type = async (q, text) => { const e = d().querySelector(q); for (const ch of text) { if (!alive()) return; e.value += ch; e.dispatchEvent(new Event('input', { bubbles: true })); await W(45); } };
+    const skipTours = async () => { for (let i = 0; i < 14 && alive() && (vis('#tour-next') || vis('#tour-skip')); i++) { (d().querySelector('#tour-skip') || d().querySelector('#tour-next')).click(); await W(300); } };
+    const SCENE = {
+      onb: async () => { await W(1500); await press('#start'); await W(1000);
+        for (let i = 0; i < 9 && alive(); i++) { await until('#setup-choices.in button', 15000); await W(1300);
+          if (vis('#setup-save')) { await press('#setup-save'); await W(2500); break; }
+          if (d().querySelector('#setup-choices .quick-chip')) { await press('#setup-choices .quick-chip:nth-of-type(2)'); await W(400); await press('#setup-choices .choice.next'); }
+          else await press('#setup-choices button.choice'); await W(600); } },
+      work: async () => { await skipTours(); await W(2500); pose({ fwd: 2.4 }); await W(7000); pose({}); await W(4500); pose({ lean: .05 }); await W(6000); pose({}); await W(4000); },
+      brk: async () => { await skipTours(); await W(1200); await press('#break'); await W(1200); await skipTours(); await W(7000);
+        await press('#break-switch [data-style="breathe"]'); await W(1000); await skipTours(); await W(7000);
+        await press('#break-switch [data-style="game"]'); await W(1000); await skipTours(); await W(7000); },
+      report: async () => { await skipTours(); await W(1500); pose({ fwd: 2.4 }); await W(6000); pose({}); await W(3000); await press('#end-session'); await W(9000); },
+      ai: async () => { await skipTours(); await W(1500); await press('#ask-input'); await W(300); await type('#ask-input', 'Make my focus 50 minutes and breaks with breathing'); await W(500);
+        d().querySelector('#ask-form').requestSubmit(); await W(7000); },
+      set: async () => { await skipTours(); await W(1200); await press('#open-modes'); await W(1600); await press('#mode-list button:nth-of-type(2)'); await W(1500);
+        await press('#modes-tabs [data-tab="break"]'); await W(1600); await press('#bright-seg [data-b="50"]'); await W(1400); await press('#modes .sheet-head .icon-btn'); await W(1500); },
+    };
+    while (alive()) {
+      box.classList.add('loading'); tap.classList.remove('on');
+      const ready = new Promise(r => { const h = e => { if (e.data && e.data.demoReady) { removeEventListener('message', h); r(); } }; addEventListener('message', h); });
+      fr.src = `app-v1/?demo=${START[key]}&paint=1&k=${Date.now()}`;
+      await Promise.race([ready, W(20000)]); if (!alive()) return;
+      await W(400); box.classList.remove('loading');
+      try { await SCENE[key](); } catch (e) { console.warn(e); }
+      await W(800);
+    }
+  }
   const sync = () => {
-    const open = sl.classList.contains('open');
-    if (open && !fr._on) { fr._on = 1; show('onb'); fr.src = fr.dataset.src; timer = setInterval(poll, 250); }
-    // leaving the slide unloads the app, which also turns the camera off
-    if (!open && fr._on) { fr._on = 0; clearInterval(timer); fr.src = 'about:blank'; cur = ''; }
+    const open = sl.classList.contains('open'), k = KEYS[Math.min(KEYS.length - 1, +(sl.dataset.at || 0))];
+    card.querySelectorAll('.v1-item').forEach(i => i.classList.toggle('on', i.dataset.k === k));
+    if (!open) { if (cur) { cur = ''; run++; fr.src = 'about:blank'; } return; }
+    if (k !== cur) { cur = k; play(k, ++run); }
   };
-  new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class'] }); show('onb'); sync();
+  sl.addEventListener('step', sync); new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class', 'data-at'] }); sync();
 })();
 // Meet Poise: the real version one app plays itself in the frame. It runs in demo mode (a stand-in camera
 // and pose, no sound) and a script taps through it like a person would, so every transition is the app's own.

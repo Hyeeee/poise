@@ -2028,3 +2028,29 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* Meet Poise: the tap dot is hidden between taps */
 .pz-live .v1-tap { opacity: 0; transition: left .7s cubic-bezier(.45,0,.2,1), top .7s cubic-bezier(.45,0,.2,1), transform .15s, background .15s, opacity .3s ease; }
 .pz-live .v1-tap.on { opacity: 1; }
+
+/* Version one parts: the title is back, the app plays each part, and fades in once it reaches the right screen */
+.v1-motion .v1-card { margin-top: calc(var(--s) * 30); }
+.v1-motion .live-app { pointer-events: none; transition: opacity .5s ease; }
+.v1-motion .live-v1.loading .live-app { opacity: 0; }
+.v1-motion .live-v1 { background: linear-gradient(180deg, #edf0e2, #c9d5b8); }
+.v1-motion .v1-tap { opacity: 0; transition: left .7s cubic-bezier(.45,0,.2,1), top .7s cubic-bezier(.45,0,.2,1), transform .15s, background .15s, opacity .3s ease; }
+.v1-motion .v1-tap.on { opacity: 1; }
+
+/* the virtual light bar: a silver bar about as wide as the screen, sensor eyes at each end, a light strip
+   underneath, held on top of the screen by a small clip */
+.vbar { width: 94%; height: calc(var(--s) * 36); bottom: calc(100% + var(--s) * 10); border-radius: 99px; padding: 0 calc(var(--s) * 22);
+  background: linear-gradient(180deg, #d9dadb 0%, #c3c5c7 45%, #a9acaf 100%);
+  box-shadow: inset 0 calc(var(--s) * 2) calc(var(--s) * 2) rgba(255,255,255,.6), inset 0 calc(var(--s) * -3) calc(var(--s) * 4) rgba(0,0,0,.12), 0 calc(var(--s) * 14) calc(var(--s) * 24) calc(var(--s) * -12) rgba(20,20,18,.45);
+  display: flex; align-items: center; justify-content: space-between; }
+.vbar::before { content: none; }
+.vb-eyes { display: flex; gap: calc(var(--s) * 7); position: relative; z-index: 1; }
+.vb-eyes i { display: block; width: calc(var(--s) * 20); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 50% 50%, #3b3d3f 0 30%, #232426 34% 60%, #9fa2a5 64% 72%, #6f7275 76%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.35); }
+.vbar .vb-led { position: absolute; left: calc(var(--s) * 18); right: calc(var(--s) * 18); bottom: calc(var(--s) * 2); height: calc(var(--s) * 4); border-radius: 99px;
+  background: color-mix(in srgb, var(--led) calc(20% + var(--led-on) * 80%), #e9e7e1);
+  box-shadow: 0 calc(var(--s) * 2) calc(var(--s) * 10) color-mix(in srgb, var(--led) calc(var(--led-on) * 90%), transparent), 0 calc(var(--s) * 8) calc(var(--s) * 34) calc(var(--s) * 6) color-mix(in srgb, var(--led) calc(var(--led-on) * 55%), transparent); }
+/* the clip: a short neck under the middle of the bar and a lip that hooks over the top of the screen */
+.vb-clip { position: absolute; left: 50%; top: 100%; translate: -50% 0; width: calc(var(--s) * 70); height: calc(var(--s) * 22); pointer-events: none; }
+.vb-clip::before { content: ""; position: absolute; left: 18%; right: 18%; top: 0; height: calc(var(--s) * 12); background: linear-gradient(#b9bcbf, #9a9da1); }
+.vb-clip::after { content: ""; position: absolute; left: 0; right: 0; top: calc(var(--s) * 9); height: calc(var(--s) * 16); border-radius: calc(var(--s) * 5) calc(var(--s) * 5) calc(var(--s) * 7) calc(var(--s) * 7); background: linear-gradient(#c8cacd, #a3a6aa); box-shadow: 0 calc(var(--s) * 4) calc(var(--s) * 8) rgba(20,20,18,.3); }
+.vb-eyes i { width: calc(var(--s) * 24); } .vb-eyes { gap: calc(var(--s) * 8); }
