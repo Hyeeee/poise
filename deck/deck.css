@@ -2071,3 +2071,49 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* chips on a flipping card keep the glass look without the backdrop blur, which shows through the turned face */
 .iv-card .iv-tags em { -webkit-backdrop-filter: none; backdrop-filter: none; }
 .iv-face { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+/* Version one parts: no title, a bigger laptop, the step number alone (no line) */
+.v1-motion .v1-card { margin-top: calc(var(--s) * 56); }
+.demo-eyebrow i { display: none; }
+
+/* Version one's light bar is the cardboard prototype: a kraft box, a seam in the middle, a bit of tape,
+   the two ultrasonic sensors poking through at each end, and the LED strip taped along the bottom */
+.v1-motion .lbar { border-radius: calc(var(--s) * 6) calc(var(--s) * 8) calc(var(--s) * 5) calc(var(--s) * 7); height: calc(var(--s) * 44);
+  background:
+    linear-gradient(90deg, transparent 49.6%, rgba(90,60,30,.35) 49.8%, rgba(90,60,30,.35) 50%, transparent 50.2%),
+    repeating-linear-gradient(90deg, rgba(255,240,215,.07) 0 calc(var(--s) * 3), rgba(90,60,30,.06) calc(var(--s) * 3) calc(var(--s) * 6)),
+    linear-gradient(180deg, #c49a6c 0%, #b58a5c 40%, #a37a4f 100%);
+  box-shadow: inset 0 calc(var(--s) * 2) 0 rgba(255,235,205,.35), inset 0 calc(var(--s) * -3) calc(var(--s) * 3) rgba(70,45,20,.25), 0 calc(var(--s) * 12) calc(var(--s) * 22) calc(var(--s) * -12) rgba(40,30,20,.5); }
+/* a strip of tape over the seam */
+.v1-motion .lbar::after { content: ""; position: absolute; left: calc(50% - var(--s) * 30); top: calc(var(--s) * -3); width: calc(var(--s) * 60); height: calc(100% + var(--s) * 4); background: rgba(240,236,222,.55); transform: rotate(-3deg); box-shadow: 0 0 0 1px rgba(255,255,255,.15); pointer-events: none; }
+/* HC-SR04 sensors: a silver can with mesh, set into a rough hole */
+.v1-motion .vb-eyes i { width: calc(var(--s) * 26); background: radial-gradient(circle, #2c2d2e 0 32%, repeating-radial-gradient(circle, #3a3b3c 0 1px, #1e1f20 1px 2px) 33% 56%, #c9ccce 58% 70%, #8d9092 72% 80%, #5d4430 82%); box-shadow: 0 0 0 calc(var(--s) * 2) rgba(80,55,30,.35); }
+.v1-motion .lbar .vb-led { bottom: calc(var(--s) * -3); left: calc(var(--s) * 26); right: calc(var(--s) * 26); height: calc(var(--s) * 5); border-radius: 2px; }
+/* cardboard tab instead of the metal clip */
+.v1-motion .vb-clip::before { left: 30%; right: 30%; background: #a77d52; }
+.v1-motion .vb-clip::after { border-radius: calc(var(--s) * 3); background: linear-gradient(#b58a5c, #9d744a); }
+.v1-motion .lbar { height: calc(var(--s) * 50);
+  background:
+    linear-gradient(90deg, transparent 49.6%, rgba(80,60,40,.3) 49.8%, rgba(80,60,40,.3) 50%, transparent 50.2%),
+    linear-gradient(180deg, rgba(255,250,240,.18), transparent 30%, transparent 75%, rgba(60,45,30,.18)),
+    repeating-linear-gradient(90deg, rgba(255,245,230,.05) 0 calc(var(--s) * 2), rgba(70,50,30,.05) calc(var(--s) * 2) calc(var(--s) * 4)),
+    #b39674; }
+.v1-motion .vb-eyes i { width: calc(var(--s) * 30); }
+.v1-motion .vb-eyes { gap: calc(var(--s) * 6); }
+
+/* thicker bezel, with the camera in the middle of its top edge and a green light while the camera is on */
+.v1-card .v1-dev .v1-screen { inset: calc(var(--s) * 18); }
+.v1-card .v1-dev { background: #1b1b1b; border-radius: calc(var(--s) * 30); }
+.v1-card .v1-dev .v1-screen { border-radius: calc(var(--s) * 14); box-shadow: none; }
+.slide.demo .ba-shot { padding: calc(var(--s) * 16); }
+.slide.demo .ba-screen { box-shadow: 0 0 0 calc(var(--s) * 16) #1b1b1b, 0 calc(var(--s) * 30) calc(var(--s) * 60) calc(var(--s) * -24) rgba(20,20,18,.45); }
+.cam-dot { position: absolute; z-index: 4; left: 50%; top: calc(var(--s) * 9); translate: -50% -50%; width: calc(var(--s) * 9); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #3b4048, #0b0c0e 70%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.slide.demo .ba-shot > .cam-dot { top: calc(var(--s) * 8); }
+.cam-dot::after { content: ""; position: absolute; left: calc(100% + var(--s) * 7); top: 50%; translate: 0 -50%; width: calc(var(--s) * 4); aspect-ratio: 1; border-radius: 50%; background: #2a2d2a; transition: background .3s, box-shadow .3s; }
+.cam-on .cam-dot::after { background: #46e06a; box-shadow: 0 0 calc(var(--s) * 6) #46e06a; }
+/* the clip moves off centre so the camera stays clear */
+.lbar .vb-clip { left: 34%; }
+/* keep the screen itself exactly 16:10 inside the thicker bezel */
+.v1-card .v1-dev { aspect-ratio: auto; height: 100%; padding: calc(var(--s) * 18); box-sizing: border-box; display: flex; }
+.v1-card .v1-dev .v1-screen { position: relative; inset: auto; height: 100%; width: auto; aspect-ratio: 16 / 10; margin: 0; }
+.cam-dot { width: calc(var(--s) * 11); }
+.cam-dot::after { width: calc(var(--s) * 5); left: calc(100% + var(--s) * 8); }

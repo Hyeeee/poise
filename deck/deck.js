@@ -558,7 +558,9 @@ const V1 = Layers('v1');
 // Virtual light bar: mirrors what the app sends to the real bar. The app fires 'poise-light' with the
 // LED colour each time it sends one; the colour is scaled up to full brightness for the strip and its
 // brightness drives how strong the glow is (idle is nearly off, white is soft, amber and red glow).
-const mirrorLight = (fr, slide) => {
+// The laptop's camera light: the green dot in the bezel comes on while the app's camera is running.
+const camLight = (fr, slide) => setInterval(() => { let on = false; try { const v = fr.contentDocument?.getElementById('camera'); on = !!(v && v.srcObject && v.srcObject.active); } catch {} slide.classList.toggle('cam-on', on); }, 400);
+const mirrorLight = (fr, slide) => { camLight(fr, slide);
   const set = rgb => { const m = Math.max(...rgb, 1), k = 255 / m, c = rgb.map(v => Math.round(v * k));
     slide.style.setProperty('--led', `rgb(${c.join(',')})`); slide.style.setProperty('--led-on', Math.min(1, (m - 30) / 160).toFixed(2)); };
   set([40, 45, 50]);
