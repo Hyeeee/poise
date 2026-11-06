@@ -774,9 +774,7 @@ function renderEditor() {
   if (tab === 'work') {
     html += field('Focus length', `<input type="range" data-k="focus" min="5" max="90" step="5" value="${m.focus}">`, `<output>${m.focus} min</output>`);
     html += field('Sensitivity', segmented('sensitivity', SENS_ORDER.map(k => [k, SENSITIVITY[k].label]), m.sensitivity));
-    html += field('Strong cue after', `<input type="range" data-k="delay" min="2" max="20" step="1" value="${m.delay}">`, `<output>${m.delay}s</output>`);
-    html += field('Eye care', toggle('eyes', m.eyes));
-    html += field('Chime', toggle('chime', m.chime));
+    html += field('Remind me after', `<input type="range" data-k="delay" min="2" max="20" step="1" value="${m.delay}">`, `<output>${m.delay}s</output>`);
   } else {
     html += field('Style', segmented('style', [['stretch', 'Stretch'], ['breathe', 'Reset'], ['game', 'Game']], m.style));
     html += m.style === 'stretch'
@@ -785,14 +783,14 @@ function renderEditor() {
     html += field('Start automatically', toggle('auto', m.auto));
   }
   const list = tab === 'work' ? store.state.works : store.state.breaks;
-  html += `<div class="editor-foot"><span class="sub">${tab === 'work' ? describeWork(m) : describeBreak(m)}</span>${list.length > 1 ? '<button type="button" class="danger" id="delete-mode">Delete</button>' : ''}</div>`;
-  ed.innerHTML = html;
+  // same grouped rows as the rest of Settings; the only extra is deleting the mode
+  if (list.length > 1) html += `<div class="field del-row"><button type="button" class="danger" id="delete-mode">Delete this mode</button></div>`;
+  ed.innerHTML = `<div class="pref-group">${html}</div>`;
 
   ed.querySelectorAll('input[type=range]').forEach(inp => inp.oninput = () => {
     const v = Number(inp.value); patchMode(tab, { [inp.dataset.k]: v });
     const unit = { focus: ' min', minutes: ' min', delay: 's', count: '' }[inp.dataset.k];
     inp.parentElement.querySelector('output').textContent = v + unit;
-    ed.querySelector('.editor-foot .sub').textContent = tab === 'work' ? describeWork(store.work()) : describeBreak(store.brk());
   });
   ed.querySelectorAll('input[type=checkbox]').forEach(inp => inp.onchange = () => patchMode(tab, { [inp.dataset.k]: inp.checked }));
   ed.querySelector('input[type=text]').oninput = e => patchMode(tab, { name: e.target.value.trim() || 'Untitled' });
