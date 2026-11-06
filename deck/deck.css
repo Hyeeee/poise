@@ -2130,3 +2130,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
     linear-gradient(180deg, rgba(255,250,240,.18), transparent 30%, transparent 75%, rgba(60,45,30,.18)),
     repeating-linear-gradient(90deg, rgba(255,245,230,.05) 0 calc(var(--s) * 2), rgba(70,50,30,.05) calc(var(--s) * 2) calc(var(--s) * 4)),
     #b39674; }
+/* the same bezel on all four sides, the camera centred in the top one */
+.v1-card .v1-dev { padding: calc(var(--s) * 26); }
+.slide.demo .ba-shot { padding: calc(var(--s) * 26); }
+.slide.demo .ba-screen { box-shadow: 0 0 0 calc(var(--s) * 26) #1b1b1b, 0 calc(var(--s) * 30) calc(var(--s) * 60) calc(var(--s) * -24) rgba(20,20,18,.45); }
+.v1-card .v1-dev > .cam-dot, .slide.demo .ba-shot > .cam-dot { top: calc(var(--s) * 13); }
+.slide.demo .ba-shot > .lbar { bottom: calc(100% + var(--s) * 6); }
