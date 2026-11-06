@@ -770,3 +770,29 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
   slots.forEach(s => new MutationObserver(sync).observe(s.closest('.slide'), { attributes: true, attributeFilter: ['class'] }));
   sync();
 })();
+
+// Version two: one change per step. Each step plays a screen recording from deck/v2rec/<n>.mp4 when there is one;
+// until then the real version two app is shown at that screen in demo mode.
+(() => {
+  const card = document.querySelector('.v2-motion .v1-card'); if (!card) return;
+  const sl = card.closest('.slide'), box = card.querySelector('.live-v1'), fr = box.querySelector('iframe'), vid = box.querySelector('video.rec');
+  const items = [...card.querySelectorAll('.v1-item')];
+  mirrorLight(fr, sl);
+  const fit = () => { fr.style.transform = `scale(${box.clientWidth / 1440})`; };
+  new ResizeObserver(fit).observe(box); fit();
+  const has = {};
+  const check = n => has[n] ?? (has[n] = fetch(`v2rec/${n}.mp4`, { method: 'HEAD' }).then(r => r.ok && /video/.test(r.headers.get('content-type') || '')).catch(() => false));
+  let cur = -1, run = 0;
+  const show = async k => { const my = ++run; const n = k + 1;
+    items.forEach((it, i) => it.classList.toggle('on', i === k));
+    if (await check(n)) { if (my !== run) return; fr.src = 'about:blank'; box.classList.add('has-rec'); vid.src = `v2rec/${n}.mp4`; vid.currentTime = 0; vid.play().catch(() => {}); return; }
+    box.classList.remove('has-rec'); vid.removeAttribute('src');
+    box.classList.add('loading'); const d = items[k].dataset.demo;
+    const ready = new Promise(r => { const h = e => { if (e.data && e.data.demoReady) { removeEventListener('message', h); r(); } }; addEventListener('message', h); });
+    fr.src = `../?demo=${d}${d === 'welcome' ? '&paint=1' : ''}&k=${Date.now()}`;
+    await Promise.race([ready, new Promise(r => setTimeout(r, 20000))]); if (my === run) box.classList.remove('loading'); };
+  const sync = () => { const open = sl.classList.contains('open'), k = Math.min(items.length - 1, +(sl.dataset.at || 0));
+    if (!open) { if (cur !== -1) { cur = -1; run++; fr.src = 'about:blank'; vid.pause(); } items.forEach((it, i) => it.classList.toggle('on', i === k)); return; }
+    if (k !== cur) { cur = k; show(k); } };
+  sl.addEventListener('step', sync); new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class', 'data-at'] }); sync();
+})();

@@ -2154,3 +2154,13 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v2-text, .v2-text.out { transform: none !important; }
 .v2-text { transition: opacity .3s ease; }
 .slide.demo .solo-row { gap: calc(var(--s) * 58); }
+
+/* Version two parts: same layout, text and motion as version one, a recording or the app in the laptop */
+.v2-motion .v1-card { margin-top: calc(var(--s) * 56); gap: calc(var(--s) * 96); }
+.v2-motion .v1-item { justify-content: flex-start; padding-top: 0; inset: auto 0 auto 0; top: 36%; transform: none !important; transition: opacity .45s ease; }
+.v2-motion .live-app { pointer-events: none; transition: opacity .5s ease; }
+.v2-motion .live-v1.loading .live-app { opacity: 0; }
+.v2-motion .live-v1 { background: linear-gradient(180deg, #e3f0ea, #bfe0d2); }
+.v2-motion video.rec { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+.v2-motion .live-v1.has-rec video.rec { display: block; }
+.v2-motion .live-v1.has-rec .live-app { display: none; }
