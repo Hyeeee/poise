@@ -2164,3 +2164,19 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v2-motion video.rec { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
 .v2-motion .live-v1.has-rec video.rec { display: block; }
 .v2-motion .live-v1.has-rec .live-app { display: none; }
+
+/* Version two light bar: a thicker brushed aluminium bar with a dark sensor band and a separate light strip underneath */
+.v2-motion .lbar { height: calc(var(--s) * 58); padding: 0 calc(var(--s) * 26) calc(var(--s) * 14); border-radius: 99px; align-items: center;
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, rgba(0,0,0,.025) 1px 3px),
+    linear-gradient(180deg, #eef0f2 0%, #d5d8dc 22%, #b9bdc2 58%, #9da1a7 86%, #8a8e94 100%);
+  box-shadow: inset 0 calc(var(--s) * 2) calc(var(--s) * 2) rgba(255,255,255,.85), inset 0 calc(var(--s) * -2) calc(var(--s) * 3) rgba(0,0,0,.18), 0 calc(var(--s) * 18) calc(var(--s) * 28) calc(var(--s) * -14) rgba(20,22,26,.5); }
+/* the sensors sit in a dark glass band, like a camera module */
+.v2-motion .vb-eyes { padding: calc(var(--s) * 5) calc(var(--s) * 8); border-radius: 99px; background: linear-gradient(#2a2c30, #121316); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 1px 0 rgba(255,255,255,.5); gap: calc(var(--s) * 8); }
+.v2-motion .vb-eyes i { width: calc(var(--s) * 22); background: radial-gradient(circle at 42% 38%, #4a5058 0 14%, #16181b 22% 58%, #5a5f66 62% 70%, #2a2d31 74%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+/* the light strip: its own diffuser along the bottom, clear of the sensors */
+.v2-motion .lbar .vb-led { left: calc(var(--s) * 34); right: calc(var(--s) * 34); bottom: calc(var(--s) * 7); height: calc(var(--s) * 6); border-radius: 99px; }
+.v2-motion .lbar::before { content: ""; position: absolute; left: calc(var(--s) * 26); right: calc(var(--s) * 26); bottom: calc(var(--s) * 4); height: calc(var(--s) * 12); border-radius: 99px; background: linear-gradient(#7f8389, #9a9ea4); box-shadow: inset 0 1px 2px rgba(0,0,0,.35); }
+.v2-motion .lbar .vb-led { z-index: 1; }
+.v2-motion .lbar::before { top: auto; }
+.v2-motion .lbar .vb-led { height: calc(var(--s) * 5); bottom: calc(var(--s) * 8); }
