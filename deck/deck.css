@@ -2181,3 +2181,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .pt-take.good svg { stroke: #2e8a4f; } .pt-take.bad svg { stroke: #b3392b; } .pt-take.new svg { stroke: #2f5fb3; }
 /* version two playtest has fewer notes: the cards sit lower, centred in the space under the title */
 .slide[data-title="Testing version two"] .an-row { margin-top: auto; margin-bottom: auto; }
+.vv-table .it-head { border-bottom: 0; padding-bottom: 0; margin-bottom: calc(var(--s) * 12); } .vv-table table { height: auto; flex: 1; }
