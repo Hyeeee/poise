@@ -612,7 +612,7 @@ const mirrorLight = (fr, slide) => {
     // move the dot to the element, hover, press, then click it for real
     const press = async (s, hold = 380) => { if (!alive() || !(await until(s, 6000))) return false; const e = d().querySelector(s), r = e.getBoundingClientRect();
       tap.style.left = ((r.left + r.width / 2) / 1440 * 100) + '%'; tap.style.top = ((r.top + r.height / 2) / 900 * 100) + '%';
-      await W(720); tap.classList.add('hover'); await W(hold); tap.classList.remove('hover'); tap.classList.add('press'); await W(170); tap.classList.remove('press'); if (alive()) e.click(); return true; };
+      await W(720); tap.classList.add('hover'); e.classList.add('__hover'); await W(hold); tap.classList.remove('hover'); tap.classList.add('press'); await W(170); tap.classList.remove('press'); if (alive()) e.click(); await W(260); e.classList.remove('__hover'); return true; };
     const pose = P => { try { win().__P = P; } catch {} };
     while (alive()) {
       park(); fr.src = 'app-v1/?demo=welcome&paint=1'; await new Promise(r => fr.onload = r); if (!alive()) return;

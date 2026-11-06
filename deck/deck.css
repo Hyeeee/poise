@@ -2019,3 +2019,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .vbar { width: 52%; height: calc(var(--s) * 52); bottom: calc(100% - var(--s) * 4); border-radius: calc(var(--s) * 12); background: #2a2a28; box-shadow: 0 calc(var(--s) * 10) calc(var(--s) * 22) calc(var(--s) * -10) rgba(20,20,18,.45); display: block; padding: 0; }
 .vbar::before { content: ""; position: absolute; left: calc(var(--s) * 16); right: calc(var(--s) * 16); top: calc(var(--s) * 11); height: calc(var(--s) * 15); border-radius: 99px; background: #8b8f8f; }
 .vbar .vb-led { left: calc(var(--s) * 16); right: calc(var(--s) * 16); bottom: calc(var(--s) * 10); height: calc(var(--s) * 5); background: color-mix(in srgb, var(--led) calc(25% + var(--led-on) * 75%), #55554f); box-shadow: 0 0 calc(var(--s) * 18) color-mix(in srgb, var(--led) calc(var(--led-on) * 85%), transparent); }
+/* fit the 16:10 app inside the grey box on any screen: as wide as it can be while keeping room above and below */
+.pz-visual.pz-screens { container-type: size; }
+.pz-frame.pz-live { width: min(88cqw, 82cqh * 1.6); max-width: none; height: auto; }
