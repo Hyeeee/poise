@@ -2130,3 +2130,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v1-card .v1-dev > .lbar, .slide.demo .ba-shot > .lbar { bottom: calc(100% + var(--s) * 22); }
 .slide.demo .v1-card, .slide.demo .solo-row { margin-top: calc(var(--s) * 64); }
 .meta-chips span { box-shadow: none; background: rgba(255,255,255,.7); }
+/* demo text: title then one line of detail; big titles pulled in by their side bearing so every line starts on the same edge; more room from the laptop */
+.slide.demo .v1-item h3, .slide.demo .v2-copy h3 { margin-left: -.045em; }
+.slide.demo .v1-body, .slide.demo .v2-copy .v2-text > p:last-child { margin-top: calc(var(--s) * 18); }
+.v1-motion .v1-card { gap: calc(var(--s) * 96); }
+.slide.demo .solo-row { gap: calc(var(--s) * 96); }

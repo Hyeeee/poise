@@ -733,7 +733,7 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
   let on = false, slot = null, poll = 0, lastShown = '';
   const copyOf = s => s.closest('.slide').querySelector('.v2-copy');
   const say = (card, row) => { const t = card.querySelector('.v2-text'); if (t.dataset.k === row[0]) return;
-    t.classList.add('out'); setTimeout(() => { t.dataset.k = row[0]; t.innerHTML = `<h3>${row[1]}</h3><p class="v2-lead">${row[2]}</p><p>${row[3]}</p>`; t.classList.remove('out'); }, 220); };
+    t.classList.add('out'); setTimeout(() => { t.dataset.k = row[0]; t.innerHTML = `<h3>${row[1]}</h3><p>${row[3]}</p>`; t.classList.remove('out'); }, 220); };
   const reset = s => { const t = copyOf(s).querySelector('.v2-text'); if (!t._def) t._def = t.innerHTML; t.innerHTML = t._def; t.dataset.k = ''; };
   const vis = (d, sel) => [...d.querySelectorAll(sel)].some(e => !e.hidden && e.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }));
   const until = async (fn, ms = 20000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { try { if (fn()) return true; } catch {} await new Promise(r => setTimeout(r, 150)); } return false; };
