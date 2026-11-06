@@ -2145,3 +2145,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v1-motion .v1-item { justify-content: flex-start; padding-top: 36%; transform: none !important; transition: opacity .45s ease; }
 .v1-motion .v1-item:not(.on) { transition-duration: .25s; }
 .v1-motion .v1-item { padding-top: 0; inset: auto 0 auto 0; top: 36%; }
+.iv-back .iv-learn { justify-content: flex-start; gap: calc(var(--s) * 34); }
