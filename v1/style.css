@@ -820,3 +820,4 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 #modes .prefs { margin-top: 0 !important; padding-top: 0 !important; border-top: 0 !important; }
 #modes .prefs > .drawer-h:first-child { margin-top: 22px; }
 #modes .editor { margin-bottom: 0; padding-bottom: 0; } #modes .prefs > .drawer-h:first-child { margin-top: 18px; }
+#modes .editor .pref-group:last-child, #modes .editor > :last-child { margin-bottom: 0; } #modes .prefs > .drawer-h:first-child { margin-top: 6px; }

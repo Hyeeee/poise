@@ -2146,3 +2146,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v1-motion .v1-item:not(.on) { transition-duration: .25s; }
 .v1-motion .v1-item { padding-top: 0; inset: auto 0 auto 0; top: 36%; }
 .iv-back .iv-learn { justify-content: flex-start; gap: calc(var(--s) * 34); }
+/* version two text: the same spot, sizes and cross fade as version one */
+.slide.demo .solo-row { gap: var(--v1gap, calc(var(--s) * 96)); }
+.slide.demo .v2-copy { display: grid; grid-template-rows: 36% auto auto 1fr; justify-content: stretch; align-content: stretch; gap: 0; padding: 0 0 0 calc(var(--s) * 8); }
+.slide.demo .v2-copy .demo-eyebrow { grid-row: 2; }
+.slide.demo .v2-copy .v2-text { grid-row: 3; }
+.v2-text, .v2-text.out { transform: none !important; }
+.v2-text { transition: opacity .3s ease; }
+.slide.demo .solo-row { gap: calc(var(--s) * 58); }
