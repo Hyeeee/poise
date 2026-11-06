@@ -770,3 +770,9 @@ body { background: linear-gradient(180deg, #eef1e0 0%, #dfe6cf 55%, #c9d4b4 100%
 /* Bottom-left status chips (distance, tracking) hidden: the posture card already shows both */
 #sensor-chip, #tracking { display: none !important; }
 #empty-camera #cam-skip { margin-left: 8px; }
+/* camera card: the two choices side by side on one line, same height, even gap */
+#empty-camera:not(.sensor-on) { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+#empty-camera:not(.sensor-on) .say { flex-basis: 100%; }
+#empty-camera:not(.sensor-on)[hidden] { display: none; }
+#empty-camera #cam-skip { margin: 0; }
+#empty-camera:not(.sensor-on) #enable, #empty-camera:not(.sensor-on) #cam-skip { white-space: nowrap; }
