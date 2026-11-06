@@ -2117,3 +2117,12 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v1-card .v1-dev .v1-screen { position: relative; inset: auto; height: 100%; width: auto; aspect-ratio: 16 / 10; margin: 0; }
 .cam-dot { width: calc(var(--s) * 11); }
 .cam-dot::after { width: calc(var(--s) * 5); left: calc(100% + var(--s) * 8); }
+/* no clip, no tape; a thicker top bezel so the camera has room */
+.v1-motion .lbar::after { content: none; }
+.v1-card .v1-dev { padding: calc(var(--s) * 30) calc(var(--s) * 22) calc(var(--s) * 22); }
+.v1-card .v1-dev > .cam-dot { top: calc(var(--s) * 15); }
+.slide.demo .ba-shot { padding: calc(var(--s) * 30) calc(var(--s) * 22) calc(var(--s) * 22); }
+.slide.demo .ba-screen { box-shadow: 0 0 0 calc(var(--s) * 22) #1b1b1b, 0 calc(var(--s) * -8) 0 calc(var(--s) * 22) #1b1b1b, 0 calc(var(--s) * 30) calc(var(--s) * 60) calc(var(--s) * -24) rgba(20,20,18,.45); }
+.slide.demo .ba-shot > .cam-dot { top: calc(var(--s) * 15); }
+.slide.demo .ba-shot > .lbar { bottom: calc(100% - var(--s) * 4); }
+.v1-card .v1-dev > .lbar { bottom: calc(100% + var(--s) * 6); }
