@@ -2186,3 +2186,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* sensors centred in the bar, the light strip low along the bottom edge */
 .v2-motion .lbar { align-items: center; padding-top: 0; padding-bottom: 0; height: calc(var(--s) * 60); }
 .v2-motion .lbar .vb-led { bottom: calc(var(--s) * 4); }
+/* like the cardboard bar: the light strip runs just under the bar, clearly apart from the sensors; bigger sensors with a metal ring */
+.v2-motion .lbar { height: calc(var(--s) * 50); }
+.v2-motion .lbar .vb-led { bottom: calc(var(--s) * -7); left: calc(var(--s) * 34); right: calc(var(--s) * 34); height: calc(var(--s) * 5); }
+.v2-motion .vb-eyes { gap: calc(var(--s) * 7); }
+.v2-motion .vb-eyes i { width: calc(var(--s) * 30); background: radial-gradient(circle, #2c2d2f 0 32%, #1d1e20 33% 56%, #e4e6e9 58% 68%, #a8acb1 70% 78%, #8d9196 80%); box-shadow: 0 0 0 calc(var(--s) * 2) rgba(60,64,70,.18); }
