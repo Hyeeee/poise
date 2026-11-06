@@ -2139,3 +2139,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v1-why { margin-top: calc(var(--s) * 24); padding: calc(var(--s) * 14) calc(var(--s) * 18); border-radius: calc(var(--s) * 16); background: rgba(255,255,255,.66); font-size: max(calc(var(--s) * 18), 12px); font-weight: 500; line-height: 1.4; color: var(--ink); max-width: 30ch; }
 /* playtest: the laptop photo shows the screen and the light bar, less keyboard */
 .pt-c img { object-position: 50% 8%; }
+/* no browser focus ring anywhere in the deck (the progress bar parts, links, cards); keys still work */
+.deck *:focus, .deck *:focus-visible, :focus-visible { outline: none !important; }
