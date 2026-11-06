@@ -2183,3 +2183,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide[data-title="Testing version two"] .an-row { margin-top: auto; margin-bottom: auto; }
 .vv-table .it-head { border-bottom: 0; padding-bottom: 0; margin-bottom: calc(var(--s) * 12); } .vv-table table { height: auto; flex: 1; }
 .draft-tag { margin-left: calc(var(--s) * 10); font-style: normal; font-size: max(calc(var(--s) * 13), 9px); font-weight: 500; padding: calc(var(--s) * 4) calc(var(--s) * 10); border-radius: 99px; background: #fbe9e7; color: #b3392b; vertical-align: 3px; }
+/* sensors centred in the bar, the light strip low along the bottom edge */
+.v2-motion .lbar { align-items: center; padding-top: 0; padding-bottom: 0; height: calc(var(--s) * 60); }
+.v2-motion .lbar .vb-led { bottom: calc(var(--s) * 4); }
