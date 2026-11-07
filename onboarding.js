@@ -33,8 +33,8 @@ const QUESTIONS = [
     key: 'auto',
     say: 'Last one. When focus time ends, should I start your break for you?',
     options: [
-      { label: 'Start it for me', sub: 'No need to tap', icon: 'auto', value: true },
-      { label: 'Ask me first', sub: 'I’ll check first', icon: 'ask', value: false },
+      { label: 'Start on its own', sub: 'The break just begins', icon: 'auto', value: true },
+      { label: 'Ask me first', sub: 'I wait for your tap', icon: 'ask', value: false },
     ],
   },
 ];
