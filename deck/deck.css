@@ -2220,3 +2220,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .qm-bars { gap: calc(var(--s) * 18); }
 /* version one: the same gap between the box and the light strip as version two */
 .v1-motion .lbar .vb-led { bottom: calc(var(--s) * -7); left: calc(var(--s) * 34); right: calc(var(--s) * 34); height: calc(var(--s) * 5); }
+/* each tester by name and photo, set apart from the bar labels */
+.qm-t > .qm-who { display: flex; align-items: center; gap: calc(var(--s) * 8); margin-bottom: calc(var(--s) * 8); font-size: max(calc(var(--s) * 15), 10px); font-weight: 600; color: var(--ink); }
+.qm-who img { width: calc(var(--s) * 24); height: calc(var(--s) * 24); border-radius: 50%; object-fit: cover; }
+.qm-t + .qm-t { padding-top: calc(var(--s) * 14); border-top: 1px solid rgba(20,20,18,.05); }
