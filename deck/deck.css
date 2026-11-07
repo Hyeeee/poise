@@ -2254,3 +2254,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide[data-title="Contents"] .toc-list b { font-size: max(calc(var(--s) * 40), 20px); }
 .slide[data-title="Contents"] .toc-list i { padding-top: .35em; }
 .slide[data-title="Market research"] .head + * { top: calc(var(--s) * 4); }
+.slide[data-title="What the playtest showed"] .an-row { top: calc(var(--s) * 4); }
