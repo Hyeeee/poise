@@ -2228,3 +2228,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 
 .qm-t > .qm-who { margin-bottom: calc(var(--s) * 13); }
 
+/* market research: the cards sit a bit lower */
+.slide[data-title="Market research"] .head + * { margin-top: calc(var(--s) * 141); }
