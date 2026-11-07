@@ -107,6 +107,9 @@
     stretch: async () => { pose({}); await toBreak('stretch'); },
     breathe: async () => { pose({}); await toBreak('breathe'); },
     game: async () => { pose({}); await toBreak('game'); },
+    ask: async () => { pose({}); await intoWork(); await setRef(); pose({}); await wait(400);
+      const inp = $('#ask-input'); if (!inp) return; inp.focus(); inp.value = 'Focus 1 hour and breaks with breathing'; inp.dispatchEvent(new Event('input', { bubbles: true }));
+      $('#ask-form')?.requestSubmit(); await realtime(1500); },
     report: async () => { pose({}); await intoWork(); await setRef(); await realtime(8000); pose({ fwd: 1 }); await realtime(14000); pose({}); await realtime(6000); await click('#end-session'); },
   };
   // v1 tour: stop on step 7 of 12 instead of skipping it
