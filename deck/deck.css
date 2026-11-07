@@ -2713,3 +2713,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v1-motion .live-v1.has-rec video.rec { display: block; }
 .v1-motion .live-v1.has-rec .live-app, .v1-motion .live-v1.has-rec .v1-tap { display: none; }
 .v1-motion video.rec { object-position: right center; }
+/* version one screen matches the recordings, so nothing is cropped */
+.v1-motion .v1-card .v1-dev .v1-screen { aspect-ratio: 1496 / 816; }
+/* keep room for the text: the wider screen is sized by width, the text column stays fixed */
+.v1-motion .v1-card { grid-template-columns: minmax(0, 1fr) calc(var(--s) * 560); align-items: center; }
+.v1-motion .v1-card .v1-dev { height: auto; width: 100%; align-self: center; }
+.v1-motion .v1-card .v1-dev .v1-screen { width: 100%; height: auto; }

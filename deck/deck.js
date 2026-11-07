@@ -634,7 +634,7 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
     if (!open) { if (cur) { cur = ''; run++; fr.src = 'about:blank'; vid.pause(); } return; }
     if (k === cur) return;
     cur = k; const my = ++run;
-    if (await check(i + 1)) { if (my !== run) return; fr.src = 'about:blank'; tap.classList.remove('on'); box.classList.remove('loading'); box.classList.add('has-rec'); vid.style.objectPosition = k === 'onb' ? 'center center' : 'right center'; vid.src = `v1rec/${i + 1}.mp4`; vid.currentTime = 0; vid.play().catch(() => {}); return; }
+    if (await check(i + 1)) { if (my !== run) return; fr.src = 'about:blank'; tap.classList.remove('on'); box.classList.remove('loading'); box.classList.add('has-rec'); vid.style.objectPosition = 'center center'; vid.src = `v1rec/${i + 1}.mp4`; vid.currentTime = 0; vid.play().catch(() => {}); return; }
     box.classList.remove('has-rec'); vid.removeAttribute('src'); play(k, my);
   };
   sl.addEventListener('step', sync); new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class', 'data-at'] }); sync();
