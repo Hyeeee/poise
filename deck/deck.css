@@ -2230,3 +2230,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 
 /* market research: the cards sit a bit lower */
 .slide[data-title="Market research"] .head + * { margin-top: calc(var(--s) * 141); }
+.slide[data-title="What the playtest showed"] .an-row { margin-top: calc(var(--s) * 162); }
