@@ -2655,3 +2655,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 @keyframes nxLi3 { 0%, 63% { opacity: .4; } 67%, 97% { opacity: 1; } 100% { opacity: .4; } }
 /* What I learned: art box a little closer to the group title, and a touch closer to lesson one */
 .lz-card .lz-art { margin-top: calc(var(--card-pad) * -0.3); margin-bottom: calc(var(--card-pad) * -0.12); }
+/* no line highlighting, only the art changes */
+.it-card:has(.nx-play) li, .it-card:has(.nx-play) li:nth-child(n) { animation: none !important; opacity: 1; }
+/* active call tile: the green frame sits on top, so the person never pokes over it */
+.nxs1 .tiles span:nth-child(1) { box-shadow: none; }
+.nxs1 .tiles span:nth-child(1)::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 calc(var(--s) * 2) var(--green-strong); z-index: 1; }
