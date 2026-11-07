@@ -625,11 +625,17 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
       await W(800);
     }
   }
-  const sync = () => {
-    const open = sl.classList.contains('open'), k = KEYS[Math.min(KEYS.length - 1, +(sl.dataset.at || 0))];
-    card.querySelectorAll('.v1-item').forEach(i => i.classList.toggle('on', i.dataset.k === k));
-    if (!open) { if (cur) { cur = ''; run++; fr.src = 'about:blank'; } return; }
-    if (k !== cur) { cur = k; play(k, ++run); }
+  // Screen recordings in v1rec/<n>.mp4 take over from the scripted demo when they exist.
+  const vid = box.querySelector('video.rec'), has = {};
+  const check = n => has[n] ?? (has[n] = fetch(`v1rec/${n}.mp4`, { method: 'HEAD' }).then(r => r.ok && /video/.test(r.headers.get('content-type') || '')).catch(() => false));
+  const sync = async () => {
+    const open = sl.classList.contains('open'), i = Math.min(KEYS.length - 1, +(sl.dataset.at || 0)), k = KEYS[i];
+    card.querySelectorAll('.v1-item').forEach(it => it.classList.toggle('on', it.dataset.k === k));
+    if (!open) { if (cur) { cur = ''; run++; fr.src = 'about:blank'; vid.pause(); } return; }
+    if (k === cur) return;
+    cur = k; const my = ++run;
+    if (await check(i + 1)) { if (my !== run) return; fr.src = 'about:blank'; tap.classList.remove('on'); box.classList.remove('loading'); box.classList.add('has-rec'); vid.src = `v1rec/${i + 1}.mp4`; vid.currentTime = 0; vid.play().catch(() => {}); return; }
+    box.classList.remove('has-rec'); vid.removeAttribute('src'); play(k, my);
   };
   sl.addEventListener('step', sync); new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class', 'data-at'] }); sync();
 })();
