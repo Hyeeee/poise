@@ -2604,3 +2604,54 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-art-2 b { margin: 0 calc(var(--s) * 8); }
 @keyframes lzKeep0 { 0%, 25% { transform: none; margin: 0 calc(var(--s) * 8); } 45%, 80% { transform: none; margin: 0 calc(var(--s) * 19); } 90%, 100% { transform: none; margin: 0 calc(var(--s) * 8); } }
 @keyframes lzSlot0 { 0%, 28% { width: calc(var(--s) * 22); margin: 0 calc(var(--s) * 8); } 46%, 88% { width: 0; margin: 0; } 98%, 100% { width: calc(var(--s) * 22); margin: 0 calc(var(--s) * 8); } }
+/* What's next app art: three small scenes, one for each plan, shown in turn; the matching line lights up */
+.nx-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.nxs { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; animation: nxScene 12s ease infinite; }
+.nxs2 { animation-delay: 4s; } .nxs3 { animation-delay: 8s; }
+@keyframes nxScene { 0% { opacity: 0; transform: translateY(calc(var(--s) * 8)); } 4%, 29% { opacity: 1; transform: none; } 33.3%, 100% { opacity: 0; transform: translateY(calc(var(--s) * -6)); } }
+.nxs .win { position: relative; width: calc(var(--s) * 380); padding: calc(var(--s) * 20); border-radius: calc(var(--s) * 16); background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.06); display: flex; flex-direction: column; gap: calc(var(--s) * 14); }
+.nxs .t { margin: 0; font-size: max(calc(var(--s) * 17), 11px); font-weight: 500; color: var(--ink); }
+.nxs .cap { margin: 0; font-size: max(calc(var(--s) * 14), 9px); color: var(--ink-2); }
+.nxs1 .dots { display: flex; gap: calc(var(--s) * 5); } .nxs1 .dots i { width: calc(var(--s) * 8); height: calc(var(--s) * 8); border-radius: 50%; background: #e1e4de; }
+.nxs1 .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--s) * 8); }
+.nxs1 .tiles span { position: relative; height: calc(var(--s) * 62); border-radius: calc(var(--s) * 10); background: #eef0ec; overflow: hidden; }
+.nxs1 .bu { position: absolute; left: 50%; bottom: 0; width: calc(var(--s) * 44); height: calc(var(--s) * 22); margin-left: calc(var(--s) * -22); border-radius: calc(var(--s) * 22) calc(var(--s) * 22) 0 0; background: #d6dbd2; }
+.nxs1 .bu::before { content: ""; position: absolute; left: 50%; top: calc(var(--s) * -24); width: calc(var(--s) * 20); height: calc(var(--s) * 20); margin-left: calc(var(--s) * -10); border-radius: 50%; background: #d6dbd2; }
+.nxs1 .tiles span:nth-child(1) { box-shadow: inset 0 0 0 calc(var(--s) * 2) var(--green-strong); }
+.nxs1 .pill { margin: 0; align-self: flex-start; display: inline-flex; align-items: center; gap: calc(var(--s) * 8); padding: calc(var(--s) * 8) calc(var(--s) * 14); border-radius: 99px; background: #141412; color: #fff; font-size: max(calc(var(--s) * 14), 9px); }
+.nxs1 .pill svg { width: calc(var(--s) * 14); height: calc(var(--s) * 14); }
+.nxs2 .bars { display: flex; align-items: flex-end; gap: calc(var(--s) * 14); height: calc(var(--s) * 110); }
+.nxs2 .bars span { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: calc(var(--s) * 6); }
+.nxs2 .bars i { width: 100%; height: var(--h); border-radius: calc(var(--s) * 6); background: #dfe3dc; transform-origin: 50% 100%; animation: nxBar 12s var(--ease) 4s infinite; }
+.nxs2 .bars .hi i { background: #f0b35a; }
+.nxs2 .bars em { font-style: normal; font-size: max(calc(var(--s) * 12), 8px); color: var(--ink-3); }
+@keyframes nxBar { 0%, 2% { transform: scaleY(0); } 12%, 100% { transform: scaleY(1); } }
+.nxs3 .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: calc(var(--s) * 10) calc(var(--s) * 14); justify-items: center; }
+.nxs3 .grid i { width: calc(var(--s) * 16); height: calc(var(--s) * 16); border-radius: 50%; background: #e1e4de; animation: nxDay 12s ease 8s infinite; }
+.nxs3 .grid i:nth-child(n+22) { animation: none; }
+.nxs3 .grid i { animation-delay: calc(8s + var(--d) * .07s); }
+@keyframes nxDay { 0%, 3% { background: #e1e4de; } 5%, 100% { background: var(--green-strong); } }
+.nx-steps { position: absolute; bottom: calc(var(--s) * 16); left: 50%; transform: translateX(-50%); display: flex; gap: calc(var(--s) * 8); }
+.nx-steps i { width: calc(var(--s) * 7); height: calc(var(--s) * 7); border-radius: 50%; background: #cfd4cc; animation: nxDot 12s ease infinite; }
+.nx-steps i:nth-child(2) { animation-delay: 4s; } .nx-steps i:nth-child(3) { animation-delay: 8s; }
+@keyframes nxDot { 0%, 32% { background: var(--ink-2); width: calc(var(--s) * 20); border-radius: 4px; } 34%, 100% { background: #cfd4cc; width: calc(var(--s) * 7); } }
+.it-card:has(.nx-play) li { animation: nxLi 12s ease infinite; }
+.it-card:has(.nx-play) li:nth-child(2) { animation-delay: 4s; } .it-card:has(.nx-play) li:nth-child(3) { animation-delay: 8s; }
+@keyframes nxLi { 0%, 32% { opacity: 1; } 35%, 97% { opacity: .4; } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .nxs1 { opacity: 1; } .nx-play *, .it-card:has(.nx-play) li { animation: none !important; } }
+/* own class name for the week chart (.bars is taken elsewhere) */
+.nxs2 .wkbars { display: flex; align-items: flex-end; gap: calc(var(--s) * 14); height: calc(var(--s) * 110); }
+.nxs2 .wkbars span { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: calc(var(--s) * 6); }
+.nxs2 .wkbars i { display: block; width: 100%; height: var(--h); border-radius: calc(var(--s) * 6); background: #dfe3dc; transform-origin: 50% 100%; animation: nxBar 12s var(--ease) 4s infinite; }
+.nxs2 .wkbars .hi i { background: #f0b35a; }
+.nxs2 .wkbars em { font-style: normal; font-size: max(calc(var(--s) * 12), 8px); color: var(--ink-3); line-height: 1; }
+/* each line has its own window in the 12s loop, so none is bright before its turn */
+.it-card:has(.nx-play) li { animation: none; }
+.it-card:has(.nx-play) li:nth-child(1) { animation: nxLi1 12s ease infinite; }
+.it-card:has(.nx-play) li:nth-child(2) { animation: nxLi2 12s ease infinite; }
+.it-card:has(.nx-play) li:nth-child(3) { animation: nxLi3 12s ease infinite; }
+@keyframes nxLi1 { 0%, 31% { opacity: 1; } 35%, 96% { opacity: .4; } 100% { opacity: 1; } }
+@keyframes nxLi2 { 0%, 30% { opacity: .4; } 34%, 64% { opacity: 1; } 68%, 100% { opacity: .4; } }
+@keyframes nxLi3 { 0%, 63% { opacity: .4; } 67%, 97% { opacity: 1; } 100% { opacity: .4; } }
+/* What I learned: art box a little closer to the group title, and a touch closer to lesson one */
+.lz-card .lz-art { margin-top: calc(var(--card-pad) * -0.3); margin-bottom: calc(var(--card-pad) * -0.12); }
