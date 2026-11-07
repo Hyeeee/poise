@@ -2405,25 +2405,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* make the weight easier to feel: deeper sink, tighter pile, tray squashes a little */
 .lz-load { --gap: calc(var(--s) * 4); transform: translateY(calc(var(--s) * (var(--n) * 10 - 24))); }
 .lz-load .tray { transform: scaleY(calc(1 - var(--n) * .06)); transform-origin: 50% 100%; transition: transform .7s cubic-bezier(.34,1.56,.64,1); }
-/* About people art: four different people, each moving in their own way */
-.lz-ppl { display: flex; align-items: flex-end; gap: calc(var(--s) * 22); height: 100%; }
-.pr { position: relative; display: block; width: calc(var(--s) * 80); transform-origin: 50% 100%; }
-.pr i { position: absolute; display: block; left: 50%; }
-.pr .body { bottom: 0; width: calc(var(--s) * 80); height: calc(var(--s) * 52); margin-left: calc(var(--s) * -40); border-radius: calc(var(--s) * 40) calc(var(--s) * 40) 0 0; }
-.pr .head { width: calc(var(--s) * 38); height: calc(var(--s) * 38); margin-left: calc(var(--s) * -19); border-radius: 50%; background: #f1dcc8; }
-.pr .hair { background: #3b3a36; }
-.pr1 { height: calc(var(--s) * 128); animation: lzSway 3.2s ease-in-out infinite; } .pr1 .body { background: var(--green-strong); height: calc(var(--s) * 70); }
-.pr1 .head { top: calc(var(--s) * 8); } .pr1 .hair { top: calc(var(--s) * 4); width: calc(var(--s) * 40); height: calc(var(--s) * 22); margin-left: calc(var(--s) * -20); border-radius: calc(var(--s) * 20) calc(var(--s) * 20) calc(var(--s) * 6) calc(var(--s) * 6); z-index: 1; }
-.pr2 { height: calc(var(--s) * 96); animation: lzHop 1.6s ease-in-out infinite; } .pr2 .body { background: #f0b35a; width: calc(var(--s) * 70); margin-left: calc(var(--s) * -35); }
-.pr2 .head { top: calc(var(--s) * 12); background: #c99a74; } .pr2 .hair { top: 0; width: calc(var(--s) * 18); height: calc(var(--s) * 18); margin-left: calc(var(--s) * -9); border-radius: 50%; }
-.pr3 { height: calc(var(--s) * 114); animation: lzLean 4s ease-in-out infinite; } .pr3 .body { background: #8fb4e6; height: calc(var(--s) * 58); }
-.pr3 .head { top: calc(var(--s) * 10); } .pr3 .hair { top: calc(var(--s) * 6); width: calc(var(--s) * 48); height: calc(var(--s) * 58); margin-left: calc(var(--s) * -24); border-radius: calc(var(--s) * 24) calc(var(--s) * 24) calc(var(--s) * 8) calc(var(--s) * 8); background: #7a5236; }
-.pr4 { height: calc(var(--s) * 106); } .pr4 .body { background: #d8b6e0; }
-.pr4 .head { top: calc(var(--s) * 10); background: #8a6248; transform-origin: 50% 90%; animation: lzNod 2.4s ease-in-out infinite; } .pr4 .hair { top: calc(var(--s) * 6); width: calc(var(--s) * 30); height: calc(var(--s) * 12); margin-left: calc(var(--s) * -15); border-radius: calc(var(--s) * 10); background: #2f2e2b; z-index: 1; animation: lzNod 2.4s ease-in-out infinite; transform-origin: 50% 300%; }
-@keyframes lzSway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
-@keyframes lzHop { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(calc(var(--s) * -12)); } }
-@keyframes lzLean { 0%, 100% { transform: none; } 40%, 60% { transform: rotate(-7deg) translateX(calc(var(--s) * -4)); } }
-@keyframes lzNod { 0%, 100% { transform: none; } 50% { transform: translateY(calc(var(--s) * 4)) rotate(6deg); } }
 /* About design art: me designing a Poise screen, picking the button, stretching it, giving it a colour */
 .lz-ui { position: relative; width: calc(var(--s) * 300); height: calc(var(--s) * 170); border-radius: calc(var(--s) * 14); background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.06); --u: var(--s); }
 .lz-ui > span, .lz-ui .cur { position: absolute; display: block; }
@@ -2486,3 +2467,34 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-ai .hw .bar { width: calc(var(--s) * 120); height: calc(var(--s) * 20); border-radius: calc(var(--s) * 4); background: #c9a77c; }
 .lz-ai .hw .led { width: calc(var(--s) * 100); height: calc(var(--s) * 5); border-radius: 4px; background: #e1e4de; animation: lzOn 7s ease infinite; }
 @keyframes lzOn { 0%, 62% { background: #e1e4de; box-shadow: none; } 68%, 90% { background: #6fd08f; box-shadow: 0 0 calc(var(--s) * 14) #6fd08f; } 96%, 100% { background: #e1e4de; box-shadow: none; } }
+/* v17: calmer, simpler art. people centred in grey, design fixes a messy layout, building is just AI writing code */
+.lz-art-1 .lz-ppl { display: flex; align-items: flex-end; justify-content: center; gap: calc(var(--s) * 18); height: auto; }
+.lz-art-1 .pr { position: relative; display: block; width: calc(var(--s) * 54); height: calc(var(--s) * 92); animation: lzBreathe 5s ease-in-out infinite; }
+.lz-art-1 .pr::before { content: ""; position: absolute; left: 50%; top: 0; width: 46%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: #d9ddd5; }
+.lz-art-1 .pr::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 52%; border-radius: 999px 999px calc(var(--s) * 10) calc(var(--s) * 10); background: #d9ddd5; }
+.lz-art-1 .pr1 { height: calc(var(--s) * 84); animation-delay: -.4s; }
+.lz-art-1 .pr2 { height: calc(var(--s) * 104); width: calc(var(--s) * 60); animation-delay: -1.6s; }
+.lz-art-1 .pr3 { height: calc(var(--s) * 76); width: calc(var(--s) * 50); animation-delay: -2.8s; }
+.lz-art-1 .pr4 { height: calc(var(--s) * 98); animation-delay: -3.5s; }
+.lz-art-1 .pr5 { height: calc(var(--s) * 88); width: calc(var(--s) * 58); animation-delay: -1s; }
+.lz-art-1 .pr3::before, .lz-art-1 .pr3::after { background: #c9cec5; }
+@keyframes lzBreathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(var(--s) * -6)); } }
+/* design: a messy layout eases into order, then a check */
+.lz-fix { position: relative; width: calc(var(--s) * 240); height: calc(var(--s) * 150); border-radius: calc(var(--s) * 14); background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
+.lz-fix .r { position: absolute; left: calc(var(--s) * 24); height: calc(var(--s) * 14); border-radius: 7px; background: #dfe3dc; animation: 7s cubic-bezier(.45,0,.2,1) infinite; }
+.lz-fix .r1 { top: calc(var(--s) * 26); width: calc(var(--s) * 120); height: calc(var(--s) * 18); background: #cfd4cc; animation-name: lzR1; }
+.lz-fix .r2 { top: calc(var(--s) * 58); width: calc(var(--s) * 180); animation-name: lzR2; }
+.lz-fix .r3 { top: calc(var(--s) * 82); width: calc(var(--s) * 150); animation-name: lzR3; }
+.lz-fix .r4 { top: calc(var(--s) * 112); width: calc(var(--s) * 70); height: calc(var(--s) * 20); border-radius: 10px; background: #cfd4cc; animation-name: lzR4; }
+@keyframes lzR1 { 0%, 18%, 100% { transform: translate(calc(var(--s) * 34), calc(var(--s) * 6)) rotate(-4deg); } 38%, 88% { transform: none; } }
+@keyframes lzR2 { 0%, 18%, 100% { transform: translate(calc(var(--s) * -10), calc(var(--s) * 8)) rotate(3deg); width: calc(var(--s) * 140); } 40%, 88% { transform: none; width: calc(var(--s) * 180); } }
+@keyframes lzR3 { 0%, 18%, 100% { transform: translate(calc(var(--s) * 40), calc(var(--s) * -6)) rotate(-2deg); } 42%, 88% { transform: none; } }
+@keyframes lzR4 { 0%, 18%, 100% { transform: translate(calc(var(--s) * 110), calc(var(--s) * -4)) rotate(5deg); } 44%, 88% { transform: none; } }
+.lz-fix .ok { position: absolute; right: calc(var(--s) * 22); bottom: calc(var(--s) * 18); width: calc(var(--s) * 26); height: calc(var(--s) * 26); border-radius: 50%; background: var(--green-strong); display: flex; animation: lzOk 7s cubic-bezier(.34,1.4,.64,1) infinite; }
+.lz-fix .ok svg { width: 100%; height: 100%; }
+@keyframes lzOk { 0%, 46% { opacity: 0; transform: scale(.6); } 54%, 84% { opacity: 1; transform: none; } 92%, 100% { opacity: 0; transform: scale(.8); } }
+/* building: centred editor, smoother typing */
+.lz-ai .ed { width: calc(var(--s) * 260); }
+.lz-ai .cl { animation-timing-function: cubic-bezier(.45,0,.3,1); }
+.lz-ai .spark { animation-timing-function: ease-in-out; }
+.lz-art-3 > * { transform: none; }
