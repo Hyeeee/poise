@@ -2546,3 +2546,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 @keyframes lzLean7 { 0%, 25% { transform: none; } 40%, 60% { transform: rotate(-14deg) translateY(calc(var(--s) * 8)); } 75%, 100% { transform: none; } }
 @keyframes lzLed7 { 0%, 30% { background: #6fd08f; box-shadow: none; } 42%, 62% { background: #f0b35a; box-shadow: 0 0 calc(var(--s) * 12) #f0b35a; } 76%, 100% { background: #6fd08f; box-shadow: none; } }
 .lz-art-3 .lz-lap { zoom: 1.25; }
+/* people: each person sits inside a round avatar, the signal ring spreads from the whole circle */
+.lz-art-1 .lz-p { width: calc(var(--s) * 72); height: calc(var(--s) * 72); border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #cfd4cc 0 15%, transparent 15.5%), radial-gradient(ellipse 30% 26% at 50% 100%, #cfd4cc 0 99%, transparent 100%), #e9ece6; }
+.lz-art-1 .lz-p::after { display: none; }
+.lz-art-1 .lz-p i { inset: 0; }
+.lz-art-1 .lz-p { background: radial-gradient(circle at 50% 39%, #cfd4cc 0 17%, transparent 17.5%), radial-gradient(ellipse 33% 28% at 50% 96%, #cfd4cc 0 99%, transparent 100%), #e9ece6; }
