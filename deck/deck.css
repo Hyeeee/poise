@@ -2707,3 +2707,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .hy-list b { font-weight: 500; font-size: max(calc(var(--s) * 15), 10px); color: var(--green-ink); }
 .hy-list span { font-size: max(calc(var(--s) * 18), 11px); line-height: 1.4; color: var(--ink-2); }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .hy-subs.two { grid-template-columns: 1fr; } }
+.hy-subs.two .hy-sub p { font-size: max(calc(var(--s) * 18), 11px); line-height: 1.5; color: var(--ink-2); max-width: 46ch; }
