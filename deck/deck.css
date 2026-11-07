@@ -2374,3 +2374,15 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* numbers back in front of each lesson */
 .lz-card li { grid-template-columns: calc(var(--s) * 30) 1fr; }
 .lz-card li::before { display: block; content: counter(lz); grid-row: 1 / 3; font-size: max(calc(var(--s) * 24), 14px); font-weight: 500; line-height: 1.25; color: var(--ink-3); padding-top: 0; }
+/* About design art v3: guide steps, twelve become four */
+.lz-guide { width: calc(var(--s) * 380); padding: calc(var(--s) * 24); border-radius: calc(var(--s) * 16); background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: calc(var(--s) * 10); }
+.lz-guide .ln { display: block; height: calc(var(--s) * 10); border-radius: 6px; background: #eceee9; }
+.lz-guide .w1 { width: 55%; height: calc(var(--s) * 14); background: #dfe3dc; } .lz-guide .w2 { width: 90%; } .lz-guide .w3 { width: 70%; }
+.lz-dots { display: flex; align-items: center; margin-top: calc(var(--s) * 14); height: calc(var(--s) * 10); }
+.lz-dots b { display: block; flex: none; width: calc(var(--s) * 10); height: calc(var(--s) * 10); margin-right: calc(var(--s) * 9); border-radius: 50%; background: #e1e4de; transition: width .6s var(--ease), margin .6s var(--ease), opacity .4s ease, background .3s ease; }
+.lz-dots b.on { background: var(--green-strong); }
+.lz-guide.short .lz-dots b:not(.k) { width: 0; margin-right: 0; opacity: 0; }
+.lz-guide.short .lz-dots b.k { width: calc(var(--s) * 52); border-radius: 6px; margin-right: calc(var(--s) * 10); }
+.lz-cap { font-size: max(calc(var(--s) * 14), 9px); color: var(--ink-3); }
+.lz-art-2 .lz-dots b { animation: none; }
+.lz-guide { transform: scale(1.15); }
