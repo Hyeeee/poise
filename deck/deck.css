@@ -2386,3 +2386,22 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-cap { font-size: max(calc(var(--s) * 14), 9px); color: var(--ink-3); }
 .lz-art-2 .lz-dots b { animation: none; }
 .lz-guide { transform: scale(1.15); }
+/* About design art v4: options pile up and weigh the tray down, removing them lets it float up */
+.lz-art-2 { --n: 0; }
+.lz-load { --n: 0; --bh: calc(var(--s) * 22); --gap: calc(var(--s) * 6); position: relative; width: calc(var(--s) * 220); height: calc(var(--s) * 180); transform: translateY(calc(var(--s) * (var(--n) * 7 - 14))); transition: transform .7s cubic-bezier(.34,1.56,.64,1); }
+.lz-load .tray { position: absolute; left: 0; right: 0; bottom: calc(var(--s) * 34); height: calc(var(--s) * 18); border-radius: calc(var(--s) * 9); background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
+.lz-stack { position: absolute; left: calc(var(--s) * 30); right: calc(var(--s) * 30); bottom: calc(var(--s) * 58); top: 0; }
+.blk { position: absolute; left: 50%; bottom: calc(var(--i) * (var(--bh) + var(--gap))); height: var(--bh); border-radius: calc(var(--s) * 7); background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.06); opacity: 0; transform: translate(-50%, calc(var(--s) * -60)); transition: transform .55s cubic-bezier(.34,1.4,.64,1), opacity .35s ease; }
+.blk.on { opacity: 1; transform: translate(-50%, 0); }
+.blk.on.off { opacity: 0; transform: translate(-50%, calc(var(--s) * -50)); transition: transform .5s ease-in, opacity .4s ease; }
+.blk.tog { width: calc(var(--s) * 110); background: linear-gradient(90deg, #fff 70%, transparent 70%), #fff; }
+.blk.tog::after { content: ""; position: absolute; right: calc(var(--s) * 6); top: 50%; width: calc(var(--s) * 24); height: calc(var(--s) * 12); margin-top: calc(var(--s) * -6); border-radius: 9px; background: var(--green-strong); }
+.blk.sld { width: calc(var(--s) * 140); }
+.blk.sld::after { content: ""; position: absolute; left: calc(var(--s) * 10); right: calc(var(--s) * 10); top: 50%; height: calc(var(--s) * 3); margin-top: calc(var(--s) * -1.5); border-radius: 3px; background: linear-gradient(90deg, #f0b35a 55%, #e1e4de 55%); }
+.blk.btn { width: calc(var(--s) * 84); background: #8fb4e6; }
+.blk.ln { width: calc(var(--s) * 124); }
+.blk.ln::after { content: ""; position: absolute; left: calc(var(--s) * 10); width: 60%; top: 50%; height: calc(var(--s) * 5); margin-top: calc(var(--s) * -2.5); border-radius: 3px; background: #dfe3dc; }
+.lz-floor { position: absolute; left: 50%; bottom: calc(var(--s) * 22); width: calc(var(--s) * (150 + var(--n) * 10)); height: calc(var(--s) * 10); margin-left: calc(var(--s) * (-75 - var(--n) * 5)); border-radius: 50%; background: rgba(20,20,18, calc(.04 + var(--n) * .025)); filter: blur(calc(var(--s) * 4)); transition: all .7s cubic-bezier(.34,1.56,.64,1); }
+/* make the weight easier to feel: deeper sink, tighter pile, tray squashes a little */
+.lz-load { --gap: calc(var(--s) * 4); transform: translateY(calc(var(--s) * (var(--n) * 10 - 24))); }
+.lz-load .tray { transform: scaleY(calc(1 - var(--n) * .06)); transform-origin: 50% 100%; transition: transform .7s cubic-bezier(.34,1.56,.64,1); }
