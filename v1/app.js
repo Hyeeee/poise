@@ -302,8 +302,9 @@ function sensorShift() {
 //  3. Fade to red: if you're still shifted 20 s later (or the shift is large, 80%+),
 //     it blends from yellow to red over another 6 s.
 //  4. Back in position for 1 s → green for a moment, then white again.
-const GRACE_MS = () => Math.max(5000, strongDelay());
-const FADE_MS = 6000, RED_AFTER_MS = 20000, SETTLE_MS = 1000;
+const GRACE_MS = () => strongDelay();                  // exactly the delay the person chose, same as version two
+const FADE_MS = 2000, SETTLE_MS = 1000;
+const RED_AFTER_MS = () => Math.max(8000, strongDelay() * 2);
 const WHITE = [140, 140, 130], YELLOW = [255, 130, 0], RED = [255, 0, 0];
 const mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
 let alignedSince = 0, cueShown = false, lastRgb = null;
@@ -324,10 +325,10 @@ function applyPosture(d, now, delta, widthRatio) {
     } else {
       cueShown = true;
       const toYellow = Math.min(1, (held - grace) / FADE_MS);
-      const redStart = d >= 80 ? grace + FADE_MS : grace + RED_AFTER_MS;
+      const redStart = d >= 80 ? grace + FADE_MS : grace + RED_AFTER_MS();
       const toRed = Math.max(0, Math.min(1, (held - redStart) / FADE_MS));
       rgb = toRed > 0 ? mix(YELLOW, RED, toRed) : mix(WHITE, YELLOW, toYellow);
-      state = toRed >= 1 ? 'red' : toYellow > .5 ? 'amber' : 'white';
+      state = toRed >= 1 ? 'red' : toYellow > .3 ? 'amber' : 'white';
     }
     recoverAt = 0;
   } else {
