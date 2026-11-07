@@ -148,12 +148,12 @@ function typeLine(el, text, token) {
     words.forEach((w, i) => {
       const s = document.createElement('span');
       s.className = 'word'; s.textContent = w + (i < words.length - 1 ? ' ' : '');
-      s.style.animationDelay = `${i * 70}ms`;
+      s.style.animationDelay = `${i * 50}ms`;
       // The voice ask in the intro starts on its own line (display only; the spoken text is unchanged).
       if ((w === 'First,' || (w === 'A' && words[i - 1] === 'Poise.')) && i > 0) el.append(document.createElement('br'));
       el.append(s);
     });
-    setTimeout(() => resolve(), words.length * 70 + 350);
+    setTimeout(() => resolve(), words.length * 50 + 250);
   });
 }
 
@@ -194,7 +194,7 @@ export function runOnboarding() {
       choices.classList.remove('in');
       choices.innerHTML = '';
       orb.classList.add('thinking');
-      await new Promise(r => setTimeout(r, reducedMotion() ? 0 : 650));
+      await new Promise(r => setTimeout(r, reducedMotion() ? 0 : 450));
       orb.classList.remove('thinking');
       if (my.cancelled) return;
       speak(text, orb);
@@ -202,7 +202,7 @@ export function runOnboarding() {
       if (my.cancelled) return;
       renderChoices();
       requestAnimationFrame(() => choices.classList.add('in'));
-      setTimeout(() => { if (!my.cancelled) $('setup-back').classList.toggle('show', index >= 0); }, reducedMotion() ? 0 : 1100);
+      setTimeout(() => { if (!my.cancelled) $('setup-back').classList.toggle('show', index >= 0); }, reducedMotion() ? 0 : 800);
       choices.querySelector('button')?.focus({ preventScroll: true });
     }
 

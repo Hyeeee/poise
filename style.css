@@ -100,9 +100,9 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .setup-line { font-family: var(--serif); font-size: var(--t-display); line-height: 1.12; letter-spacing: -.02em; font-weight: 400; min-height: 2.3em; max-width: 22ch; text-wrap: pretty; }
 .setup-choices { margin-top: 30px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .setup-choices > * { opacity: 0; transform: translateY(10px) scale(.985); filter: blur(3px); }
-.setup-choices.in > * { animation: rise 1.4s cubic-bezier(.16,1,.3,1) .25s forwards; }
-.setup-choices.in > *:nth-child(2) { animation-delay: .42s; } .setup-choices.in > *:nth-child(3) { animation-delay: .59s; } .setup-choices.in > *:nth-child(4) { animation-delay: .76s; } .setup-choices.in > *:nth-child(5) { animation-delay: .93s; }
-.setup-line .word { display: inline; opacity: 0; filter: blur(8px); animation: wordIn .9s cubic-bezier(.2,.7,.2,1) forwards; }
+.setup-choices.in > * { animation: rise 1s cubic-bezier(.16,1,.3,1) .15s forwards; }
+.setup-choices.in > *:nth-child(2) { animation-delay: .27s; } .setup-choices.in > *:nth-child(3) { animation-delay: .39s; } .setup-choices.in > *:nth-child(4) { animation-delay: .51s; } .setup-choices.in > *:nth-child(5) { animation-delay: .63s; }
+.setup-line .word { display: inline; opacity: 0; filter: blur(8px); animation: wordIn .65s cubic-bezier(.2,.7,.2,1) forwards; }
 @keyframes wordIn { to { opacity: 1; filter: blur(0); } }
 @keyframes rise { 0% { opacity: 0; } 60% { opacity: 1; } 100% { opacity: 1; transform: none; filter: blur(0); } }
 .setup-back { opacity: 0; transform: translateY(6px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); pointer-events: none; }
