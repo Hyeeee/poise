@@ -572,6 +572,17 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
   set([40, 45, 50]);
   fr.addEventListener('load', () => { try { fr.contentWindow.addEventListener('poise-light', e => set(e.detail.rgb)); } catch {} });
 };
+// Recordings drive the deck's light bar: led.json holds [time, r, g, b] points read from each video
+// (the app's own light colour on screen), so the bar changes at the same moment as in the recording.
+const recLight = (vid, slide, dir) => {
+  let map = null, n = 0, raf = 0;
+  fetch(`${dir}/led.json`).then(r => r.ok ? r.json() : null).then(j => { map = j; }).catch(() => {});
+  const set = rgb => { const m = Math.max(...rgb, 1), k = 255 / m, c = rgb.map(v => Math.round(v * k));
+    slide.style.setProperty('--led', `rgb(${c.join(',')})`); slide.style.setProperty('--led-on', Math.min(1, (m - 30) / 160).toFixed(2)); };
+  const tick = () => { raf = requestAnimationFrame(tick); const pts = map && map[n]; if (!pts || vid.paused) return;
+    const t = vid.currentTime; let p = pts[0]; for (const q of pts) { if (q[0] <= t) p = q; else break; } set(p.slice(1)); };
+  return { play(num) { n = num; cancelAnimationFrame(raf); tick(); }, stop() { cancelAnimationFrame(raf); } };
+};
 // Version one: one part of the app per step. Each part is the real version one app in demo mode (a stand-in
 // camera and pose, no sound), brought to the right screen, then a script plays that part on a loop with a tap dot.
 (() => {
@@ -627,6 +638,7 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
   }
   // Screen recordings in v1rec/<n>.mp4 take over from the scripted demo when they exist.
   const vid = box.querySelector('video.rec'), has = {};
+  const v1led = recLight(vid, sl, 'v1rec');
   const check = n => has[n] ?? (has[n] = fetch(`v1rec/${n}.mp4`, { method: 'HEAD' }).then(r => r.ok && /video/.test(r.headers.get('content-type') || '')).catch(() => false));
   const sync = async () => {
     const open = sl.classList.contains('open'), i = Math.min(KEYS.length - 1, +(sl.dataset.at || 0)), k = KEYS[i];
@@ -634,8 +646,8 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
     if (!open) { if (cur) { cur = ''; run++; fr.src = 'about:blank'; vid.pause(); } return; }
     if (k === cur) return;
     cur = k; const my = ++run;
-    if (await check(i + 1)) { if (my !== run) return; fr.src = 'about:blank'; tap.classList.remove('on'); box.classList.remove('loading'); box.classList.add('has-rec'); vid.style.objectPosition = 'center center'; vid.src = `v1rec/${i + 1}.mp4`; vid.currentTime = 0; vid.play().catch(() => {}); return; }
-    box.classList.remove('has-rec'); vid.removeAttribute('src'); play(k, my);
+    if (await check(i + 1)) { if (my !== run) return; fr.src = 'about:blank'; tap.classList.remove('on'); box.classList.remove('loading'); box.classList.add('has-rec'); v1led.play(i + 1); vid.style.objectPosition = 'center center'; vid.src = `v1rec/${i + 1}.mp4`; vid.currentTime = 0; vid.play().catch(() => {}); return; }
+    box.classList.remove('has-rec'); v1led.stop(); vid.removeAttribute('src'); play(k, my);
   };
   sl.addEventListener('step', sync); new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class', 'data-at'] }); sync();
 })();
@@ -786,13 +798,14 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
   mirrorLight(fr, sl);
   const fit = () => { fr.style.transform = `scale(${box.clientWidth / 1440})`; };
   new ResizeObserver(fit).observe(box); fit();
+  const v2led = recLight(vid, sl, 'v2rec');
   const has = {};
   const check = n => has[n] ?? (has[n] = fetch(`v2rec/${n}.mp4`, { method: 'HEAD' }).then(r => r.ok && /video/.test(r.headers.get('content-type') || '')).catch(() => false));
   let cur = -1, run = 0;
   const show = async k => { const my = ++run; const n = k + 1;
     items.forEach((it, i) => it.classList.toggle('on', i === k));
-    if (await check(n)) { if (my !== run) return; fr.src = 'about:blank'; box.classList.add('has-rec'); vid.src = `v2rec/${n}.mp4`; vid.currentTime = 0; vid.play().catch(() => {}); return; }
-    box.classList.remove('has-rec'); vid.removeAttribute('src');
+    if (await check(n)) { if (my !== run) return; fr.src = 'about:blank'; box.classList.add('has-rec'); v2led.play(n); vid.src = `v2rec/${n}.mp4`; vid.currentTime = 0; vid.play().catch(() => {}); return; }
+    box.classList.remove('has-rec'); v2led.stop(); vid.removeAttribute('src');
     box.classList.add('loading'); const d = items[k].dataset.demo;
     const ready = new Promise(r => { const h = e => { if (e.data && e.data.demoReady) { removeEventListener('message', h); r(); } }; addEventListener('message', h); });
     fr.src = `../?demo=${d}${d === 'welcome' ? '&paint=1' : ''}&k=${Date.now()}`;
