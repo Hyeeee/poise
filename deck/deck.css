@@ -2257,3 +2257,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide[data-title="What the playtest showed"] .an-row { top: calc(var(--s) * 4); }
 .slide[data-title="What I learned"] .lessons i { display: none; }
 .slide[data-title="What I learned"] .ls-art { margin-top: 0; }
+/* interview backs: the three notes centred, so the space under the divider equals the space at the bottom */
+.iv-back { gap: 0 !important; }
+.iv-back .iv-learn { flex: 1; justify-content: center; padding-top: var(--card-pad); padding-bottom: 0; }
