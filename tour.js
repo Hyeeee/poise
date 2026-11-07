@@ -4,10 +4,10 @@ const $ = id => document.getElementById(id);
 // Grouped after playtesting: 12 single stops became 4, one per area of the screen.
 // A step can point at several elements; the highlight wraps all of them.
 const WORK_STEPS = [
-  { sel: ['.state'], title: 'Your posture', text: 'This card compares you to your reference. Set reference saves how you sit now, and the dots stay calm while you are aligned.' },
-  { sel: ['.session'], title: 'Your session', text: 'The timer starts when you set a reference. Tap the mode name to change length or sensitivity, and end the session any time to see your report.' },
-  { sel: ['.topbar .segmented', '.tools'], title: 'Controls', text: 'Switch between Focus and Break, connect the light bar, turn the camera on or off, open a mini window, and change modes, voice and music.' },
-  { sel: ['#ask-form'], title: 'Ask Poise', text: 'Type or speak to change anything. Try “focus 40 minutes”, “less sensitive” or “take a break”.' },
+  { sel: ['.state'], title: 'Your posture', text: 'Your figure moves with you over your reference. Drift too far from it and Poise lets you know.' },
+  { sel: ['.session'], title: 'Your session', text: 'The timer starts when you set a reference. Tap the mode name to change its length or when to notice.' },
+  { sel: ['.topbar .segmented', '.tools'], title: 'Controls', text: 'Connect the light bar, turn the camera on or off, open a mini window, or change your preferences in Settings.' },
+  { sel: ['#ask-form'], title: 'Ask Poise AI', text: 'Type or speak to change anything. Try “focus 40 minutes” or “take a break”.' },
 ];
 
 const BREAK_STEPS = {
