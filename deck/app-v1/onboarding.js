@@ -84,6 +84,7 @@ let currentAudio = null;
 // Speak a line. Uses a natural pre-recorded voice when one exists for this exact text,
 // otherwise falls back to the browser's built-in speech.
 export function speak(text, orb, lang = 'en') {
+  return; // version one has no voice
   if (!store.state.voice) return;
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
@@ -175,7 +176,7 @@ export function runOnboarding() {
       if (my.cancelled) return;
       renderChoices();
       requestAnimationFrame(() => choices.classList.add('in'));
-      setTimeout(() => { if (!my.cancelled) $('setup-back').classList.toggle('show', index >= 0); }, reducedMotion() ? 0 : 1100);
+      setTimeout(() => { if (!my.cancelled) $('setup-back').classList.toggle('show', index >= 1); }, reducedMotion() ? 0 : 1100);
       choices.querySelector('button')?.focus({ preventScroll: true });
     }
 
@@ -326,7 +327,7 @@ export function runOnboarding() {
         choices.append(label, pick, b);
       });
     }
-    intro();
+    next(); // version one starts straight with the questions
   });
 }
 

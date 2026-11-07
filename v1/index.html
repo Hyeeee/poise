@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>.ask[hidden],[hidden]{display:none!important}</style>
 </head>
 <body>
 
@@ -34,7 +35,7 @@
 <section id="setup" class="setup" hidden>
   <div class="setup-top">
     <div class="setup-progress" aria-hidden="true"><i id="setup-bar"></i></div>
-    <button id="setup-voice" class="icon-btn" aria-label="Mute voice" aria-pressed="true">
+    <button id="setup-voice" hidden class="icon-btn" aria-label="Mute voice" aria-pressed="true">
       <svg class="i-on" viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
       <svg class="i-off" viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg>
     </button>
@@ -192,7 +193,7 @@
     </div>
   </aside>
 
-  <div class="ask" id="ask">
+  <div class="ask" id="ask" hidden>
     <div class="thread glass" id="thread" hidden>
       <div class="messages" id="messages" aria-live="polite"></div>
       <div class="suggest" id="suggest"></div>
@@ -228,10 +229,10 @@
   <div class="mode-list" id="mode-list"></div>
   <div class="editor" id="editor"></div>
   <footer class="prefs">
-    <h3 class="drawer-h">Voice and light</h3>
+    <h3 class="drawer-h">Light</h3>
     <div class="pref-group">
-      <label class="pref-row"><span>Voice guidance<small>Spoken posture cues and summaries</small></span><span class="toggle"><input type="checkbox" id="pref-voice"></span></label>
-      <div class="pref-row" id="pref-voice-pick"><span>Voice</span><select class="fsel" id="voice-sel" aria-label="Voice"><option value="ava">Ava</option><option value="sonia">Sonia</option><option value="andrew">Andrew</option></select><nav class="segmented" id="voice-seg" hidden><button data-v="ava">Ava</button><button data-v="sonia">Sonia</button><button data-v="andrew">Andrew</button></nav></div>
+      <label class="pref-row" hidden><span>Voice guidance<small>Spoken posture cues and summaries</small></span><span class="toggle"><input type="checkbox" id="pref-voice"></span></label>
+      <div class="pref-row" id="pref-voice-pick" hidden><span>Voice</span><select class="fsel" id="voice-sel" aria-label="Voice"><option value="ava">Ava</option><option value="sonia">Sonia</option><option value="andrew">Andrew</option></select><nav class="segmented" id="voice-seg" hidden><button data-v="ava">Ava</button><button data-v="sonia">Sonia</button><button data-v="andrew">Andrew</button></nav></div>
       <div class="pref-row" id="pref-bright"><span>Light bar brightness<small>How bright the light bar glows</small></span><select class="fsel" id="bright-sel" aria-label="Light bar brightness"><option value="25">Low</option><option value="50">Soft</option><option value="75">Medium</option><option value="100">Full</option></select><nav class="segmented" id="bright-seg" hidden><button data-b="25">Low</button><button data-b="50">Soft</button><button data-b="75">Medium</button><button data-b="100">Full</button></nav></div>
       <label class="pref-row"><span>Background music</span><span class="toggle"><input type="checkbox" id="pref-music"></span></label>
     </div>

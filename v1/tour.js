@@ -12,8 +12,8 @@ const WORK_STEPS = [
   { sel: '#connect', title: 'Light bar', text: 'Connect the light bar over USB so it glows with your posture.' },
   { sel: '#stop', title: 'Camera', text: 'Turn the camera on or off. Video stays on this device.' },
   { sel: '.tools .music-btn', title: 'Music', text: 'Calm background sound. Tap to turn it on or off.' },
-  { sel: '#open-modes', title: 'Modes and settings', text: 'Create your own focus and break modes, and set voice and music.' },
-  { sel: '#ask-form', title: 'Ask Poise', text: 'Type or speak to change anything. Try “focus 40 minutes”, “less sensitive” or “take a break”.' },
+  { sel: '#open-modes', title: 'Modes and settings', text: 'Create your own focus and break modes, and set the light and music.' },
+  { sel: '#pause', title: 'Pause', text: 'Stop the timer for a moment without ending your session.' },
 ];
 
 const BREAK_STEPS = {
