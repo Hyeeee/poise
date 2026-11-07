@@ -150,7 +150,7 @@ function typeLine(el, text, token) {
       s.className = 'word'; s.textContent = w + (i < words.length - 1 ? ' ' : '');
       s.style.animationDelay = `${i * 50}ms`;
       // The voice ask in the intro starts on its own line (display only; the spoken text is unchanged).
-      if ((w === 'First,' || (w === 'A' && words[i - 1] === 'Poise.')) && i > 0) el.append(document.createElement('br'));
+      if ((w === 'First,' || (w === 'A' && words[i - 1] === 'Poise.') || (w === 'how' && words[i - 1] === 'work,')) && i > 0) el.append(document.createElement('br'));
       el.append(s);
     });
     setTimeout(() => resolve(), words.length * 50 + 250);
