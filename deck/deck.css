@@ -2683,3 +2683,17 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-art-2 b { zoom: 1; width: calc(var(--s) * 24); height: calc(var(--s) * 24); margin: 0 calc(var(--s) * 10); }
 @keyframes lzSlot0 { 0%, 28% { width: calc(var(--s) * 24); margin: 0 calc(var(--s) * 10); } 46%, 88% { width: 0; margin: 0; } 98%, 100% { width: calc(var(--s) * 24); margin: 0 calc(var(--s) * 10); } }
 @keyframes lzKeep0 { 0%, 25% { transform: none; margin: 0 calc(var(--s) * 10); } 45%, 80% { transform: none; margin: 0 calc(var(--s) * 24); } 90%, 100% { transform: none; margin: 0 calc(var(--s) * 10); } }
+/* What's next scene three: Poise living in the Mac menu bar */
+.nxs3 .mb { width: calc(var(--s) * 420); display: flex; flex-direction: column; align-items: flex-end; gap: calc(var(--s) * 8); }
+.nxs3 .mb-bar { width: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-end; gap: calc(var(--s) * 14); padding: calc(var(--s) * 9) calc(var(--s) * 16); border-radius: calc(var(--s) * 12); background: rgba(255,255,255,.9); box-shadow: 0 1px 6px rgba(0,0,0,.06); font-size: max(calc(var(--s) * 14), 9px); color: var(--ink); }
+.nxs3 .mb-bar > i { width: calc(var(--s) * 16); height: calc(var(--s) * 16); border-radius: calc(var(--s) * 4); background: #d9ddd5; }
+.nxs3 .mb-bar > i.w { width: calc(var(--s) * 22); border-radius: 99px; }
+.nxs3 .mb-bar em { font-style: normal; color: var(--ink-2); }
+.nxs3 .mb-poise { display: inline-flex; align-items: center; gap: calc(var(--s) * 6); padding: calc(var(--s) * 3) calc(var(--s) * 8); border-radius: calc(var(--s) * 6); background: #eceee9; font-weight: 500; }
+.nxs3 .mb-poise b, .nxs3 .mb-state b { width: calc(var(--s) * 10); height: calc(var(--s) * 10); border-radius: 50%; box-shadow: 0 0 0 calc(var(--s) * 1.5) #cfd4cc inset; background: #f6f4ee; animation: nxMb 12s ease 8s infinite; }
+@keyframes nxMb { 0%, 10% { background: #f6f4ee; } 16%, 100% { background: #f2c94c; box-shadow: none; } }
+.nxs3 .mb-menu { width: calc(var(--s) * 200); margin-right: calc(var(--s) * 92); padding: calc(var(--s) * 8); border-radius: calc(var(--s) * 12); background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.1); font-size: max(calc(var(--s) * 13), 9px); color: var(--ink); opacity: 0; transform: translateY(calc(var(--s) * -6)); animation: nxMenu 12s ease 8s infinite; }
+.nxs3 .mb-menu p { margin: 0; padding: calc(var(--s) * 6) calc(var(--s) * 8); border-radius: calc(var(--s) * 6); }
+.nxs3 .mb-menu p.mb-state { display: flex; align-items: center; gap: calc(var(--s) * 6); color: var(--ink-2); border-bottom: 1px solid #eceee9; border-radius: 0; margin-bottom: calc(var(--s) * 4); }
+.nxs3 .mb-menu p:nth-child(3) { background: #eef3ec; }
+@keyframes nxMenu { 0%, 8% { opacity: 0; transform: translateY(calc(var(--s) * -6)); } 13%, 100% { opacity: 1; transform: none; } }
