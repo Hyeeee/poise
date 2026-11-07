@@ -1636,7 +1636,7 @@ function showSensorCard() {
   $('empty-camera').classList.toggle('sensor-on', on);
   $('empty-camera').querySelector('.say').innerHTML = on
     ? `<b>Sensor mode</b> <span>The camera is off, so the distance sensor is keeping an eye on how far you sit.</span>`
-    : '<b>Turn on your camera</b> <span>I watch your posture through it. The video stays on this device and is never saved or sent.</span>';
+    : '<b>Turn on your camera</b> <span>I watch your posture through it.<br>Nothing is ever recorded or saved.</span>';
   $('enable').textContent = on ? 'Use the camera instead' : 'Turn on camera';
   $('enable').classList.add('primary'); $('enable').classList.remove('ghost'); $('enable').classList.toggle('end-wide', on);
 }
