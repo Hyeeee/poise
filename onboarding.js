@@ -150,7 +150,7 @@ function typeLine(el, text, token) {
       s.className = 'word'; s.textContent = w + (i < words.length - 1 ? ' ' : '');
       s.style.animationDelay = `${i * 50}ms`;
       // The voice ask in the intro starts on its own line (display only; the spoken text is unchanged).
-      if ((w === 'First,' || (w === 'A' && words[i - 1] === 'Poise.') || (/^(how|what|which|when)$/.test(w) && /,$/.test(words[i - 1] || ''))) && i > 0) el.append(document.createElement('br'));
+      if ((w === 'First,' || (w === 'A' && words[i - 1] === 'Poise.') || (/^(how|what|which|when)$/.test(w) && /,$/.test(words[i - 1] || '')) || (w === 'You' && /\.$/.test(words[i - 1] || ''))) && i > 0) el.append(document.createElement('br'));
       el.append(s);
     });
     setTimeout(() => resolve(), words.length * 50 + 250);
@@ -320,7 +320,7 @@ export function runOnboarding() {
       };
       const SENS_WORD = { gentle: 'Gentle', balanced: 'Clear', firm: 'Quick' };
       const row = (q, label, value) => `<button type="button" class="sum-row" data-q="${q}"><span>${label}</span><b>${value}</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`;
-      show('Here is what I set up for you. You can change anything later, or just ask me.', () => {
+      show('Here is what I set up for you. You can change anything later.', () => {
         choices.innerHTML = `
           <div class="summary">
             <div class="sum-card"><h3>Focus</h3>
