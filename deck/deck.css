@@ -2596,3 +2596,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-art-1 .lz-p i { animation-duration: 3s; }
 .lz-art-1 .lz-p:nth-child(2) i { animation-duration: 3.5s; }
 .lz-art-1 .lz-p:nth-child(3) i { animation-duration: 4s; }
+/* four left: a little closer together */
+@keyframes lzKeep0 { 0%, 25% { transform: none; margin: 0 calc(var(--s) * 5); } 45%, 80% { transform: none; margin: 0 calc(var(--s) * 19); } 90%, 100% { transform: none; margin: 0 calc(var(--s) * 5); } }
