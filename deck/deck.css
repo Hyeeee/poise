@@ -2592,3 +2592,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-art-1 .lz-p:nth-child(3) i { border-color: #6f9fe0; }
 /* a little transparency on the rings, still clearly coloured */
 @keyframes lzRingSoft { 0% { transform: scale(1.14); opacity: 0; } 6% { transform: scale(1.16); opacity: .75; } 60% { opacity: .55; } 100% { transform: scale(1.62); opacity: 0; } }
+/* rings spread a touch faster */
+.lz-art-1 .lz-p i { animation-duration: 3s; }
+.lz-art-1 .lz-p:nth-child(2) i { animation-duration: 3.5s; }
+.lz-art-1 .lz-p:nth-child(3) i { animation-duration: 4s; }
