@@ -2526,3 +2526,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-art-2 { flex-direction: row; gap: 0; }
 .lz-art-1 > *, .lz-art-3 > * { transform: none; }
 .lz-art-1 .lz-p, .lz-art-2 b, .lz-art-3 svg, .lz-art-3 .lz-bar { zoom: 1.25; }
+/* design dots: the dot itself fades and shrinks evenly, only the empty slot closes up, so nothing squashes */
+.lz-art-2 b { position: relative; background: none !important; }
+.lz-art-2 b::before { content: ""; position: absolute; left: 50%; top: 50%; width: calc(var(--s) * 22); height: calc(var(--s) * 22); margin: calc(var(--s) * -11) 0 0 calc(var(--s) * -11); border-radius: 50%; background: #cfd4cc; animation: lzDot0 6s var(--ease) infinite; }
+.lz-art-2 b.k::before { background: var(--green-strong); animation: none; }
+.lz-art-2 b:not(.k) { animation: lzSlot0 6s var(--ease) infinite; }
+@keyframes lzDot0 { 0%, 22% { transform: scale(1); opacity: 1; } 36%, 88% { transform: scale(0); opacity: 0; } 98%, 100% { transform: scale(1); opacity: 1; } }
+@keyframes lzSlot0 { 0%, 28% { width: calc(var(--s) * 22); margin: 0 calc(var(--s) * 7); } 46%, 85% { width: 0; margin: 0; } 95%, 100% { width: calc(var(--s) * 22); margin: 0 calc(var(--s) * 7); } }
