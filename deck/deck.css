@@ -2225,12 +2225,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .qm-who img { width: calc(var(--s) * 24); height: calc(var(--s) * 24); border-radius: 50%; object-fit: cover; }
 .qm-t + .qm-t { padding-top: calc(var(--s) * 14); border-top: 1px solid rgba(20,20,18,.05); }
 
-/* One rule for every content slide: the space between the title and the cards equals the space between
-   the cards and the bottom edge. The bottom padding equals the gap under the title, and content that does
-   not fill the slide is centred in what is left, so both sides grow by the same amount. */
-.slide.paper:has(> .head) { padding-bottom: calc(var(--s) * 44); }
-.slide.paper > .head + * { margin-top: auto; }
-.slide.paper:has(> .head) > :last-child { margin-bottom: auto; }
-.slide[data-title="Hypothesis"] .hy-box { margin-top: 0; }
+
 .qm-t > .qm-who { margin-bottom: calc(var(--s) * 13); }
-.slide[data-title="Hypothesis"] .hy-row { margin-top: auto; margin-bottom: 0; } .slide[data-title="Hypothesis"] .hy-box { margin-top: calc(var(--s) * 24); margin-bottom: auto !important; }
+
