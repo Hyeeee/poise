@@ -98,7 +98,7 @@ const OPT_ICON = {
   breathe: '<svg viewBox="0 0 24 24"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 13h15a3 3 0 1 1-3 3"/><path d="M3 17h7"/></svg>',
   game: '<svg viewBox="0 0 24 24"><circle cx="8" cy="8.5" r="4"/><circle cx="17.5" cy="14" r="2.6"/><circle cx="8" cy="18.8" r="1.4"/></svg>',
   auto: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>',
-  ask: '<svg viewBox="0 0 24 24"><path d="M5 5h14v10H10l-4 4v-4H5z"/><path d="M10 9.5a2 2 0 1 1 2.5 2V12"/></svg>',
+  ask: '<svg viewBox="0 0 24 24"><path d="M5 5h14v10H10l-4 4v-4H5z"/></svg>',
 };
 // Stop whatever is speaking right now.
 export function stopVoice(orb) {
