@@ -2719,3 +2719,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v1-motion .v1-card { grid-template-columns: minmax(0, 1fr) calc(var(--s) * 560); align-items: center; }
 .v1-motion .v1-card .v1-dev { height: auto; width: 100%; align-self: center; }
 .v1-motion .v1-card .v1-dev .v1-screen { width: 100%; height: auto; }
+/* version one: a bigger laptop, a little less gap and text column */
+.v1-motion .v1-card { grid-template-columns: minmax(0, 1fr) calc(var(--s) * 500); gap: calc(var(--s) * 72); }
+/* version two: the same wide screen as the recordings, nothing cropped */
+.v2-motion .v1-card { grid-template-columns: minmax(0, 1fr) calc(var(--s) * 500); gap: calc(var(--s) * 72); align-items: center; }
+.v2-motion .v1-card .v1-dev { height: auto; width: 100%; align-self: center; }
+.v2-motion .v1-card .v1-dev .v1-screen { width: 100%; height: auto; aspect-ratio: 2560 / 1394; }
+.v1-motion .v1-card .v1-dev .v1-screen { aspect-ratio: 2560 / 1396; }
+.v2-motion video.rec { object-fit: cover; object-position: center; }
