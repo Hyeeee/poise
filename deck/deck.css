@@ -2371,3 +2371,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* three equal options so the white knob lines up with each label */
 .lz-new .lz-seg { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .lz-new .lz-seg small { padding: calc(var(--s) * 8) calc(var(--s) * 4); font-size: max(calc(var(--s) * 13), 9px); }
+/* numbers back in front of each lesson */
+.lz-card li { grid-template-columns: calc(var(--s) * 30) 1fr; }
+.lz-card li::before { display: block; content: counter(lz); grid-row: 1 / 3; font-size: max(calc(var(--s) * 24), 14px); font-weight: 500; line-height: 1.25; color: var(--ink-3); padding-top: 0; }
