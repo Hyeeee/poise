@@ -2340,3 +2340,34 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 @keyframes lzLean { 0%, 25% { transform: none; } 40%, 60% { transform: rotate(-14deg) translateY(calc(var(--s) * 8)); } 75%, 100% { transform: none; } }
 @keyframes lzLed { 0%, 30% { background: #6fd08f; box-shadow: none; } 42%, 62% { background: #f0b35a; box-shadow: 0 0 calc(var(--s) * 12) #f0b35a; } 76%, 100% { background: #6fd08f; box-shadow: none; } }
 @media (prefers-reduced-motion: reduce) { .lz-art * { animation: none !important; } }
+/* taller art boxes */
+.lz-art { height: calc(var(--s) * 230); }
+/* design art v2: the old Sensitivity slider turns into When to notice, settling on the calm default */
+.lz-set { position: relative; width: calc(var(--s) * 400); height: calc(var(--s) * 120); }
+.lz-set > div { position: absolute; inset: 0; background: #fff; border-radius: calc(var(--s) * 16); box-shadow: 0 1px 6px rgba(0,0,0,.05); padding: calc(var(--s) * 22); display: flex; flex-direction: column; justify-content: space-between; }
+.lz-set p { font-size: max(calc(var(--s) * 16), 10px); font-weight: 500; color: var(--ink); margin: 0; }
+.lz-old { animation: lzOld 8s ease-in-out infinite; }
+.lz-new { animation: lzNew 8s ease-in-out infinite; }
+@keyframes lzOld { 0%, 40% { opacity: 1; transform: none; } 48%, 92% { opacity: 0; transform: translateY(calc(var(--s) * -8)); } 100% { opacity: 1; transform: none; } }
+@keyframes lzNew { 0%, 42% { opacity: 0; transform: translateY(calc(var(--s) * 8)); } 50%, 90% { opacity: 1; transform: none; } 98%, 100% { opacity: 0; } }
+.lz-slider { position: relative; height: calc(var(--s) * 28); }
+.lz-slider::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: calc(var(--s) * 4); margin-top: calc(var(--s) * -2); border-radius: 4px; background: #e6e9e3; }
+.lz-slider i { position: absolute; top: 50%; left: 0; width: calc(var(--s) * 22); height: calc(var(--s) * 22); margin: calc(var(--s) * -11) 0 0 calc(var(--s) * -11); border-radius: 50%; background: #fff; border: calc(var(--s) * 2) solid #cfd4cc; animation: lzSlide 8s ease-in-out infinite; }
+@keyframes lzSlide { 0% { left: 20%; } 10% { left: 78%; } 20% { left: 35%; } 30% { left: 62%; } 40%, 100% { left: 50%; } }
+.lz-new .lz-seg { width: 100%; box-sizing: border-box; }
+.lz-new .lz-seg small:nth-of-type(2) { animation: none; color: var(--ink); }
+.lz-new .lz-seg i { animation: lzSeg2 8s var(--ease) infinite; }
+@keyframes lzSeg2 { 0%, 50% { transform: translateX(200%); } 60%, 100% { transform: translateX(100%); } }
+/* one white card stays put, only its contents swap, never overlapping */
+.lz-set { background: #fff; border-radius: calc(var(--s) * 16); box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+.lz-set > div { background: none; box-shadow: none; }
+@keyframes lzOld { 0%, 38% { opacity: 1; transform: none; } 44%, 94% { opacity: 0; transform: translateY(calc(var(--s) * -6)); } 100% { opacity: 1; transform: none; } }
+@keyframes lzNew { 0%, 45% { opacity: 0; transform: translateY(calc(var(--s) * 6)); } 51%, 88% { opacity: 1; transform: none; } 93%, 100% { opacity: 0; } }
+@keyframes lzSeg2 { 0%, 52% { transform: translateX(200%); } 62%, 100% { transform: translateX(100%); } }
+/* fill the taller boxes */
+.lz-art-1 > *, .lz-art-3 > * { transform: scale(1.25); }
+.lz-art-1 { gap: calc(var(--s) * 80); }
+.lz-set { transform: scale(1.1); }
+/* three equal options so the white knob lines up with each label */
+.lz-new .lz-seg { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lz-new .lz-seg small { padding: calc(var(--s) * 8) calc(var(--s) * 4); font-size: max(calc(var(--s) * 13), 9px); }
