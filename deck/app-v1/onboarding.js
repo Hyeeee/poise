@@ -176,7 +176,7 @@ export function runOnboarding() {
       if (my.cancelled) return;
       renderChoices();
       requestAnimationFrame(() => choices.classList.add('in'));
-      setTimeout(() => { if (!my.cancelled) $('setup-back').classList.toggle('show', index >= 1); }, reducedMotion() ? 0 : 1100);
+      setTimeout(() => { if (!my.cancelled) $('setup-back').classList.toggle('show', index >= 0); }, reducedMotion() ? 0 : 1100);
       choices.querySelector('button')?.focus({ preventScroll: true });
     }
 
@@ -300,34 +300,17 @@ export function runOnboarding() {
     }
 
     function intro() {
+      // Version one: a short hello, then the questions. No voice to pick.
       const hello = 'Hi, I am Poise. A few quick questions, so your focus and breaks fit the way you work.';
       show(hello, () => {
-        const pick = document.createElement('div');
-        pick.className = 'voice-pick';
-        pick.setAttribute('role', 'radiogroup'); pick.setAttribute('aria-label', 'Voice');
-        const current = store.state.voiceId || 'ava';
-        VOICES.forEach(v => {
-          const o = document.createElement('button');
-          o.type = 'button'; o.className = 'voice-opt' + (v.id === current ? ' on' : '');
-          o.setAttribute('role', 'radio'); o.setAttribute('aria-checked', v.id === current);
-          o.innerHTML = `<b>${v.name}</b><small>${v.vibe}</small>`;
-          o.onclick = () => {
-            store.update(s => { s.voiceId = v.id; s.voice = true; });
-            pick.querySelectorAll('.voice-opt').forEach(x => { x.classList.toggle('on', x === o); x.setAttribute('aria-checked', x === o); });
-            speak(hello, orb);
-          };
-          pick.append(o);
-        });
-        const label = document.createElement('p');
-        label.className = 'voice-label'; label.textContent = 'Choose a voice';
         const b = document.createElement('button');
         b.className = 'choice next';
         b.textContent = "Let's start";
         b.onclick = next;
-        choices.append(label, pick, b);
+        choices.append(b);
       });
     }
-    next(); // version one starts straight with the questions
+    intro();
   });
 }
 
