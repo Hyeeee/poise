@@ -2665,3 +2665,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-card .lz-art { margin-top: calc(var(--card-pad) * -0.05); margin-bottom: calc(var(--card-pad) * .13); }
 /* cards a touch higher */
 .lz-row { top: calc(var(--s) * 8); }
+/* scene dots: each one grows and shrinks smoothly in its own window, handing over to the next */
+.nx-steps i, .nx-steps i:nth-child(2), .nx-steps i:nth-child(3) { animation-delay: 0s; animation-timing-function: cubic-bezier(.45,0,.25,1); }
+.nx-steps i:nth-child(1) { animation-name: nxDot1; } .nx-steps i:nth-child(2) { animation-name: nxDot2; } .nx-steps i:nth-child(3) { animation-name: nxDot3; }
+@keyframes nxDot1 { 0% { width: calc(var(--s) * 7); background: #cfd4cc; } 4%, 30% { width: calc(var(--s) * 20); background: var(--ink-2); } 36%, 96% { width: calc(var(--s) * 7); background: #cfd4cc; } 100% { width: calc(var(--s) * 7); background: #cfd4cc; } }
+@keyframes nxDot2 { 0%, 30% { width: calc(var(--s) * 7); background: #cfd4cc; } 36%, 63% { width: calc(var(--s) * 20); background: var(--ink-2); } 69%, 100% { width: calc(var(--s) * 7); background: #cfd4cc; } }
+@keyframes nxDot3 { 0%, 63% { width: calc(var(--s) * 7); background: #cfd4cc; } 69%, 96% { width: calc(var(--s) * 20); background: var(--ink-2); } 100% { width: calc(var(--s) * 7); background: #cfd4cc; } }
+.nx-steps i { border-radius: 99px; }
