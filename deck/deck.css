@@ -2533,3 +2533,16 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-art-2 b:not(.k) { animation: lzSlot0 6s var(--ease) infinite; }
 @keyframes lzDot0 { 0%, 22% { transform: scale(1); opacity: 1; } 36%, 88% { transform: scale(0); opacity: 0; } 98%, 100% { transform: scale(1); opacity: 1; } }
 @keyframes lzSlot0 { 0%, 28% { width: calc(var(--s) * 22); margin: 0 calc(var(--s) * 7); } 46%, 85% { width: 0; margin: 0; } 95%, 100% { width: calc(var(--s) * 22); margin: 0 calc(var(--s) * 7); } }
+/* building art back to the laptop with the cardboard bar and a person who slouches */
+/* building: the cardboard bar on the laptop catches a slouch and lights up */
+.lz-lap { position: relative; display: flex; flex-direction: column; align-items: center; }
+.lz-lap .bar { width: calc(var(--s) * 92); height: calc(var(--s) * 14); border-radius: calc(var(--s) * 3); background: #c9a77c; }
+.lz-lap .led { width: calc(var(--s) * 76); height: calc(var(--s) * 4); margin: calc(var(--s) * 6) 0 calc(var(--s) * 8); border-radius: 4px; background: #6fd08f; animation: lzLed7 4s ease-in-out infinite; }
+.lz-lap .scr { position: relative; width: calc(var(--s) * 150); height: calc(var(--s) * 84); border-radius: calc(var(--s) * 8) calc(var(--s) * 8) 0 0; border: calc(var(--s) * 3) solid #cfd4cc; border-bottom: 0; background: #fff; overflow: hidden; }
+.lz-lap .base { width: calc(var(--s) * 176); height: calc(var(--s) * 7); border-radius: 0 0 calc(var(--s) * 6) calc(var(--s) * 6); background: #cfd4cc; }
+.lz-lap .me { position: absolute; left: 50%; bottom: calc(var(--s) * -14); width: calc(var(--s) * 70); height: calc(var(--s) * 74); margin-left: calc(var(--s) * -35); transform-origin: 50% 100%; animation: lzLean7 4s ease-in-out infinite; }
+.lz-lap .me::before { content: ""; position: absolute; left: 50%; top: 0; width: calc(var(--s) * 28); height: calc(var(--s) * 28); margin-left: calc(var(--s) * -14); border-radius: 50%; background: #dfe3dc; }
+.lz-lap .me::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--s) * 40); border-radius: calc(var(--s) * 35) calc(var(--s) * 35) 0 0; background: #dfe3dc; }
+@keyframes lzLean7 { 0%, 25% { transform: none; } 40%, 60% { transform: rotate(-14deg) translateY(calc(var(--s) * 8)); } 75%, 100% { transform: none; } }
+@keyframes lzLed7 { 0%, 30% { background: #6fd08f; box-shadow: none; } 42%, 62% { background: #f0b35a; box-shadow: 0 0 calc(var(--s) * 12) #f0b35a; } 76%, 100% { background: #6fd08f; box-shadow: none; } }
+.lz-art-3 .lz-lap { zoom: 1.25; }
