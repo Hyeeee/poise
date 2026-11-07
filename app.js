@@ -1204,7 +1204,7 @@ async function rerunSetup() {
 }
 
 // ---------- Ask Poise ----------
-const SUGGEST = ['Focus 40 min', 'Less sensitive', 'Breathing breaks', 'How am I doing?'];
+const SUGGEST = ['Focus 1 hour', 'Only big changes', 'Breathing breaks', 'How am I doing?'];
 function addMessage(who, msg) {
   const el = document.createElement('div');
   el.className = `msg ${who}`; el.textContent = msg;
@@ -1214,7 +1214,7 @@ function addMessage(who, msg) {
 function openThread(suggestions = SUGGEST) {
   $('thread').classList.remove('closing');
   $('thread').hidden = false; $('studio').classList.add('chatting');
-  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, how strict I am, your breaks, or a new mode.');
+  if (!$('messages').children.length) addMessage('poise', 'Tell me what to change. Focus length, when I notice a drift, your breaks, or a new mode.');
   $('suggest').innerHTML = '';
   suggestions.forEach(s => {
     const b = document.createElement('button'); b.type = 'button'; b.textContent = s;

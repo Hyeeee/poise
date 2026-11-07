@@ -32,7 +32,7 @@ function extractName(raw) {
 
 /** Split a message into clauses so "focus 40 min, breaks with breathing" makes two changes. */
 function clauses(text) {
-  return text.split(/[,;\n]|\.\s|\band\b|\bthen\b|그리고|그다음|그 다음/i).map(s => s.trim()).filter(Boolean);
+  return text.replace(/\band a half\b/gi, 'andahalf').split(/[,;\n]|\.\s|\band\b|\bthen\b|그리고|그다음|그 다음/i).map(s => s.trim()).filter(Boolean);
 }
 
 export function respond(message, ctx) {
@@ -45,8 +45,8 @@ export function respond(message, ctx) {
     const c = raw.toLowerCase();
 
     if (/help|what can you|how do i|뭐\s?(할|해)|도움|도와|기능/.test(c)) {
-      say('Try things like "focus 40 minutes", "less sensitive", "breaks with breathing", "make a mode called Study", or "take a break".',
-        '"집중 40분", "덜 민감하게", "휴식은 호흡으로", "\'공부\' 모드 만들어줘", "지금 쉬자" 처럼 말해보세요.');
+      say('Try things like "focus 1 hour", "only big changes", "breaks with breathing", "make a mode called Study", or "take a break".',
+        '"집중 1시간", "큰 변화만", "휴식은 호흡으로", "\'공부\' 모드 만들어줘", "지금 쉬자" 처럼 말해보세요.');
       continue;
     }
 
@@ -78,9 +78,17 @@ export function respond(message, ctx) {
     if (workHit || breakHit) continue;
 
     // Durations
-    const min = c.match(/(\d+)\s*(분|min|mins|minutes?|m\b)/);
+    // Hours and minutes: "1 hour", "an hour", "1.5 hours", "1h 30m", "hour and a half", "half an hour", "1시간 30분".
+    let total = 0;
+    const hr = c.match(/(\d+(?:\.\d+)?)\s*(시간|hours?|hrs?|h\b)/) || (/\b(an|one)\s+hour\b|^hour\b|\bhour\b/.test(c) && !/half an hour/.test(c) ? ['', '1'] : null);
+    if (hr) total += Number(hr[1]) * 60;
+    if (/half an hour|30분 정도|반시간/.test(c)) total += 30;
+    if (/and a half|andahalf|반\b/.test(c) && hr) total += 30;
+    const mm = c.match(/(\d+)\s*(분|min|mins|minutes?|m\b)/);
+    if (mm) total += Number(mm[1]);
+    const min = total ? [String(total), String(Math.round(total))] : null;
     if (min) {
-      const n = Number(min[1]);
+      const n = Math.round(total);
       if (BREAK_WORD.test(c)) {
         const v = clamp(n, 1, 15);
         if (ctx.brk().style === 'stretch') {
@@ -94,11 +102,12 @@ export function respond(message, ctx) {
       } else {
         const v = clamp(n, 1, 120);
         ctx.patchWork({ focus: v });
-        say(`Focus sessions are now ${v} min.`, `집중 시간을 ${v}분으로 바꿨어요.`);
+        const nice = v >= 60 ? `${Math.floor(v / 60)} hour${v >= 120 ? 's' : ''}${v % 60 ? ` ${v % 60} min` : ''}` : `${v} min`;
+        say(`Focus sessions are now ${nice}.`, `집중 시간을 ${v}분으로 바꿨어요.`);
       }
     }
     const count = c.match(/(\d+)\s*(개|가지|stretch(es)?|moves?|동작)/);
-    if (count && !min) {
+    if (count && !mm) {
       const v = clamp(Number(count[1]), 1, 5);
       ctx.patchBreak({ style: 'stretch', count: v });
       say(`Breaks now have ${v} stretch${v > 1 ? 'es' : ''}.`, `휴식 스트레칭을 ${v}개로 맞췄어요.`);
@@ -110,16 +119,22 @@ export function respond(message, ctx) {
       say(`I'll wait ${v} seconds before a strong cue.`, `자세가 ${v}초 이상 흐트러지면 알려드릴게요.`);
     }
 
-    // Sensitivity
+    // When to notice (same words as Settings). Naming an option sets it directly.
+    const NOTICE_SAY = { gentle: 'I’ll only notice big changes now.', balanced: 'I’ll notice clear slouches now.', firm: 'I’ll notice small shifts now.' };
+    const NOTICE_KO = { gentle: '큰 변화만 알려드릴게요.', balanced: '확실히 구부정할 때 알려드릴게요.', firm: '작은 변화도 알려드릴게요.' };
+    const named = /only big changes|big changes|큰 변화/.test(c) ? 'gentle' : /clear slouch/.test(c) ? 'balanced' : /small shifts|small changes|작은 변화/.test(c) ? 'firm' : null;
     const sensIdx = SENS_ORDER.indexOf(ctx.work().sensitivity);
-    if (/less sensitive|gentler|gentle|softer|relax|looser|less often|덜\s?민감|둔감|느슨|부드럽|덜\s?자주|살살|약하게/.test(c)) {
+    if (named) {
+      ctx.patchWork({ sensitivity: named });
+      say(NOTICE_SAY[named], NOTICE_KO[named]);
+    } else if (/less sensitive|gentler|gentle|softer|relax|looser|less often|덜\s?민감|둔감|느슨|부드럽|덜\s?자주|살살|약하게/.test(c)) {
       const next = SENS_ORDER[Math.max(0, sensIdx - 1)];
       ctx.patchWork({ sensitivity: next });
-      say(`Sensitivity: ${SENSITIVITY[next].label}.`, `민감도를 ${({ gentle: '부드럽게', balanced: '보통', firm: '엄격하게' })[next]} 맞췄어요.`);
+      say(NOTICE_SAY[next], NOTICE_KO[next]);
     } else if (/more sensitive|stricter|strict|firm|tighter|more often|민감하게|더\s?민감|엄격|빡|자주|강하게|예민/.test(c)) {
       const next = SENS_ORDER[Math.min(2, sensIdx + 1)];
       ctx.patchWork({ sensitivity: next });
-      say(`Sensitivity: ${SENSITIVITY[next].label}.`, `민감도를 ${({ gentle: '부드럽게', balanced: '보통', firm: '엄격하게' })[next]} 맞췄어요.`);
+      say(NOTICE_SAY[next], NOTICE_KO[next]);
     }
 
     // Alert timing without a number
@@ -174,8 +189,8 @@ export function respond(message, ctx) {
     return {
       changed: false,
       reply: t(lang,
-        'I can change focus length, how sensitive cues are, break style, and your modes. Try "focus 40 minutes" or "less sensitive".',
-        '집중 시간, 알림 민감도, 휴식 방식, 모드를 바꿀 수 있어요. "집중 40분" 이나 "덜 민감하게" 처럼 말해보세요.'),
+        'I can change focus length, when I notice a drift, break style, and your modes. Try "focus 1 hour" or "only big changes".',
+        '집중 시간, 알림 시점, 휴식 방식, 모드를 바꿀 수 있어요. "집중 1시간" 이나 "큰 변화만" 처럼 말해보세요.'),
     };
   }
   return { changed: true, reply: out.join(' ') };
