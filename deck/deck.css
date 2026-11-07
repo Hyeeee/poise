@@ -2235,3 +2235,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.paper > .head:first-child { margin-top: calc(var(--s) * -18); }
 .slide[data-title="Market research"] .head + * { margin-top: calc(var(--s) * 150); }
 .slide[data-title="What the playtest showed"] .an-row { margin-top: calc(var(--s) * 171); }
+/* centre these cards between the title and the bottom at any screen size (fixed offsets drifted on wide screens) */
+.slide[data-title="Market research"] .head + * { margin-top: auto; margin-bottom: auto; }
+.slide[data-title="What the playtest showed"] .an-row { margin-top: auto; margin-bottom: auto; }
+/* survey cards: a touch higher */
+.slide[data-title="Survey"] .forms { margin-top: calc(var(--s) * -12); }
+/* the slide's bottom padding is larger than its gap under the title, so nudge centred cards by half the difference */
+.slide[data-title="Market research"] .head + *, .slide[data-title="What the playtest showed"] .an-row { position: relative; top: calc(var(--s) * 26); }
