@@ -119,6 +119,35 @@ export function respond(message, ctx) {
       const v = clamp(ctx.work().focus - 10, 5, 120); ctx.patchWork({ focus: v }); say(`Focus sessions are now ${v} min.`, `집중 시간을 ${v}분으로 줄였어요.`); continue;
     }
 
+    // Undo the last change made from chat
+    if (/^undo|undo that|take that back|go back|change it back|never ?mind|revert|되돌|취소|원래대로/.test(c)) {
+      { const ok = ctx.undo(); say(ok ? 'Done. That change is undone.' : 'There is nothing to undo yet.', ok ? '방금 바꾼 걸 되돌렸어요.' : '되돌릴 변경이 아직 없어요.'); } continue;
+    }
+
+    // Rename the current mode: "rename this mode to Study", "call it Study"
+    const rn = raw.match(/(?:rename|call)\s+(?:this|the|my)?\s*(?:focus |break )?(?:mode\s+)?(?:it\s+)?(?:to|as)?\s*["“']?([^"”']+?)["”']?\s*$/i) || raw.match(/(?:이름|모드 이름)(?:을|를)?\s*["“']?([^"”']+?)["”']?\s*(?:으로|로)\s*(?:바꿔|변경)/);
+    if (rn && /rename|call it|call this|이름/.test(c)) {
+      const kind = BREAK_WORD.test(c) || ctx.screen() === 'break' ? 'break' : 'work';
+      const name = rn[1].trim().slice(0, 32);
+      ctx.renameMode(kind, name);
+      say(`Renamed it to "${name}".`, `이름을 "${name}"(으)로 바꿨어요.`); continue;
+    }
+
+    // Delete a mode by name, or the current one
+    if (/\b(delete|remove)\b.*\bmode|모드.*(삭제|지워)/.test(c)) {
+      const all = [...ctx.works().map(m => ['work', m]), ...ctx.breaks().map(m => ['break', m])];
+      const hit = all.find(([, m]) => modeAliases(m).some(a => c.includes(a))) || (/(this|current)/.test(c) ? (BREAK_WORD.test(c) ? ['break', ctx.brk()] : ['work', ctx.work()]) : null);
+      if (!hit) { say('Which mode? Say its name, like "delete mode Study".', '어떤 모드인지 이름을 말해주세요.'); continue; }
+      const ok = ctx.deleteMode(hit[0], hit[1].id);
+      say(ok ? `Deleted "${hit[1].name}".` : 'You need at least one mode, so I kept it.', ok ? `"${hit[1].name}" 모드를 지웠어요.` : '모드가 하나는 있어야 해서 남겨뒀어요.'); continue;
+    }
+
+    // "play a game" starts a game break right away
+    if (/^(let'?s )?play|play (a )?game|game now|게임\s?(하자|할래|시작)/.test(c)) {
+      if (ctx.brk().style !== 'game') ctx.patchBreak({ style: 'game' });
+      ctx.startBreak(); say('Starting a game break.', '게임 휴식을 시작할게요.'); continue;
+    }
+
     // New mode
     if (/\b(new|create|make|add)\b.*\bmode|mode\s+(called|named)|새\s?모드|모드.*(만들|추가|생성)/.test(c)) {
       const kind = BREAK_WORD.test(c) ? 'break' : 'work';
@@ -202,10 +231,10 @@ export function respond(message, ctx) {
     if (!sec && /alert|cue|notify|warn|알림|경고|알려/.test(c)) {
       if (/faster|sooner|quicker|earlier|빨리|빠르게|바로|즉시/.test(c)) {
         const v = clamp(ctx.work().delay - 2, 2, 30); ctx.patchWork({ delay: v });
-        say(`Cues now come after ${v}s.`, `${v}초 뒤에 알려드릴게요.`);
+        say(`I'll cue you after ${v} seconds of drifting.`, `${v}초 뒤에 알려드릴게요.`);
       } else if (/later|slower|less often|늦게|천천히|여유/.test(c)) {
         const v = clamp(ctx.work().delay + 3, 2, 30); ctx.patchWork({ delay: v });
-        say(`Cues now come after ${v}s.`, `${v}초 뒤에 알려드릴게요.`);
+        say(`I'll cue you after ${v} seconds of drifting.`, `${v}초 뒤에 알려드릴게요.`);
       }
     }
 
@@ -224,7 +253,7 @@ export function respond(message, ctx) {
     }
 
     // Break style
-    const wantsStart = /(take|start|begin)\b.*\b(break|rest)|break now|rest now|쉬자|쉴래|쉬고\s?싶|휴식\s?(시작|하자|할래)|지금\s?쉬/.test(c);
+    const wantsStart = /(take|start|begin)\b.*\b(break|rest)|break now|rest now|쉬자|쉴래|쉬고\s?싶|휴식\s?(시작|하자|할래)|지금\s?쉬/.test(c) && !/auto|automatic|on their own|자동/.test(c);
     if (/breath|호흡|숨/.test(c) && ctx.brk().style !== 'breathe') {
       ctx.patchBreak({ style: 'breathe' }); say('Breaks are now breathing and eye rest.', '휴식을 호흡과 눈 휴식으로 바꿨어요.');
     } else if (/\bgame|bubble|play|게임|버블|놀이/.test(c) && !wantsStart && ctx.brk().style !== 'game') {

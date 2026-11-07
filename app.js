@@ -1247,6 +1247,9 @@ const assistantCtx = {
   rerunSetup: () => { closeThread(); rerunSetup(); },
   openModes: () => openModes(),
   screen: () => screen,
+  renameMode: (kind, name) => patchMode(kind, { name }),
+  deleteMode: (kind, id) => { const key = kind === 'work' ? 'works' : 'breaks', n = store.state[key].length; deleteMode(kind, id); return store.state[key].length < n; },
+  undo: () => { if (!chatUndo) return false; const snap = chatUndo; chatUndo = null; store.update(s => { s.works = snap.works; s.breaks = snap.breaks; s.workId = snap.workId; s.breakId = snap.breakId; s.voice = snap.voice; s.music = snap.music; }); syncUI(); return true; },
   setMusic: v => { store.update(s => { s.music = v; }); v ? ambient.start() : ambient.stop(); syncMusic(); },
   cameraOn: () => $('stop').classList.contains('on'),
   setCamera: v => { if (v !== $('stop').classList.contains('on')) $('stop').click(); },
@@ -1273,7 +1276,7 @@ const assistantCtx = {
   },
 };
 
-let spoken = false;
+let spoken = false, chatUndo = null;
 function send(message) {
   const msg = message.trim();
   if (!msg) return;
@@ -1282,7 +1285,10 @@ function send(message) {
   $('ask-input').value = '';
   $('ask-form').classList.add('thinking'); $('ask-orb').classList.add('thinking');
   setTimeout(() => {
+    const before = structuredClone({ works: store.state.works, breaks: store.state.breaks, workId: store.state.workId, breakId: store.state.breakId, voice: store.state.voice, music: store.state.music });
     const { reply } = respond(msg, assistantCtx);
+    const after = JSON.stringify({ works: store.state.works, breaks: store.state.breaks, workId: store.state.workId, breakId: store.state.breakId, voice: store.state.voice, music: store.state.music });
+    if (after !== JSON.stringify(before)) chatUndo = before;
     $('ask-form').classList.remove('thinking'); $('ask-orb').classList.remove('thinking');
     addMessage('poise', reply);
     if (spoken) speak(reply, $('ask-orb'), /[가-힣]/.test(reply) ? 'ko' : 'en');
