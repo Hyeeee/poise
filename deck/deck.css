@@ -2231,3 +2231,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* market research: the cards sit a bit lower */
 .slide[data-title="Market research"] .head + * { margin-top: calc(var(--s) * 141); }
 .slide[data-title="What the playtest showed"] .an-row { margin-top: calc(var(--s) * 162); }
+/* content slide titles sit a little closer to the progress bar (the contents slide keeps its spacing) */
+.slide.paper > .head:first-child { margin-top: calc(var(--s) * -18); }
+.slide[data-title="Market research"] .head + * { margin-top: calc(var(--s) * 150); }
+.slide[data-title="What the playtest showed"] .an-row { margin-top: calc(var(--s) * 171); }
