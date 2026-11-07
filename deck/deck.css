@@ -2589,3 +2589,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 @keyframes lzRingSoft { 0% { transform: scale(1.14); opacity: 0; } 10% { transform: scale(1.18); opacity: .9; } 70% { opacity: .35; } 100% { transform: scale(1.62); opacity: 0; } }
 /* rings stay full colour while spreading, only fading out at the very end */
 @keyframes lzRingSoft { 0% { transform: scale(1.14); opacity: 0; } 6% { transform: scale(1.16); opacity: 1; } 82% { opacity: 1; } 100% { transform: scale(1.62); opacity: 0; } }
+.lz-art-1 .lz-p:nth-child(3) i { border-color: #6f9fe0; }
