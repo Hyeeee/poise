@@ -2253,3 +2253,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide[data-title="Contents"] .toc-list li { grid-template-columns: calc(var(--s) * 62) minmax(0, 1fr); padding: 0; border: 0; }
 .slide[data-title="Contents"] .toc-list b { font-size: max(calc(var(--s) * 40), 20px); }
 .slide[data-title="Contents"] .toc-list i { padding-top: .35em; }
+.slide[data-title="Market research"] .head + * { top: calc(var(--s) * 4); }
