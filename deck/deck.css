@@ -2570,3 +2570,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 @keyframes lzPose1 { 0%, 25%, 100% { transform: none; } 40%, 70% { transform: translateY(8%) rotate(-12deg); } }
 @keyframes lzPose2 { 0%, 30%, 100% { transform: none; } 45%, 75% { transform: translateX(-6%) rotate(10deg); } }
 @keyframes lzPose3 { 0%, 20%, 100% { transform: none; } 35%, 65% { transform: translateY(10%) scaleY(.94); } }
+/* green dots keep their size, they only spread apart */
+@keyframes lzKeep0 { 0%, 25% { transform: none; margin: 0 calc(var(--s) * 5); } 45%, 80% { transform: none; margin: 0 calc(var(--s) * 24); } 90%, 100% { transform: none; margin: 0 calc(var(--s) * 5); } }
