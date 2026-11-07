@@ -2663,3 +2663,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* lessons a little closer together; keep title to art and art to lesson one where they were */
 .lz-card { row-gap: calc(var(--card-pad) * .75); }
 .lz-card .lz-art { margin-top: calc(var(--card-pad) * -0.05); margin-bottom: calc(var(--card-pad) * .13); }
+/* cards a touch higher */
+.lz-row { top: calc(var(--s) * 8); }
