@@ -2673,3 +2673,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 @keyframes nxDot3 { 0%, 63% { width: calc(var(--s) * 7); background: #cfd4cc; } 69%, 96% { width: calc(var(--s) * 20); background: var(--ink-2); } 100% { width: calc(var(--s) * 7); background: #cfd4cc; } }
 .nx-steps i { border-radius: 99px; }
 .nx-steps { display: none; }
+.slide.open.an-th li:nth-child(1) mark.hl { transition-delay: .7s; } .slide.open.an-th li:nth-child(4) mark.hl { transition-delay: 1.2s; }
