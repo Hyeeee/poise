@@ -2289,3 +2289,35 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-card li { min-height: 0; padding: var(--lz) 0; border-top: 1px solid rgba(20,20,18,.07); align-content: start; }
 .lz-card li:last-child { padding-bottom: 0; }
 .lz-row { position: relative; top: calc(var(--s) * 26); }
+/* no dividers; one spacing unit (the card padding) everywhere: card edge, under the group title, between lessons */
+.lz-card { row-gap: var(--card-pad); }
+.lz-card .it-head { padding-bottom: 0; }
+.lz-card li, .lz-card li:last-child { padding: 0; border-top: 0; }
+/* small looping art at the top of each lesson card */
+.lz-row { grid-template-rows: auto auto repeat(3, auto); }
+.lz-card { grid-row: span 5; }
+.lz-card li { grid-template-columns: 1fr; }
+.lz-card li::before { display: none; }
+.lz-art { height: calc(var(--s) * 168); border-radius: calc(var(--s) * 18); background: #f3f5f1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+/* people: three people, three different signals */
+.lz-art-1 { gap: calc(var(--s) * 70); }
+.lz-p { position: relative; width: calc(var(--s) * 46); height: calc(var(--s) * 46); border-radius: 50%; background: #dfe3dc; }
+.lz-p::after { content: ""; position: absolute; left: 50%; top: 100%; width: calc(var(--s) * 70); height: calc(var(--s) * 30); transform: translate(-50%, calc(var(--s) * 8)); border-radius: calc(var(--s) * 35) calc(var(--s) * 35) 0 0; background: #dfe3dc; }
+.lz-p i { position: absolute; inset: 0; border-radius: 50%; border: calc(var(--s) * 2) solid var(--green-strong); opacity: 0; animation: lzRing 2.4s ease-out infinite; }
+.lz-p:nth-child(2) i { border-color: #f0b35a; animation-duration: 1.4s; }
+.lz-p:nth-child(3) i { border-color: #8fb4e6; animation-duration: 3.4s; }
+@keyframes lzRing { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(2.1); opacity: 0; } }
+/* design: twelve steps settle into four */
+.lz-art-2 b { display: block; width: calc(var(--s) * 22); height: calc(var(--s) * 22); margin: 0 calc(var(--s) * 7); border-radius: 50%; background: #cfd4cc; flex: none; animation: lzDrop 6s var(--ease) infinite; }
+.lz-art-2 b.k { background: var(--green-strong); animation-name: lzKeep; }
+@keyframes lzDrop { 0%, 25% { width: calc(var(--s) * 22); margin: 0 calc(var(--s) * 7); opacity: 1; } 45%, 85% { width: 0; margin: 0; opacity: 0; } 100% { width: calc(var(--s) * 22); margin: 0 calc(var(--s) * 7); opacity: 1; } }
+@keyframes lzKeep { 0%, 25% { transform: scale(1); margin: 0 calc(var(--s) * 7); } 45%, 85% { transform: scale(1.35); margin: 0 calc(var(--s) * 26); } 100% { transform: scale(1); margin: 0 calc(var(--s) * 7); } }
+/* building: try and test on a loop, the cardboard bar lights up each turn */
+.lz-art-3 svg { position: absolute; width: calc(var(--s) * 140); height: calc(var(--s) * 140); }
+.lz-art-3 circle.track { fill: none; stroke: #dfe3dc; stroke-width: 3; stroke-dasharray: 6 8; }
+.lz-art-3 .orb { transform-origin: 70px 70px; animation: lzSpin 3s linear infinite; }
+.lz-bar { position: relative; width: calc(var(--s) * 74); height: calc(var(--s) * 16); border-radius: calc(var(--s) * 4); background: #c9a77c; }
+.lz-bar::after { content: ""; position: absolute; left: 8%; right: 8%; bottom: calc(var(--s) * -8); height: calc(var(--s) * 4); border-radius: 4px; background: #cfd4cc; animation: lzLed 3s ease-in-out infinite; }
+@keyframes lzSpin { to { transform: rotate(360deg); } }
+@keyframes lzLed { 0%, 60% { background: #cfd4cc; box-shadow: none; } 75%, 90% { background: #6fd08f; box-shadow: 0 0 calc(var(--s) * 10) #6fd08f; } 100% { background: #cfd4cc; } }
+@media (prefers-reduced-motion: reduce) { .lz-art * { animation: none !important; } }
