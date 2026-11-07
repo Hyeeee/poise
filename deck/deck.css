@@ -2660,3 +2660,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* active call tile: the green frame sits on top, so the person never pokes over it */
 .nxs1 .tiles span:nth-child(1) { box-shadow: none; }
 .nxs1 .tiles span:nth-child(1)::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 calc(var(--s) * 2) var(--green-strong); z-index: 1; }
+/* lessons a little closer together; keep title to art and art to lesson one where they were */
+.lz-card { row-gap: calc(var(--card-pad) * .75); }
+.lz-card .lz-art { margin-top: calc(var(--card-pad) * -0.05); margin-bottom: calc(var(--card-pad) * .13); }
