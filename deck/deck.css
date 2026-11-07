@@ -2674,3 +2674,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .nx-steps i { border-radius: 99px; }
 .nx-steps { display: none; }
 .slide.open.an-th li:nth-child(1) mark.hl { transition-delay: .7s; } .slide.open.an-th li:nth-child(4) mark.hl { transition-delay: 1.2s; }
+/* dots a touch smaller */
+.lz-art-2 b { width: calc(var(--s) * 19); height: calc(var(--s) * 19); }
+.lz-art-2 b::before { width: calc(var(--s) * 19); height: calc(var(--s) * 19); margin: calc(var(--s) * -9.5) 0 0 calc(var(--s) * -9.5); }
+@keyframes lzSlot0 { 0%, 28% { width: calc(var(--s) * 19); margin: 0 calc(var(--s) * 8); } 46%, 88% { width: 0; margin: 0; } 98%, 100% { width: calc(var(--s) * 19); margin: 0 calc(var(--s) * 8); } }
