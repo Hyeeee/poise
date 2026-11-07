@@ -94,9 +94,9 @@ const OPT_ICON = {
   gentle: '<svg viewBox="0 0 24 24"><path d="M4 15c3-4 5-4 8 0s5 4 8 0"/></svg>',
   clear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/></svg>',
   chime: '<svg viewBox="0 0 24 24"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 1.5H5z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>',
-  stretch: '<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M6 3.5 10 9h4l4-5.5M12 9v6M9 21l3-6 3 6"/></svg>',
+  stretch: '<svg viewBox="0 0 24 24"><circle cx="12" cy="3.8" r="1.8"/><path d="M5.5 5 9.5 11h5l4-6M12 11v5M9 21.5l3-5.5 3 5.5"/></svg>',
   breathe: '<svg viewBox="0 0 24 24"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 13h15a3 3 0 1 1-3 3"/><path d="M3 17h7"/></svg>',
-  game: '<svg viewBox="0 0 24 24"><circle cx="9" cy="10" r="4.5"/><circle cx="17" cy="15" r="3"/><circle cx="7" cy="18" r="1.5"/></svg>',
+  game: '<svg viewBox="0 0 24 24"><circle cx="8" cy="8.5" r="4"/><circle cx="17.5" cy="14" r="2.6"/><circle cx="8" cy="18.8" r="1.4"/></svg>',
   auto: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>',
   ask: '<svg viewBox="0 0 24 24"><path d="M5 5h14v10H10l-4 4v-4H5z"/><path d="M10 9.5a2 2 0 1 1 2.5 2V12"/></svg>',
 };
