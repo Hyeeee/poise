@@ -2243,3 +2243,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* the slide's bottom padding is larger than its gap under the title, so nudge centred cards by half the difference */
 .slide[data-title="Market research"] .head + *, .slide[data-title="What the playtest showed"] .an-row { position: relative; top: calc(var(--s) * 26); }
 .qm-t + .qm-t { border-top: 0; padding-top: calc(var(--s) * 6); }
+/* lessons build in one at a time */
+.lessons li[data-step] { opacity: 0; transform: translateY(calc(var(--s) * 20)); transition: opacity .6s ease, transform .8s var(--ease); }
+.lessons li[data-step].shown { opacity: 1; transform: none; }
