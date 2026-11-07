@@ -2278,3 +2278,14 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-card ol { flex: none; justify-content: flex-start; margin-top: calc(var(--s) * 18); }
 .lz-card li { padding: calc(var(--s) * 22) 0; border-top: 1px solid rgba(20,20,18,.07); min-height: calc(var(--s) * 132); align-content: start; }
 .lz-card li:last-child { padding-bottom: 0; min-height: 0; }
+
+/* What I learned, measured spacing: the three cards share rows (subgrid), so each lesson row is as tall as its
+   tallest neighbour and every gap is the same size: card padding around the card, one rhythm unit between
+   the group title, each divider and each lesson. */
+.lz-row { --lz: calc(var(--s) * 24); grid-template-rows: auto repeat(3, auto); row-gap: 0; align-items: stretch; }
+.lz-card { display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 0; }
+.lz-card ol { display: contents; }
+.lz-card .it-head { padding-bottom: var(--lz); }
+.lz-card li { min-height: 0; padding: var(--lz) 0; border-top: 1px solid rgba(20,20,18,.07); align-content: start; }
+.lz-card li:last-child { padding-bottom: 0; }
+.lz-row { position: relative; top: calc(var(--s) * 26); }
