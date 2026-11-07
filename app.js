@@ -1246,6 +1246,19 @@ const assistantCtx = {
   setJoints, setVoice: v => store.update(s => { s.voice = v; }),
   rerunSetup: () => { closeThread(); rerunSetup(); },
   openModes: () => openModes(),
+  screen: () => screen,
+  setMusic: v => { store.update(s => { s.music = v; }); v ? ambient.start() : ambient.stop(); syncMusic(); },
+  cameraOn: () => $('stop').classList.contains('on'),
+  setCamera: v => { if (v !== $('stop').classList.contains('on')) $('stop').click(); },
+  barOn: () => !!writer,
+  connectBar: () => { if (!writer) $('connect').click(); },
+  openPip: () => { if (!$('pip').classList.contains('on')) togglePip(); },
+  tour: () => { closeThread(); setScreen('work'); startTour(); },
+  endSession: () => { if ($('end-session').hidden) return false; closeThread(); endSession('end'); return true; },
+  endBreak: () => { if (screen !== 'break') return false; endBreak(); return true; },
+  resetTimer: () => { remaining = store.work().focus * 60; renderTimer(); },
+  addTime: m => { remaining = Math.max(0, remaining + m * 60); renderTimer(); },
+  timeLeft: () => Math.ceil(remaining / 60),
   status: () => {
     const sum = posture.summary();
     const share = sum ? sum.aligned : null;

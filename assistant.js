@@ -58,6 +58,67 @@ export function respond(message, ctx) {
       ctx.openModes(); say('Opening your modes.', '모드 설정을 열었어요.'); continue;
     }
 
+    // Small talk
+    if (/^(hi|hey|hello|yo)\b|안녕|하이/.test(c)) { say('Hi. Tell me what to change, or ask how you are doing.', '안녕하세요. 바꾸고 싶은 걸 말하거나 지금 어떤지 물어보세요.'); continue; }
+    if (/thank|thanks|thx|고마|감사/.test(c)) { say('Anytime.', '언제든지요.'); continue; }
+
+    // Questions people ask about Poise itself
+    if (/record|privacy|private|saved?|sent|upload|watching me|spy|녹화|저장|전송|개인\s?정보|사생활|보내/.test(c) && /camera|video|카메라|영상|\?|is it|are you|do you|하나|돼|되나/.test(c)) {
+      say('Your posture is read on this device. Nothing is recorded, saved or sent.', '자세는 이 기기 안에서만 읽어요. 녹화하거나 저장하거나 보내지 않아요.'); continue;
+    }
+    if (/(what|why).*(yellow|red|white|color|colour|light)|(yellow|red|노란|빨간|색).*(뭐|의미|mean|왜)/.test(c)) {
+      say('White means you are in your reference posture. Yellow means you are drifting. Red means you have drifted for a while.', '흰색은 기준 자세, 노란색은 자세가 흐트러지는 중, 빨간색은 오래 흐트러진 상태예요.'); continue;
+    }
+    if (/what('?s| is)( a| the)? reference|레퍼런스가 뭐|기준 자세가 뭐/.test(c)) {
+      say('Your reference is the posture you want to keep. Poise tells you when you drift from it. Say "set reference" to save how you sit now.', '기준 자세는 유지하고 싶은 자세예요. 여기서 벗어나면 알려드려요. "기준 저장"이라고 말하면 지금 자세를 저장해요.'); continue;
+    }
+    if (/why (did|do) you (alert|remind|tell|cue)|왜 알려|왜 울려/.test(c)) {
+      say(`I cue you when you drift past your reference for ${ctx.work().delay} seconds. Say "only big changes" or "wait 10 seconds" if it feels too often.`, `기준 자세에서 ${ctx.work().delay}초 넘게 벗어나면 알려드려요. 너무 잦으면 "큰 변화만" 이나 "10초 기다려" 라고 말해보세요.`); continue;
+    }
+    if (/time left|how (long|much time)|남은 시간|몇 분 남|얼마나 남/.test(c)) {
+      const m = ctx.timeLeft(); say(`${m} min left.`, `${m}분 남았어요.`); continue;
+    }
+
+    // Things on the top bar
+    if (/music|sound|음악|배경음|소리/.test(c) && !/voice|목소리|음성/.test(c)) {
+      const v = toggleValue(c) ?? (/mute|quiet|조용/.test(c) ? false : null);
+      if (v !== null) { ctx.setMusic(v); say(v ? 'Music is on.' : 'Music is off.', v ? '음악을 켰어요.' : '음악을 껐어요.'); continue; }
+    }
+    if (/^(mute|be quiet|quiet|shh)|stop talking|don'?t talk|조용히|말\s?하지\s?마|그만\s?말/.test(c)) { ctx.setVoice(false); say('Voice is off. I will show text only.', '음성을 껐어요. 글로만 보여드릴게요.'); continue; }
+    if (/^unmute|talk to me|목소리\s?다시/.test(c)) { ctx.setVoice(true); say('Voice is on.', '음성을 켰어요.'); continue; }
+    if (/camera|cam\b|카메라/.test(c) && !/record|녹화|저장/.test(c)) {
+      const v = toggleValue(c);
+      if (v !== null) { ctx.setCamera(v); say(v ? 'Turning the camera on.' : 'Camera is off. Connect the light bar to keep tracking with its sensor.', v ? '카메라를 켤게요.' : '카메라를 껐어요. 라이트바를 연결하면 센서로 계속 볼 수 있어요.'); continue; }
+    }
+    if (/light ?bar|lightbar|라이트\s?바/.test(c) && /connect|pair|plug|연결|켜/.test(c)) {
+      if (ctx.barOn()) say('The light bar is already connected.', '라이트바는 이미 연결돼 있어요.');
+      else { ctx.connectBar(); say('Pick your light bar in the window that opens.', '열리는 창에서 라이트바를 골라주세요.'); }
+      continue;
+    }
+    if (/mini ?window|small window|picture in picture|\bpip\b|작은\s?창|미니\s?창/.test(c)) { ctx.openPip(); say('Opening the mini window.', '작은 창을 열었어요.'); continue; }
+    if (/\btour\b|show me around|walk me through|guide me|가이드|둘러보|사용법/.test(c)) { ctx.tour(); say('Here is a quick tour.', '간단히 둘러볼게요.'); continue; }
+
+    // Ending things
+    if (/(end|finish|stop|wrap up).*(session|focus|work)|(session|focus).*(done|over)|report|세션\s?(끝|종료)|리포트|보고서|오늘\s?끝/.test(c)) {
+      if (ctx.endSession()) say('Ending the session. Here is your report.', '세션을 마칠게요. 리포트를 보여드릴게요.');
+      else say('Set a reference first so there is a session to end.', '먼저 기준 자세를 저장해야 세션을 마칠 수 있어요.');
+      continue;
+    }
+    if (/(end|skip|stop|finish|done with).*(break|rest)|i'?m done|back to it|휴식\s?(끝|그만|종료|스킵)|그만\s?쉬/.test(c) && ctx.screen() === 'break') {
+      ctx.endBreak(); say('Ending your break.', '휴식을 마칠게요.'); continue;
+    }
+
+    // Timer tweaks that are not the mode length
+    if (/reset|restart/.test(c) && /timer|session|clock|타이머/.test(c) || /타이머\s?(리셋|초기화|처음)/.test(c)) { ctx.resetTimer(); say('Timer reset.', '타이머를 처음으로 되돌렸어요.'); continue; }
+    const more = c.match(/(?:add|extend|give me|another|plus)\s*(\d+)\s*(?:more\s*)?(?:min|minutes?|분)|(\d+)\s*more\s*(?:min|minutes?)|(\d+)\s*분\s*(?:더|추가|연장)/);
+    if (more) { const m = Number(more[1] || more[2] || more[3]); ctx.addTime(m); say(`Added ${m} min to this session.`, `이번 세션에 ${m}분 더했어요.`); continue; }
+    if (/(longer|more time|extend).*(focus|session)|(focus|session).*(longer)|더\s?길게/.test(c)) {
+      const v = clamp(ctx.work().focus + 10, 1, 120); ctx.patchWork({ focus: v }); say(`Focus sessions are now ${v} min.`, `집중 시간을 ${v}분으로 늘렸어요.`); continue;
+    }
+    if (/(shorter|less time).*(focus|session)|(focus|session).*(shorter)|더\s?짧게|짧게/.test(c)) {
+      const v = clamp(ctx.work().focus - 10, 5, 120); ctx.patchWork({ focus: v }); say(`Focus sessions are now ${v} min.`, `집중 시간을 ${v}분으로 줄였어요.`); continue;
+    }
+
     // New mode
     if (/\b(new|create|make|add)\b.*\bmode|mode\s+(called|named)|새\s?모드|모드.*(만들|추가|생성)/.test(c)) {
       const kind = BREAK_WORD.test(c) ? 'break' : 'work';
@@ -116,7 +177,7 @@ export function respond(message, ctx) {
     if (sec) {
       const v = clamp(Number(sec[1]), 2, 30);
       ctx.patchWork({ delay: v });
-      say(`I'll wait ${v} seconds before a strong cue.`, `자세가 ${v}초 이상 흐트러지면 알려드릴게요.`);
+      say(`I'll cue you after ${v} seconds of drifting.`, `자세가 ${v}초 이상 흐트러지면 알려드릴게요.`);
     }
 
     // When to notice (same words as Settings). Naming an option sets it directly.
@@ -166,6 +227,8 @@ export function respond(message, ctx) {
     const wantsStart = /(take|start|begin)\b.*\b(break|rest)|break now|rest now|쉬자|쉴래|쉬고\s?싶|휴식\s?(시작|하자|할래)|지금\s?쉬/.test(c);
     if (/breath|호흡|숨/.test(c) && ctx.brk().style !== 'breathe') {
       ctx.patchBreak({ style: 'breathe' }); say('Breaks are now breathing and eye rest.', '휴식을 호흡과 눈 휴식으로 바꿨어요.');
+    } else if (/\bgame|bubble|play|게임|버블|놀이/.test(c) && !wantsStart && ctx.brk().style !== 'game') {
+      ctx.patchBreak({ style: 'game' }); say('Breaks are now a movement game.', '휴식을 움직임 게임으로 바꿨어요.');
     } else if (/stretch|스트레칭/.test(c) && !count && ctx.brk().style !== 'stretch') {
       ctx.patchBreak({ style: 'stretch' }); say('Breaks are now guided stretches.', '휴식을 스트레칭으로 바꿨어요.');
     }
