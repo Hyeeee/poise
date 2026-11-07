@@ -2256,3 +2256,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide[data-title="Market research"] .head + * { top: calc(var(--s) * 4); }
 .slide[data-title="What the playtest showed"] .an-row { top: calc(var(--s) * 4); }
 .slide[data-title="What I learned"] .lessons i { display: none; }
+.slide[data-title="What I learned"] .ls-art { margin-top: 0; }
