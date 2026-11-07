@@ -2559,3 +2559,14 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 @keyframes lzDot0 { 0%, 22% { transform: scale(1); opacity: 1; } 36%, 90% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 /* head and shoulders closer together inside the avatar */
 .lz-art-1 .lz-p { background: radial-gradient(circle at 50% 41%, #cfd4cc 0 16.5%, transparent 17%), radial-gradient(ellipse 33% 32% at 50% 97%, #cfd4cc 0 99%, transparent 100%), #e9ece6; }
+/* people: the person inside each avatar shifts posture on their own rhythm (sits up, slouches, leans) */
+.lz-art-1 .lz-p { background: none; }
+.lz-art-1 .lz-p .who { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; background: #e9ece6; }
+.lz-art-1 .lz-p .who u { position: absolute; left: 0; right: 0; top: 0; bottom: 0; transform-origin: 50% 100%; animation: lzPose1 6s ease-in-out infinite; }
+.lz-art-1 .lz-p .who u::before { content: ""; position: absolute; left: 50%; top: 24%; width: 33%; height: 33%; margin-left: -16.5%; border-radius: 50%; background: #cfd4cc; }
+.lz-art-1 .lz-p .who u::after { content: ""; position: absolute; left: 17%; right: 17%; top: 65%; height: 64%; border-radius: 50%; background: #cfd4cc; }
+.lz-art-1 .lz-p:nth-child(2) .who u { animation-name: lzPose2; animation-delay: -2s; }
+.lz-art-1 .lz-p:nth-child(3) .who u { animation-name: lzPose3; animation-delay: -4s; }
+@keyframes lzPose1 { 0%, 25%, 100% { transform: none; } 40%, 70% { transform: translateY(8%) rotate(-12deg); } }
+@keyframes lzPose2 { 0%, 30%, 100% { transform: none; } 45%, 75% { transform: translateX(-6%) rotate(10deg); } }
+@keyframes lzPose3 { 0%, 20%, 100% { transform: none; } 35%, 65% { transform: translateY(10%) scaleY(.94); } }
