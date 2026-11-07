@@ -2242,3 +2242,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide[data-title="Survey"] .forms { margin-top: calc(var(--s) * -12); }
 /* the slide's bottom padding is larger than its gap under the title, so nudge centred cards by half the difference */
 .slide[data-title="Market research"] .head + *, .slide[data-title="What the playtest showed"] .an-row { position: relative; top: calc(var(--s) * 26); }
+.qm-t + .qm-t { border-top: 0; padding-top: calc(var(--s) * 6); }
