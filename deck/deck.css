@@ -2577,3 +2577,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .lz-art-1 .lz-p:nth-child(2) i { animation-duration: 5.2s; animation-delay: -1.6s; }
 .lz-art-1 .lz-p:nth-child(3) i { animation-duration: 6s; animation-delay: -3.2s; }
 @keyframes lzRingSoft { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.55); opacity: 0; } }
+/* posture moves quicker; rings a touch faster and easier to see */
+.lz-art-1 .lz-p .who u { animation-duration: 3s; }
+.lz-art-1 .lz-p:nth-child(2) .who u { animation-delay: -1s; }
+.lz-art-1 .lz-p:nth-child(3) .who u { animation-delay: -2s; }
+.lz-art-1 .lz-p i { border-width: calc(var(--s) * 1.6); animation-duration: 3.4s; }
+.lz-art-1 .lz-p:nth-child(2) i { animation-duration: 4s; }
+.lz-art-1 .lz-p:nth-child(3) i { animation-duration: 4.6s; }
+@keyframes lzRingSoft { 0% { transform: scale(1); opacity: .9; } 70% { opacity: .35; } 100% { transform: scale(1.55); opacity: 0; } }
