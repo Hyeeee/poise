@@ -2590,3 +2590,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* rings stay full colour while spreading, only fading out at the very end */
 @keyframes lzRingSoft { 0% { transform: scale(1.14); opacity: 0; } 6% { transform: scale(1.16); opacity: 1; } 82% { opacity: 1; } 100% { transform: scale(1.62); opacity: 0; } }
 .lz-art-1 .lz-p:nth-child(3) i { border-color: #6f9fe0; }
+/* a little transparency on the rings, still clearly coloured */
+@keyframes lzRingSoft { 0% { transform: scale(1.14); opacity: 0; } 6% { transform: scale(1.16); opacity: .75; } 60% { opacity: .55; } 100% { transform: scale(1.62); opacity: 0; } }
