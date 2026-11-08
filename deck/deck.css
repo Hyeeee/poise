@@ -2748,3 +2748,19 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* why each feature exists: where the decision came from, under the description */
 .slide.demo .v-why { margin-top: calc(var(--s) * 22); padding-top: calc(var(--s) * 16); border-top: 1px solid var(--line, rgba(0,0,0,.08)); max-width: 32ch; font-size: max(calc(var(--s) * 15), 11px); line-height: 1.5; color: var(--ink-3); }
 .slide.demo .v-why b { display: block; margin-bottom: calc(var(--s) * 4); font-weight: 600; font-size: max(calc(var(--s) * 13), 10px); color: var(--ink-2); }
+/* How I used AI: one card per part of the project, what AI did on top, how I checked it below */
+.ai-phases .ai-cols { flex: 1; min-height: 0; grid-template-rows: none; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: calc(var(--s) * 20); margin-top: calc(var(--s) * 8); max-height: calc(var(--s) * 520); }
+.ai-phases .ai-cols li { justify-content: flex-start; gap: calc(var(--s) * 10); }
+.ai-phases .ai-cols li > span { flex: 1; }
+.ai-phases .ai-chk { margin: 0; padding-top: calc(var(--s) * 16); border-top: 1px solid rgba(0,0,0,.08); font-size: max(calc(var(--s) * 16), 11px); line-height: 1.45; color: var(--ink-3); }
+.ai-phases .ai-chk em { display: block; font-style: normal; font-weight: 600; font-size: max(calc(var(--s) * 13), 10px); color: var(--ink-2); margin-bottom: calc(var(--s) * 4); }
+@media (max-width: 860px), (max-aspect-ratio: 1/1) { .ai-phases .ai-cols { grid-template-columns: 1fr 1fr; max-height: none; } }
+/* cards hug their words; the check line sits a steady gap below */
+.ai-phases .ai-cols { flex: none; max-height: none; margin-top: calc(var(--s) * 28); }
+.ai-phases .ai-cols li > span { flex: none; }
+.ai-phases .ai-chk { margin-top: auto; }
+.ai-phases .ai-cols li > span + .ai-chk { margin-top: max(auto, calc(var(--s) * 24)); }
+.ai-phases .ai-cols li { gap: calc(var(--s) * 10); }
+.ai-phases .ai-cols li > span { margin-bottom: calc(var(--s) * 26); }
+.ai-phases .ai-cols li { display: grid; grid-template-rows: auto auto 1fr auto; align-content: stretch; }
+.ai-phases .ai-cols li > span { align-self: start; }
