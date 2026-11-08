@@ -3206,3 +3206,28 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ai-phases .ai-cols { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 .ai-phases .ai-tg + .ai-tg em { color: var(--ink-2); }
 .ai-phases .ai-tg em, .ai-phases .ai-tg + .ai-tg em { color: var(--ink-3); }
+
+/* revised hypothesis slide uses the hypothesis box layout */
+.slide[data-title="Hypothesis, revised"] .hy-row { margin-top: calc(var(--s) * 4); }
+.slide[data-title="Hypothesis, revised"] .hy-box { margin-bottom: calc(var(--s) * -7); }
+.slide[data-title="Hypothesis, revised"] .hy-box { justify-content: center; gap: calc(var(--s) * 40); }
+.slide[data-title="Hypothesis, revised"] .hy-box { justify-content: space-between; gap: calc(var(--s) * 20); }
+.slide[data-title="Hypothesis, revised"] .hy-box { min-height: 0; overflow: hidden; }
+.slide[data-title="Hypothesis, revised"] .hy-box { justify-content: space-between; padding-top: calc(var(--s) * 28); padding-bottom: calc(var(--s) * 28); }
+.slide[data-title="Hypothesis, revised"] .hy-box { justify-content: space-between; }
+.slide[data-title="Hypothesis, revised"] .hy-box { justify-content: flex-start; gap: calc(var(--s) * 44); }
+.slide[data-title="Hypothesis, revised"] .hy-card { padding: calc(var(--s) * 34) !important; }
+.slide[data-title="Hypothesis, revised"] .hy-box { padding: calc(var(--s) * 34) !important; justify-content: space-between; gap: calc(var(--s) * 28); }
+.card, .glass-card, .form-q, .iv-face, .mk-card, .hy-card, .hy-box, .slide[data-title="Hypothesis, revised"] .hy-card, .slide[data-title="Hypothesis, revised"] .hy-box, .mk-card:first-child, .mk-card:last-child, .card.pz-card { padding: var(--card-pad) !important; }
+.slide[data-title="Hypothesis, revised"] .hy-row { margin-top: calc(var(--s) * 24); }
+.slide[data-title="Hypothesis, revised"] .hy-box { flex: none; gap: calc(var(--s) * 36); }
+.slide[data-title="Hypothesis, revised"] .hy-box { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
+.slide[data-title="Hypothesis, revised"] .hy-how { flex: 1; display: flex; }
+.slide[data-title="Hypothesis, revised"] .hy-how { margin-top: calc(var(--s) * 28); }
+.slide[data-title="Hypothesis, revised"] .hy-main { flex: none; }
+.slide[data-title="Hypothesis, revised"] .hy-how { flex: none; margin-top: calc(var(--s) * 32); }
+.slide[data-title="Hypothesis, revised"] .hy-box { justify-content: space-between; gap: calc(var(--s) * 32); }
+.slide[data-title="Hypothesis, revised"] .hy-how { margin-top: 0; }
+.slide[data-title="Hypothesis, revised"] .hy-box { flex: 0 1 auto; justify-content: flex-start; gap: calc(var(--s) * 34); padding: var(--card-pad); }
+.slide[data-title="Hypothesis, revised"] .hy-box { flex: none; min-height: auto; height: auto; max-height: none; overflow: visible; }
+.slide[data-title="Hypothesis, revised"] .hy-box { margin-top: auto; margin-bottom: auto; }
