@@ -3171,3 +3171,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ai-phases .ai-tg:first-of-type { border-top: 1px solid rgba(20,20,18,.08); padding-top: calc(var(--s) * 20); }
 .ai-phases .ai-tg + .ai-tg { padding-top: calc(var(--s) * 14); }
 .slide[data-title="Playtest"] .pt-c img { object-position: 50% 42%; }
+.slide[data-title="Playtest"] .pt-c img { object-position: 50% 34%; }
+.slide[data-title="Playtest"] .pt-c img { object-position: 50% 100%; }
