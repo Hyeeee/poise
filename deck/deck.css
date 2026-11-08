@@ -2865,3 +2865,50 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .uf td { font-size: max(calc(var(--s) * 20), 13px); line-height: 1.4; color: var(--ink-2); }
 .uf td.lb { color: #8a6410; }
 .uf tbody th, .uf tbody td { padding-top: calc(var(--s) * 30); padding-bottom: calc(var(--s) * 30); }
+/* User flow, take two: five steps across, the app line and a small lit bar under each */
+.uf2 { margin-top: calc(var(--s) * 8); background: #fff !important; border: 0 !important; backdrop-filter: none !important; border-radius: calc(var(--s) * 30); box-shadow: var(--card-shadow); padding: var(--card-pad) !important; }
+.uf2::before, .uf2::after { display: none !important; }
+.uf2-grid { display: grid; grid-template-columns: calc(var(--s) * 130) repeat(5, minmax(0, 1fr)); grid-template-rows: auto 1fr auto; column-gap: calc(var(--s) * 14); }
+.uf2-lab, .uf2-col { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: calc(var(--s) * 14); }
+.uf2-lab p { margin: 0; align-self: center; font-size: max(calc(var(--s) * 14), 10px); font-weight: 600; color: var(--ink-3); }
+.uf2-n { position: relative; margin: 0 0 calc(var(--s) * 10); display: flex; align-items: center; gap: calc(var(--s) * 12); font-weight: 600; font-size: max(calc(var(--s) * 24), 15px); letter-spacing: -.02em; color: var(--ink); }
+.uf2-n i { position: relative; z-index: 1; font-style: normal; display: grid; place-items: center; flex: none; width: calc(var(--s) * 34); height: calc(var(--s) * 34); border-radius: 50%; background: var(--ink); color: #fff; font-size: max(calc(var(--s) * 14), 10px); font-weight: 600; }
+/* a thin line joins the step numbers */
+.uf2-col:not(:last-child) .uf2-n::after { content: ""; position: absolute; left: calc(var(--s) * 34); right: calc(var(--s) * -14); top: 50%; height: 1px; background: rgba(20,20,18,.14); z-index: 0; }
+.uf2-n { background: none; }
+.uf2-n { isolation: isolate; }
+.uf2-n::before { content: ""; }
+.uf2-app { margin: 0; padding: calc(var(--s) * 18); border-radius: calc(var(--s) * 18); background: #f4f4f1; font-size: max(calc(var(--s) * 17), 11px); line-height: 1.45; color: var(--ink-2); }
+.uf2-bar { padding: calc(var(--s) * 18); border-radius: calc(var(--s) * 18); background: #f4f4f1; display: flex; flex-direction: column; gap: calc(var(--s) * 12); }
+.uf2-bar p { margin: 0; font-size: max(calc(var(--s) * 17), 11px); line-height: 1.4; color: var(--ink); font-weight: 500; }
+.lbx { display: block; height: calc(var(--s) * 12); border-radius: 999px; background: #d9d9d4; }
+.lbx.white { background: #fff; box-shadow: 0 0 0 1px rgba(20,20,18,.08), 0 0 calc(var(--s) * 14) rgba(255,255,255,.9); }
+.lbx.drift { background: linear-gradient(90deg, #ffd23f, #ff9a1f 55%, #ff3b1f); box-shadow: 0 calc(var(--s) * 4) calc(var(--s) * 16) rgba(255,120,40,.45); }
+.lbx.game { background: linear-gradient(90deg, #4fb6ff, #ffb13b 50%, #ffdc3a); box-shadow: 0 calc(var(--s) * 4) calc(var(--s) * 16) rgba(255,180,60,.35); }
+.lbx.off { background: #d9d9d4; }
+.uf2 { flex: 1; min-height: 0; max-height: calc(var(--s) * 600); display: flex; flex-direction: column; }
+.uf2-grid { flex: 1; grid-template-rows: auto 1fr auto; column-gap: calc(var(--s) * 16); }
+.uf2-lab, .uf2-col { row-gap: calc(var(--s) * 16); }
+.uf2-col:not(:last-child) .uf2-n::after { display: none; }
+.uf2-n u { flex: 1; height: 1px; background: rgba(20,20,18,.14); margin-right: calc(var(--s) * -16); text-decoration: none; }
+.uf2-col:last-child .uf2-n u { visibility: hidden; }
+.uf2-n { margin-bottom: calc(var(--s) * 8); }
+.uf2-app { display: flex; align-items: flex-start; padding: calc(var(--s) * 22); font-size: max(calc(var(--s) * 19), 12px); }
+.uf2-bar { padding: calc(var(--s) * 22); gap: calc(var(--s) * 16); }
+.uf2-bar p { font-size: max(calc(var(--s) * 18), 12px); }
+.lbx { height: calc(var(--s) * 16); }
+.uf2-lab p { font-size: max(calc(var(--s) * 15), 10px); }
+.uf2-lab p:nth-child(2) { align-self: start; padding-top: calc(var(--s) * 24); }
+/* each app cell shows that moment of the app, then one line */
+.uf2 { max-height: none; }
+.uf2-app { flex-direction: column; gap: calc(var(--s) * 16); padding: calc(var(--s) * 14) calc(var(--s) * 14) calc(var(--s) * 20); min-height: 0; }
+.uf2-app p { margin: 0; padding: 0 calc(var(--s) * 8); }
+.uf2-shot { flex: 1; min-height: 0; width: 100%; border-radius: calc(var(--s) * 12); overflow: hidden; background: #e9e9e4; }
+.uf2-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.s-setup img { object-position: 36% 50%; }
+.s-work img, .s-drift img, .s-break img { object-position: 99% 22%; }
+.s-report img { object-position: 52% 40%; }
+.uf2-lab p:nth-child(2) { align-self: center; padding-top: 0; }
+.s-setup img { object-position: 44% 50%; }
+.s-report img { object-position: 47% 40%; }
+.uf2-app p { min-height: 2.9em; }
