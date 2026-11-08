@@ -2926,3 +2926,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ut-b { display: flex; align-items: center; gap: calc(var(--s) * 16); font-size: max(calc(var(--s) * 20), 13px); color: var(--ink); }
 .ut-b .lbx { flex: none; width: calc(var(--s) * 64); height: calc(var(--s) * 12); }
 .ut-r { grid-template-columns: minmax(0, .75fr) minmax(0, 1.75fr) minmax(0, 1.1fr); }
+.hy-subs.one { grid-template-columns: 1fr; } .hy-subs.one h4 { max-width: 60ch; }
+.hy-subs.one h4 { max-width: none; }
