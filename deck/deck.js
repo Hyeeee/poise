@@ -681,11 +681,13 @@ const recLight = (vid, slide, dir) => {
       await press('#start'); await W(1200);
       for (let i = 0; i < 9 && alive(); i++) {
         await until('#setup-choices.in button', 15000); await W(1300);
-        if (vis('#setup-save')) { await press('#setup-save'); break; }
+        if (vis('#setup-save')) { await W(3200); break; }
         if (d().querySelector('#setup-choices .quick-chip')) { await press('#setup-choices .quick-chip:nth-of-type(2)'); await W(500); await press('#setup-choices .choice.next'); }
         else await press('#setup-choices button.choice');
         await W(700);
       }
+      // Meet Poise shows only the onboarding, then starts over (the work screen stays for the version one slide)
+      continue;
       await W(1500);
       // into work: camera on, skip the light bar, save the reference, skip the tour
       pose({});

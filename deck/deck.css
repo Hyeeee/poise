@@ -2745,3 +2745,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* four measures in a row; the hypothesis measure comes first */
 .qm-row:has(.qm-key) { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: calc(var(--s) * 16); }
 .qm-row:has(.qm-key) .qm-big { font-size: max(calc(var(--s) * 52), 24px); white-space: nowrap; }
+/* why each feature exists: where the decision came from, under the description */
+.slide.demo .v-why { margin-top: calc(var(--s) * 22); padding-top: calc(var(--s) * 16); border-top: 1px solid var(--line, rgba(0,0,0,.08)); max-width: 32ch; font-size: max(calc(var(--s) * 15), 11px); line-height: 1.5; color: var(--ink-3); }
+.slide.demo .v-why b { display: block; margin-bottom: calc(var(--s) * 4); font-weight: 600; font-size: max(calc(var(--s) * 13), 10px); color: var(--ink-2); }
