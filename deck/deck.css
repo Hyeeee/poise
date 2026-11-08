@@ -2785,3 +2785,31 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ai-phases .tg { font-style: normal; display: inline-block; padding: calc(var(--s) * 7) calc(var(--s) * 13); border-radius: 999px; background: #f1f1ed; color: var(--ink-2); font-size: max(calc(var(--s) * 14.5), 10px); line-height: 1.3; }
 .ai-phases .tg.out { background: #e6f2e9; color: var(--green-ink); }
 .ai-phases .ai-tg:first-of-type { border-top: 0; padding-top: calc(var(--s) * 22); }
+/* Meet Poise: smaller product cards on top, the flow across the bottom */
+.pz-row.pz-small { flex: none; height: calc(var(--s) * 250); margin-top: calc(var(--s) * 8); }
+.pz-small .card.pz-card { flex-direction: row; align-items: stretch; gap: calc(var(--s) * 28); }
+.pz-small .pz-visual { flex: none; width: 50%; }
+.pz-small .pz-copy { justify-content: center; }
+.pz-small .pz-frame { height: 86%; }
+.pz-flow { margin-top: calc(var(--s) * 20); background: #fff !important; border: 0 !important; border-radius: calc(var(--s) * 30); box-shadow: var(--card-shadow); padding: var(--card-pad) !important; display: flex; flex-direction: column; gap: calc(var(--s) * 22); backdrop-filter: none !important; }
+.pz-flow::before, .pz-flow::after { display: none !important; }
+.fl-head { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--s) * 20); }
+.fl-head .it-head { margin: 0; }
+.fl-chips { display: flex; gap: calc(var(--s) * 8); flex-wrap: wrap; justify-content: flex-end; }
+.fl-chips span { padding: calc(var(--s) * 7) calc(var(--s) * 13); border-radius: 999px; background: #f1f1ed; color: var(--ink-2); font-size: max(calc(var(--s) * 14), 10px); }
+.fl-grid { display: grid; grid-template-columns: calc(var(--s) * 96) repeat(5, minmax(0, 1fr)); column-gap: calc(var(--s) * 14); }
+.fl-lab, .fl-step { display: grid; grid-template-rows: subgrid; grid-row: span 3; row-gap: calc(var(--s) * 10); }
+.fl-grid { grid-template-rows: auto auto auto; }
+.fl-lab p { margin: 0; align-self: center; font-size: max(calc(var(--s) * 14), 10px); font-weight: 600; color: var(--ink-3); }
+.fl-n { margin: 0; display: flex; align-items: center; gap: calc(var(--s) * 10); font-weight: 600; font-size: max(calc(var(--s) * 20), 13px); color: var(--ink); letter-spacing: -.01em; }
+.fl-n i { font-style: normal; display: grid; place-items: center; width: calc(var(--s) * 26); height: calc(var(--s) * 26); border-radius: 50%; background: #eef0ea; font-size: max(calc(var(--s) * 13), 10px); color: var(--ink-2); }
+.fl-app, .fl-bar { margin: 0; padding: calc(var(--s) * 12) calc(var(--s) * 14); border-radius: calc(var(--s) * 14); font-size: max(calc(var(--s) * 15), 10px); line-height: 1.4; }
+.fl-app { background: #f4f4f1; color: var(--ink-2); }
+.fl-bar { background: #fbf6e6; color: #7a5a12; }
+.pz-small .pz-copy { flex: 1; min-width: 0; }
+.pz-small .pz-copy p { white-space: normal; max-width: 26ch; }
+.pz-row.pz-small { height: calc(var(--s) * 270); }
+.pz-flow { margin-top: calc(var(--s) * 20) !important; }
+.fl-head .it-head { border: 0 !important; padding: 0 !important; }
+.fl-head .it-head::after, .fl-head .it-head::before { display: none !important; }
+.slide[data-title="Meet Poise"] .pz-flow { margin-top: calc(var(--s) * -10) !important; }
