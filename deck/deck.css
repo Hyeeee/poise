@@ -3199,3 +3199,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.demo .v-why { max-width: none; width: calc(var(--s) * 400); box-sizing: border-box; }
 .slide.demo .v-why p { font-size: .8em; }
 .slide.demo .v-why p b { font-size: .84em; }
+/* small source icon right after the box label */
+.slide.demo .v-why p b { display: flex; align-items: center; gap: .4em; }
+.slide.demo .v-ic2 { width: 1.05em; height: 1.05em; flex: none; fill: none; stroke: var(--ink-3); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.slide.demo .v-ic2 { width: 1.2em; height: 1.2em; stroke: var(--ink-2); stroke-width: 1.8; }
