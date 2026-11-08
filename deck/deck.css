@@ -3154,3 +3154,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .nf-row.chg small { color: var(--green-ink); opacity: .8; }
 .nf-row.chg span { color: var(--green-ink); }
 .nf-flow { grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) !important; }
+/* parts that build in on their own when a slide opens */
+[data-auto] { opacity: 0; transform: translateY(calc(var(--s) * 24)); filter: blur(6px); transition: opacity .6s var(--ease), transform .8s var(--ease), filter .6s var(--ease); }
+[data-auto].shown { opacity: 1; transform: none; filter: none; }

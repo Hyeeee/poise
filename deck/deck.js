@@ -110,6 +110,11 @@ function go(i, atEnd = false) {
   slides.forEach(s => s.classList.remove('leaving'));
   if (prev) { prev.classList.remove('open'); prev.classList.add('leaving'); clearTimeout(leaveTimer); leaveTimer = setTimeout(() => prev.classList.remove('leaving'), 700); }
   next.classList.add('open');
+  // [data-auto="k"] parts build in on their own when the slide opens, in order k, no key presses.
+  clearTimeout(go.autoT); slides.forEach(x => { if (x !== next) x.querySelectorAll('[data-auto]').forEach(e => e.classList.remove('shown')); });
+  { const parts = [...next.querySelectorAll('[data-auto]')].sort((a, b) => a.dataset.auto - b.dataset.auto);
+    parts.forEach(e => e.classList.remove('shown'));
+    parts.forEach((e, i) => setTimeout(() => { if (next.classList.contains('open')) e.classList.add('shown'); }, 450 + i * 260)); }
   wordsIn(next, prev ? 380 : 200);
   setStep(next, atEnd ? stepsOf(next) : 0);
   cur = i;
