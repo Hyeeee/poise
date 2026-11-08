@@ -2835,3 +2835,20 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .pz-part { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .pz-part .pz-copy p { max-width: none; white-space: normal; }
 .pz-part .pz-frame { width: 88%; height: auto; max-width: none; aspect-ratio: 16 / 10; }
+/* Meet Poise: one session, five steps, each with a frame from the recording */
+.mf-row { list-style: none; margin: calc(var(--s) * 8) 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: calc(var(--s) * 16); }
+.mf-step { background: #fff; border-radius: calc(var(--s) * 26); box-shadow: var(--card-shadow); padding: calc(var(--s) * 18); display: flex; flex-direction: column; gap: calc(var(--s) * 12); }
+.mf-img { border-radius: calc(var(--s) * 14); overflow: hidden; aspect-ratio: 2560 / 1396; background: #f3f3f0; }
+.mf-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mf-n { margin: calc(var(--s) * 6) 0 0; display: flex; align-items: center; gap: calc(var(--s) * 10); font-weight: 600; font-size: max(calc(var(--s) * 22), 14px); letter-spacing: -.015em; color: var(--ink); }
+.mf-n i { font-style: normal; display: grid; place-items: center; width: calc(var(--s) * 26); height: calc(var(--s) * 26); border-radius: 50%; background: #eef0ea; font-size: max(calc(var(--s) * 13), 10px); color: var(--ink-2); }
+.mf-t { margin: 0; font-size: max(calc(var(--s) * 16), 11px); line-height: 1.45; color: var(--ink-2); }
+.mf-row { flex: 1; min-height: 0; max-height: calc(var(--s) * 560); }
+.mf-step { min-height: 0; }
+.mf-img { flex: 1; min-height: 0; aspect-ratio: auto; }
+.mf-step:nth-child(1) .mf-img img { object-position: 22% 50%; }
+.mf-step:nth-child(2) .mf-img img, .mf-step:nth-child(3) .mf-img img, .mf-step:nth-child(4) .mf-img img { object-position: 92% 30%; }
+.mf-step:nth-child(5) .mf-img img { object-position: 52% 50%; }
+.mf-t { min-height: 4.35em; }
+.mf-step:nth-child(1) .mf-img img { object-position: 36% 50%; }
+.mf-step:nth-child(2) .mf-img img, .mf-step:nth-child(3) .mf-img img, .mf-step:nth-child(4) .mf-img img { object-position: 99% 30%; }
