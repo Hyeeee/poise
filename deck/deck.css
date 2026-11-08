@@ -3148,3 +3148,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .nf-h { margin-bottom: calc(var(--s) * 8) !important; }
 .nf-row span { min-height: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .nf-h em { font-size: max(calc(var(--s) * 16), 11px); }
+.nf-h em { order: 2; margin-left: auto; }
