@@ -2852,3 +2852,16 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .mf-t { min-height: 4.35em; }
 .mf-step:nth-child(1) .mf-img img { object-position: 36% 50%; }
 .mf-step:nth-child(2) .mf-img img, .mf-step:nth-child(3) .mf-img img, .mf-step:nth-child(4) .mf-img img { object-position: 99% 30%; }
+/* Meet Poise: the user flow as one table, app and light bar side by side */
+.uf-card { margin-top: calc(var(--s) * 8); background: #fff !important; border: 0 !important; backdrop-filter: none !important; border-radius: calc(var(--s) * 30); box-shadow: var(--card-shadow); padding: var(--card-pad) !important; }
+.uf-card::before, .uf-card::after { display: none !important; }
+.uf { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.uf col, .uf th:first-child { width: 22%; }
+.uf thead th { text-align: left; font-weight: 600; font-size: max(calc(var(--s) * 15), 10px); color: var(--ink-3); padding: 0 calc(var(--s) * 16) calc(var(--s) * 16) 0; }
+.uf thead th:nth-child(2) { width: 46%; }
+.uf tbody th, .uf tbody td { text-align: left; vertical-align: middle; padding: calc(var(--s) * 20) calc(var(--s) * 16) calc(var(--s) * 20) 0; border-top: 1px solid rgba(20,20,18,.08); }
+.uf tbody th { font-weight: 600; font-size: max(calc(var(--s) * 24), 15px); letter-spacing: -.015em; color: var(--ink); }
+.uf tbody th i { font-style: normal; display: inline-grid; place-items: center; width: calc(var(--s) * 30); height: calc(var(--s) * 30); margin-right: calc(var(--s) * 14); border-radius: 50%; background: #eef0ea; font-size: max(calc(var(--s) * 14), 10px); color: var(--ink-2); vertical-align: middle; }
+.uf td { font-size: max(calc(var(--s) * 20), 13px); line-height: 1.4; color: var(--ink-2); }
+.uf td.lb { color: #8a6410; }
+.uf tbody th, .uf tbody td { padding-top: calc(var(--s) * 30); padding-bottom: calc(var(--s) * 30); }
