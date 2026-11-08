@@ -3204,3 +3204,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.demo .v-ic2 { width: 1.05em; height: 1.05em; flex: none; fill: none; stroke: var(--ink-3); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .slide.demo .v-ic2 { width: 1.2em; height: 1.2em; stroke: var(--ink-2); stroke-width: 1.8; }
 .ai-phases .ai-cols { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.ai-phases .ai-tg + .ai-tg em { color: var(--ink-2); }
