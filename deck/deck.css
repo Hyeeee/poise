@@ -2928,3 +2928,13 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ut-r { grid-template-columns: minmax(0, .75fr) minmax(0, 1.75fr) minmax(0, 1.1fr); }
 .hy-subs.one { grid-template-columns: 1fr; } .hy-subs.one h4 { max-width: 60ch; }
 .hy-subs.one h4 { max-width: none; }
+/* user flow table, tidy: same padding on every row, header lines up with the rows, no swatches */
+.ut { flex: none; display: block; padding: var(--card-pad) !important; }
+.ut-r { padding: calc(var(--s) * 26) 0; column-gap: calc(var(--s) * 40); grid-template-columns: calc(var(--s) * 220) minmax(0, 1.6fr) minmax(0, 1fr); }
+.ut-h { padding: 0 0 calc(var(--s) * 18); }
+.ut-r:last-child { padding-bottom: 0; }
+.ut-s { font-size: max(calc(var(--s) * 24), 15px); gap: calc(var(--s) * 14); }
+.ut-s i { width: calc(var(--s) * 30); height: calc(var(--s) * 30); }
+.ut-a, .ut-b { font-size: max(calc(var(--s) * 19), 12px); line-height: 1.4; }
+.ut-b { color: var(--ink-2); display: block; }
+.ut-r { padding: calc(var(--s) * 34) 0; grid-template-columns: calc(var(--s) * 220) minmax(0, 1.25fr) minmax(0, 1fr); } .ut-h { padding: 0 0 calc(var(--s) * 20); } .ut-r:last-child { padding-bottom: calc(var(--s) * 6); }
