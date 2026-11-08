@@ -3144,3 +3144,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .nf-row small svg { width: calc(var(--s) * 15); height: calc(var(--s) * 15); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .nf-row span { font-size: max(calc(var(--s) * 16), 11px) !important; line-height: 1.4; }
 .nf-ar svg .hd { fill: none; stroke-linecap: round; stroke-linejoin: round; } .nf-ar svg path { stroke-linecap: round; }
+.nf-h em { margin-left: 0; order: 0; font-size: max(calc(var(--s) * 14), 10px); color: var(--ink-3); }
