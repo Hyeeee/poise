@@ -3191,3 +3191,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.demo .v-why { gap: calc(var(--s) * 12); }
 .slide.demo .v-ic { width: calc(var(--s) * 24); height: calc(var(--s) * 24); margin-top: calc(var(--s) * -2); }
 .slide.demo .v-ic svg { width: calc(var(--s) * 13); height: calc(var(--s) * 13); }
+/* text column a little wider on both version slides */
+.slide.demo .v1-body, .slide.demo .v-why { max-width: 34ch; }
+.slide.demo .v-why { max-width: none; width: calc(34ch * 18 / 15.12); }
+/* one shared column width for the description and its box, a bit wider than before */
+.slide.demo .v1-body { max-width: none; width: calc(var(--s) * 400); }
+.slide.demo .v-why { max-width: none; width: calc(var(--s) * 400); box-sizing: border-box; }
+.slide.demo .v-why p { font-size: .8em; }
+.slide.demo .v-why p b { font-size: .84em; }
