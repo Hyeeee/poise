@@ -3111,3 +3111,13 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .nf-row:last-of-type span { min-height: 1.4em; }
 .nf-node { box-shadow: var(--card-shadow); border-radius: calc(var(--s) * 26); padding: calc(var(--s) * 22); }
 .nf { flex: 1; display: flex; align-items: center; margin-top: 0; padding-bottom: calc(var(--s) * 40) !important; }
+.nf { display: grid !important; align-content: center; align-items: center; } .nf-flow { height: auto !important; align-self: center !important; grid-template-rows: auto; }
+.nf { padding-bottom: calc(var(--s) * 60) !important; }
+.nf-node { padding: calc(var(--s) * 28); gap: calc(var(--s) * 14); border-radius: calc(var(--s) * 30); }
+.nf-h { font-size: max(calc(var(--s) * 30), 18px); margin-bottom: calc(var(--s) * 8); gap: calc(var(--s) * 12); }
+.nf-h i { width: calc(var(--s) * 36); height: calc(var(--s) * 36); font-size: max(calc(var(--s) * 15), 10px); }
+.nf-row { padding: calc(var(--s) * 20) calc(var(--s) * 22); border-radius: calc(var(--s) * 16); gap: calc(var(--s) * 6); }
+.nf-row small { font-size: max(calc(var(--s) * 15), 10px); }
+.nf-row span { font-size: max(calc(var(--s) * 21), 13px); }
+.nf-ar { width: calc(var(--s) * 52); }
+.nf { padding-bottom: 0 !important; }
