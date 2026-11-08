@@ -2813,3 +2813,25 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .fl-head .it-head { border: 0 !important; padding: 0 !important; }
 .fl-head .it-head::after, .fl-head .it-head::before { display: none !important; }
 .slide[data-title="Meet Poise"] .pz-flow { margin-top: calc(var(--s) * -10) !important; }
+/* Meet Poise v2 layout: one card with software and hardware, one card with the user flow */
+.pz-two { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: calc(var(--s) * 20); margin-top: calc(var(--s) * 8); }
+.pz-two > .card { margin: 0 !important; min-height: 0; }
+.card.pz-pair { display: grid; grid-template-rows: 1fr 1fr; gap: calc(var(--s) * 22); }
+.pz-part { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: calc(var(--s) * 22); align-items: stretch; min-height: 0; }
+.pz-part .pz-visual { flex: none; min-height: 0; height: 100%; }
+.pz-part .pz-copy { justify-content: center; min-width: 0; }
+.pz-part .pz-copy h3 { font-size: max(calc(var(--s) * 26), 15px); }
+.pz-part .pz-copy p { font-size: max(calc(var(--s) * 16), 11px); line-height: 1.45; }
+.pz-part .pz-frame { height: 80%; }
+.pz-two .pz-flow { display: flex; flex-direction: column; gap: calc(var(--s) * 18); }
+.pz-two .pz-flow .it-head { margin: 0; border: 0 !important; padding: 0 !important; }
+.pz-two .fl-grid { flex: 1; display: grid; grid-template-columns: calc(var(--s) * 120) minmax(0, 1.3fr) minmax(0, 1fr); grid-template-rows: auto repeat(5, 1fr); column-gap: calc(var(--s) * 10); row-gap: calc(var(--s) * 8); }
+.pz-two .fl-h { margin: 0; font-size: max(calc(var(--s) * 13), 10px); font-weight: 600; color: var(--ink-3); padding-left: calc(var(--s) * 14); }
+.pz-two .fl-h:first-child { padding-left: 0; }
+.pz-two .fl-n { font-size: max(calc(var(--s) * 18), 12px); }
+.pz-two .fl-app, .pz-two .fl-bar { display: flex; align-items: center; padding: calc(var(--s) * 8) calc(var(--s) * 14); }
+.pz-two .fl-chips { justify-content: flex-start; }
+.slide[data-title="Meet Poise"] .pz-two .pz-flow { margin-top: 0 !important; }
+.pz-part { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.pz-part .pz-copy p { max-width: none; white-space: normal; }
+.pz-part .pz-frame { width: 88%; height: auto; max-width: none; aspect-ratio: 16 / 10; }
