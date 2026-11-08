@@ -3059,3 +3059,55 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide[data-title="Hypothesis"] .hy-how { margin-top: 0; }
 .slide[data-title="Hypothesis"] .hy-box { flex: 0 1 auto; justify-content: flex-start; gap: calc(var(--s) * 34); padding: var(--card-pad); }
 .slide[data-title="Hypothesis"] .hy-box { flex: none; min-height: auto; height: auto; max-height: none; overflow: visible; }
+/* User flow as connected nodes on a dotted canvas */
+.nf { flex: 1; min-height: 0; margin-top: calc(var(--s) * 8); border: 0 !important; backdrop-filter: none !important; border-radius: calc(var(--s) * 30); box-shadow: var(--card-shadow); padding: var(--card-pad) !important; display: flex; align-items: center; background: #f4f4f1 radial-gradient(rgba(20,20,18,.13) 1px, transparent 1.3px) 0 0 / calc(var(--s) * 22) calc(var(--s) * 22) !important; }
+.nf::before, .nf::after { display: none !important; }
+.nf-flow { flex: 1; display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr; align-items: center; }
+.nf-node { position: relative; background: #fff; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 14); box-shadow: 0 1px 2px rgba(20,20,18,.06), 0 calc(var(--s) * 8) calc(var(--s) * 24) rgba(20,20,18,.06); display: flex; flex-direction: column; gap: calc(var(--s) * 8); align-self: stretch; }
+.nf-node:nth-child(4n+3) { transform: translateY(calc(var(--s) * 34)); }
+.nf-node:nth-child(4n+1):not(:first-child) { transform: translateY(calc(var(--s) * -34)); }
+.nf-tag { position: absolute; left: 0; top: calc(var(--s) * -36); margin: 0; padding: calc(var(--s) * 4) calc(var(--s) * 10); border-radius: calc(var(--s) * 8); background: #fff; font-weight: 600; font-size: max(calc(var(--s) * 14), 10px); color: var(--ink); }
+.nf-h { margin: 0 0 calc(var(--s) * 2); padding: calc(var(--s) * 4) calc(var(--s) * 4) 0; display: flex; align-items: center; gap: calc(var(--s) * 10); font-weight: 600; font-size: max(calc(var(--s) * 20), 13px); letter-spacing: -.015em; color: var(--ink); }
+.nf-h i { font-style: normal; display: grid; place-items: center; width: calc(var(--s) * 26); height: calc(var(--s) * 26); border-radius: 50%; background: var(--ink); color: #fff; font-size: max(calc(var(--s) * 12), 9px); }
+.nf-row { background: #f4f4f1; border-radius: calc(var(--s) * 12); padding: calc(var(--s) * 12) calc(var(--s) * 14); display: flex; flex-direction: column; gap: calc(var(--s) * 4); }
+.nf-row small { font-size: max(calc(var(--s) * 12.5), 9px); color: var(--ink-3); }
+.nf-row span { font-size: max(calc(var(--s) * 15.5), 10.5px); line-height: 1.4; color: var(--ink); min-height: 2.8em; }
+.nf-row:last-child span { min-height: 1.4em; }
+.nf-ar { width: calc(var(--s) * 44); padding: 0 calc(var(--s) * 4); }
+.nf-ar svg { display: block; width: 100%; height: auto; fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.nf-node { align-self: center; transform: none !important; }
+.nf-node:nth-of-type(even) { transform: translateY(calc(var(--s) * 70)) !important; }
+.nf-flow { align-self: center; }
+.nf { align-items: center; }
+.nf { flex: none; padding: calc(var(--s) * 84) var(--card-pad) calc(var(--s) * 120) !important; }
+.nf-node:nth-of-type(even) { transform: translateY(calc(var(--s) * 48)) !important; }
+.nf-node { padding: calc(var(--s) * 16); gap: calc(var(--s) * 10); border-radius: calc(var(--s) * 22); }
+.nf-h { font-size: max(calc(var(--s) * 22), 14px); }
+.nf-h i { width: calc(var(--s) * 28); height: calc(var(--s) * 28); font-size: max(calc(var(--s) * 13), 9px); }
+.nf-row { padding: calc(var(--s) * 14) calc(var(--s) * 16); }
+.nf-row small { font-size: max(calc(var(--s) * 13.5), 9.5px); }
+.nf-row span { font-size: max(calc(var(--s) * 17), 11px); }
+.nf-tag { top: calc(var(--s) * -40); font-size: max(calc(var(--s) * 15), 10px); }
+/* all five nodes on one line, same height */
+.nf-node, .nf-node:nth-of-type(even) { transform: none !important; align-self: stretch; }
+.nf-flow { align-items: stretch; }
+.nf-ar { align-self: center; }
+.nf-row:first-of-type { flex: 1; }
+.nf { padding: calc(var(--s) * 64) var(--card-pad) !important; }
+/* fill the slide and read at a glance: bigger type, the flow centered in the canvas */
+.nf { flex: 1; padding: var(--card-pad) !important; }
+.nf-flow { align-self: center; }
+.nf-node { padding: calc(var(--s) * 20); gap: calc(var(--s) * 12); }
+.nf-h { font-size: max(calc(var(--s) * 26), 16px); margin-bottom: calc(var(--s) * 4); }
+.nf-h i { width: calc(var(--s) * 32); height: calc(var(--s) * 32); font-size: max(calc(var(--s) * 14), 10px); }
+.nf-row { padding: calc(var(--s) * 16) calc(var(--s) * 18); }
+.nf-row small { font-size: max(calc(var(--s) * 14), 10px); }
+.nf-row span { font-size: max(calc(var(--s) * 19), 12px); }
+.nf-ar { width: calc(var(--s) * 48); }
+/* just the white step cards and arrows, no canvas behind */
+.nf { flex: none; background: none !important; box-shadow: none !important; padding: 0 !important; border-radius: 0; }
+.nf-row:first-of-type { flex: none; }
+.nf-row span { min-height: 2.8em; }
+.nf-row:last-of-type span { min-height: 1.4em; }
+.nf-node { box-shadow: var(--card-shadow); border-radius: calc(var(--s) * 26); padding: calc(var(--s) * 22); }
+.nf { flex: 1; display: flex; align-items: center; margin-top: 0; padding-bottom: calc(var(--s) * 40) !important; }
