@@ -3205,3 +3205,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.demo .v-ic2 { width: 1.2em; height: 1.2em; stroke: var(--ink-2); stroke-width: 1.8; }
 .ai-phases .ai-cols { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 .ai-phases .ai-tg + .ai-tg em { color: var(--ink-2); }
+.ai-phases .ai-tg em, .ai-phases .ai-tg + .ai-tg em { color: var(--ink-3); }
