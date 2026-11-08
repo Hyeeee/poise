@@ -2777,3 +2777,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ai-phases .ai-cols li { grid-row: span 5; }
 .ai-phases .ai-out { border-top: 0; padding-top: calc(var(--s) * 6); }
 .ai-phases .ai-out em { color: var(--green-ink); }
+/* checked and changed as chips under a small label */
+.ai-phases .ai-tg { display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--s) * 8); }
+.ai-phases .ai-tg:first-of-type { padding-top: calc(var(--s) * 18); border-top: 1px solid rgba(0,0,0,.08); }
+.ai-phases .ai-tg + .ai-tg { padding-top: calc(var(--s) * 10); }
+.ai-phases .ai-tg em { font-style: normal; font-weight: 600; font-size: max(calc(var(--s) * 13), 10px); color: var(--ink-2); }
+.ai-phases .tg { font-style: normal; display: inline-block; padding: calc(var(--s) * 7) calc(var(--s) * 13); border-radius: 999px; background: #f1f1ed; color: var(--ink-2); font-size: max(calc(var(--s) * 14.5), 10px); line-height: 1.3; }
+.ai-phases .tg.out { background: #e6f2e9; color: var(--green-ink); }
+.ai-phases .ai-tg:first-of-type { border-top: 0; padding-top: calc(var(--s) * 22); }
