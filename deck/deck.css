@@ -3157,3 +3157,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* parts that build in on their own when a slide opens */
 [data-auto] { opacity: 0; transform: translateY(calc(var(--s) * 24)); filter: blur(6px); transition: opacity .6s var(--ease), transform .8s var(--ease), filter .6s var(--ease); }
 [data-auto].shown { opacity: 1; transform: none; filter: none; }
+/* the chip is the label; the finding reads as plain text after it */
+.ai-phases .ai-tg { gap: calc(var(--s) * 10); }
+.ai-phases .ai-tg em { display: inline-block; padding: calc(var(--s) * 5) calc(var(--s) * 12); border-radius: 999px; background: #f1f1ed; color: var(--ink-2); font-weight: 500; font-size: max(calc(var(--s) * 13), 9.5px); }
+.ai-phases .ai-tg + .ai-tg em { background: #e6f2e9; color: var(--green-ink); }
+.ai-phases .tg, .ai-phases .tg.out { padding: 0; background: none; border-radius: 0; font-size: max(calc(var(--s) * 16), 11px); line-height: 1.4; color: var(--ink); }
+.ai-phases .ai-tg + .ai-tg { padding-top: calc(var(--s) * 16); }
+.ai-phases .ai-cols { margin-top: auto !important; margin-bottom: auto !important; }
