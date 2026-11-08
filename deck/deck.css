@@ -2772,3 +2772,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* one shared row grid across the four cards, so headings, text and the check line all line up */
 .ai-phases .ai-cols { grid-template-rows: auto auto 1fr auto; row-gap: 0; }
 .ai-phases .ai-cols li { grid-row: span 4; grid-template-rows: subgrid; row-gap: calc(var(--s) * 10); }
+/* five rows now: label, heading, why, how I checked it, what it changed */
+.ai-phases .ai-cols { grid-template-rows: auto auto 1fr auto auto; }
+.ai-phases .ai-cols li { grid-row: span 5; }
+.ai-phases .ai-out { border-top: 0; padding-top: calc(var(--s) * 6); }
+.ai-phases .ai-out em { color: var(--green-ink); }
