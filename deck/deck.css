@@ -2742,3 +2742,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ai-shape .ai-list li[data-step].shown { opacity: 1; transform: none; }
 @media (max-width: 860px), (max-aspect-ratio: 1/1) { .ai-shape .ai-row { grid-template-columns: 1fr; } }
 .ai-shape .ai-pair { align-content: center; }
+/* four measures in a row; the hypothesis measure comes first */
+.qm-row:has(.qm-key) { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: calc(var(--s) * 16); }
+.qm-row:has(.qm-key) .qm-big { font-size: max(calc(var(--s) * 52), 24px); white-space: nowrap; }
