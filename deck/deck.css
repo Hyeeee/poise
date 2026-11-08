@@ -3121,3 +3121,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .nf-row span { font-size: max(calc(var(--s) * 21), 13px); }
 .nf-ar { width: calc(var(--s) * 52); }
 .nf { padding-bottom: 0 !important; }
+/* rows line up across all five cards */
+.nf-flow { grid-template-rows: auto auto auto !important; row-gap: 0; }
+.nf-node { display: grid; grid-row: 1 / span 3; grid-template-rows: subgrid; row-gap: calc(var(--s) * 14); }
+.nf-ar { grid-row: 1 / span 3; width: calc(var(--s) * 40); }
+.nf-row span { min-height: 0 !important; }
+.nf-node { padding: calc(var(--s) * 24); }
+.nf-row { padding: calc(var(--s) * 18) calc(var(--s) * 18); }
