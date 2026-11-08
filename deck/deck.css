@@ -2977,3 +2977,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .hy-subs.two .hy-sub { gap: calc(var(--s) * 12); }
 .hy-subs.two .hy-sub p { max-width: 46ch; } .hy-subs.two .hy-sub { justify-content: center; }
 .jm-curve { top: calc(var(--s) * 30); bottom: calc(var(--s) * 64); }
+.hy-subs.two .hy-sub p { max-width: none; } .slide[data-title="Hypothesis"] .hy-how { margin-top: calc(var(--s) * 28); }
