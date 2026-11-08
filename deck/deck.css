@@ -2938,3 +2938,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ut-a, .ut-b { font-size: max(calc(var(--s) * 19), 12px); line-height: 1.4; }
 .ut-b { color: var(--ink-2); display: block; }
 .ut-r { padding: calc(var(--s) * 34) 0; grid-template-columns: calc(var(--s) * 220) minmax(0, 1.25fr) minmax(0, 1fr); } .ut-h { padding: 0 0 calc(var(--s) * 20); } .ut-r:last-child { padding-bottom: calc(var(--s) * 6); }
+.hy-subs.two { grid-template-columns: 1.4fr 1fr; gap: calc(var(--s) * 40); } .hy-subs.two h4 { font-weight: 400; line-height: 1.45; }
