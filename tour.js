@@ -7,7 +7,7 @@ const WORK_STEPS = [
   { sel: ['.state'], title: 'Your posture', text: 'Your figure moves with you over your reference. Drift too far from it and Poise lets you know.' },
   { sel: ['.session'], title: 'Your session', text: 'The timer starts when you set a reference. Tap the mode name to change its length or when to notice.' },
   { sel: ['.topbar .segmented', '.tools'], title: 'Controls', text: 'Connect the light bar, turn the camera on or off, open a mini window, or change your preferences in Settings.' },
-  { sel: ['#ask-form'], title: 'Ask Poise AI', text: 'Type or speak to change anything. Try “focus 40 minutes” or “take a break”.' },
+  { sel: ['#ask-form'], title: 'Ask Poise', text: 'Type or speak to change anything. Try “focus 40 minutes” or “take a break”.' },
 ];
 
 const BREAK_STEPS = {
