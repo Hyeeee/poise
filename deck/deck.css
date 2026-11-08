@@ -3009,3 +3009,45 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .js-q { padding-left: calc(var(--s) * 28) !important; }
 .js-q::before { left: calc(var(--s) * 12); top: calc(var(--s) * 25); }
 .js-c { font-size: max(calc(var(--s) * 16.5), 11px); } .js-l { font-size: max(calc(var(--s) * 14), 10px); } .js-rows > p { padding: calc(var(--s) * 20) 0; } .js-rows > p:not(.js-l) { padding-left: calc(var(--s) * 12); } .js-rows > p:nth-last-child(-n+6) { padding-bottom: 0; }
+/* Journey map, classic: phases, actions, Poise, a feelings curve with thought bubbles, pain points, opportunities */
+.jx { flex: 1; min-height: 0; margin-top: calc(var(--s) * 8); background: #fff !important; border: 0 !important; backdrop-filter: none !important; border-radius: calc(var(--s) * 30); box-shadow: var(--card-shadow); padding: var(--card-pad) !important; display: flex; }
+.jx::before, .jx::after { display: none !important; }
+.jx-grid { flex: 1; display: grid; grid-template-columns: calc(var(--s) * 130) repeat(5, minmax(0, 1fr)); grid-template-rows: auto auto auto 1fr auto auto; column-gap: calc(var(--s) * 18); align-content: stretch; }
+.jx-grid > p { margin: 0; }
+.jx-l { font-size: max(calc(var(--s) * 15), 10px); font-weight: 500; color: var(--ink-3); padding: calc(var(--s) * 12) 0; align-self: center; }
+.jx-ph { padding: calc(var(--s) * 10) 0 calc(var(--s) * 12); border-top: 2px solid var(--ink); font-weight: 600; font-size: max(calc(var(--s) * 19), 12px); letter-spacing: -.01em; color: var(--ink); text-align: center; }
+.jx-c { padding: calc(var(--s) * 10) calc(var(--s) * 4); font-size: max(calc(var(--s) * 14.5), 10px); line-height: 1.4; color: var(--ink-2); text-align: center; align-self: center; }
+.jx-po { color: #8a6410; }
+.jx-fl { align-self: center; }
+.jx-feel { grid-column: 2 / -1; position: relative; min-height: calc(var(--s) * 250); margin: calc(var(--s) * 6) 0; }
+.jx-plot { position: absolute; left: 0; right: 0; top: calc(var(--s) * 58); bottom: calc(var(--s) * 8); }
+.jx-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.jx-plot .a { fill: url(#jxg); }
+.jx-plot .l { fill: none; stroke: #b9bbb2; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.jx-plot i { position: absolute; left: 0; right: 0; top: calc(var(--g) * 1%); border-top: 1px solid rgba(20,20,18,.06); }
+.jx-plot em { position: absolute; left: calc(var(--s) * -4); top: 0; transform: translate(-100%, -50%); font-style: normal; font-size: max(calc(var(--s) * 11), 8px); color: var(--ink-3); }
+.jx-pin { position: absolute; left: calc(var(--x) * 1%); top: 0; bottom: calc(var(--s) * 8); width: 0; }
+.jx-pin q { position: absolute; top: 0; left: 0; transform: translateX(-50%); width: max-content; max-width: calc(var(--s) * 220); padding: calc(var(--s) * 8) calc(var(--s) * 12); border-radius: calc(var(--s) * 8); background: var(--ink); color: #fff; font-size: max(calc(var(--s) * 13), 9.5px); line-height: 1.35; text-align: center; quotes: "“" "”"; }
+.jx-pin b { position: absolute; left: calc(var(--s) * -6); width: calc(var(--s) * 12); height: calc(var(--s) * 12); border-radius: 50%; background: var(--ink); top: calc(var(--s) * 58 + (100% - var(--s) * 58) * var(--y) / 100 - var(--s) * 6); }
+.jx-pin::before { content: ""; position: absolute; left: 0; top: calc(var(--s) * 50); height: calc((100% - var(--s) * 58) * var(--y) / 100 + var(--s) * 8); border-left: 1px dashed rgba(20,20,18,.35); }
+.jx-pin span { position: absolute; left: 0; transform: translateX(-50%); width: calc(var(--s) * 180); text-align: center; top: calc(var(--s) * 58 + (100% - var(--s) * 58) * var(--y) / 100 + var(--s) * 12); font-size: max(calc(var(--s) * 13.5), 9.5px); line-height: 1.35; color: var(--ink-2); }
+.jx-pain { background: #f2f2ee; margin: 0; }
+.jx-grid > .jx-l:nth-last-of-type(2) { background: #f2f2ee; padding-left: calc(var(--s) * 14); border-radius: calc(var(--s) * 12) 0 0 calc(var(--s) * 12); align-self: stretch; display: flex; align-items: center; }
+.jx-opp { color: var(--green-ink); }
+.jx-plot svg path { stroke-dasharray: none; }
+.jx-plot .a { stroke: none !important; }
+.jx-plot .l { stroke: #9a9c93 !important; stroke-width: 1.5 !important; }
+.jx-band { grid-row: 5; grid-column: 1 / -1; background: #f2f2ee; border-radius: calc(var(--s) * 14); margin: 0 calc(var(--s) * -10); }
+.jx-grid > p.jx-pain, .jx-grid > .jx-l:nth-last-of-type(2) { grid-row: 5; background: none !important; position: relative; z-index: 1; padding-top: calc(var(--s) * 18); padding-bottom: calc(var(--s) * 18); }
+.jx-grid > .jx-l:nth-last-of-type(2) { padding-left: 0; }
+.jx-opp { padding-top: calc(var(--s) * 18); }
+.jx-pin span { background: rgba(255,255,255,.85); padding: calc(var(--s) * 2) calc(var(--s) * 8); border-radius: calc(var(--s) * 6); width: max-content; max-width: calc(var(--s) * 200); top: calc(var(--s) * 58 + (100% - var(--s) * 58) * var(--y) / 100 + var(--s) * 14); }
+.jx-feel { margin-bottom: calc(var(--s) * 24); }
+.jx-plot { bottom: calc(var(--s) * 30); }
+.jx-pin { bottom: calc(var(--s) * 30); }
+/* pain point band: every cell bleeds into the gaps so the row reads as one grey strip */
+.jx-band { display: none; }
+.jx-grid > p.jx-pain, .jx-grid > p.jx-pl { grid-row: auto; align-self: stretch; display: flex; align-items: center; justify-content: center; background: #f2f2ee !important; margin: 0 calc(var(--s) * -9); padding: calc(var(--s) * 18) calc(var(--s) * 13); }
+.jx-grid > p.jx-pl { justify-content: flex-start; margin-left: calc(var(--s) * -14); padding-left: calc(var(--s) * 14); border-radius: calc(var(--s) * 14) 0 0 calc(var(--s) * 14); }
+.jx-grid > p.jx-pain:nth-of-type(5n) { }
+.jx-grid > p.jx-pain:last-of-type { margin-right: calc(var(--s) * -14); border-radius: 0 calc(var(--s) * 14) calc(var(--s) * 14) 0; }
