@@ -3146,3 +3146,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .nf-ar svg .hd { fill: none; stroke-linecap: round; stroke-linejoin: round; } .nf-ar svg path { stroke-linecap: round; }
 .nf-h em { margin-left: 0; order: 0; font-size: max(calc(var(--s) * 14), 10px); color: var(--ink-3); }
 .nf-h { margin-bottom: calc(var(--s) * 8) !important; }
+.nf-row span { min-height: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nf-h em { font-size: max(calc(var(--s) * 16), 11px); }
