@@ -3149,3 +3149,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .nf-row span { min-height: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .nf-h em { font-size: max(calc(var(--s) * 16), 11px); }
 .nf-h em { order: 2; margin-left: auto; }
+/* version two flow: changed rows tinted green */
+.nf-row.chg { background: #e6f2e9; }
+.nf-row.chg small { color: var(--green-ink); opacity: .8; }
+.nf-row.chg span { color: var(--green-ink); }
+.nf-flow { grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) !important; }

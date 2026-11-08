@@ -16,7 +16,7 @@ const deck = document.getElementById('deck');
 const slides = [...deck.querySelectorAll('.slide')];
 const progress = document.getElementById('progress');
 // The parts of the deck, in order, and how many slides each has (cover and contents come first).
-const PARTS = [['Intro', 2], ['The problem', 2], ['UX research', 4], ['Version one', 2], ['Iteration', 3], ['Version two', 3], ['What I learned', 2], ['What’s next', 2]];
+const PARTS = [['Intro', 2], ['The problem', 2], ['UX research', 4], ['Version one', 2], ['Iteration', 3], ['Version two', 4], ['What I learned', 2], ['What’s next', 2]];
 let at = 0;
 const segs = PARTS.map(([name, n]) => {
   const start = at; at += n;
