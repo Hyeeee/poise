@@ -3164,3 +3164,9 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ai-phases .tg, .ai-phases .tg.out { padding: 0; background: none; border-radius: 0; font-size: max(calc(var(--s) * 16), 11px); line-height: 1.4; color: var(--ink); }
 .ai-phases .ai-tg + .ai-tg { padding-top: calc(var(--s) * 16); }
 .ai-phases .ai-cols { margin-top: auto !important; margin-bottom: auto !important; }
+/* labels back to plain text, with one divider above the checked / changed lines */
+.ai-phases .ai-tg em, .ai-phases .ai-tg + .ai-tg em { padding: 0; background: none; border-radius: 0; font-weight: 600; font-size: max(calc(var(--s) * 13), 10px); color: var(--ink-2); }
+.ai-phases .ai-tg + .ai-tg em { color: var(--green-ink); }
+.ai-phases .ai-tg { gap: calc(var(--s) * 6); }
+.ai-phases .ai-tg:first-of-type { border-top: 1px solid rgba(20,20,18,.08); padding-top: calc(var(--s) * 20); }
+.ai-phases .ai-tg + .ai-tg { padding-top: calc(var(--s) * 14); }
