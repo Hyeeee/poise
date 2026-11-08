@@ -3128,3 +3128,18 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .nf-row span { min-height: 0 !important; }
 .nf-node { padding: calc(var(--s) * 24); }
 .nf-row { padding: calc(var(--s) * 18) calc(var(--s) * 18); }
+/* lighter, smaller step numbers; connectors drawn like node ports joined by a line */
+.nf-h i { width: calc(var(--s) * 26); height: calc(var(--s) * 26); background: #eef0ea; color: var(--ink-2); font-size: max(calc(var(--s) * 13), 9px); font-weight: 600; }
+.nf-ar { width: calc(var(--s) * 44); padding: 0; margin: 0 calc(var(--s) * -6); position: relative; z-index: 1; }
+.nf-ar svg circle { fill: #fff; stroke: var(--ink); stroke-width: 1.8; }
+.nf-ar svg path { stroke: var(--ink); stroke-width: 1.8; fill: none; }
+.nf-ar { width: calc(var(--s) * 60); margin: 0 calc(var(--s) * -7); } .nf-ar svg circle, .nf-ar svg path { stroke-width: 2.2; }
+/* compact node cards, like a workflow canvas: icon + title, small labelled rows */
+.nf-node { padding: calc(var(--s) * 16) !important; border-radius: calc(var(--s) * 22) !important; row-gap: calc(var(--s) * 8) !important; }
+.nf-h { margin: 0 0 calc(var(--s) * 2) !important; padding: calc(var(--s) * 4) calc(var(--s) * 4) 0; gap: calc(var(--s) * 10) !important; font-size: max(calc(var(--s) * 20), 13px) !important; }
+.nf-h em { margin-left: auto; font-style: normal; font-weight: 500; font-size: max(calc(var(--s) * 13), 9px); color: var(--ink-3); }
+.nf-ic svg { display: block; width: calc(var(--s) * 22); height: calc(var(--s) * 22); fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nf-row { padding: calc(var(--s) * 12) calc(var(--s) * 14) !important; border-radius: calc(var(--s) * 12) !important; gap: calc(var(--s) * 6) !important; }
+.nf-row small { display: flex; align-items: center; gap: calc(var(--s) * 6); font-size: max(calc(var(--s) * 13), 9.5px) !important; color: var(--ink-3); }
+.nf-row small svg { width: calc(var(--s) * 15); height: calc(var(--s) * 15); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nf-row span { font-size: max(calc(var(--s) * 16), 11px) !important; line-height: 1.4; }
