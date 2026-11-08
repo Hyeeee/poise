@@ -2939,3 +2939,41 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ut-b { color: var(--ink-2); display: block; }
 .ut-r { padding: calc(var(--s) * 34) 0; grid-template-columns: calc(var(--s) * 220) minmax(0, 1.25fr) minmax(0, 1fr); } .ut-h { padding: 0 0 calc(var(--s) * 20); } .ut-r:last-child { padding-bottom: calc(var(--s) * 6); }
 .hy-subs.two { grid-template-columns: 1.4fr 1fr; gap: calc(var(--s) * 40); } .hy-subs.two h4 { font-weight: 400; line-height: 1.45; }
+/* Journey map: five stages across; doing, Poise, a feeling curve with playtest quotes, and what version two changed */
+.jm { flex: 1; min-height: 0; margin-top: calc(var(--s) * 8); background: #fff !important; border: 0 !important; backdrop-filter: none !important; border-radius: calc(var(--s) * 30); box-shadow: var(--card-shadow); padding: var(--card-pad) !important; display: flex; }
+.jm::before, .jm::after { display: none !important; }
+.jm-grid { flex: 1; display: grid; grid-template-columns: calc(var(--s) * 120) repeat(5, minmax(0, 1fr)); grid-template-rows: auto auto auto 1fr auto; column-gap: calc(var(--s) * 12); row-gap: calc(var(--s) * 12); }
+.jm-grid > p, .jm-grid > div { margin: 0; }
+.jm-l { align-self: center; font-size: max(calc(var(--s) * 14), 10px); font-weight: 600; color: var(--ink-3); display: flex; flex-direction: column; gap: calc(var(--s) * 4); }
+.jm-l small { font-weight: 400; font-size: max(calc(var(--s) * 12), 9px); }
+.jm-st { position: relative; display: flex; align-items: center; gap: calc(var(--s) * 10); padding: calc(var(--s) * 12) calc(var(--s) * 16); border-radius: 999px; background: var(--ink); color: #fff; font-weight: 600; font-size: max(calc(var(--s) * 18), 12px); letter-spacing: -.01em; }
+.jm-st i { font-style: normal; font-size: max(calc(var(--s) * 13), 10px); opacity: .55; }
+.jm-st:not(:nth-child(6))::after { content: ""; position: absolute; right: calc(var(--s) * -11); top: 50%; width: calc(var(--s) * 10); height: calc(var(--s) * 10); border-top: 2px solid var(--ink-3); border-right: 2px solid var(--ink-3); transform: translate(0, -50%) rotate(45deg) scale(.6); opacity: .5; }
+.jm-c { padding: calc(var(--s) * 14) calc(var(--s) * 16); border-radius: calc(var(--s) * 16); background: #f4f4f1; font-size: max(calc(var(--s) * 15.5), 10.5px); line-height: 1.4; color: var(--ink-2); }
+.jm-p { display: flex; flex-direction: column; gap: calc(var(--s) * 6); }
+.jm-p .b { color: #8a6410; }
+.jm-feel { grid-column: 2 / -1; position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: calc(var(--s) * 12); min-height: calc(var(--s) * 150); }
+.jm-feel svg { position: absolute; left: 0; right: 0; top: calc(var(--s) * 8); height: calc(var(--s) * 80); width: 100%; overflow: visible; }
+.jm-feel polyline { fill: none; stroke: var(--green-ink); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; opacity: .55; }
+.jm-f { position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding-top: calc(var(--s) * 100); }
+.jm-f b { position: absolute; left: 50%; top: calc(var(--s) * 8 + var(--y) * .8 * var(--s) - var(--s) * 7); width: calc(var(--s) * 14); height: calc(var(--s) * 14); margin-left: calc(var(--s) * -7); border-radius: 50%; background: #fff; border: 2px solid var(--green-ink); }
+.jm-f q { display: block; font-size: max(calc(var(--s) * 14.5), 10px); line-height: 1.4; color: var(--ink); text-align: center; padding: 0 calc(var(--s) * 6); quotes: "“" "”"; }
+.jm-n { background: #e6f2e9; color: var(--green-ink); }
+/* feeling curve fills its row; each quote sits right under its point */
+.jm-feel { display: block; min-height: calc(var(--s) * 200); background: #fafaf7; border-radius: calc(var(--s) * 16); }
+.jm-curve { position: absolute; left: 0; right: 0; top: calc(var(--s) * 26); bottom: calc(var(--s) * 70); }
+.jm-curve svg { position: absolute; inset: 0; width: 100%; height: 100%; top: 0; }
+.jm-d { position: absolute; left: var(--x); top: var(--y); width: 0; height: 0; }
+.jm-d b { position: absolute; left: calc(var(--s) * -8); top: calc(var(--s) * -8); width: calc(var(--s) * 16); height: calc(var(--s) * 16); border-radius: 50%; background: #fff; border: 2px solid var(--green-ink); }
+.jm-d q { position: absolute; left: 0; top: calc(var(--s) * 16); transform: translateX(-50%); width: calc(var(--s) * 200); text-align: center; font-size: max(calc(var(--s) * 14.5), 10px); line-height: 1.4; color: var(--ink); quotes: "“" "”"; }
+.jm-d q { background: #fafaf7; padding: calc(var(--s) * 4) calc(var(--s) * 6); border-radius: calc(var(--s) * 8); }
+/* Hypothesis: the box reaches the same bottom line as other slides; the two notes sit in equal grey blocks */
+.slide[data-title="Hypothesis"] .hy-box { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
+.slide[data-title="Hypothesis"] .hy-how { flex: 1; display: flex; }
+.hy-subs.two { flex: 1; grid-template-columns: 1fr 1fr; gap: calc(var(--s) * 16); }
+.hy-subs.two .hy-sub { border-top: 0; background: #f4f4f1; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 28); justify-content: flex-start; }
+.hy-subs.two h4 { font-weight: 600; font-size: max(calc(var(--s) * 24), 15px); letter-spacing: -.015em; line-height: 1.25; }
+.hy-subs.two .hy-sub p { margin: 0; font-size: max(calc(var(--s) * 18), 12px); line-height: 1.5; color: var(--ink-2); }
+.hy-subs.two .hy-sub { gap: calc(var(--s) * 12); }
+.hy-subs.two .hy-sub p { max-width: 46ch; } .hy-subs.two .hy-sub { justify-content: center; }
+.jm-curve { top: calc(var(--s) * 30); bottom: calc(var(--s) * 64); }
