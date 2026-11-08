@@ -3187,3 +3187,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* step number sits on the title's baseline, a touch bigger */
 .it-plan .it-card li::before { grid-row: 1; align-self: baseline; padding-top: 0; font-size: max(calc(var(--s) * 18), 13px); font-variant-numeric: tabular-nums; }
 .it-plan .it-card li > b { align-self: baseline; }
+/* smaller icon, lined up with the label line */
+.slide.demo .v-why { gap: calc(var(--s) * 12); }
+.slide.demo .v-ic { width: calc(var(--s) * 24); height: calc(var(--s) * 24); margin-top: calc(var(--s) * -2); }
+.slide.demo .v-ic svg { width: calc(var(--s) * 13); height: calc(var(--s) * 13); }
