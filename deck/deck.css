@@ -3051,3 +3051,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .jx-grid > p.jx-pl { justify-content: flex-start; margin-left: calc(var(--s) * -14); padding-left: calc(var(--s) * 14); border-radius: calc(var(--s) * 14) 0 0 calc(var(--s) * 14); }
 .jx-grid > p.jx-pain:nth-of-type(5n) { }
 .jx-grid > p.jx-pain:last-of-type { margin-right: calc(var(--s) * -14); border-radius: 0 calc(var(--s) * 14) calc(var(--s) * 14) 0; }
+/* hypothesis: the sentence and the two blocks never touch; blocks size to their text */
+.slide[data-title="Hypothesis"] .hy-main { flex: none; }
+.slide[data-title="Hypothesis"] .hy-how { flex: none; margin-top: calc(var(--s) * 32); }
+.slide[data-title="Hypothesis"] .hy-box { justify-content: space-between; gap: calc(var(--s) * 32); }
+.hy-subs.two .hy-sub { justify-content: flex-start; padding: calc(var(--s) * 26) calc(var(--s) * 28); }
+.slide[data-title="Hypothesis"] .hy-how { margin-top: 0; }
+.slide[data-title="Hypothesis"] .hy-box { flex: 0 1 auto; justify-content: flex-start; gap: calc(var(--s) * 34); padding: var(--card-pad); }
+.slide[data-title="Hypothesis"] .hy-box { flex: none; min-height: auto; height: auto; max-height: none; overflow: visible; }
