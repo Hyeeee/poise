@@ -3184,3 +3184,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.demo .v-why { font-size: max(calc(var(--s) * 18), 12px); max-width: 30ch; box-sizing: border-box; }
 .slide.demo .v-why p { font-size: .84em; }
 .slide.demo .v-why p b { font-size: .86em; }
+/* step number sits on the title's baseline, a touch bigger */
+.it-plan .it-card li::before { grid-row: 1; align-self: baseline; padding-top: 0; font-size: max(calc(var(--s) * 18), 13px); font-variant-numeric: tabular-nums; }
+.it-plan .it-card li > b { align-self: baseline; }
