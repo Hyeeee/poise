@@ -2727,3 +2727,18 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .v2-motion .v1-card .v1-dev .v1-screen { width: 100%; height: auto; aspect-ratio: 2560 / 1394; }
 .v1-motion .v1-card .v1-dev .v1-screen { aspect-ratio: 2560 / 1396; }
 .v2-motion video.rec { object-fit: cover; object-position: center; }
+/* Building with AI */
+.ai-shape .ai-row { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: calc(var(--s) * 24); margin-top: calc(var(--s) * 8); }
+.ai-shape .ai-pair { background: #fff; border-radius: calc(var(--s) * 30); box-shadow: var(--card-shadow); padding: var(--card-pad); display: grid; grid-template-columns: 1fr 1fr; gap: var(--card-pad); align-items: start; min-height: 0; }
+.ai-shape .ai-pair figure { margin: 0; display: flex; flex-direction: column; gap: calc(var(--s) * 14); min-height: 0; }
+.ai-shape .ai-pair img { width: 100%; height: auto; max-height: calc(var(--s) * 560); object-fit: cover; object-position: top; border-radius: calc(var(--s) * 18); background: #f3f4f0; }
+.ai-shape figcaption { font-size: max(calc(var(--s) * 17), 11px); color: var(--ink-2); }
+.ai-shape .ai-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-rows: repeat(3, 1fr); gap: calc(var(--s) * 20); min-height: 0; }
+.ai-shape .ai-list li { background: #fff; border-radius: calc(var(--s) * 30); box-shadow: var(--card-shadow); padding: var(--card-pad); display: flex; flex-direction: column; justify-content: center; gap: calc(var(--s) * 8); }
+.ai-shape .ai-k { margin: 0; font-size: max(calc(var(--s) * 15), 10px); color: var(--green-ink); font-weight: 500; }
+.ai-shape .ai-list b { font-weight: 600; font-size: max(calc(var(--s) * 24), 14px); letter-spacing: -.015em; color: var(--ink); }
+.ai-shape .ai-list span { font-size: max(calc(var(--s) * 18), 11px); line-height: 1.45; color: var(--ink-2); }
+.ai-shape .ai-list li[data-step] { opacity: 0; transform: translateY(calc(var(--s) * 16)); transition: opacity .6s ease, transform .8s var(--ease); }
+.ai-shape .ai-list li[data-step].shown { opacity: 1; transform: none; }
+@media (max-width: 860px), (max-aspect-ratio: 1/1) { .ai-shape .ai-row { grid-template-columns: 1fr; } }
+.ai-shape .ai-pair { align-content: center; }
