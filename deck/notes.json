@@ -231,22 +231,22 @@
      "t": "So here's what it actually looks like. I'll go through four parts."
     },
     {
-     "t": "First, onboarding. Poise asks you a few things, like how long you usually focus, how you want to know when you drift, and what helps you rest. This came from the interviews, because everyone I talked to worked a little differently, so I wanted setup to start from your own answers."
+     "t": "First, onboarding. Poise asks how long you focus, how it should tell you when you drift, what helps you rest, and if breaks should start on their own. So your answers set up your focus mode. This came from the interviews, because everyone worked differently, so setup starts from your own answers."
     }
    ],
    [
     {
-     "t": "Next is focus mode. As you start to drift, this bar fills up, and it tells you what you did, like leaning forward. Nothing pops up. The light bar just turns yellow, then red the more you drift, and when you sit up, it flashes green and goes back to white. This one came from the survey, because nine out of fifteen people only noticed once it hurt, so I wanted it to react as soon as you drift."
+     "t": "Next is focus mode. A bar fills as you drift, and a label tells you how you moved, like leaning forward. Nothing pops up, the light bar shows it at the edge of your view. It turns yellow, then red, and when you sit up, it flashes green and goes back to white. And when you end, a report shows your time aligned. This came from the survey, because nine out of fifteen only noticed once it hurt, so the bar moves as soon as you drift and tells you what to fix."
     }
    ],
    [
     {
-     "t": "Then the break. A little figure shows you each stretch, and the camera checks how close you're getting. This also came from the survey, because stretching was the most common thing people already tried, so I wanted the break to actually guide you, not just remind you."
+     "t": "Then break mode. A figure shows each stretch, and the camera checks how closely you match it. Reset and a small game are one tap away, and a report shows how much you followed. This also came from the survey, because stretching was the fix most people tried, so breaks guide it instead of just reminding you."
     }
    ],
    [
     {
-     "t": "And last, settings. You can change your modes, the music, and how bright the light is. This came from the interviews too, because everyone wanted something a bit different, so I made everything easy to change."
+     "t": "And last, settings. Focus and break modes, music, and how bright the light bar glows, all in one sheet. This came from the interviews too, because each person wanted something different, so every setting is there to change."
     }
    ]
   ]
@@ -259,7 +259,7 @@
   "segs": [
    [
     {
-     "t": "This was also a class project, so we had a playtest in class. Ten classmates tried it with the cardboard light bar, about ten minutes each. I mostly watched and took notes."
+     "t": "Then I put it in front of classmates. This was also a class project, so we had a three hour playtest in class on October 29th, and I mostly watched and took notes."
     }
    ]
   ]
@@ -272,16 +272,16 @@
   "segs": [
    [
     {
-     "t": "And watching them changed what I thought mattered."
+     "t": "And watching people use it changed what I thought mattered. Ten people tried it with the cardboard light bar, about ten minutes each."
     },
     {
-     "t": "On the good side, people loved having options for the break, and being able to turn the camera off. So they liked having control."
+     "t": "On the good side, people loved having options for a break, and being able to shut off the camera. So people liked having control."
     },
     {
-     "t": "But from the light alone, they couldn't tell how they moved. Twelve guide steps felt like too much, and some worried about what the camera collects. So setup was slow, privacy mattered, and the light was too vague."
+     "t": "But from the light alone, they couldn't tell how they moved. Twelve guide steps before they could even start felt like too much, and some worried what the camera collects. So slow setup, privacy, and a vague light."
     },
     {
-     "t": "And for new ideas, they wanted to just type what they want, and keep a small window open while they work. So they wanted it right there, while they work."
+     "t": "And for new ideas, they wished they could just type what they want, and keep a small window open while they work. So people wanted it while they work."
     }
    ]
   ]
@@ -294,10 +294,19 @@
   "segs": [
    [
     {
-     "t": "So I planned the next version from two places. From the playtest, the first thing was privacy. The camera prompt now says it never records, and offers the sensor. The trade off is, the camera is more precise, but the sensor feels more private. Next was the cue. This is where my first hypothesis was wrong. I thought a quiet light alone was enough, but people needed to know what to fix. So now it also speaks when the light turns red. The trade off is, a voice can interrupt. And people wanted it simpler, so I added plain names, Ask Poise and a mini window. The trade off is, plain names hide some fine control."
+     "t": "So I planned the next version from two places. First, from classmates' feedback."
     },
     {
-     "t": "From my own review, I added a figure that moves with you. The trade off is, it's less exact, so the number stays, just smaller. I made one design system for every screen. The trade off is, edge cases need new rules. And I took the green out of the light. The trade off is, sitting up feels less rewarded."
+     "t": "Clearer privacy. The camera prompt now says it never records, and offers the sensor. The trade off is, the camera is precise but feels watched, and the sensor feels private but less exact."
+    },
+    {
+     "t": "Then clearer cues. This is where my first hypothesis was wrong. I thought a quiet light alone was enough, but people needed to know what to fix. So now it says the move out loud when the light turns red. The trade off is, it's easier to notice, but a voice can interrupt."
+    },
+    {
+     "t": "And simpler and more personal, with plain names, Ask Poise, a mini window, and a four step guide. The trade off is, it's easier to start, but plain names hide some fine control."
+    },
+    {
+     "t": "Then from my own review. A better side panel, with a figure that moves with you. The figure is less exact, so the number stays, just smaller. One design system, one type scale, color set and spacing for every screen. It's easy to share, but edge cases need rules. And a calmer light bar, white, yellow, red and back to white, with no surprise green. It's calmer, but fixing your posture feels less rewarded."
     }
    ]
   ]
@@ -310,7 +319,7 @@
   "segs": [
    [
     {
-     "t": "So with that plan, I built version two. The five steps are the same, and what changed is in green. In set up, you still answer the same questions, but the camera or sensor choice is clearer now. While you focus, there's a figure that moves with you, and a mini window. When you drift, it tells you the move out loud, and the light goes straight back to white. In the report, you can hover the chart to see each moment. And the break uses the same figure."
+     "t": "So with that plan, I built version two. It's the same five steps, and what changed is in green. In set up, there's a clearer camera or sensor choice. In focus, it adds a figure and a mini window. When you drift, it says the move out loud too, and the light goes yellow, red, and back to white. In the report, you can hover the chart for each moment. And in the break, the same figure guides your stretches."
     }
    ]
   ]
@@ -329,32 +338,32 @@
      "t": "So here's what version two looks like. There are six changes, so I'll go through them quickly."
     },
     {
-     "t": "First, the camera or sensor choice. Both are now explained right up front. The camera sees your posture but never records it, and the sensor only measures distance, so it's a little less precise. This came from the playtest, because people worried about what the camera collects, and weren't sure how the sensor was different."
+     "t": "First, camera or sensor. Version two explains both up front. The camera sees your posture but never records it, and the sensor only measures distance, so it's a little less precise. This came from the playtest, because people worried what the camera collected, and weren't sure how the sensor was different."
     }
    ],
    [
     {
-     "t": "Next, fewer steps. The guide went from twelve steps to four, and changing a mode is now a short side panel with plain names. Twelve steps just felt like too much before people even started."
+     "t": "Next, fewer steps. The guide went from twelve steps to four, grouped by what they cover. And changing a mode got simpler too, a short side panel with plain names instead of a long scroll of sliders. Twelve guide steps just felt like too much before even starting."
     }
    ],
    [
     {
-     "t": "Then, it's easier to notice. A figure moves with you, the card changes color as you drift, and it says the move out loud when the light turns red. In the report, you can hover the chart to see what moved at each moment. People liked the light, but they wanted to know what to fix and when."
+     "t": "Then, easier to notice. A figure moves with you, and the card changes color as you drift. It also says the move out loud when the light turns red. And in the report, hovering the chart shows what moved at each moment. People liked the light, but wanted to see what to fix and when."
     }
    ],
    [
     {
-     "t": "This is the mini window. You can pop Poise out into a little window that floats over your other tabs. People told me they wanted something small to keep open while they work."
+     "t": "This is the mini window. You can pop Poise out into a small window that floats over your other tabs, so the figure and the timer stay in view while you work. People wanted a small window to keep open while they worked."
     }
    ],
    [
     {
-     "t": "And this is Ask Poise. You just type or say what you want, like a one hour focus with breathing breaks, and it sets it up for you. People had a hard time finding the settings and wanted to set it up their own way, so this felt like the easiest fix."
+     "t": "And this is Ask Poise, which is new in version two. You type or say what you want, like a one hour focus or breathing breaks, and Poise sets it for you. It reads plain words right on the laptop, so nothing is sent out. People struggled to find the settings, and wanted to set it up their own way."
     }
    ],
    [
     {
-     "t": "And last, one look and feel. This one came from my own review. I built one design system from the light bar's colors, and the same figure shows up in focus and break, so every screen feels like one product."
+     "t": "And last, one look and feel. This one came from my own review. One design system built from the light bar's colors. The brand color, the gradient background and the type all come from it, and the same figure shows up in focus and break mode. So every screen feels like one product."
     }
    ]
   ]
@@ -367,10 +376,13 @@
   "segs": [
    [
     {
-     "t": "Then I tested version two with the same three people I interviewed, Paul, Hyunjoo and Peter, at their own desks for an hour each. The fixes held up. One person set it up without asking me anything, another just glanced at the figure and sat up, and someone kept the little window open all hour. It helped without breaking focus."
+     "t": "Then I tested version two with Paul, Hyunjoo and Peter from the interviews, at their own desks for an hour each. And the fixes held up. One set it up without asking me anything, another just glanced at the figure and sat up, and someone kept the little window open all hour. So it helped without breaking focus."
     },
     {
-     "t": "But real days got in the way. One person jumped on a call and Poise started talking, and another had to leave the little window just to take a break. So people want it to fit their day and habits."
+     "t": "But real days got in the way. One jumped on a call and it started talking, and another had to leave the little window just to take a break. So it got in the way of calls and breaks."
+    },
+    {
+     "t": "And for opportunities, they wanted it to just go quiet in meetings, and to see when they slouch the most each week. So people want it to fit their day and habits."
     }
    ]
   ]
@@ -383,16 +395,16 @@
   "segs": [
    [
     {
-     "t": "I also measured it, with the same tasks on both versions."
+     "t": "Then I measured it, with the same three people and the same tasks on both versions."
     },
     {
-     "t": "The number I cared about most is time aligned, because that's the hypothesis. It went from 85 percent of the hour to 90. Everyone already sat well most of the time, so the gain is small, but all three went up, and Peter, who drifts the most, gained the most."
+     "t": "The one I cared about most is time aligned, the share of a one hour work session, because that's the hypothesis. It went from 85 percent to 90, so up 5 points. Everyone already sat well most of the time, so the gain is small, but all three went up, and Peter, who drifted the most, gained the most."
     },
     {
-     "t": "Getting set up went from about a minute twenty five to fifty two seconds, about 38 percent faster. That's less than cutting twelve steps to four would suggest, so the questions and the camera setup are where I'd trim next. Changing modes went from twenty one seconds to fifteen. And satisfaction went from 2.7 to 4.3 out of 5."
+     "t": "Time to get set up went from one twenty five to fifty two seconds, about 38 percent faster. That's less than going from twelve steps to four would suggest, so the questions and the camera setup are where I'd trim next. Time to change modes went from twenty one seconds to fifteen, about 28 percent faster. And satisfaction went from 2.7 to 4.3 out of 5, up 1.6 points."
     },
     {
-     "t": "So people stayed aligned longer, and it got easier to use."
+     "t": "So they stayed aligned longer, and it got easier to use."
     }
    ]
   ]
@@ -405,19 +417,19 @@
   "segs": [
    [
     {
-     "t": "Now I want to talk about what I learned. Most of it actually came from using AI, since I used it at almost every step."
+     "t": "Now I want to talk about what I learned using AI, across research, building and design, since I used it at almost every step."
     },
     {
-     "t": "In research, I only had a month, and I wanted to spend that time with people. So AI helped me find academic papers and draft my survey and interview questions. But I read each paper myself, and cut any question that pushed people toward an answer. AI is fast at finding and drafting, but deciding what fits was still my job."
+     "t": "In research, I had one month and wanted my time with people, so AI found academic papers and drafted my questions. But I read each paper myself, and cut questions that led people. So AI finds and drafts fast, but judging what fits is my job."
     },
     {
-     "t": "When I was building, I wanted people to try a real app within days, not just a mockup. So AI wrote the app and the Arduino code from the flow I planned. Then I had people try each build and watched how they drifted. AI can write code fast, but only people can show you if it actually feels right."
+     "t": "When I was building, I wanted a real app to test within days, not a mockup, so AI coded the app and the Arduino from my flow. Then I had people try each build and watched them drift. So AI writes code fast, but only people show if it feels right."
     },
     {
-     "t": "And for the design system, I wanted every screen to feel like one product. So I wrote one guide for type, color and spacing, and had AI follow it. When I lined up the screens, I fixed the rules instead of each screen. Once the rules were clear, AI kept everything consistent."
+     "t": "And for the design system, I needed every screen to feel like one product, so I wrote one guide for type, color and spacing for AI to follow. Then I lined up every screen, and fixed the rules instead of each screen. So when the rules are clear, AI keeps every screen consistent."
     },
     {
-     "t": "So AI made me a lot faster, but it was people who showed me what mattered."
+     "t": "So yeah, AI made me a lot faster, but it was people who showed me what mattered."
     }
    ]
   ]
@@ -430,13 +442,13 @@
   "segs": [
    [
     {
-     "t": "So, what's next? Basically, Poise needs to fit into real days, and the light bar needs to get out of the cardboard."
+     "t": "So, what's next? Basically, Poise works around real days, and the light bar leaves the cardboard behind."
     },
     {
-     "t": "For the app, the first thing I'd do is make it go quiet during meetings, by reading your calendar. Calls were the biggest thing that broke at real desks. After that, I'd add a weekly look back, so you can see when you drift the most. That's also what keeps people coming back, so it matters for the business too. And later on, a menu bar app, so you don't even need a window."
+     "t": "For the app, first, quiet during meetings. I'd read the calendar and hold cues while you're on a call, since calls were the biggest thing that broke at real desks. Then a weekly look back, a short summary of when you drift most, so the habit shows. That's also what keeps people coming back, so it matters for the business too. And later, a menu bar app, with your posture and time left right in the Mac menu bar, no window needed."
     },
     {
-     "t": "For the light bar, I'd first make it fit the room, a bit brighter on sunny days and softer at night. Then I'd add pulse patterns, not just color, so people who are color blind can read it too. And eventually, I'd love to make a 3D printed bar with a battery that just clips onto a MacBook."
+     "t": "For the light bar, first, light that fits the room, brighter on sunny days and softer at night. Then cues that don't rely on color, pulse patterns as well as color, so people who are color blind can read it. And eventually, a printed bar with no cable, a 3D printed bar with a built in battery that clips onto a MacBook."
     }
    ]
   ]
