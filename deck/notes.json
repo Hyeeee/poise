@@ -469,10 +469,10 @@
      "t": "So, what's next? I'd make it fit real days, and build a real light bar."
     },
     {
-     "t": "For the app, first, I'd make it go quiet during meetings by checking your calendar, since calls broke the most at real desks. Then I'd add a weekly look back of when you drift most, which also keeps people coming back. And later, a menu bar app, so you don't need a window."
+     "t": "For the app, first, I'm going to add a feature that reads your calendar and pauses cues while you're on a call, since calls broke the most at real desks. Then I'm going to add a weekly look back that gives you a short summary of when you drift most, which also keeps people coming back. And later, a menu bar app. That's the small icon bar at the top of your Mac screen, so you can see your posture and time left there without opening a window."
     },
     {
-     "t": "For the light bar, first, I'd make the light fit the room, brighter on sunny days and softer at night. Then cues that don't rely on color, like pulse patterns, so people who are color blind can read it. And eventually, a printed bar with no cable that clips onto a MacBook."
+     "t": "For the light bar, first, I'm going to make the light fit the room, brighter on sunny days and softer at night. Then cues that don't rely on color, like pulse patterns, so people who are color blind can read it. And eventually, a printed bar with no cable that clips onto a MacBook."
     }
    ]
   ]
