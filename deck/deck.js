@@ -822,3 +822,27 @@ const recLight = (vid, slide, dir) => {
     if (k !== cur) { cur = k; show(k); } };
   sl.addEventListener('step', sync); new MutationObserver(sync).observe(sl, { attributes: true, attributeFilter: ['class', 'data-at'] }); sync();
 })();
+
+// ---------- Presenter link ----------
+// presenter.html and this deck talk over a BroadcastChannel: a message line that any open page
+// from this same site can join. After every move the deck says where it is ("state"), and it
+// moves when the presenter asks ("next", "prev", "go"). Press P here to open the presenter window.
+{
+  const link = 'BroadcastChannel' in window ? new BroadcastChannel('poise-deck') : null;
+  const announce = () => link?.postMessage({ type: 'state', slide: cur, step: +(slides[cur]?.dataset.at || 0), total: slides.length });
+  if (link) {
+    link.onmessage = e => {
+      const m = e.data || {};
+      if (m.type === 'next') next();
+      else if (m.type === 'prev') prev();
+      else if (m.type === 'go') go(m.slide);
+      else if (m.type === 'hello') announce();
+    };
+    // setStep fires a "step" event on every press and slide change; wait a tick so cur is updated
+    slides.forEach(s => s.addEventListener('step', () => queueMicrotask(announce)));
+    announce();
+  }
+  addEventListener('keydown', e => {
+    if ((e.key === 'p' || e.key === 'P') && !e.metaKey && !e.ctrlKey) window.open('presenter.html', 'poise-presenter', 'width=1280,height=820');
+  });
+}

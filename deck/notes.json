@@ -1,0 +1,430 @@
+[
+ {
+  "n": 1,
+  "title": "Cover",
+  "time": "35 s",
+  "part": "Intro",
+  "segs": [
+   [
+    {
+     "cue": "you've already introduced yourself; start straight on the cover"
+    },
+    {
+     "t": "So my project is called Poise. It helps you notice when your posture drifts, without breaking your focus. I made a web app and a light bar that sits on your monitor."
+    },
+    {
+     "t": "I picked this project for two reasons. First, it shows the whole process, research, design, testing and iteration, so you can see what problem I was solving at each step. Second, I used AI all the way through, so I can show you why I used it, how I used it, and which decisions it helped me make."
+    },
+    {
+     "t": "So, let me walk you through how it came together."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 2,
+  "title": "Contents",
+  "time": "15 s, quick",
+  "part": "Intro",
+  "segs": [
+   [
+    {
+     "t": "First, the problem and my research. Then version one, what I changed, and version two. And last, what I learned using AI, and what's next."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 3,
+  "title": "We drift without noticing",
+  "time": "40 s, quick",
+  "part": "The problem",
+  "segs": [
+   [
+    {
+     "cue": "quick: one short line per press"
+    },
+    {
+     "t": "This is how I define the problem in one sentence. We drift without noticing."
+    }
+   ],
+   [
+    {
+     "t": "At first, we sit up straight."
+    }
+   ],
+   [
+    {
+     "t": "Then sometimes, we rest our chin on our hand."
+    }
+   ],
+   [
+    {
+     "t": "Bit by bit, we lean in closer to the screen."
+    }
+   ],
+   [
+    {
+     "t": "Over time, the neck and lower back start to hurt."
+    }
+   ],
+   [
+    {
+     "t": "And fixing it later can cost thousands. I've had neck and back pain myself, and I spent a lot on physical therapy and a good chair. And I wasn't the only one."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 4,
+  "title": "Six hours a day",
+  "time": "25 s",
+  "part": "The problem",
+  "segs": [
+   [
+    {
+     "t": "In fact, it's a really common problem. Studies show the average US adult sits about six hours a day. Up to 63 percent of office workers get neck pain in a single year. And back and neck pain is the biggest health cost in the US, about 135 billion dollars."
+    },
+    {
+     "t": "So it's not just me. A lot of people sit all day, and a lot of them end up in pain."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 5,
+  "title": "Survey",
+  "time": "35 s",
+  "part": "UX research",
+  "segs": [
+   [
+    {
+     "t": "So I ran a quick survey with fifteen people to see when they notice it, where it hurts, and what they've tried. Most of them were students, designers and developers, people who sit at a computer all day."
+    },
+    {
+     "t": "Three things stood out. Nine out of fifteen rarely notice their posture, or only once it starts to hurt. Fourteen out of fifteen feel pain somewhere after a long session, mostly the neck and lower back. And most of what they'd tried was stuff you do later, like stretching or a better chair. Nothing that catches it early."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 6,
+  "title": "Interviews",
+  "time": "1 min",
+  "part": "UX research",
+  "segs": [
+   [
+    {
+     "t": "Then I wanted to hear their actual stories, so I interviewed three of them. Paul, Hyunjoo and Peter. They normally sit more than six hours a day."
+    },
+    {
+     "t": "Paul said he only realizes he's slouching when his lower back hurts. Hyunjoo bought a Herman Miller chair, and it helped at first, but sitting straight just got too hard to keep up. And Peter leans in when he's focused and slides down when he's tired, and wherever he works, a cue has to be quiet."
+    }
+   ],
+   [
+    {
+     "cue": "the cards flip"
+    },
+    {
+     "t": "So here's what I took from this. Paul needs to notice earlier. Hyunjoo needs a cue that keeps going, so sitting up isn't one more thing to remember. And Peter needs something that doesn't interrupt him, because he drifts most exactly when he least wants to be bothered."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 7,
+  "title": "Market research",
+  "time": "50 s",
+  "part": "UX research",
+  "segs": [
+   [
+    {
+     "t": "Next I looked at what's already out there. Posture apps and wearables do catch you early, and the cue is clear. But they buzz you, or pop up on your screen. And chairs and Pilates are things people try after it already hurts."
+    },
+    {
+     "t": "The idea I actually liked came from other fields. Think about tracking your DoorDash order on the lock screen. You don't open the app, you just glance, and it only speaks up when something changes."
+    }
+   ],
+   [
+    {
+     "cue": "the takeaways cover the cards"
+    },
+    {
+     "t": "So the gap was clear. Nobody was doing an early, clear cue with no interruptions. And these status updates gave me a hint for how to show posture live, so I wanted to bring the same idea to my project."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 8,
+  "title": "Hypothesis",
+  "time": "45 s",
+  "part": "UX research",
+  "segs": [
+   [
+    {
+     "t": "So from all three, the cue had to come early, be clear, and not interrupt. That gave me my question. How might we catch the drift without breaking focus?"
+    },
+    {
+     "t": "And my hypothesis. If people get a clear cue that helps them notice early, with no interruptions, they'll catch the drift sooner and stay aligned longer."
+    },
+    {
+     "t": "For the user, the app tells you how you moved, and a light bar on your monitor glows at the edge of your view. Nothing pops up. For the business, the app is free, and the light bar is what you buy. A weekly look back keeps people coming back, and it could work for whole teams too."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 9,
+  "title": "User flow",
+  "time": "40 s",
+  "part": "Version one",
+  "segs": [
+   [
+    {
+     "t": "Here's the user flow in five steps. First, you answer a few questions, choose the camera or the sensor, and connect your light bar. Then you start focusing. The app counts down, and the light stays white. When you drift, the app tells you what moved, and the light turns yellow, then red. Sit back up, and it flashes green. When you're done, you see a report of how long you stayed aligned. And then you take a break, with stretches or a game, and the light glows along."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 10,
+  "title": "Version one, the app",
+  "time": "1 min 10 s",
+  "part": "Version one",
+  "segs": [
+   [
+    {
+     "cue": "the recording plays; press once per part"
+    },
+    {
+     "t": "So here's what it actually looks like. I'll go through four parts."
+    },
+    {
+     "t": "First, onboarding. Poise asks you a few things, like how long you usually focus, how you want to know when you drift, and what helps you rest. This came from the interviews, because everyone I talked to worked a little differently, so I wanted setup to start from your own answers."
+    }
+   ],
+   [
+    {
+     "t": "Next is focus mode. As you start to drift, this bar fills up, and it tells you what you did, like leaning forward. Nothing pops up. The light bar just turns yellow, then red the more you drift, and when you sit up, it flashes green and goes back to white. This one came from the survey, because nine out of fifteen people only noticed once it hurt, so I wanted it to react as soon as you drift."
+    }
+   ],
+   [
+    {
+     "t": "Then the break. A little figure shows you each stretch, and the camera checks how close you're getting. This also came from the survey, because stretching was the most common thing people already tried, so I wanted the break to actually guide you, not just remind you."
+    }
+   ],
+   [
+    {
+     "t": "And last, settings. You can change your modes, the music, and how bright the light is. This came from the interviews too, because everyone wanted something a bit different, so I made everything easy to change."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 11,
+  "title": "Playtest",
+  "time": "10 s, quick",
+  "part": "Iteration",
+  "segs": [
+   [
+    {
+     "t": "This was also a class project, so we had a playtest in class. Ten classmates tried it with the cardboard light bar, about ten minutes each. I mostly watched and took notes."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 12,
+  "title": "What the playtest showed",
+  "time": "55 s",
+  "part": "Iteration",
+  "segs": [
+   [
+    {
+     "t": "And watching them changed what I thought mattered."
+    },
+    {
+     "t": "On the good side, people loved having options for the break, and being able to turn the camera off. So they liked having control."
+    },
+    {
+     "t": "But from the light alone, they couldn't tell how they moved. Twelve guide steps felt like too much, and some worried about what the camera collects. So setup was slow, privacy mattered, and the light was too vague."
+    },
+    {
+     "t": "And for new ideas, they wanted to just type what they want, and keep a small window open while they work. So they wanted it right there, while they work."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 13,
+  "title": "Iteration plan",
+  "time": "1 min 25 s",
+  "part": "Iteration",
+  "segs": [
+   [
+    {
+     "t": "So I planned the next version from two places. From the playtest, the first thing was privacy. The camera prompt now says it never records, and offers the sensor. The trade off is, the camera is more precise, but the sensor feels more private. Next was the cue. This is where my first hypothesis was wrong. I thought a quiet light alone was enough, but people needed to know what to fix. So now it also speaks when the light turns red. The trade off is, a voice can interrupt. And people wanted it simpler, so I added plain names, Ask Poise and a mini window. The trade off is, plain names hide some fine control."
+    },
+    {
+     "t": "From my own review, I added a figure that moves with you. The trade off is, it's less exact, so the number stays, just smaller. I made one design system for every screen. The trade off is, edge cases need new rules. And I took the green out of the light. The trade off is, sitting up feels less rewarded."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 14,
+  "title": "Same five steps",
+  "time": "25 s, quick",
+  "part": "Version two",
+  "segs": [
+   [
+    {
+     "t": "So with that plan, I built version two. The five steps are the same, and what changed is in green. In set up, you still answer the same questions, but the camera or sensor choice is clearer now. While you focus, there's a figure that moves with you, and a mini window. When you drift, it tells you the move out loud, and the light goes straight back to white. In the report, you can hover the chart to see each moment. And the break uses the same figure."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 15,
+  "title": "Version two, the app",
+  "time": "1 min 50 s",
+  "part": "Version two",
+  "segs": [
+   [
+    {
+     "cue": "the recording plays; press once per change"
+    },
+    {
+     "t": "So here's what version two looks like. There are six changes, so I'll go through them quickly."
+    },
+    {
+     "t": "First, the camera or sensor choice. Both are now explained right up front. The camera sees your posture but never records it, and the sensor only measures distance, so it's a little less precise. This came from the playtest, because people worried about what the camera collects, and weren't sure how the sensor was different."
+    }
+   ],
+   [
+    {
+     "t": "Next, fewer steps. The guide went from twelve steps to four, and changing a mode is now a short side panel with plain names. Twelve steps just felt like too much before people even started."
+    }
+   ],
+   [
+    {
+     "t": "Then, it's easier to notice. A figure moves with you, the card changes color as you drift, and it says the move out loud when the light turns red. In the report, you can hover the chart to see what moved at each moment. People liked the light, but they wanted to know what to fix and when."
+    }
+   ],
+   [
+    {
+     "t": "This is the mini window. You can pop Poise out into a little window that floats over your other tabs. People told me they wanted something small to keep open while they work."
+    }
+   ],
+   [
+    {
+     "t": "And this is Ask Poise. You just type or say what you want, like a one hour focus with breathing breaks, and it sets it up for you. People had a hard time finding the settings and wanted to set it up their own way, so this felt like the easiest fix."
+    }
+   ],
+   [
+    {
+     "t": "And last, one look and feel. This one came from my own review. I built one design system from the light bar's colors, and the same figure shows up in focus and break, so every screen feels like one product."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 16,
+  "title": "Testing version two",
+  "time": "40 s",
+  "part": "Version two",
+  "segs": [
+   [
+    {
+     "t": "Then I tested version two with the same three people I interviewed, Paul, Hyunjoo and Peter, at their own desks for an hour each. The fixes held up. One person set it up without asking me anything, another just glanced at the figure and sat up, and someone kept the little window open all hour. It helped without breaking focus."
+    },
+    {
+     "t": "But real days got in the way. One person jumped on a call and Poise started talking, and another had to leave the little window just to take a break. So people want it to fit their day and habits."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 17,
+  "title": "Then I measured it",
+  "time": "1 min",
+  "part": "Version two",
+  "segs": [
+   [
+    {
+     "t": "I also measured it, with the same tasks on both versions."
+    },
+    {
+     "t": "The number I cared about most is time aligned, because that's the hypothesis. It went from 85 percent of the hour to 90. Everyone already sat well most of the time, so the gain is small, but all three went up, and Peter, who drifts the most, gained the most."
+    },
+    {
+     "t": "Getting set up went from about a minute twenty five to fifty two seconds, about 38 percent faster. That's less than cutting twelve steps to four would suggest, so the questions and the camera setup are where I'd trim next. Changing modes went from twenty one seconds to fifteen. And satisfaction went from 2.7 to 4.3 out of 5."
+    },
+    {
+     "t": "So people stayed aligned longer, and it got easier to use."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 18,
+  "title": "What I learned using AI",
+  "time": "1 min 25 s",
+  "part": "What I learned",
+  "segs": [
+   [
+    {
+     "t": "Now I want to talk about what I learned. Most of it actually came from using AI, since I used it at almost every step."
+    },
+    {
+     "t": "In research, I only had a month, and I wanted to spend that time with people. So AI helped me find academic papers and draft my survey and interview questions. But I read each paper myself, and cut any question that pushed people toward an answer. AI is fast at finding and drafting, but deciding what fits was still my job."
+    },
+    {
+     "t": "When I was building, I wanted people to try a real app within days, not just a mockup. So AI wrote the app and the Arduino code from the flow I planned. Then I had people try each build and watched how they drifted. AI can write code fast, but only people can show you if it actually feels right."
+    },
+    {
+     "t": "And for the design system, I wanted every screen to feel like one product. So I wrote one guide for type, color and spacing, and had AI follow it. When I lined up the screens, I fixed the rules instead of each screen. Once the rules were clear, AI kept everything consistent."
+    },
+    {
+     "t": "So AI made me a lot faster, but it was people who showed me what mattered."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 19,
+  "title": "What's next",
+  "time": "55 s",
+  "part": "What's next and closing",
+  "segs": [
+   [
+    {
+     "t": "So, what's next? Basically, Poise needs to fit into real days, and the light bar needs to get out of the cardboard."
+    },
+    {
+     "t": "For the app, the first thing I'd do is make it go quiet during meetings, by reading your calendar. Calls were the biggest thing that broke at real desks. After that, I'd add a weekly look back, so you can see when you drift the most. That's also what keeps people coming back, so it matters for the business too. And later on, a menu bar app, so you don't even need a window."
+    },
+    {
+     "t": "For the light bar, I'd first make it fit the room, a bit brighter on sunny days and softer at night. Then I'd add pulse patterns, not just color, so people who are color blind can read it too. And eventually, I'd love to make a 3D printed bar with a battery that just clips onto a MacBook."
+    }
+   ]
+  ]
+ },
+ {
+  "n": 20,
+  "title": "Thank you",
+  "time": "15 s, quick",
+  "part": "What's next and closing",
+  "segs": [
+   [
+    {
+     "t": "That's Poise. Thanks so much for listening. The live app and this deck are both at poise-lightbar.netlify.app, and I'd love to hear any questions you have."
+    },
+    {
+     "cue": "pause, wait for questions"
+    }
+   ]
+  ]
+ }
+]

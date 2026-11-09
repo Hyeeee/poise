@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poise Presenter Notes</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Colors live here so a dark version only has to swap these values */
+  :root {
+    --bg: #f4f5f1; --card: #ffffff; --ink: #161816; --ink-2: #5f645e; --ink-3: #9b9f99;
+    --line: #e4e6e1; --now: #e5f4e4; --now-ink: #1f5c2a; --accent: #2f7d3e; --warn: #b5482f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121412; --card: #1c1f1c; --ink: #eef0ec; --ink-2: #a8ada6; --ink-3: #6f746d;
+      --line: #2b2f2b; --now: #1f3323; --now-ink: #bfe8c4; --accent: #7cc98a; --warn: #f08c72;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121412; --card: #1c1f1c; --ink: #eef0ec; --ink-2: #a8ada6; --ink-3: #6f746d;
+    --line: #2b2f2b; --now: #1f3323; --now-ink: #bfe8c4; --accent: #7cc98a; --warn: #f08c72;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 400 16px/1.5 Inter, system-ui, sans-serif; display: grid; grid-template-rows: auto 1fr auto; }
+
+  /* top bar: where you are, how long you've talked, the clock */
+  header { display: flex; align-items: center; gap: 20px; padding: 16px 24px; border-bottom: 1px solid var(--line); background: var(--card); }
+  .where { flex: 1; min-width: 0; }
+  .where small { color: var(--ink-3); font-size: 13px; }
+  .where h1 { margin: 2px 0 0; font-size: 22px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .clock { text-align: right; font-variant-numeric: tabular-nums; }
+  .clock b { display: block; font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
+  .clock small { color: var(--ink-3); font-size: 13px; }
+  .clock .late { color: var(--warn); }
+  .tbtn { border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 10px; padding: 8px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+  .tbtn:hover { border-color: var(--ink-3); }
+
+  /* main: the script on the left, what's next and the slide list on the right */
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 300px; min-height: 0; }
+  .script { overflow-y: auto; padding: 28px 36px 120px; }
+  .seg { border-radius: 14px; padding: 16px 20px; margin: 0 0 10px; transition: background .2s, opacity .2s; }
+  .seg p { margin: 0 0 10px; font-size: 22px; line-height: 1.55; }
+  .seg p:last-child { margin-bottom: 0; }
+  .seg .cue { font-size: 14px; color: var(--ink-3); margin: 0 0 8px; }
+  .seg.done { opacity: .38; }
+  .seg.now { background: var(--now); }
+  .seg.now p { color: var(--ink); }
+  .seg.now .cue { color: var(--now-ink); }
+  .press { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 13px; margin: 0 0 10px 20px; }
+  .press::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+  aside { border-left: 1px solid var(--line); background: var(--card); overflow-y: auto; padding: 20px; }
+  aside h2 { font-size: 13px; color: var(--ink-3); font-weight: 500; margin: 0 0 6px; }
+  .next { padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .next b { display: block; font-size: 18px; font-weight: 600; }
+  .next small { color: var(--ink-2); }
+  ol { list-style: none; margin: 0; padding: 0; }
+  ol li { display: grid; grid-template-columns: 24px 1fr auto; gap: 8px; align-items: baseline; padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--ink-2); }
+  ol li:hover { background: var(--bg); }
+  ol li.now { background: var(--now); color: var(--now-ink); font-weight: 500; }
+  ol li span:first-child, ol li span:last-child { color: var(--ink-3); font-variant-numeric: tabular-nums; font-size: 12px; }
+  ol li.now span { color: var(--now-ink); }
+
+  /* bottom: big back and forward buttons */
+  footer { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; padding: 14px 24px; border-top: 1px solid var(--line); background: var(--card); }
+  footer button { border: 0; border-radius: 14px; padding: 16px; font: 600 18px Inter, sans-serif; cursor: pointer; }
+  #prev { background: var(--bg); color: var(--ink); }
+  #next { background: var(--ink); color: var(--card); }
+  .off { position: fixed; left: 50%; top: 84px; transform: translateX(-50%); background: var(--warn); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 14px; display: none; gap: 10px; align-items: center; z-index: 5; }
+  .off.show { display: flex; }
+  .off button { border: 0; border-radius: 8px; padding: 6px 10px; font: 500 14px Inter, sans-serif; cursor: pointer; }
+
+  @media (max-width: 760px) {
+    main { grid-template-columns: 1fr; }
+    aside { display: none; }
+    header { padding: 12px 16px; gap: 12px; }
+    .script { padding: 16px 16px 80px; }
+    .seg p { font-size: 18px; }
+    footer { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="where"><small id="part">Loading</small><h1 id="title">Poise presenter notes</h1></div>
+  <div class="clock"><b id="elapsed">0:00</b><small id="pace">Press Next to start the timer</small></div>
+  <button class="tbtn" id="reset" title="Reset the timer">Reset timer</button>
+  <button class="tbtn" id="open" title="Open the deck in a new window">Open deck</button>
+</header>
+<div class="off" id="off">The deck isn't open in this browser yet. <button id="open2">Open deck</button></div>
+<main>
+  <section class="script" id="script"></section>
+  <aside>
+    <div class="next"><h2>Up next</h2><b id="nextTitle"></b><small id="nextTime"></small></div>
+    <h2>All slides</h2>
+    <ol id="list"></ol>
+  </aside>
+</main>
+<footer><button id="prev">Back</button><button id="next">Next</button></footer>
+
+<script>
+// How it works
+// 1. notes.json holds the script, cut into slides, and each slide cut into parts at every [press].
+// 2. This page and the deck share a BroadcastChannel called "poise-deck". When the deck moves, it
+//    sends {slide, step}; this page highlights that part. When you press Next here, this page
+//    sends "next" and the deck moves, then tells this page where it landed.
+// 3. Both pages must be open in the same browser, from the same site.
+const link = new BroadcastChannel('poise-deck');
+const $ = id => document.getElementById(id);
+let notes = [], state = { slide: 0, step: 0 }, startedAt = 0, heard = false;
+
+// "1 min 10 s, quick" becomes 70 seconds
+const secs = t => { const m = /(\d+)\s*min/.exec(t), s = /(\d+)\s*s\b/.exec(t); return (m ? +m[1] * 60 : 0) + (s ? +s[1] : 0); };
+const mmss = n => `${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, '0')}`;
+
+function render() {
+  const n = notes[state.slide]; if (!n) return;
+  $('part').textContent = `${n.part} · Slide ${state.slide + 1} of ${notes.length} · ${n.time}`;
+  $('title').textContent = n.title;
+  // the script, one block per part, with a divider where you press
+  const box = $('script'); box.innerHTML = '';
+  n.segs.forEach((seg, k) => {
+    if (k > 0) { const d = document.createElement('div'); d.className = 'press'; d.textContent = `Press ${k}`; box.append(d); }
+    const el = document.createElement('div');
+    el.className = 'seg' + (k < state.step ? ' done' : k === state.step ? ' now' : '');
+    seg.forEach(x => { const p = document.createElement('p'); if (x.cue) { p.className = 'cue'; p.textContent = x.cue; } else p.textContent = x.t; el.append(p); });
+    box.append(el);
+  });
+  box.querySelector('.seg.now')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  if (state.step === 0) box.scrollTop = 0;
+  // what comes after this slide
+  const nx = notes[state.slide + 1];
+  $('nextTitle').textContent = nx ? nx.title : 'End of the deck';
+  $('nextTime').textContent = nx ? nx.time : '';
+  [...$('list').children].forEach((li, i) => li.classList.toggle('now', i === state.slide));
+  tick();
+}
+
+// timer: how long you've been talking, and whether you're ahead or behind the planned time
+function tick() {
+  if (!startedAt) return;
+  const el = (Date.now() - startedAt) / 1000;
+  $('elapsed').textContent = mmss(el);
+  const planned = notes.slice(0, state.slide + 1).reduce((a, n) => a + secs(n.time), 0);
+  const diff = el - planned;
+  $('pace').textContent = diff > 0 ? `${mmss(diff)} over plan` : `${mmss(-diff)} ahead of plan`;
+  $('pace').className = diff > 0 ? 'late' : '';
+}
+setInterval(tick, 1000);
+
+const send = type => { if (!startedAt && type === 'next') startedAt = Date.now(); link.postMessage({ type }); };
+$('next').onclick = () => send('next');
+$('prev').onclick = () => send('prev');
+$('reset').onclick = () => { startedAt = 0; $('elapsed').textContent = '0:00'; $('pace').textContent = 'Press Next to start the timer'; $('pace').className = ''; };
+const openDeck = () => window.open('index.html#' + (state.slide + 1), 'poise-deck-view');
+$('open').onclick = openDeck; $('open2').onclick = openDeck;
+addEventListener('keydown', e => {
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); send('next'); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); send('prev'); }
+});
+
+link.onmessage = e => {
+  const m = e.data || {};
+  if (m.type !== 'state') return;
+  heard = true; $('off').classList.remove('show');
+  state = { slide: m.slide, step: m.step }; render();
+};
+
+fetch('notes.json', { cache: 'no-store' }).then(r => r.json()).then(data => {
+  notes = data;
+  data.forEach((n, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span>${i + 1}</span><span></span><span>${n.time.replace(', quick', '')}</span>`;
+    li.children[1].textContent = n.title;
+    li.onclick = () => link.postMessage({ type: 'go', slide: i });
+    $('list').append(li);
+  });
+  render();
+  link.postMessage({ type: 'hello' });   // ask the deck where it is
+  setTimeout(() => { if (!heard) $('off').classList.add('show'); }, 1200);
+});
+</script>
+</body>
+</html>
