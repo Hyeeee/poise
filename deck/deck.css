@@ -3207,3 +3207,11 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .ai-phases .ai-tg + .ai-tg em { color: var(--ink-2); }
 .ai-phases .ai-tg em, .ai-phases .ai-tg + .ai-tg em { color: var(--ink-3); }
 
+
+/* interview chips: neutral colors, one each, so none reads as good or bad */
+.iv-tags em.c1 { background: #e8f0fb; color: #2f5f9e; }
+.iv-tags em.c2 { background: #f1ebfa; color: #6a4aa0; }
+.iv-tags em.c3 { background: #fbf2df; color: #8a6418; }
+.iv-tags em.c4 { background: #e4f3f3; color: #2c7471; }
+.iv-tags em.c5 { background: #fbeaf2; color: #9c3f6b; }
+.iv-tags em.c6 { background: #eceef1; color: #4c5664; }
