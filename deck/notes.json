@@ -353,32 +353,32 @@
      "t": "So here's version two. There are six changes, so I'll go quickly."
     },
     {
-     "t": "First, camera or sensor. Version two explains both up front. The camera never records, and the sensor only measures distance, so it's a bit less precise. I changed this because people worried what the camera collected and weren't sure how the sensor was different."
+     "t": "First, camera or sensor. Now both are explained right up front. The camera never records you, and the sensor just measures how far you are, so it's a bit less precise. I changed this because people worried about the camera and didn't get what the sensor was for."
     }
    ],
    [
     {
-     "t": "Next, fewer steps. The guide went from twelve steps to four, and changing a mode is now a short side panel instead of a long scroll of sliders. Twelve guide steps felt like too much before even starting."
+     "t": "Next, fewer steps. The guide went from twelve steps down to four, and changing a mode is now a short side panel, not a long list of sliders. Twelve steps was just too much before even starting."
     }
    ],
    [
     {
-     "t": "Then, easier to notice. A figure moves with you and the card changes color as you drift, and a voice tells you how to fix it. In the report, you can hover the chart to see what moved. People liked the light, but wanted to know what to fix and when."
+     "t": "Then, easier to notice. A figure moves with you, the card changes color as you drift, and a voice tells you how to fix it. And in the report, you can hover the chart to see what moved. People liked the light, but they wanted to know what to fix."
     }
    ],
    [
     {
-     "t": "This is the mini window. You can pop Poise into a small window over your other tabs, so the figure and timer stay in view. People wanted a small window to keep open while they worked."
+     "t": "This is the mini window. You can pop Poise into a small window over your other tabs, so you keep tracking while you work. People wanted something small to keep open."
     }
    ],
    [
     {
-     "t": "And this is Ask Poise. You type or say what you want, like a one hour focus with breathing breaks, and it sets it up for you, right on the laptop so nothing is sent out. People struggled to find the settings, and wanted to set it up their own way."
+     "t": "And this is Ask Poise. You just type what you want, like a one hour focus with breathing breaks, and it sets it up for you. It all runs on the laptop, so nothing gets sent out. People had a hard time finding settings, and wanted it their own way."
     }
    ],
    [
     {
-     "t": "And last, one look and feel. From my own review, I built one design system from the light bar's colors, and the same figure shows up in focus and break mode. So every screen feels like one product."
+     "t": "And last, one look and feel. This came from my own review. I built one design system from the light bar's colors, and the same figure shows up in focus and break. Version one looked uneven, so now it all feels like one product."
     }
    ]
   ]
