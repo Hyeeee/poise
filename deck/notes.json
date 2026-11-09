@@ -391,13 +391,16 @@
   "segs": [
    [
     {
-     "t": "Then I tested version two with Paul, Hyunjoo and Peter at their own desks, for an hour each. And the fixes held up. One set it up without asking me anything, another just glanced at the figure and sat up, and someone kept the little window open all hour. So it helped without breaking focus."
+     "t": "Then I tested version two with Paul, Hyunjoo and Peter at their own desks, for an hour each."
     },
     {
-     "t": "But real days got in the way. One jumped on a call and it started talking, and another had to leave the little window just to take a break. So it got in the way of calls and breaks."
+     "t": "Overall, people liked the small changes, like the figure that follows you and the little window. So it helped without breaking focus."
     },
     {
-     "t": "And they wanted it to go quiet in meetings, and to show when they slouch most each week. So people want it to fit their day and habits."
+     "t": "But when Peter was on a call, the voice told him to sit up in the middle of it, and he had to leave the little window just to take a break. So it got in the way of calls and breaks."
+    },
+    {
+     "t": "And there were some new ideas, like having the app go quiet during meetings, or seeing when they slouch the most each week. So people want it to fit their day and habits."
     }
    ]
   ]
