@@ -303,19 +303,25 @@
   "segs": [
    [
     {
-     "t": "So I planned the next version from two places. First, from my classmates' feedback."
+     "t": "So I planned the next version from two places."
     },
     {
-     "t": "The biggest one was privacy. The app already said the camera never records, but it was too small and people missed it. So I'll make that clearer and explain what the sensor is for. The trade off is, the camera tracks best, so if people skip it, Poise gets less accurate."
+     "t": "From my classmates' feedback, the biggest one was privacy. The app already said the camera never records, but it was too small and people missed it. So I'll make that clearer and explain what the sensor is for. And the trade off is, the camera is more accurate than the sensor, so if people use the sensor, the app gets less accurate."
     },
     {
-     "t": "Next, the cues. This is where my first hypothesis was wrong. I thought a quiet light was enough, but people needed to know what to fix. So when you drift, a voice tells you how to fix it. The trade off is, a voice can interrupt."
+     "t": "Next, clearer cues. I thought a quiet light was enough, but people couldn't really notice from the light alone. So when you drift, a voice tells you how to fix it. And the trade off is, a voice can interrupt you."
     },
     {
-     "t": "And people wanted it simpler and more their own. So I'll add a text bar called Ask Poise, where you type what you want and it changes your settings. Plus a mini window and a shorter guide. The trade off is, more features, more for people to learn."
+     "t": "And people wanted it simpler and more their own. So I'll add a text bar called Ask Poise, where you type what you want and it changes your settings. Plus a mini window and a shorter guide. And the trade off is, with more features, people have more to learn."
     },
     {
-     "t": "Then from my own review, I'll add a figure that moves with you, and keep the number small since the figure is less exact. I'll use one design system for every screen, but edge cases need new rules. And I'll take the green out so it feels calmer, but sitting up feels a little less rewarded."
+     "t": "Then from my own review, I'll add a figure that moves with you, and you can still see how much you drift as a number. And the trade off is, the figure is less exact, and the number gets smaller."
+    },
+    {
+     "t": "I'll use one design system for every screen, because version one didn't look consistent. And the trade off is, it can't cover every edge case, so I have to make new rules, and sometimes it limits creativity."
+    },
+    {
+     "t": "And I'll take the green out of the light bar, because it didn't feel necessary. And the trade off is, sitting up feels a little less rewarded."
     }
    ]
   ]
