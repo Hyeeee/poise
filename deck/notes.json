@@ -236,17 +236,17 @@
    ],
    [
     {
-     "t": "Next is focus mode. A bar fills as you drift, and a label tells you how you moved, like leaning forward. Nothing pops up, the light bar shows it at the edge of your view. It turns yellow, then red, and when you sit up, it flashes green and goes back to white. And when you end, a report shows your time aligned. This came from the survey, because nine out of fifteen only noticed once it hurt, so the bar moves as soon as you drift and tells you what to fix."
+     "t": "Next is focus mode. So there's a bar on the right side that fills up as you drift, and a label tells you how you moved, like leaning forward. Nothing pops up on your screen, so you can just keep working, and the light bar shows it at the edge of your view instead. It turns yellow, then red, and when you sit back up, it flashes green and goes back to white. And when you end your session, you get a report that shows your time aligned. I came up with this from the survey, because nine out of fifteen people only noticed once it hurt, so I made the bar move as soon as you drift and tell you what to fix."
     }
    ],
    [
     {
-     "t": "Then break mode. A figure shows each stretch, and the camera checks how closely you match it. Reset and a small game are one tap away, and a report shows how much you followed. This also came from the survey, because stretching was the fix most people tried, so breaks guide it instead of just reminding you."
+     "t": "Then break mode. Here, a little figure shows you each stretch, and the camera checks how closely you match it. A reset and a small game are just one tap away, and at the end, a report shows how much you followed. I came up with this from the survey too, because stretching was the fix most people tried, so I wanted the break to actually guide you, not just remind you."
     }
    ],
    [
     {
-     "t": "And last, settings. Focus and break modes, music, and how bright the light bar glows, all in one sheet. This came from the interviews too, because each person wanted something different, so every setting is there to change."
+     "t": "And last, settings. Here you can change your focus and break modes, the music, and how bright the light bar glows, all in one sheet. I came up with this from the interviews, because each person wanted something different, so I made every setting easy to change."
     }
    ]
   ]
@@ -338,7 +338,7 @@
      "t": "So here's what version two looks like. There are six changes, so I'll go through them quickly."
     },
     {
-     "t": "First, camera or sensor. Version two explains both up front. The camera sees your posture but never records it, and the sensor only measures distance, so it's a little less precise. This came from the playtest, because people worried what the camera collected, and weren't sure how the sensor was different."
+     "t": "First, camera or sensor. Version two explains both up front. The camera sees your posture but never records it, and the sensor only measures distance, so it's a little less precise. I changed this after the playtest, because people worried what the camera collected, and weren't sure how the sensor was different."
     }
    ],
    [
@@ -363,7 +363,7 @@
    ],
    [
     {
-     "t": "And last, one look and feel. This one came from my own review. One design system built from the light bar's colors. The brand color, the gradient background and the type all come from it, and the same figure shows up in focus and break mode. So every screen feels like one product."
+     "t": "And last, one look and feel. I came up with this from my own review. I built one design system from the light bar's colors. The brand color, the gradient background and the type all come from it, and the same figure shows up in focus and break mode. So every screen feels like one product."
     }
    ]
   ]
