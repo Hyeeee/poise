@@ -309,7 +309,7 @@
      "t": "From my classmates' feedback, the biggest one was privacy. The app already said the camera never records, but it was too small and people missed it. So I'll make that clearer and explain what the sensor is for. And the trade off is, the camera is more accurate than the sensor, so if people use the sensor, the app gets less accurate."
     },
     {
-     "t": "Next, clearer cues. I thought a quiet light was enough, but people couldn't really notice from the light alone. So when you drift, a voice tells you how to fix it. And the trade off is, a voice can interrupt you."
+     "t": "Next, clearer cues. I thought the light bar was enough, but people couldn't really notice from the light alone. So when you drift, a voice tells you how to fix it. And the trade off is, a voice can interrupt you."
     },
     {
      "t": "And people wanted it simpler and more their own. So I'll add a text bar called Ask Poise, where you type what you want and it changes your settings. Plus a mini window and a shorter guide. And the trade off is, with more features, people have more to learn."
