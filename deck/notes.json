@@ -312,10 +312,10 @@
      "t": "Next, the cues. This is actually where my first hypothesis was wrong. I thought a quiet light was enough, but people needed to know what to fix. So when you drift, a voice tells you how to fix your posture. The trade off is, a voice can interrupt."
     },
     {
-     "t": "And people wanted it simpler and more their own. So I'll add Ask Poise, a text bar at the bottom where you just ask and it changes your settings for you. And a mini window and a shorter guide. The trade off is, with more features, there's more for people to learn."
+     "t": "And people wanted it simpler and more their own. So I'll add a text bar at the bottom, called Ask Poise, where you just type what you want and it changes your settings for you. And a mini window and a shorter guide. The trade off is, with more features, there's more for people to learn."
     },
     {
-     "t": "Then from my own review, I'll add a figure that moves with you and keep the number small. I'll use one design system for every screen. And I'll take the green out of the light bar so it feels calmer. The trade off is, sitting up feels a little less rewarded."
+     "t": "Then from my own review, I'll add a figure that moves with you, and keep the number small since the figure is less exact. I'll use one design system for every screen, but edge cases need new rules. And I'll take the green out so it feels calmer, but sitting up feels a little less rewarded."
     }
    ]
   ]
@@ -328,7 +328,7 @@
   "segs": [
    [
     {
-     "t": "So with that plan, I built version two. It's the same five steps, and what changed is in green. In set up, there's a clearer camera or sensor choice. In focus, it adds a figure and a mini window. When you drift, it says the move out loud too, and the light goes yellow, red, and back to white. In the report, you can hover the chart for each moment. And in the break, the same figure guides your stretches."
+     "t": "So with that plan, I built version two. It's the same five steps, and what changed is in green. In set up, there's a clearer camera or sensor choice. In focus, it adds a figure and a mini window. When you drift, a voice tells you how to fix it, and the light goes yellow, red, and back to white. In the report, you can hover the chart for each moment. And in the break, the same figure guides your stretches."
     }
    ]
   ]
@@ -357,7 +357,7 @@
    ],
    [
     {
-     "t": "Then, easier to notice. A figure moves with you, and the card changes color as you drift. It also says the move out loud when the light turns red. And in the report, hovering the chart shows what moved at each moment. People liked the light, but wanted to see what to fix and when."
+     "t": "Then, easier to notice. A figure moves with you, and the card changes color as you drift. And a voice tells you how to fix your posture. And in the report, hovering the chart shows what moved at each moment. People liked the light, but wanted to see what to fix and when."
     }
    ],
    [
