@@ -306,7 +306,7 @@
      "t": "So from all of this, I planned the next version from two places. First, from my classmates' feedback."
     },
     {
-     "t": "The biggest one was privacy. So I'll explain both, that the camera never records and what the sensor is for. And the trade off is, the camera tracks your pose best, so if people skip it, Poise gets less accurate and might feel less useful."
+     "t": "The biggest one was privacy. The app already said the camera never records, but it was too small, so people missed it. So I'll make that much clearer, and explain what the sensor is for. And the trade off is, the camera tracks your pose best, so if people skip it, Poise gets less accurate and might feel less useful."
     },
     {
      "t": "Next, the cues. This is actually where my first hypothesis was wrong. I thought a quiet light was enough, but people needed to know what to fix. So when you drift, a voice tells you how to fix your posture. The trade off is, a voice can interrupt."
