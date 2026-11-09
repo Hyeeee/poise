@@ -236,17 +236,26 @@
    ],
    [
     {
-     "t": "Next is focus mode. This bar on the right fills up as you drift, and the label tells you how you moved, like leaning forward. Nothing pops up, so you can keep working, and the light bar shows it instead. It turns yellow, then red, and when you sit back up, it flashes green and goes back to white. I came up with this from the survey, because nine out of fifteen only noticed once it hurt, so the bar moves as soon as you drift."
+     "t": "Next is focus mode. You can see the bar on the right fills up as you drift, and the label tells you how you moved, like leaning forward. And the light bar turns yellow, then red, and when you sit back up, it turns green and goes back to white."
+    },
+    {
+     "t": "I came up with this from the survey, because nine out of fifteen only noticed once it hurt, so the bar moves as soon as you drift and tells you what to fix."
     }
    ],
    [
     {
-     "t": "Then break mode. This figure shows you each stretch, and the camera checks how closely you match it, right here as a percent. Up top, you can switch to a reset or a small game. I came up with this from the survey too, because stretching was the fix most people tried, so I wanted the break to guide you, not just remind you."
+     "t": "Then break mode. This figure shows you each stretch, and the camera checks how closely you match it as a percent. Up top, you can switch to a reset or a small game."
+    },
+    {
+     "t": "I came up with this from the survey too, because a lot of people stretch to fix their posture, so I made this break mode to help them reset."
     }
    ],
    [
     {
-     "t": "And last, settings. In this one sheet, you can change your modes, the music, and how bright the light bar glows. I came up with this from the interviews, because each person wanted something different."
+     "t": "And last, settings. In this one sheet, you can change your modes, how bright the light bar glows, and the music."
+    },
+    {
+     "t": "I came up with this from the interviews, because each person wanted something different."
     }
    ]
   ]
