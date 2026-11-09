@@ -303,19 +303,19 @@
   "segs": [
    [
     {
-     "t": "So I planned the next version from two places. First, from classmates' feedback."
+     "t": "So from all of this, I planned the next version from two places. First, from my classmates' feedback."
     },
     {
-     "t": "Clearer privacy. The camera prompt now says it never records, and offers the sensor. The trade off is, the camera is precise but feels watched, and the sensor feels private but less exact."
+     "t": "The biggest one was privacy. So I'll say it never records right in the camera prompt, and offer the sensor too. The trade off is, the camera is more precise, but the sensor feels more private."
     },
     {
-     "t": "Then clearer cues. This is where my first hypothesis was wrong. I thought a quiet light alone was enough, but people needed to know what to fix. So now it says the move out loud when the light turns red. The trade off is, it's easier to notice, but a voice can interrupt."
+     "t": "Next, the cues. This is actually where my first hypothesis was wrong. I thought a quiet light was enough, but people needed to know what to fix. So I'll have it say the move out loud when the light turns red. The trade off is, a voice can interrupt."
     },
     {
-     "t": "And simpler and more personal, with plain names, Ask Poise, a mini window, and a four step guide. The trade off is, it's easier to start, but plain names hide some fine control."
+     "t": "And people wanted it simpler and more their own. So I'll add plain names, Ask Poise, a mini window and a short guide. The trade off is, plain names hide some control."
     },
     {
-     "t": "Then from my own review. A better side panel, with a figure that moves with you. The figure is less exact, so the number stays, just smaller. One design system, one type scale, color set and spacing for every screen. It's easy to share, but edge cases need rules. And a calmer light bar, white, yellow, red and back to white, with no surprise green. It's calmer, but fixing your posture feels less rewarded."
+     "t": "Then from my own review, I'll add a figure that moves with you and keep the number small. I'll use one design system for every screen. And I'll take the green out of the light bar so it feels calmer. The trade off is, sitting up feels a little less rewarded."
     }
    ]
   ]
