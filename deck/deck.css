@@ -3215,3 +3215,6 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .iv-tags em.c4 { background: #e4f3f3; color: #2c7471; }
 .iv-tags em.c5 { background: #fbeaf2; color: #9c3f6b; }
 .iv-tags em.c6 { background: #eceef1; color: #4c5664; }
+
+/* A still of the report, for the part the recording does not reach */
+.slide.demo .v-shot { display: block; width: calc(var(--s) * 400); max-width: 100%; height: auto; margin-top: calc(var(--s) * 20); filter: drop-shadow(0 calc(var(--s) * 10) calc(var(--s) * 24) rgba(30,31,28,.14)); }
