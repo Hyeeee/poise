@@ -309,7 +309,7 @@
      "t": "The biggest one was privacy. So I'll explain both, that the camera never records and what the sensor is for. And the trade off is, the camera tracks your pose best, so if people skip it, Poise gets less accurate and might feel less useful."
     },
     {
-     "t": "Next, the cues. This is actually where my first hypothesis was wrong. I thought a quiet light was enough, but people needed to know what to fix. So when you drift, the app tells you the move out loud. The trade off is, a voice can interrupt."
+     "t": "Next, the cues. This is actually where my first hypothesis was wrong. I thought a quiet light was enough, but people needed to know what to fix. So when you drift, a voice tells you how to fix your posture. The trade off is, a voice can interrupt."
     },
     {
      "t": "And people wanted it simpler and more their own. So I'll add Ask Poise, a text bar at the bottom where you just ask and it changes your settings for you. And a mini window and a shorter guide. The trade off is, with more features, there's more for people to learn."
