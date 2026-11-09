@@ -122,6 +122,8 @@ function go(i, atEnd = false) {
   document.body.classList.toggle('on-cover', i === 0);
   document.body.classList.toggle('on-end', i === slides.length - 1);   // no progress on the thank you slide
   // each part fills by how far you are into it; the current part's name is darker
+  // from the version two app slide on, every video in the deck plays without sound
+  { const v2 = slides.findIndex(s => s.querySelector('.v2-motion')); if (v2 >= 0 && i >= v2) next.querySelectorAll('video').forEach(v => { v.muted = true; }); }
   updateProgress();
   history.replaceState(null, '', '#' + (i + 1));
 }
@@ -806,6 +808,8 @@ const recLight = (vid, slide, dir) => {
   const fit = () => { fr.style.transform = `scale(${box.clientWidth / 1440})`; };
   new ResizeObserver(fit).observe(box); fit();
   const v2led = recLight(vid, sl, 'v2rec');
+  // no sound from version two on, so the talk carries it: the recordings play muted
+  vid.muted = true; vid.defaultMuted = true;
   const has = {};
   const check = n => has[n] ?? (has[n] = fetch(`v2rec/${n}.mp4`, { method: 'HEAD' }).then(r => r.ok && /video/.test(r.headers.get('content-type') || '')).catch(() => false));
   let cur = -1, run = 0;
