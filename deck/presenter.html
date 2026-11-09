@@ -71,6 +71,16 @@
   footer button { border: 0; border-radius: 14px; padding: 16px; font: 600 18px Inter, sans-serif; cursor: pointer; }
   #prev { background: var(--bg); color: var(--ink); }
   #next { background: var(--ink); color: var(--card); }
+  /* edit mode: each part becomes a text box you can type in */
+  .seg textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); font: 400 20px/1.55 Inter, sans-serif; padding: 12px 14px; resize: none; overflow: hidden; }
+  .seg textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .seg.edited::before { content: "Edited"; display: inline-block; font-size: 12px; color: var(--accent); margin: 0 0 6px; }
+  .edit-bar { display: none; align-items: center; gap: 10px; margin: 0 0 16px; color: var(--ink-2); font-size: 14px; }
+  body.editing .edit-bar { display: flex; }
+  .edit-bar .grow { flex: 1; }
+  #edit.on { background: var(--ink); color: var(--card); border-color: var(--ink); }
+  #saved { color: var(--accent); opacity: 0; transition: opacity .3s; }
+  #saved.show { opacity: 1; }
   .off { position: fixed; left: 50%; top: 84px; transform: translateX(-50%); background: var(--warn); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 14px; display: none; gap: 10px; align-items: center; z-index: 5; }
   .off.show { display: flex; }
   .off button { border: 0; border-radius: 8px; padding: 6px 10px; font: 500 14px Inter, sans-serif; cursor: pointer; }
@@ -89,12 +99,13 @@
 <header>
   <div class="where"><small id="part">Loading</small><h1 id="title">Poise presenter notes</h1></div>
   <div class="clock"><b id="elapsed">0:00</b><small id="pace">Press Next to start the timer</small></div>
+  <button class="tbtn" id="edit" title="Edit the notes (E)">Edit notes</button>
   <button class="tbtn" id="reset" title="Reset the timer">Reset timer</button>
   <button class="tbtn" id="open" title="Open the deck in a new window">Open deck</button>
 </header>
 <div class="off" id="off">The deck isn't open in this browser yet. <button id="open2">Open deck</button></div>
 <main>
-  <section class="script" id="script"></section>
+  <section class="script"><div class="edit-bar"><span>Type to change the notes. Lines in [brackets] show as small cues. Saved in this browser as you type.</span><span id="saved">Saved</span><span class="grow"></span><button class="tbtn" id="undoSlide">Restore this slide</button><button class="tbtn" id="download">Download backup</button></div><div id="script"></div></section>
   <aside>
     <div class="next"><h2>Up next</h2><b id="nextTitle"></b><small id="nextTime"></small></div>
     <h2>All slides</h2>
@@ -112,7 +123,19 @@
 // 3. Both pages must be open in the same browser, from the same site.
 const link = new BroadcastChannel('poise-deck');
 const $ = id => document.getElementById(id);
-let notes = [], state = { slide: 0, step: 0 }, startedAt = 0, heard = false;
+let notes = [], state = { slide: 0, step: 0 }, startedAt = 0, heard = false, editing = false;
+
+// Edits are kept in this browser's localStorage under one key, as {"slide:part": "text"}.
+// They stay after a refresh or closing the window, until you press Restore or clear site data.
+const KEY = 'poise-presenter-edits-v1';
+let edits = {};
+try { edits = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { edits = {}; }
+const saveEdits = () => { try { localStorage.setItem(KEY, JSON.stringify(edits)); flash(); } catch {} };
+let flashT; const flash = () => { $('saved').classList.add('show'); clearTimeout(flashT); flashT = setTimeout(() => $('saved').classList.remove('show'), 1200); };
+// a part as plain text: cues go in [brackets], one paragraph per line
+const toText = seg => seg.map(x => x.cue ? `[${x.cue}]` : x.t).join('\n');
+const fromText = s => s.split('\n').map(l => l.trim()).filter(Boolean).map(l => /^\[.*\]$/.test(l) ? { cue: l.slice(1, -1) } : { t: l });
+const partOf = (i, k) => edits[`${i}:${k}`] != null ? fromText(edits[`${i}:${k}`]) : notes[i].segs[k];
 
 // "1 min 10 s, quick" becomes 70 seconds
 const secs = t => { const m = /(\d+)\s*min/.exec(t), s = /(\d+)\s*s\b/.exec(t); return (m ? +m[1] * 60 : 0) + (s ? +s[1] : 0); };
@@ -126,13 +149,22 @@ function render() {
   const box = $('script'); box.innerHTML = '';
   n.segs.forEach((seg, k) => {
     if (k > 0) { const d = document.createElement('div'); d.className = 'press'; d.textContent = `Press ${k}`; box.append(d); }
-    const el = document.createElement('div');
-    el.className = 'seg' + (k < state.step ? ' done' : k === state.step ? ' now' : '');
-    seg.forEach(x => { const p = document.createElement('p'); if (x.cue) { p.className = 'cue'; p.textContent = x.cue; } else p.textContent = x.t; el.append(p); });
-    box.append(el);
+    const el = document.createElement('div'), key = `${state.slide}:${k}`;
+    el.className = 'seg' + (k < state.step ? ' done' : k === state.step ? ' now' : '') + (edits[key] != null ? ' edited' : '');
+    if (editing) {
+      // a text box that grows with its text and saves on every keystroke
+      const ta = document.createElement('textarea');
+      ta.value = edits[key] ?? toText(seg);
+      const fit = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+      ta.addEventListener('input', () => { edits[key] = ta.value; el.classList.add('edited'); saveEdits(); fit(); });
+      el.append(ta); box.append(el); requestAnimationFrame(fit);
+    } else {
+      partOf(state.slide, k).forEach(x => { const p = document.createElement('p'); if (x.cue) { p.className = 'cue'; p.textContent = x.cue; } else p.textContent = x.t; el.append(p); });
+      box.append(el);
+    }
   });
-  box.querySelector('.seg.now')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  if (state.step === 0) box.scrollTop = 0;
+  if (!editing) box.querySelector('.seg.now')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  if (state.step === 0 && !editing) box.parentElement.scrollTop = 0;
   // what comes after this slide
   const nx = notes[state.slide + 1];
   $('nextTitle').textContent = nx ? nx.title : 'End of the deck';
@@ -159,7 +191,18 @@ $('prev').onclick = () => send('prev');
 $('reset').onclick = () => { startedAt = 0; $('elapsed').textContent = '0:00'; $('pace').textContent = 'Press Next to start the timer'; $('pace').className = ''; };
 const openDeck = () => window.open('index.html#' + (state.slide + 1), 'poise-deck-view');
 $('open').onclick = openDeck; $('open2').onclick = openDeck;
+const setEditing = on => { editing = on; document.body.classList.toggle('editing', on); $('edit').classList.toggle('on', on); $('edit').textContent = on ? 'Done editing' : 'Edit notes'; render(); };
+$('edit').onclick = () => setEditing(!editing);
+$('undoSlide').onclick = () => { if (!confirm('Put this slide back to the original notes? Your edits on this slide will be removed.')) return; Object.keys(edits).forEach(k => { if (k.startsWith(state.slide + ':')) delete edits[k]; }); saveEdits(); render(); };
+// a copy of all notes with your edits in, as a file, in case this browser's data gets cleared
+$('download').onclick = () => {
+  const out = notes.map((n, i) => ({ ...n, segs: n.segs.map((_, k) => partOf(i, k)) }));
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 1)], { type: 'application/json' }));
+  a.download = 'poise-notes-edited.json'; a.click(); URL.revokeObjectURL(a.href);
+};
 addEventListener('keydown', e => {
+  if (e.target.closest('textarea')) return;   // typing in a note never moves the deck
+  if ((e.key === 'e' || e.key === 'E') && !e.metaKey && !e.ctrlKey) { setEditing(!editing); return; }
   if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); send('next'); }
   else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); send('prev'); }
 });
