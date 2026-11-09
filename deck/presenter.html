@@ -81,8 +81,6 @@
   #edit.on { background: var(--ink); color: var(--card); border-color: var(--ink); }
   #saved { color: var(--accent); opacity: 0; transition: opacity .3s; }
   #saved.show { opacity: 1; }
-  .stale { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; color: var(--warn); margin: 0 0 8px 4px; }
-  .stale span { flex: 1; min-width: 200px; }
   .off { position: fixed; left: 50%; top: 84px; transform: translateX(-50%); background: var(--warn); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 14px; display: none; gap: 10px; align-items: center; z-index: 5; }
   .off.show { display: flex; }
   .off button { border: 0; border-radius: 8px; padding: 6px 10px; font: 500 14px Inter, sans-serif; cursor: pointer; }
@@ -142,6 +140,8 @@ const fromText = s => s.split('\n').map(l => l.trim()).filter(Boolean).map(l => 
 const editText = e => typeof e === 'string' ? e : e?.text;
 const partOf = (i, k) => edits[`${i}:${k}`] != null ? fromText(editText(edits[`${i}:${k}`])) : notes[i].segs[k];
 const stale = (i, k) => { const e = edits[`${i}:${k}`]; return e != null && (typeof e === 'string' || e.base !== toText(notes[i].segs[k])); };
+// when the script has been updated since a part was edited, the updated script wins and the old edit goes
+function dropStale() { let changed = false; notes.forEach((n, i) => n.segs.forEach((_, k) => { if (stale(i, k)) { delete edits[`${i}:${k}`]; changed = true; } })); if (changed) { try { localStorage.setItem(KEY, JSON.stringify(edits)); } catch {} } }
 
 // "1 min 10 s, quick" becomes 70 seconds
 const secs = t => { const m = /(\d+)\s*min/.exec(t), s = /(\d+)\s*s\b/.exec(t); return (m ? +m[1] * 60 : 0) + (s ? +s[1] : 0); };
@@ -156,16 +156,6 @@ function render() {
   n.segs.forEach((seg, k) => {
     if (k > 0) { const d = document.createElement('div'); d.className = 'press'; d.textContent = `Press ${k}`; box.append(d); }
     const el = document.createElement('div'), key = `${state.slide}:${k}`;
-    if (stale(state.slide, k)) {
-      // the script was updated after this part was edited: choose which one to keep
-      const bar = document.createElement('div'); bar.className = 'stale';
-      bar.innerHTML = '<span>The script was updated after you edited this part.</span>';
-      const useNew = document.createElement('button'); useNew.className = 'tbtn'; useNew.textContent = 'Use updated script';
-      useNew.onclick = () => { delete edits[key]; saveEdits(); render(); };
-      const keep = document.createElement('button'); keep.className = 'tbtn'; keep.textContent = 'Keep my edit';
-      keep.onclick = () => { edits[key] = { text: editText(edits[key]), base: toText(seg) }; saveEdits(); render(); };
-      bar.append(useNew, keep); box.append(bar);
-    }
     el.className = 'seg' + (k < state.step ? ' done' : k === state.step ? ' now' : '') + (edits[key] != null ? ' edited' : '');
     if (editing) {
       // a text box that grows with its text and saves on every keystroke
@@ -231,9 +221,9 @@ link.onmessage = e => {
 };
 
 // when you come back to this window, load the latest script again
-addEventListener('focus', () => fetch('notes.json?v=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(d => { notes = d; if (!editing) render(); }).catch(() => {}));
+addEventListener('focus', () => fetch('notes.json?v=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(d => { notes = d; dropStale(); if (!editing) render(); }).catch(() => {}));
 fetch('notes.json?v=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(data => {
-  notes = data;
+  notes = data; dropStale();
   data.forEach((n, i) => {
     const li = document.createElement('li');
     li.innerHTML = `<span>${i + 1}</span><span></span><span>${n.time.replace(', quick', '')}</span>`;
