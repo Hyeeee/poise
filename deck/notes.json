@@ -197,7 +197,22 @@
   "segs": [
    [
     {
-     "t": "Here's how it works in five steps. First, you answer a few questions, pick the camera or the sensor, and plug in the light bar. Then you start working. The app checks your posture and the light stays white. If you drift, the app shows you what changed and the light turns yellow, then red. When you sit back up, it blinks green. At the end, you see how long you sat well. Then you take a break with stretches or a game, and the light plays along."
+     "t": "Here's how it works in five steps."
+    },
+    {
+     "t": "First, you answer a few questions, pick the camera or the sensor, and plug in the light bar."
+    },
+    {
+     "t": "Then you start working. The app checks your posture and the light stays white."
+    },
+    {
+     "t": "If you drift, the app shows you what changed and the light turns yellow, then red. When you sit back up, it turns green and slowly turns back to white."
+    },
+    {
+     "t": "When you finish your session, you see a report that shows how long you sat well."
+    },
+    {
+     "t": "Then you take a break with stretches or a game, and the light plays along."
     }
    ]
   ]
