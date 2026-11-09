@@ -306,22 +306,22 @@
      "t": "So I planned the next version from two places."
     },
     {
-     "t": "From my classmates' feedback, the biggest one was privacy. The app already said the camera never records, but it was too small and people missed it. So I'll make that clearer and explain what the sensor is for. And the trade off is, the camera is more accurate than the sensor, so if people use the sensor, the app gets less accurate."
+     "t": "From my classmates, the biggest one was privacy. The app already said the camera never records, but it was too small, so people missed it. So I'll make that clearer and explain the sensor. The trade off is, the sensor is less accurate than the camera."
     },
     {
-     "t": "Next, clearer cues. I thought the light bar was enough, but people couldn't really notice from the light alone. So when you drift, a voice tells you how to fix it. And the trade off is, a voice can interrupt you."
+     "t": "Next, clearer cues. I thought the light bar was enough, but it wasn't, so when you drift, a voice tells you how to fix it. The trade off is, a voice can interrupt you."
     },
     {
-     "t": "And people wanted it simpler and more their own. So I'll add a text bar called Ask Poise, so you can just type what you want to change your settings. Plus a mini window and a shorter guide. And the trade off is, with more features, people have more to learn."
+     "t": "And people wanted it simpler and more their own. So I'll add a text bar called Ask Poise to change settings, a mini window and a shorter guide. The trade off is, more features, more to learn."
     },
     {
-     "t": "Then from my own review, I'll add a figure that moves with you, and you can still see how much you drift as a number. And the trade off is, the figure is less exact, and the number gets smaller."
+     "t": "From my own review, I'll add a figure that moves with you, and keep the number. The trade off is, the figure is less exact, and the number is smaller."
     },
     {
-     "t": "I'll use one design system for every screen, because version one didn't look consistent. And the trade off is, it can't cover every edge case, so I have to make new rules, and sometimes it limits creativity."
+     "t": "I'll use one design system, since version one looked uneven. The trade off is, edge cases need new rules and can limit creativity."
     },
     {
-     "t": "And I'll take the green out of the light bar, because it didn't feel necessary. And the trade off is, sitting up feels a little less rewarded."
+     "t": "And I'll take the green out, since it wasn't needed. The trade off is, sitting up feels a little less rewarded."
     }
    ]
   ]
