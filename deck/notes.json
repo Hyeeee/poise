@@ -530,7 +530,7 @@
    ],
    [
     {
-     "t": "This is the mini window. You can use Poise in a small window over your other tabs, so you keep tracking while you work. I came up with this from the playtest, because people wanted to keep Poise in view, even when they switched to other tabs."
+     "t": "This is the mini window. You can use Poise in a small window over your other tabs, so you keep tracking while you work. I came up with this from the playtest, because people wanted to keep tracking their posture while they work, even in a small view on other tabs."
     }
    ],
    [
@@ -563,7 +563,7 @@
    ],
    [
     "④ Mini window → over other tabs",
-    "Playtest → keep it in view, even on other tabs"
+    "Playtest → keep tracking posture, small view on other tabs"
    ],
    [
     "⑤ Ask Poise → just type it",
