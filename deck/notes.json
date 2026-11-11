@@ -29,7 +29,7 @@
   "segs": [
    [
     {
-     "t": "First, the problem and my research. Then version one, what I changed, and version two. And last, what I learned using AI, and what's next."
+     "t": "First, the problem and my research. Then version one, what I changed, and version two. And last, what I learned using AI."
     }
    ]
   ]
@@ -444,35 +444,16 @@
      "t": "And for testing, AI handled the quantitative data. It turned every session into numbers and compared version one and two. But I still checked every number myself against each session. And because AI did the counting, I could focus on the qualitative side, watching people use it, and catching things numbers can't show, like when the voice cut into Peter's call. So numbers show what changed, but watching people shows why."
     },
     {
-     "t": "So yeah, AI made me a lot faster, but it was people who showed me what mattered."
+     "t": "So yeah, AI made me a lot faster, but what I'm most proud of is that every change came from watching real people use it."
     }
    ]
   ]
  },
  {
   "n": 19,
-  "title": "What's next",
-  "time": "55 s",
-  "part": "What's next and closing",
-  "segs": [
-   [
-    {
-     "t": "So, what's next? I'd make the app more personal, so it fits how you work and helps you get more done. And I'd turn the cardboard light bar into a real product."
-    },
-    {
-     "t": "For the app, first, I'm going to add a feature that reads your calendar and pauses cues while you're on a call, since calls broke the most at real desks. Then I'm going to add a weekly look back that gives you a short summary of when you drift most, which also keeps people coming back. And later, a menu bar app, so you can open Poise from the top of your screen, without going to the website."
-    },
-    {
-     "t": "For the light bar, first, I'm going to make the light fit the room, brighter on sunny days and softer at night. Then I'm going to make the light blink too, not just change color, so people who are color blind can still tell when they drift. And eventually, I'm going to 3D print the light bar, so it looks more like a real product. It'll have a battery, so there's no cable, and it just clips onto a MacBook."
-    }
-   ]
-  ]
- },
- {
-  "n": 20,
   "title": "Thank you",
   "time": "15 s, quick",
-  "part": "What's next and closing",
+  "part": "What I learned",
   "segs": [
    [
     {
