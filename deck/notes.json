@@ -657,7 +657,7 @@
      "t": "And for testing, I wanted to spend my time watching people use a real app, not a mockup, so AI read the posture data from every session, like how long they stayed aligned and how often they drifted, and compared version one and two. But I still checked every number myself against each session. And that way, I could catch things the data can't show, like when the voice cut into Peter's call. So AI can read the data, but only I can see how people really use it."
     },
     {
-     "t": "So yeah, overall, AI can boost your ideas, but it still needs a human to check and judge its work. So the best way to use AI is to treat it as your assistant, not your boss."
+     "t": "So yeah, overall, AI can boost your ideas, but it still needs a human to check and judge its work, because AI can make mistakes. So I think the best way to use AI is to treat it as your design assistant that you can discuss ideas with, and not let it do your work for you."
     }
    ]
   ],
@@ -671,8 +671,8 @@
     "Testing → watch people → AI read posture data",
     "Checked every number → Peter's call",
     "“only I can see how people really use it”",
-    "AI boosts ideas → still needs a human to check + judge",
-    "“Treat it as your assistant, not your boss.”"
+    "AI boosts ideas → still needs a human to check + judge, AI makes mistakes",
+    "“Treat it as your design assistant you can discuss ideas with, and not let it do your work for you.”"
    ]
   ]
  },
