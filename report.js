@@ -185,7 +185,8 @@ export function showReport(r, speak) {
             : `<b>On your reference</b>${p.d >= 1 ? `<span class="rt-sub">${Math.round(p.d)}% off, within the normal wobble</span>` : ''}`),
       })), timeline.scale);
     }
-    $('rep-causes-h').hidden = true; $('rep-causes').hidden = true;   // the chart and numbers say enough
+    $('rep-causes-h').hidden = $('rep-causes').hidden = !r.causes.length;   // what pulled you out, under the numbers
+    $('report-card').classList.add('show-causes');
     $('report-len').textContent = r.minutes < 1 ? 'Under a minute' : `${r.minutes} min session`;
     $('rep-aligned').textContent = r.aligned == null ? '—' : r.aligned + '%';
     $('rep-recover').textContent = fmtSec(r.avgRecover);
@@ -248,6 +249,7 @@ export function showBreakReport(r, speak) {
     const mins = r.ms / 60000, len = mins < 1 ? `${Math.max(1, Math.round(r.ms / 1000))} sec` : `${Math.round(mins)} min`;
     const set = (id, v) => { $(id).textContent = v; };
     $('rep-causes').hidden = false;
+    $('report-card').classList.remove('show-causes');
     const labels = { 'rep-aligned-l': '', 'rep-recover-l': '', 'rep-drift-note': '', 'rep-causes-h': '', 'report-new': '', 'report-break': '' };
     for (const k in labels) labels[k] = $(k).textContent;
     const legend = $('report-legend'); const legendWas = legend.hidden;

@@ -1611,7 +1611,8 @@ body .report-card.pop::before { display: none !important; }
 .thread .suggest { flex: none !important; min-height: 44px; align-items: center; padding: 6px 0 2px !important; }
 .agent, .agent.hero, .setup-stage .agent { color: #1e1f1c !important; }
 .suggest button, .suggest button:hover { box-shadow: none !important; border: 0 !important; }
-#rep-causes-h, #rep-causes { display: none !important; }
+/* The causes list shows only in the focus report; the break report keeps it hidden. */
+.report-card:not(.show-causes) #rep-causes-h, .report-card:not(.show-causes) #rep-causes, #rep-causes-h[hidden], #rep-causes[hidden] { display: none !important; }
 body .say-bubble { font-weight: 600 !important; }
 /* Less space between the figure box and the timer row */
 .avatar-box { margin-bottom: 0 !important; }
@@ -2021,3 +2022,6 @@ body .say-bubble, body .say-bubble .sb-text { font-family: 'Shantell Sans', 'Pat
 .avatar-off.over b { color: #c2742f; }
 .avatar-box:has(.say-bubble.show) .avatar-off { opacity: 0; }
 .avatar-off .off-lim { display: none; }
+/* Focus report: the causes list sits a little apart from the numbers above it. */
+.report-card.show-causes #rep-causes-h { margin: 28px 0 12px !important; }
+.report-card.show-causes #rep-causes { gap: 10px; }
