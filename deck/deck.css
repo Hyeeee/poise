@@ -2249,7 +2249,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* contents: the list starts at the title and ends at the slide's bottom margin, items spread evenly in between;
    a little less space between each number and its words */
 .slide[data-title="Contents"] .toc { align-items: stretch; }
-.slide[data-title="Contents"] .toc-list { height: 100%; justify-content: space-between; }
+.slide[data-title="Contents"] .toc-list { height: 88%; justify-content: space-between; }
 .slide[data-title="Contents"] .toc-list li { grid-template-columns: calc(var(--s) * 62) minmax(0, 1fr); padding: 0; border: 0; }
 .slide[data-title="Contents"] .toc-list b { font-size: max(calc(var(--s) * 40), 20px); }
 .slide[data-title="Contents"] .toc-list i { padding-top: .35em; }
