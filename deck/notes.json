@@ -233,7 +233,7 @@
      "cue": "the takeaways cover the cards"
     },
     {
-     "t": "So I noticed a gap. Posture apps and tools either interrupt you or come after it already hurts, so I saw a chance for something in between. And since these apps all show live status on the lock screen without opening the app, I could show people their posture live."
+     "t": "So I noticed a gap. Posture apps and tools either interrupt you or come after it already hurts, so I wanted to make something that catches it early, without interrupting you. And since these apps all show live status on the lock screen without opening the app, I could show people their posture live."
     }
    ]
   ],
@@ -247,7 +247,7 @@
     "Uber, Starbucks, Nike Run Club → same idea"
    ],
    [
-    "Gap → interrupt or too late → in between",
+    "Gap → interrupt or too late → catch it early, without interrupting",
     "Live status on lock screen → live posture"
    ]
   ]
