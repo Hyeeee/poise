@@ -19,6 +19,16 @@
      "t": "So, let me walk you through it."
     }
    ]
+  ],
+  "kw": [
+   [
+    "Poise → notice drift, without breaking focus",
+    "Web app + light bar on monitor",
+    "Two reasons",
+    "① whole process, research → design → test → iterate",
+    "② AI all the way → how it helped me decide",
+    "“So, let me walk you through it.”"
+   ]
   ]
  },
  {
@@ -31,6 +41,11 @@
     {
      "t": "First, the problem and my research. Then version one, what I changed, and version two. And last, what I learned using AI."
     }
+   ]
+  ],
+  "kw": [
+   [
+    "Problem + research → v1 → what I changed → v2 → AI"
    ]
   ]
  },
@@ -73,6 +88,28 @@
      "t": "And fixing it later can cost thousands. I've had neck and back pain myself, and spent a lot on physical therapy and a good chair. And I wasn't the only one."
     }
    ]
+  ],
+  "kw": [
+   [
+    "“We drift without noticing.”"
+   ],
+   [
+    "Sit up straight"
+   ],
+   [
+    "Chin on hand"
+   ],
+   [
+    "Lean closer"
+   ],
+   [
+    "Neck + lower back hurt"
+   ],
+   [
+    "Costs thousands",
+    "Me: PT + a good chair",
+    "“And I wasn't the only one.”"
+   ]
   ]
  },
  {
@@ -89,6 +126,15 @@
      "t": "So yeah, it's not just me."
     }
    ]
+  ],
+  "kw": [
+   [
+    "Research → others too?",
+    "6 hours sitting a day",
+    "Up to 63% neck pain in a year",
+    "$135 billion, biggest health cost",
+    "“So yeah, it's not just me.”"
+   ]
   ]
  },
  {
@@ -104,6 +150,14 @@
     {
      "t": "Three things stood out. Nine out of fifteen rarely notice their posture, or only once it hurts. Fourteen feel pain after a long session, mostly in the neck and lower back. And most of what they'd tried, like stretching or a better chair, comes after. So nothing really catches it early."
     }
+   ]
+  ],
+  "kw": [
+   [
+    "Survey, 15 people → three things",
+    "9/15 rarely notice, or once it hurts",
+    "14 feel pain → neck, lower back",
+    "Fixes come after → nothing catches it early"
    ]
   ]
  },
@@ -144,6 +198,20 @@
      "t": "And for Peter, I can give him a signal that doesn't interrupt him."
     }
    ]
+  ],
+  "kw": [
+   [
+    "Interviewed Paul, Hyunjoo, Peter",
+    "Paul → notices when lower back hurts",
+    "Hyunjoo → Herman Miller, still hard to sit straight",
+    "Peter → leans in when focused, quiet places"
+   ],
+   [
+    "One opportunity each",
+    "Paul → notice earlier",
+    "Hyunjoo → short breaks to reset",
+    "Peter → signal that doesn't interrupt"
+   ]
   ]
  },
  {
@@ -168,6 +236,19 @@
      "t": "So I noticed a gap. Posture apps and tools either interrupt you or come after it already hurts, so I saw a chance for something in between. And since these apps all show live status on the lock screen without opening the app, I could show people their posture live."
     }
    ]
+  ],
+  "kw": [
+   [
+    "What's out there",
+    "Posture apps → early + clear, but interrupt",
+    "Chairs, Pilates → after it hurts",
+    "Other services → DoorDash order on lock screen",
+    "Uber, Starbucks, Nike Run Club"
+   ],
+   [
+    "Gap → interrupt or too late → in between",
+    "Live status on lock screen → live posture"
+   ]
   ]
  },
  {
@@ -186,6 +267,14 @@
     {
      "t": "So for the user, I wanted the app to tell you when you drift and the light bar to change color as you move, so you notice it without stopping your work. And for the business, I'd keep the app free so people can try it first, then offer the light bar. Seeing their posture get better over time would turn it into a daily habit."
     }
+   ]
+  ],
+  "kw": [
+   [
+    "Notice early + clear cue + no interruption",
+    "Hypothesis → catch drift sooner, stay aligned longer",
+    "User → app tells you, light changes color",
+    "Business → free app first, then light bar → daily habit"
    ]
   ]
  },
@@ -214,6 +303,16 @@
     {
      "t": "Then you take a break with stretches or a game, and the light plays along."
     }
+   ]
+  ],
+  "kw": [
+   [
+    "Five steps",
+    "① 4 questions, camera or sensor, plug in",
+    "② Work → light stays white",
+    "③ Drift → yellow, red → sit up → green → white",
+    "④ Report → how long you sat well",
+    "⑤ Break → stretches or game, light plays along"
    ]
   ]
  },
@@ -258,6 +357,29 @@
      "t": "I came up with this from the interviews, because everyone has different preferences, so there are a few options to choose from."
     }
    ]
+  ],
+  "kw": [
+   [
+    "Four parts",
+    "Onboarding → 4 questions",
+    "Focus time, how to tell you, how you rest, auto breaks",
+    "From interviews → everyone works differently"
+   ],
+   [
+    "Focus mode → bar fills as you drift, label shows how",
+    "Light → yellow, red, green",
+    "End → report, time aligned",
+    "From survey → 9/15 noticed once it hurt"
+   ],
+   [
+    "Break mode → figure shows stretch, camera % match",
+    "Up top → reset or small game",
+    "From survey → people stretch to fix posture"
+   ],
+   [
+    "Settings modal → modes, brightness, music",
+    "From interviews → different preferences"
+   ]
   ]
  },
  {
@@ -270,6 +392,12 @@
     {
      "t": "This is also part of my school project, so I showed my app and the light bar to my classmates, and I mostly watched and took notes."
     }
+   ]
+  ],
+  "kw": [
+   [
+    "School project → showed classmates",
+    "Mostly watched + took notes"
    ]
   ]
  },
@@ -292,6 +420,16 @@
     {
      "t": "And for new ideas, they wanted to just type the mode they want, and keep a small window open while they work. So they wanted it their own way, and always in view."
     }
+   ]
+  ],
+  "kw": [
+   [
+    "“Watching people changed what I thought mattered.”",
+    "Good → break options, camera off → control",
+    "Bad → light alone unclear, 12 steps, camera worry",
+    "→ slow setup, unclear light, feel safe",
+    "New ideas → type the mode, small window",
+    "→ their way, always in view"
    ]
   ]
  },
@@ -324,6 +462,19 @@
      "t": "And I'll take the green out, since going back to white already shows you're sitting well. The trade off is, sitting up feels a little less rewarded."
     }
    ]
+  ],
+  "kw": [
+   [
+    "Plan from two places",
+    "Classmates:",
+    "Privacy → note was too small → clearer, explain sensor ↔ less accurate",
+    "Clearer cues → light wasn't enough → voice ↔ can interrupt",
+    "Simpler, their own → Ask Poise, mini window, short guide ↔ more to learn",
+    "My review:",
+    "Figure that moves + keep number ↔ less exact, smaller",
+    "One design system ↔ edge cases, less creativity",
+    "No green → white = good ↔ less rewarded"
+   ]
   ]
  },
  {
@@ -336,6 +487,16 @@
     {
      "t": "So I built version two with the same five steps, and you can see what I changed in green. Set up has a clearer camera or sensor choice. Focus adds a figure and a mini window. And when you drift, a voice tells you how to fix it, and the light goes yellow, red, and back to white. In the report, you can hover the chart for each moment. And in the break, the same figure now shows up in every game."
     }
+   ]
+  ],
+  "kw": [
+   [
+    "Same five steps, changes in green",
+    "Setup → clearer camera or sensor",
+    "Focus → figure + mini window",
+    "Drift → voice, yellow, red, white",
+    "Report → hover the chart",
+    "Break → same figure in every game"
    ]
   ]
  },
@@ -381,6 +542,37 @@
      "t": "And last, one look and feel. To make it feel more polished, I carefully adjusted the typography, color and spacing, and set rules for each, so it all became one design system. I came up with this from my own review, because version one looked uneven in color, typography and spacing, so now it feels like one product."
     }
    ]
+  ],
+  "kw": [
+   [
+    "Six changes, quickly",
+    "① Camera or sensor → how each works",
+    "Never records, sensor = how far you sit",
+    "Playtest → camera worry, sensor unclear"
+   ],
+   [
+    "② Simpler steps → 12 grouped into 4",
+    "Mode → short side panel",
+    "Playtest → 12 too much"
+   ],
+   [
+    "③ Easier to notice → figure, card color, voice",
+    "Report → hover to see what moved",
+    "Playtest → what to fix, not just a light"
+   ],
+   [
+    "④ Mini window → over other tabs",
+    "Playtest → small, always open"
+   ],
+   [
+    "⑤ Ask Poise → just type it",
+    "“one hour focus with breathing breaks”",
+    "Playtest → hard to find settings"
+   ],
+   [
+    "⑥ One look and feel → typography, color, spacing + rules",
+    "My review → v1 looked uneven"
+   ]
   ]
  },
  {
@@ -403,6 +595,15 @@
      "t": "And there were some new ideas, like having the voice go quiet during meetings, or seeing when they slouch the most each week. So people want it to fit their day and habits."
     }
    ]
+  ],
+  "kw": [
+   [
+    "v2 → Paul, Hyunjoo, Peter, own desks, 1 hour",
+    "Good → figure, little window → no broken focus",
+    "Bad → Peter's call, voice cut in; left window for break",
+    "New → quiet in meetings, weekly slouch times",
+    "→ fit their day and habits"
+   ]
   ]
  },
  {
@@ -421,6 +622,16 @@
     {
      "t": "So they stayed aligned longer, and it got easier to use."
     }
+   ]
+  ],
+  "kw": [
+   [
+    "Same 3 people, same tasks, v1 vs v2",
+    "Time aligned → hypothesis: sooner, longer",
+    "85 → 90%",
+    "Small, but already sat well",
+    "All 3 up, Peter most",
+    "→ aligned longer, easier to use"
    ]
   ]
  },
@@ -447,6 +658,19 @@
      "t": "So yeah, AI made me a lot faster, but what I'm most proud of is that every change came from watching real people use it."
     }
    ]
+  ],
+  "kw": [
+   [
+    "AI at almost every step",
+    "Research → 1 month, hear stories → papers + questions",
+    "Read myself → “judging what fits is still my job”",
+    "Building → real app in days → app + Arduino",
+    "People tried it → “only users can tell if it works”",
+    "Testing → watch people → AI read posture data",
+    "Checked every number → Peter's call",
+    "“only I can see how people really use it”",
+    "“So yeah, what I'm most proud of is that every change came from watching real people use it.”"
+   ]
   ]
  },
  {
@@ -462,6 +686,13 @@
     {
      "cue": "pause, wait for questions"
     }
+   ]
+  ],
+  "kw": [
+   [
+    "“That's Poise. Thanks so much for listening.”",
+    "Try it → link below",
+    "Questions"
    ]
   ]
  }
