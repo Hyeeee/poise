@@ -657,7 +657,7 @@
      "t": "And for testing, I wanted to spend my time watching people use a real app, not a mockup, so AI read the posture data from every session, like how long they stayed aligned and how often they drifted, and compared version one and two. But I still checked every number myself against each session. And that way, I could catch things the data can't show, like when the voice cut into Peter's call. So AI can read the data, but only I can see how people really use it."
     },
     {
-     "t": "So yeah, AI made me a lot faster, but what I'm most proud of is that every change came from watching real people use it."
+     "t": "So yeah, AI is a great booster for my ideas. But I still have to check and judge what it gives me. So I don't see it as something that does everything for me. I see it as my assistant, and the clearer I guide it, the better it works."
     }
    ]
   ],
@@ -671,7 +671,10 @@
     "Testing → watch people → AI read posture data",
     "Checked every number → Peter's call",
     "“only I can see how people really use it”",
-    "“So yeah, what I'm most proud of is that every change came from watching real people use it.”"
+    "AI → a booster for my ideas",
+    "But I still check and judge it",
+    "Not doing everything → my assistant",
+    "“The clearer I guide it, the better it works.”"
    ]
   ]
  },
