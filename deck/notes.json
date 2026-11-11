@@ -445,7 +445,7 @@
      "t": "So I planned the next version from two places."
     },
     {
-     "t": "From my classmates, the biggest one was privacy. The app already said the camera never records, but it was too small, so people missed it. So I'll make that clearer and explain the sensor. The trade off is, the sensor is less accurate than the camera."
+     "t": "From my classmates, the biggest one was privacy. The app already said the camera never records, but it was too small, so people missed it. So when you pick the camera or the sensor, I'll make privacy clear, and explain both options. The trade off is, the sensor is less accurate than the camera."
     },
     {
      "t": "Next, clearer cues. I thought the light bar was enough, but it wasn't, so when you drift, a voice tells you how to fix it. The trade off is, a voice can interrupt you."
@@ -468,7 +468,7 @@
    [
     "Plan from two places",
     "Classmates:",
-    "Privacy → note was too small → clearer, explain sensor ↔ less accurate",
+    "Privacy → note was too small → clear privacy when picking camera or sensor, explain both ↔ sensor less accurate",
     "Clearer cues → light wasn't enough → voice ↔ can interrupt",
     "Simpler, their own → Ask Poise, mini window, short guide ↔ more to learn",
     "My review:",
