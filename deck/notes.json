@@ -328,7 +328,7 @@
      "cue": "the recording plays; press once per part"
     },
     {
-     "t": "So here's what it looks like, in four parts."
+     "t": "So here's how it works, in four parts."
     },
     {
      "t": "First, onboarding. Poise asks four questions, like how long you focus, how it should tell you when you drift, what helps you rest, and if breaks should start on their own. I came up with this from the interviews, because everyone worked differently, so setup starts from your own answers."
@@ -361,7 +361,7 @@
   ],
   "kw": [
    [
-    "Four parts",
+    "“So here's how it works, in four parts.”",
     "Onboarding → 4 questions",
     "Focus time, how to tell you, how you rest, auto breaks",
     "From interviews → everyone works differently"
