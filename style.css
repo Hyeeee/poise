@@ -2022,6 +2022,9 @@ body .say-bubble, body .say-bubble .sb-text { font-family: 'Shantell Sans', 'Pat
 .avatar-off.over b { color: #c2742f; }
 .avatar-box:has(.say-bubble.show) .avatar-off { opacity: 0; }
 .avatar-off .off-lim { display: none; }
-/* Focus report: the causes list sits a little apart from the numbers above it. */
-.report-card.show-causes #rep-causes-h { margin: 28px 0 12px !important; }
-.report-card.show-causes #rep-causes { gap: 10px; }
+/* Focus report: the causes list sits under the numbers with no heading, since the labels explain themselves. */
+.report-card.show-causes #rep-causes-h { display: none !important; }
+.report-card.show-causes #rep-causes { gap: 10px; margin-top: 28px; }
+/* Each bar: a light rounded track, and a dark rounded fill drawn on top at the cause's share. */
+.report-card .cause i { position: relative; height: 6px; border-radius: 99px !important; background: var(--hair) !important; overflow: hidden; }
+.report-card .cause i::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--w); min-width: 6px; border-radius: 99px; background: var(--ink); }
