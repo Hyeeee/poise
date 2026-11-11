@@ -460,7 +460,7 @@
      "t": "I'll use one design system, since version one looked uneven. The trade off is, edge cases need new rules and can limit creativity."
     },
     {
-     "t": "And I'll take the green out, since going back to white already shows you're sitting well. The trade off is, sitting up feels a little less rewarded."
+     "t": "And I'll take the green out, since going back to white already shows you're sitting well. The trade off is, the feedback when you sit back up is less clear."
     }
    ]
   ],
@@ -474,7 +474,7 @@
     "My review:",
     "Figure that moves + keep number ↔ less exact, smaller",
     "One design system ↔ edge cases, less creativity",
-    "No green → white = good ↔ less rewarded"
+    "No green → white = good ↔ feedback for sitting up less clear"
    ]
   ]
  },
