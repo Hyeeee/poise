@@ -525,7 +525,7 @@
    ],
    [
     {
-     "t": "Then, easier to notice. A figure moves with you, the card changes color as you drift, and a voice tells you how to fix it. And in the report, you can hover the chart to see what moved. I came up with this from the playtest, because people wanted to know what to fix, not just a light."
+     "t": "Then, easier to notice. A figure moves with you, the card changes color as you drift, and a voice tells you how to fix it. And in the report, you can hover the chart to see what moved. I came up with this from the playtest, because in version one, people couldn't tell what the bar and the number meant, and the light alone wasn't enough to notice."
     }
    ],
    [
@@ -559,7 +559,7 @@
    [
     "③ Easier to notice → figure, card color, voice",
     "Report → hover to see what moved",
-    "Playtest → what to fix, not just a light"
+    "Playtest → v1 bar + number unclear, light alone not enough"
    ],
    [
     "④ Mini window → over other tabs",
