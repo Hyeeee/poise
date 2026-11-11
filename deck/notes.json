@@ -448,7 +448,7 @@
      "t": "From my classmates, the biggest one was privacy. The app already said the camera never records, but it was too small, so people missed it. So I'll make the modal clearly show how your privacy is protected, and that there's a sensor option too. The trade off is, the sensor is less accurate than the camera."
     },
     {
-     "t": "Next, clearer cues. I thought the light bar was enough, but it wasn't, so when you drift, a voice tells you how to fix it. The trade off is, a voice can interrupt you."
+     "t": "Next, clearer cues. I thought the light bar was enough, but it wasn't, so I'll add a voice that tells you how to fix it when you drift. The trade off is, a voice can interrupt you."
     },
     {
      "t": "And people wanted it simpler and more their own. So I'll add a text bar called Ask Poise to change settings, a mini window and a shorter guide. The trade off is, more features, more to learn."
