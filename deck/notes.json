@@ -651,7 +651,7 @@
      "t": "In research, I only had one month, and I wanted to spend most of it talking to people and hearing their stories. So AI found papers and drafted my questions. But I read each paper myself and organized the questions. So AI finds and drafts fast, but judging what fits is still my job."
     },
     {
-     "t": "When building, I wanted a real app to test within days, so AI coded the app and the Arduino from my flow. Then I had people try each build and watched them drift. So AI lets me build real things, but only users can tell if they work."
+     "t": "When building, I wanted a real app to test within days, so AI coded the app and the Arduino from my flow. Then I had people try each build and watched them drift. So AI lets me build real things, but only users know if it helps them."
     },
     {
      "t": "And for testing, I wanted to spend my time watching people use a real app, not a mockup, so AI read the posture data from every session, like how long they stayed aligned and how often they drifted, and compared version one and two. But I still checked every number myself against each session. And that way, I could catch things the data can't show, like when the voice cut into Peter's call. So AI can read the data, but only I can see how people really use it."
@@ -667,7 +667,7 @@
     "Research → 1 month, hear stories → papers + questions",
     "Read myself → “judging what fits is still my job”",
     "Building → real app in days → app + Arduino",
-    "People tried it → “only users can tell if it works”",
+    "People tried it → “only users know if it helps them”",
     "Testing → watch people → AI read posture data",
     "Checked every number → Peter's call",
     "“only I can see how people really use it”",
