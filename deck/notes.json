@@ -441,7 +441,7 @@
      "t": "When building, I wanted a real app to test within days, so AI coded the app and the Arduino from my flow. Then I had people try each build and watched them drift. So AI writes code fast, but only users can tell if it works."
     },
     {
-     "t": "And for testing, AI turned every session into numbers and compared version one and two. But I still checked every number myself against each session. And because AI did the counting, I could spend my time watching people use it, and catch things numbers can't show, like when the voice cut into Peter's call. So AI handles the numbers, and I can focus on how people feel."
+     "t": "And for testing, AI handled the quantitative data. It turned every session into numbers and compared version one and two. But I still checked every number myself against each session. And because AI did the counting, I could focus on the qualitative side, watching people use it, and catching things numbers can't show, like when the voice cut into Peter's call. So AI handles the numbers, and I can focus on how people feel."
     },
     {
      "t": "So yeah, AI made me a lot faster, but it was people who showed me what mattered."
