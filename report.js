@@ -143,8 +143,8 @@ const lenPhrase = r => { const ms = r.tracked || r.minutes * 60000; return ms < 
 function headline(r) {
   if (r.aligned == null) return { en: 'Short session. Set a reference and keep the timer running to see your full analysis.', title: 'Session ended.' };
   const quick = r.avgRecover != null && r.avgRecover < 6000;
-  if (r.aligned >= 80) return { en: `Great session. In ${lenPhrase(r)}, you stayed aligned ${r.aligned}% of the time${quick ? ` and caught yourself in about ${Math.round(r.avgRecover / 1000)} seconds` : ''}.`, title: 'Great session.' };
-  if (r.aligned >= 55) return { en: `Good session. In ${lenPhrase(r)}, you stayed aligned ${r.aligned}% of the time${r.causes[0] ? `, and most drifts were ${r.causes[0].label.toLowerCase()}` : ''}.`, title: 'Good session.' };
+  if (r.aligned >= 80) return { en: `Great session. In ${lenPhrase(r)}, you stayed aligned ${r.aligned}%${quick ? ` and corrected in about ${Math.round(r.avgRecover / 1000)} seconds` : ' of the time'}.`, title: 'Great session.' };
+  if (r.aligned >= 55) return { en: `Good session. In ${lenPhrase(r)}, you stayed aligned ${r.aligned}%${r.causes[0] ? `. Most drifts were ${r.causes[0].label.toLowerCase()}` : ' of the time'}.`, title: 'Good session.' };
   return { en: `A tough one. In ${lenPhrase(r)}, you were aligned ${r.aligned}% of the time${r.causes[0] ? `, mostly ${r.causes[0].label.toLowerCase()}` : ''}. A short break will help.`, title: 'Time to reset.' };
 }
 

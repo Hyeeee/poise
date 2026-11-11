@@ -2028,3 +2028,5 @@ body .say-bubble, body .say-bubble .sb-text { font-family: 'Shantell Sans', 'Pat
 /* Each bar: a light rounded track, and a dark rounded fill drawn on top at the cause's share. */
 .report-card .cause i { position: relative; height: 6px; border-radius: 99px !important; background: var(--hair) !important; overflow: hidden; }
 .report-card .cause i::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--w); min-width: 6px; border-radius: 99px; background: var(--ink); }
+/* The report's summary line never runs past two lines. */
+.report-card .report-say span { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
