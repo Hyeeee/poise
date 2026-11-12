@@ -306,39 +306,39 @@
      "t": "So here's how it works, in four parts."
     },
     {
-     "t": "First, onboarding. Poise asks four questions, like how long you focus and how it should tell you when you drift, so setup starts from your own answers."
+     "t": "First, onboarding. I added four questions, like how long you focus and how you like to rest, so the app fits how each person works."
     }
    ],
    [
     {
-     "t": "Next is focus mode. The bar on the right fills up as you drift, and the light bar turns yellow, then red, and green when you sit back up. At the end, a report shows how long you stayed aligned."
+     "t": "Next is focus mode. I made a bar that fills as you drift and a light that turns yellow, then red, and green when you sit back up, so people notice before it hurts. At the end, a report shows how long they sat well."
     }
    ],
    [
     {
-     "t": "Then break mode. You follow the figure, get a score for each stretch, and up top you can switch to a reset or a small game."
+     "t": "Then break mode. I made a figure to follow for each stretch, with a score and a small game, so taking a break feels fun."
     }
    ],
    [
     {
-     "t": "And last, settings, where you can change your modes, the light's brightness and the music."
+     "t": "And last, settings. I put modes, light brightness and music in one modal, so people can set it up the way they like."
     }
    ]
   ],
   "kw": [
    [
     "“So here's how it works, in four parts.”",
-    "Onboarding → 4 questions → setup from your answers"
+    "Onboarding → 4 questions → fits how each person works"
    ],
    [
-    "Focus → bar fills, light yellow, red, green",
-    "End → report, time aligned"
+    "Focus → bar fills, light yellow, red, green → notice before it hurts",
+    "End → report, how long they sat well"
    ],
    [
-    "Break → follow the figure, score, reset or game"
+    "Break → follow the figure, score, game → break feels fun"
    ],
    [
-    "Settings → modes, brightness, music"
+    "Settings → modes, brightness, music in one modal → their way"
    ]
   ]
  },
