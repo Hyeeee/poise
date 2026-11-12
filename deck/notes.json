@@ -13,7 +13,7 @@
      "t": "So my project is called Poise. It helps you notice when your posture drifts, without breaking your focus, with a web app and a light bar on your monitor."
     },
     {
-     "t": "I picked this project for two reasons. First, it shows my whole process, from research to testing. Second, I used AI along the way, so I can show how it helped me make decisions."
+     "t": "I picked this project for two reasons. First, I can show you the whole process, from research and design to iteration and testing, so you can see what I changed at each step. Second, I used AI all the way through, so I can show you how AI helped me make decisions."
     },
     {
      "t": "So, let me walk you through it."
@@ -25,8 +25,8 @@
     "Poise → notice drift, without breaking focus",
     "Web app + light bar on monitor",
     "Picked it → two reasons",
-    "① whole process, research → testing",
-    "② AI along the way → how it helped me make decisions",
+    "① whole process, research → design → iteration → testing, what I changed",
+    "② AI all the way through → how it helped me make decisions",
     "“So, let me walk you through it.”"
    ]
   ]
