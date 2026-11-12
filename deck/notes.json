@@ -2,7 +2,7 @@
  {
   "n": 1,
   "title": "Cover",
-  "time": "35 s",
+  "time": "45 s",
   "part": "Intro",
   "segs": [
    [
@@ -13,7 +13,7 @@
      "t": "So my project is called Poise. It helps you notice when your posture drifts, without breaking your focus, with a web app and a light bar on your monitor."
     },
     {
-     "t": "I picked it because it shows my whole process, and how I used AI along the way."
+     "t": "I picked this project for two reasons. First, it shows my whole process, from research to testing. Second, I used AI along the way, so I can show how it helped me make decisions."
     },
     {
      "t": "So, let me walk you through it."
@@ -24,7 +24,9 @@
    [
     "Poise → notice drift, without breaking focus",
     "Web app + light bar on monitor",
-    "Picked it → whole process + how I used AI",
+    "Picked it → two reasons",
+    "① whole process, research → testing",
+    "② AI along the way → helped me decide",
     "“So, let me walk you through it.”"
    ]
   ]
