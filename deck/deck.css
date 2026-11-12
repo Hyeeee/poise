@@ -3256,3 +3256,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* cover and thank-you: nudge the big title a little to the right */
 .cover .cover-title { margin-left: calc(var(--s) * 12); }
 .end-copy .end-link { margin-left: calc(var(--s) * 30); }   /* lines up with the Thank you title */
+.qm-row:has(.qm-key) { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--s) * 20); }   /* three measures after satisfaction was removed */
