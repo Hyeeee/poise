@@ -3242,3 +3242,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .it-one .it-head { font-size: max(calc(var(--s) * 22), 13px); }
 .it-one .it-row { margin-top: auto !important; margin-bottom: auto !important; }
 .it-one .it-row { flex: 0 0 auto !important; }
+
+/* plan as three cards side by side, like the flow blocks */
+.it-one .it-row { grid-template-columns: repeat(3, 1fr) !important; gap: calc(var(--s) * 20); align-items: stretch !important; }
+.it-one .it-card { padding: calc(var(--s) * 36) !important; height: auto; }
+.it-one .it-card ol { display: block; }
+.it-one .it-card li + li { border-left: 0; }
+.it-one .it-card li { padding: 0 !important; margin: 0 !important; border: 0 !important; }
