@@ -3253,3 +3253,5 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .it-one .it-card li { grid-template-columns: 1fr !important; }
 .it-one .it-card li::before { content: none !important; display: none !important; }
 .it-one .it-card li > * { grid-column: 1 !important; }
+/* cover and thank-you: nudge the big title a little to the left */
+.cover .cover-title { margin-left: calc(var(--s) * -10); }
