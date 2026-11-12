@@ -3256,3 +3256,10 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* cover and thank-you: nudge the big title a little to the right */
 .cover .cover-title { margin-left: calc(var(--s) * 12); }
 .end-copy .end-link { margin-left: calc(var(--s) * 24); }   /* lines up with the Thank you title */
+/* Thank you: the link is set like the cover's second line, big and gray, right under the title */
+.end-copy .end-link { display: block; margin: 0 0 0 calc(var(--s) * 12) !important; padding: 0; border: 0; text-decoration: none;
+  font-weight: 500; font-size: max(calc(var(--s) * 96), 38px); line-height: 1.04; letter-spacing: -.04em; color: var(--ink) !important; opacity: .42; }
+/* Thank you: title and link sit together like the cover's two-tone lines, centered top to bottom */
+.end-copy { display: flex !important; flex-direction: column; gap: 0 !important; justify-content: center; }
+.end-copy .cover-title { margin-bottom: 0 !important; }
+.end-cover .cover-main { align-items: center !important; }
