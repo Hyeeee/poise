@@ -3255,4 +3255,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .it-one .it-card li > * { grid-column: 1 !important; }
 /* cover and thank-you: nudge the big title a little to the right */
 .cover .cover-title { margin-left: calc(var(--s) * 12); }
-.end-copy .end-link { margin-left: calc(var(--s) * 17); }   /* lines up with the Thank you title */
+.end-copy .end-link { margin-left: calc(var(--s) * 24); }   /* lines up with the Thank you title */
