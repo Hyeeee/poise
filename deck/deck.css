@@ -3249,3 +3249,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .it-one .it-card ol { display: block; }
 .it-one .it-card li + li { border-left: 0; }
 .it-one .it-card li { padding: 0 !important; margin: 0 !important; border: 0 !important; }
+/* plan cards: no 1 2 3 numbers, text starts at the card edge */
+.it-one .it-card li { grid-template-columns: 1fr !important; }
+.it-one .it-card li::before { content: none !important; display: none !important; }
+.it-one .it-card li > * { grid-column: 1 !important; }
