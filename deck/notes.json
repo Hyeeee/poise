@@ -10,10 +10,10 @@
      "cue": "you've already introduced yourself; start straight on the cover"
     },
     {
-     "t": "So my project is called Poise. It helps you notice when your posture drifts, without breaking your focus. I made a web app and a light bar that sits on your monitor."
+     "t": "So my project is called Poise. It helps you notice when your posture drifts, without breaking your focus, with a web app and a light bar on your monitor."
     },
     {
-     "t": "I picked this project for two reasons. First, it shows the whole process, from research to design, testing and iteration, so you can see what I changed at each step. Second, I used AI all the way through, so I can show you how it helped me make decisions."
+     "t": "I picked it because it shows my whole process, and how I used AI along the way."
     },
     {
      "t": "So, let me walk you through it."
@@ -24,9 +24,7 @@
    [
     "Poise → notice drift, without breaking focus",
     "Web app + light bar on monitor",
-    "Two reasons",
-    "① whole process, research → design → test → iterate",
-    "② AI all the way → how it helped me decide",
+    "Picked it → whole process + how I used AI",
     "“So, let me walk you through it.”"
    ]
   ]
@@ -169,16 +167,16 @@
   "segs": [
    [
     {
-     "t": "To go deeper, I interviewed three of them, Paul, Hyunjoo and Peter."
+     "t": "To go deeper, I interviewed three of them."
     },
     {
-     "t": "So, Paul only notices he's slouching when his lower back starts to hurt."
+     "t": "Paul only notices he's slouching when his lower back starts to hurt."
     },
     {
-     "t": "Hyunjoo bought a Herman Miller chair. It helped at first, but sitting straight for long was still hard."
+     "t": "Hyunjoo bought a Herman Miller chair, but sitting straight for long was still hard."
     },
     {
-     "t": "And Peter leans toward the screen when he focuses. He works in quiet places, so a silent reminder would help him."
+     "t": "And Peter leans in when he focuses, and he works in quiet places."
     }
    ],
    [
@@ -186,30 +184,20 @@
      "cue": "the cards flip"
     },
     {
-     "t": "So I found an opportunity for each of them."
-    },
-    {
-     "t": "For Paul, I can help him notice earlier."
-    },
-    {
-     "t": "For Hyunjoo, I can give him short breaks to reset and sit well again."
-    },
-    {
-     "t": "And for Peter, I can give him a signal that doesn't interrupt him."
+     "t": "So for Paul, I can help him notice earlier. For Hyunjoo, short breaks to reset. And for Peter, a signal that doesn't interrupt him."
     }
    ]
   ],
   "kw": [
    [
-    "Interviewed Paul, Hyunjoo, Peter",
+    "Interviewed three",
     "Paul → notices when lower back hurts",
-    "Hyunjoo → Herman Miller, still hard to sit straight",
-    "Peter → leans in when focused, quiet places"
+    "Hyunjoo → Herman Miller, still hard",
+    "Peter → leans in, quiet places"
    ],
    [
-    "One opportunity each",
     "Paul → notice earlier",
-    "Hyunjoo → short breaks to reset",
+    "Hyunjoo → short breaks",
     "Peter → signal that doesn't interrupt"
    ]
   ]
@@ -250,22 +238,19 @@
   "segs": [
    [
     {
-     "t": "So from all three, I needed to help people notice early, with a clear cue that doesn't interrupt them."
+     "t": "So from all three, I came up with one hypothesis. If people get a clear cue that helps them notice early, with no interruptions, they'll catch the drift sooner and stay aligned longer."
     },
     {
-     "t": "So I thought, if people get a clear cue that helps them notice early, with no interruptions, they'll catch the drift sooner and stay aligned longer."
-    },
-    {
-     "t": "So for the user, I wanted the app to tell you when you drift and the light bar to change color as you move, so you notice it without stopping your work. And for the business, I keep the app free to try, then offer the light bar. When people see their posture get better, it becomes a daily habit."
+     "t": "For the user, the app tells you when you drift and the light bar changes color, so you notice without stopping your work. And for the business, I keep the app free to try, then offer the light bar."
     }
    ]
   ],
   "kw": [
    [
-    "Notice early + clear cue + no interruption",
-    "Hypothesis → catch drift sooner, stay aligned longer",
+    "“From all three, I came up with one hypothesis.”",
+    "Clear cue + notice early + no interruptions → catch drift sooner, stay aligned longer",
     "User → app tells you, light changes color",
-    "Business → free app first, then light bar → daily habit"
+    "Business → free app, then light bar"
    ]
   ]
  },
@@ -321,55 +306,39 @@
      "t": "So here's how it works, in four parts."
     },
     {
-     "t": "First, onboarding. Poise asks four questions, like how long you focus, how it should tell you when you drift, what helps you rest, and if breaks should start on their own. I came up with this from the interviews, because everyone worked differently, so setup starts from your own answers."
+     "t": "First, onboarding. Poise asks four questions, like how long you focus and how it should tell you when you drift, so setup starts from your own answers."
     }
    ],
    [
     {
-     "t": "Next is focus mode. The bar on the right fills up as you drift, and the label tells you how you moved. And the light bar turns yellow, then red, and green when you sit back up. And at the end, a report shows how long you stayed aligned."
-    },
-    {
-     "t": "I came up with this from the survey, because nine out of fifteen only noticed once it hurt, so the bar reacts right away."
+     "t": "Next is focus mode. The bar on the right fills up as you drift, and the light bar turns yellow, then red, and green when you sit back up. At the end, a report shows how long you stayed aligned."
     }
    ],
    [
     {
-     "t": "Then break mode. You follow the figure as it moves, and you get a score for each stretch before moving on. Up top, you can switch to a reset or a small game."
-    },
-    {
-     "t": "I came up with this from the survey too, because a lot of people stretch to fix their posture, so I made this break mode to help them reset."
+     "t": "Then break mode. You follow the figure, get a score for each stretch, and up top you can switch to a reset or a small game."
     }
    ],
    [
     {
-     "t": "And last, settings. In this modal, you can change your modes, how bright the light bar glows, and the music."
-    },
-    {
-     "t": "I came up with this from the interviews, because everyone has different preferences, so there are a few options to choose from."
+     "t": "And last, settings, where you can change your modes, the light's brightness and the music."
     }
    ]
   ],
   "kw": [
    [
     "“So here's how it works, in four parts.”",
-    "Onboarding → 4 questions",
-    "Focus time, how to tell you, how you rest, auto breaks",
-    "From interviews → everyone works differently"
+    "Onboarding → 4 questions → setup from your answers"
    ],
    [
-    "Focus mode → bar fills as you drift, label shows how",
-    "Light → yellow, red, green",
-    "End → report, time aligned",
-    "From survey → 9/15 noticed once it hurt"
+    "Focus → bar fills, light yellow, red, green",
+    "End → report, time aligned"
    ],
    [
-    "Break mode → follow the figure, get a score, move on",
-    "Up top → reset or small game",
-    "From survey → people stretch to fix posture"
+    "Break → follow the figure, score, reset or game"
    ],
    [
-    "Settings modal → modes, brightness, music",
-    "From interviews → different preferences"
+    "Settings → modes, brightness, music"
    ]
   ]
  },
@@ -465,67 +434,57 @@
      "cue": "the recording plays; press once per change"
     },
     {
-     "t": "So here's version two. There are six changes, so I'll go quickly."
+     "t": "So here's version two, with six changes."
     },
     {
-     "t": "First, clearer privacy. So now, before you start, Poise tells you how each one works. The camera never records you, and the sensor just checks how far you sit from the screen. I came up with this from the playtest, because people were worried about the camera, and didn't really know what the sensor was for."
+     "t": "First, clearer privacy. Before you start, Poise tells you the camera never records you, and the sensor just checks how far you sit, because people were worried about the camera."
     }
    ],
    [
     {
-     "t": "Next, simpler steps. I turned twelve guide steps into four, so it's easier to follow. And you change a mode in a small side panel, not a long list. I came up with this from the playtest, because twelve steps was too much before even starting."
+     "t": "Next, simpler steps. Twelve guide steps became four, and you change a mode in a small side panel."
     }
    ],
    [
     {
-     "t": "Then, easier to notice. A figure moves with you, the card changes color as you drift, and a voice tells you how to fix it. And in the report, you can hover the chart to see what moved. I came up with this from the playtest, because people couldn't tell what the bar and the number meant, and the light alone wasn't enough to notice."
+     "t": "Then, easier to notice. A figure moves with you, and a voice tells you how to fix it, because the light alone wasn't enough."
     }
    ],
    [
     {
-     "t": "This is the mini window. You can use Poise in a small window over your other tabs, so you keep tracking while you work. I came up with this from the playtest, because people wanted to keep tracking their posture while they work, even in a small view on other tabs."
+     "t": "This is the mini window, so you keep tracking over your other tabs."
     }
    ],
    [
     {
-     "t": "And this is Ask Poise. I added a text field where you can just type what you want, like a one hour focus with breathing breaks, and Poise sets it up for you. I came up with this from the playtest, because people had a hard time finding settings, and wanted it their own way."
+     "t": "And Ask Poise. You just type what you want, like a one hour focus with breathing breaks, and Poise sets it up."
     }
    ],
    [
     {
-     "t": "And last, one look and feel. To make it feel more polished, I carefully adjusted the typography, color and spacing, and set rules for each, so it all became one design system. I came up with this from my own review, because building with AI, the overall look wasn't consistent."
+     "t": "And last, I made one design system, because building with AI, the look wasn't consistent."
     }
    ]
   ],
   "kw": [
    [
-    "Six changes, quickly",
-    "① Clearer privacy → how camera + sensor work",
-    "Never records, sensor = how far you sit",
-    "Playtest → camera worry, sensor unclear"
+    "Version two, six changes",
+    "① Clearer privacy → never records, sensor = how far → camera worry"
    ],
    [
-    "② Simpler steps → 12 grouped into 4",
-    "Mode → short side panel",
-    "Playtest → 12 too much"
+    "② Simpler steps → 12 into 4, side panel"
    ],
    [
-    "③ Easier to notice → figure, card color, voice",
-    "Report → hover to see what moved",
-    "Playtest → bar + number unclear, light alone not enough"
+    "③ Easier to notice → figure + voice → light alone not enough"
    ],
    [
-    "④ Mini window → over other tabs",
-    "Playtest → keep tracking posture, small view on other tabs"
+    "④ Mini window → over other tabs"
    ],
    [
-    "⑤ Ask Poise → just type it",
-    "“one hour focus with breathing breaks”",
-    "Playtest → hard to find settings"
+    "⑤ Ask Poise → just type it"
    ],
    [
-    "⑥ One look and feel → typography, color, spacing + rules",
-    "My review → built with AI → look not consistent"
+    "⑥ One design system → AI look not consistent"
    ]
   ]
  },
@@ -567,16 +526,16 @@
   "segs": [
    [
     {
-     "t": "Now, what I learned using AI, since I used it at almost every step."
+     "t": "Now, what I learned using AI."
     },
     {
-     "t": "In research, I only had one month, and I wanted to spend most of it talking to people and hearing their stories. So AI found papers and drafted my questions. But I read each paper myself and organized the questions. So AI finds and drafts fast, but judging what fits is still my job."
+     "t": "In research, I wanted to spend my one month hearing people's stories, so AI found papers and drafted my questions. But judging what fits is still my job."
     },
     {
-     "t": "When building, I wanted a real app to test within days, so AI coded the app and the Arduino from my flow. Then I had people try each build and watched them drift. So AI lets me build real things, but only users know if it helps them."
+     "t": "When building, I wanted a real app within days, so AI coded the app and the Arduino. But only users know if it helps them."
     },
     {
-     "t": "And for testing, I wanted to spend my time watching people use a real app, not a mockup, so AI read the posture data from every session, like how long they stayed aligned and how often they drifted, and compared version one and two. But I still checked every number myself against each session. And that way, I could catch things the data can't show, like when the voice cut in while Peter was on a call. So AI can read the data, but only I can see how people really use it."
+     "t": "And for testing, AI read the posture data, but I checked every number myself, and caught things the data can't show, like when the voice cut in while Peter was on a call."
     },
     {
      "t": "So yeah, overall, AI can boost your ideas, but it still needs a human to check and judge its work, because AI can make mistakes, and it can't see the full context or your big picture. So I think the best way to use AI is to treat it as your design assistant that you can discuss ideas with, and not let it do your work for you."
@@ -585,15 +544,13 @@
   ],
   "kw": [
    [
-    "AI at almost every step",
-    "Research → 1 month, hear stories → papers + questions",
-    "Read myself → “judging what fits is still my job”",
+    "Research → 1 month, stories → papers + questions",
+    "→ “judging what fits is still my job”",
     "Building → real app in days → app + Arduino",
-    "People tried it → “only users know if it helps them”",
-    "Testing → watch people → AI read posture data",
-    "Checked every number → voice cut in on Peter's call",
-    "“only I can see how people really use it”",
-    "AI boosts ideas → still needs a human to check + judge → mistakes, no full context or big picture",
+    "→ “only users know if it helps them”",
+    "Testing → AI read posture data, I checked every number",
+    "→ voice cut in on Peter's call",
+    "AI boosts ideas → still needs a human to check + judge → mistakes, no full context",
     "“Treat it as your design assistant you can discuss ideas with, and not let it do your work for you.”"
    ]
   ]
