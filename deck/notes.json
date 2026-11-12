@@ -410,7 +410,7 @@
      "t": "Next, clearer cues. The light alone wasn't enough, so I'll add a voice and a figure that moves with you, so you know how to fix it. The trade off is, a voice can interrupt you."
     },
     {
-     "t": "And last, people wanted it simpler and more their own. So I'll add a text bar called Ask Poise, a mini window and a shorter guide. The trade off is, more features, more to learn."
+     "t": "And last, people wanted it simpler and more their own. So I'll add a text bar called Ask Poise, and a mini window. The trade off is, more features, more to learn."
     }
    ]
   ],
@@ -419,7 +419,7 @@
     "Three changes, playtest + my review",
     "① Privacy → note too small → modal shows how privacy is protected + sensor option ↔ sensor less accurate",
     "② Clearer cues → light not enough → voice + moving figure ↔ voice can interrupt",
-    "③ Simpler, their own → Ask Poise, mini window, short guide ↔ more to learn"
+    "③ Simpler, their own → Ask Poise, mini window ↔ more to learn"
    ]
   ]
  },
