@@ -3180,7 +3180,7 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .slide.demo .v-ic { flex: none; display: grid; place-items: center; width: calc(var(--s) * 32); height: calc(var(--s) * 32); border-radius: 50%; background: #eef0ea; }
 .slide.demo .v-ic svg { width: calc(var(--s) * 17); height: calc(var(--s) * 17); fill: none; stroke: var(--ink-2); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 /* text side sits higher, same for both versions */
-.v1-motion .v1-item, .v2-motion .v1-item { top: 22% !important; }
+.v1-motion .v1-item, .v2-motion .v1-item { top: 30% !important; }
 .slide.demo .v-why { font-size: max(calc(var(--s) * 18), 12px); max-width: 30ch; box-sizing: border-box; }
 .slide.demo .v-why p { font-size: .84em; }
 .slide.demo .v-why p b { font-size: .86em; }
