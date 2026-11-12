@@ -123,7 +123,7 @@
      "t": "So I looked at some research to see if other people feel the same. The average US adult sits about six hours a day. Up to 63 percent of office workers get neck pain in a year. And back and neck pain is the biggest health cost in the US, about 135 billion dollars."
     },
     {
-     "t": "So yeah, it's not just me."
+     "t": "So yeah, it's not just me. And with this much money spent on it, I saw a big opportunity in this market."
     }
    ]
   ],
@@ -133,7 +133,7 @@
     "6 hours sitting a day",
     "Up to 63% neck pain in a year",
     "$135 billion, biggest health cost",
-    "“So yeah, it's not just me.”"
+    "“So yeah, it's not just me.” → big money spent → big opportunity"
    ]
   ]
  },
