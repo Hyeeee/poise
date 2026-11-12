@@ -3259,4 +3259,4 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 .qm-row:has(.qm-key) { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--s) * 20); }   /* three measures after satisfaction was removed */
 /* plan cards: priority chip centered on the title line */
 .it-one .it-card li b { display: flex !important; align-items: center; gap: calc(var(--s) * 12); }
-.it-one .it-card li b .pr { margin: 0 !important; vertical-align: middle; position: static !important; transform: translateY(calc(var(--s) * -2)) !important; }   /* optical: center on the capitals, not the descenders */
+.it-one .it-card li b .pr { margin: 0 !important; vertical-align: middle; position: static !important; transform: translateY(calc(var(--s) * 3)) !important; }   /* optical: sits a little lower, level with the title */
