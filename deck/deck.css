@@ -3218,3 +3218,27 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 
 /* A still of the report, for the part the recording does not reach */
 .slide.demo .v-shot { display: block; width: calc(var(--s) * 400); max-width: 100%; height: auto; margin-top: calc(var(--s) * 20); filter: drop-shadow(0 calc(var(--s) * 10) calc(var(--s) * 24) rgba(30,31,28,.14)); }
+
+/* Iteration plan as one card: the three changes sit side by side, split by thin lines. */
+.it-one .it-row { grid-template-columns: 1fr; }
+.it-one .it-card ol { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: calc(var(--s) * 32); }
+.it-one .it-card li { border-bottom: 0; padding: calc(var(--s) * 16) 0 0; align-content: start; }
+.it-one .it-card li + li { border-left: 1px solid rgba(20,20,18,.06); padding-left: calc(var(--s) * 32); margin-left: calc(var(--s) * -16); }
+.it-one .it-row { align-items: start; }
+.it-one .it-card { height: auto; align-self: start; }
+.it-one .it-card ol { align-items: start; }
+.it-one .it-card li { align-self: start; grid-template-rows: auto auto auto; }
+/* one-card plan: same top spacing for every item, larger type so the card fills the slide */
+.it-one .it-head { margin-bottom: calc(var(--s) * 28) !important; }
+.it-one .it-card { padding: calc(var(--s) * 44); }
+.it-one .it-card li, .it-one .it-card li:first-child, .it-one .it-card li:last-child { padding: 0 !important; row-gap: calc(var(--s) * 14); }
+.it-one .it-card li + li { padding-left: calc(var(--s) * 32) !important; }
+.it-one .it-card li b { font-size: max(calc(var(--s) * 26), 14px); }
+.it-one .it-card li .it-gain { font-size: max(calc(var(--s) * 20), 12px); min-height: 2.9em; }
+.it-one .it-card li::before { font-size: max(calc(var(--s) * 18), 11px); padding-top: calc(var(--s) * 6); }
+.it-one .it-card li b { font-size: max(calc(var(--s) * 28), 15px) !important; }
+.it-one .it-card li span.it-gain { font-size: max(calc(var(--s) * 21), 12px) !important; line-height: 1.45; }
+.it-one .it-card li .it-off span { font-size: max(calc(var(--s) * 18), 11px) !important; }
+.it-one .it-head { font-size: max(calc(var(--s) * 22), 13px); }
+.it-one .it-row { margin-top: auto !important; margin-bottom: auto !important; }
+.it-one .it-row { flex: 0 0 auto !important; }

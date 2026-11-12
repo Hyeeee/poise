@@ -427,72 +427,35 @@
  {
   "n": 13,
   "title": "Iteration plan",
-  "time": "1 min 25 s",
+  "time": "50 s",
   "part": "Iteration",
   "segs": [
    [
     {
-     "t": "So I planned the next version from two places."
+     "t": "So I planned the next version around three changes, from the playtest and my own review."
     },
     {
-     "t": "From my classmates, the biggest one was privacy. The app already said the camera never records, but it was too small, so people missed it. So I'll make the modal clearly show how your privacy is protected, and that there's a sensor option too. The trade off is, the sensor is less accurate than the camera."
+     "t": "First, privacy. The app already said the camera never records, but it was too small, so people missed it. So I'll make the modal clearly show how your privacy is protected, and that there's a sensor option too. The trade off is, the sensor is less accurate than the camera."
     },
     {
-     "t": "Next, clearer cues. I thought the light bar was enough, but it wasn't, so I'll add a voice that tells you how to fix it when you drift. The trade off is, a voice can interrupt you."
+     "t": "Next, clearer cues. The light alone wasn't enough, so I'll add a voice and a figure that moves with you, so you know how to fix it. The trade off is, a voice can interrupt you."
     },
     {
-     "t": "And people wanted it simpler and more their own. So I'll add a text bar called Ask Poise to change settings, a mini window and a shorter guide. The trade off is, more features, more to learn."
-    },
-    {
-     "t": "From my own review, I'll add a figure that moves with you, and keep the number. The trade off is, the figure is less exact, and the number is smaller."
-    },
-    {
-     "t": "I'll use one design system, since version one looked uneven. The trade off is, edge cases need new rules and can limit creativity."
-    },
-    {
-     "t": "And I'll take the green out, since going back to white already shows you're sitting well. The trade off is, the feedback when you sit back up is less clear."
+     "t": "And last, people wanted it simpler and more their own. So I'll add a text bar called Ask Poise, a mini window and a shorter guide. The trade off is, more features, more to learn."
     }
    ]
   ],
   "kw": [
    [
-    "Plan from two places",
-    "Classmates:",
-    "Privacy → note was too small → modal → clearly show how privacy is protected + sensor option ↔ sensor less accurate",
-    "Clearer cues → light wasn't enough → voice ↔ can interrupt",
-    "Simpler, their own → Ask Poise, mini window, short guide ↔ more to learn",
-    "My review:",
-    "Figure that moves + keep number ↔ less exact, smaller",
-    "One design system ↔ edge cases, less creativity",
-    "No green → white = good ↔ feedback for sitting up less clear"
+    "Three changes, playtest + my review",
+    "① Privacy → note too small → modal shows how privacy is protected + sensor option ↔ sensor less accurate",
+    "② Clearer cues → light not enough → voice + moving figure ↔ voice can interrupt",
+    "③ Simpler, their own → Ask Poise, mini window, short guide ↔ more to learn"
    ]
   ]
  },
  {
   "n": 14,
-  "title": "Same five steps",
-  "time": "25 s, quick",
-  "part": "Version two",
-  "segs": [
-   [
-    {
-     "t": "So I built version two with the same five steps, and you can see what I changed in green. Set up has a clearer camera or sensor choice. Focus adds a figure and a mini window. And when you drift, a voice tells you how to fix it, and the light goes yellow, red, and back to white. In the report, you can hover the chart for each moment. And in the break, the same figure now shows up in every game."
-    }
-   ]
-  ],
-  "kw": [
-   [
-    "Same five steps, changes in green",
-    "Setup → clearer camera or sensor",
-    "Focus → figure + mini window",
-    "Drift → voice, yellow, red, white",
-    "Report → hover the chart",
-    "Break → same figure in every game"
-   ]
-  ]
- },
- {
-  "n": 15,
   "title": "Version two, the app",
   "time": "1 min 50 s",
   "part": "Version two",
@@ -567,7 +530,7 @@
   ]
  },
  {
-  "n": 16,
+  "n": 15,
   "title": "Testing version two",
   "time": "40 s",
   "part": "Version two",
@@ -598,7 +561,7 @@
   ]
  },
  {
-  "n": 17,
+  "n": 16,
   "title": "Then I measured it",
   "time": "1 min",
   "part": "Version two",
@@ -628,7 +591,7 @@
   ]
  },
  {
-  "n": 18,
+  "n": 17,
   "title": "What I learned using AI",
   "time": "1 min 25 s",
   "part": "What I learned",
@@ -667,7 +630,7 @@
   ]
  },
  {
-  "n": 19,
+  "n": 18,
   "title": "Thank you",
   "time": "15 s, quick",
   "part": "What I learned",
