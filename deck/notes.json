@@ -437,54 +437,54 @@
      "t": "So here's version two, with six changes."
     },
     {
-     "t": "First, clearer privacy. Before you start, Poise tells you the camera never records you, and the sensor just checks how far you sit, because people were worried about the camera."
+     "t": "First, clearer privacy. I explained how the camera and the sensor work before you start, so people feel safe using it."
     }
    ],
    [
     {
-     "t": "Next, simpler steps. Twelve guide steps became four, and you change a mode in a small side panel."
+     "t": "Next, simpler steps. I turned twelve guide steps into four, and made modes a small side panel, so people can start faster."
     }
    ],
    [
     {
-     "t": "Then, easier to notice. A figure moves with you, and a voice tells you how to fix it, because the light alone wasn't enough."
+     "t": "Then, easier to notice. I added a figure that moves with you and a voice that tells you how to fix it, so people know what to change."
     }
    ],
    [
     {
-     "t": "This is the mini window, so you keep tracking over your other tabs."
+     "t": "This is the mini window. I added a small window that stays over your other tabs, so people keep tracking while they work."
     }
    ],
    [
     {
-     "t": "And Ask Poise. You just type what you want, like a one hour focus with breathing breaks, and Poise sets it up."
+     "t": "And Ask Poise. I added a text field where you just type what you want, like a one hour focus with breathing breaks, so people can set it up their own way, fast."
     }
    ],
    [
     {
-     "t": "And last, I made one design system, because building with AI, the look wasn't consistent."
+     "t": "And last, one look and feel. I set clear rules for typography, color and spacing, so the whole app feels like one product."
     }
    ]
   ],
   "kw": [
    [
     "Version two, six changes",
-    "① Clearer privacy → never records, sensor = how far → camera worry"
+    "① Clearer privacy → explain camera + sensor → feel safe"
    ],
    [
-    "② Simpler steps → 12 into 4, side panel"
+    "② Simpler steps → 12 into 4, side panel → start faster"
    ],
    [
-    "③ Easier to notice → figure + voice → light alone not enough"
+    "③ Easier to notice → figure + voice → know what to change"
    ],
    [
-    "④ Mini window → over other tabs"
+    "④ Mini window → over other tabs → keep tracking"
    ],
    [
-    "⑤ Ask Poise → just type it"
+    "⑤ Ask Poise → just type it → set it up their way"
    ],
    [
-    "⑥ One design system → AI look not consistent"
+    "⑥ One look and feel → rules for type, color, spacing → one product"
    ]
   ]
  },
