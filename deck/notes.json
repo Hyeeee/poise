@@ -217,38 +217,28 @@
  {
   "n": 7,
   "title": "Market research",
-  "time": "50 s",
+  "time": "35 s",
   "part": "UX research",
   "segs": [
    [
     {
-     "t": "Next I looked at what's already out there. Posture apps notice early and the cue is clear, but they buzz or pop up and interrupt your work. And chairs and Pilates are things people try after it already hurts."
+     "t": "Next I looked at what's already out there. Posture apps notice early, but they interrupt your work, and chairs and Pilates come after it already hurts. So I wanted to catch it early, without interrupting."
     },
     {
-     "t": "I also like seeing what I can bring in from other services. Like when I order on DoorDash, I can see my order on the lock screen without opening the app. Uber, Starbucks and Nike Run Club work in a similar way."
-    }
-   ],
-   [
-    {
-     "cue": "the takeaways cover the cards"
-    },
-    {
-     "t": "So I noticed a gap. Posture apps and tools either interrupt you or come after it already hurts, so I wanted to make something that catches it early, without interrupting you. And since these apps all show live status on the lock screen without opening the app, I could show people their posture live."
+     "t": "I also like seeing what I can bring in from other services. On DoorDash, I can see my order on the lock screen without opening the app, and Uber, Starbucks and Nike Run Club work the same way. So I could show people their posture live."
     }
    ]
   ],
   "kw": [
    [
     "What's out there",
-    "Posture apps → early + clear, but interrupt",
+    "Posture apps → early, but interrupt",
     "Chairs, Pilates → after it hurts",
+    "→ catch it early, without interrupting",
     "“I also like seeing what I can bring in from other services.”",
-    "DoorDash → my order on the lock screen, no need to open the app",
-    "Uber, Starbucks, Nike Run Club → same idea"
-   ],
-   [
-    "Gap → interrupt or too late → catch it early, without interrupting",
-    "Live status on lock screen → live posture"
+    "DoorDash → order on the lock screen, no need to open the app",
+    "Uber, Starbucks, Nike Run Club → same",
+    "→ show posture live"
    ]
   ]
  },
