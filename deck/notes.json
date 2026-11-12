@@ -535,7 +535,7 @@
      "t": "When building, I wanted a real app within days, so AI coded the app and the Arduino. But only users know if it helps them."
     },
     {
-     "t": "And for testing, AI read the posture data, but I checked every number myself, and caught things the data can't show, like when the voice cut in while Peter was on a call."
+     "t": "And for testing, AI read the posture data, but I checked the data myself, and caught things the data can't show, like when the voice cut in while Peter was on a call."
     },
     {
      "t": "So yeah, overall, AI can boost your ideas, but it still needs a human to check and judge its work, because AI can make mistakes, and it can't see the full context or your big picture. So I think the best way to use AI is to treat it as your design assistant that you can discuss ideas with, and not let it do your work for you."
@@ -548,7 +548,7 @@
     "→ “judging what fits is still my job”",
     "Building → real app in days → app + Arduino",
     "→ “only users know if it helps them”",
-    "Testing → AI read posture data, I checked every number",
+    "Testing → AI read posture data, I checked the data",
     "→ voice cut in on Peter's call",
     "AI boosts ideas → still needs a human to check + judge → mistakes, no full context",
     "“Treat it as your design assistant you can discuss ideas with, and not let it do your work for you.”"
