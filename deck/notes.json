@@ -531,44 +531,13 @@
  },
  {
   "n": 15,
-  "title": "Testing version two",
-  "time": "40 s",
-  "part": "Version two",
-  "segs": [
-   [
-    {
-     "t": "Then I tested version two with Paul, Hyunjoo and Peter at their own desks, for an hour each."
-    },
-    {
-     "t": "Overall, people liked the small changes, like the figure that follows you and the little window. So it helped without breaking focus."
-    },
-    {
-     "t": "But when Peter was on a call, the voice told him to sit up in the middle of it, and he had to leave the little window just to take a break. So it got in the way of calls and breaks."
-    },
-    {
-     "t": "And there were some new ideas, like having the voice go quiet during meetings, or seeing when they slouch the most each week. So people want it to fit their day and habits."
-    }
-   ]
-  ],
-  "kw": [
-   [
-    "v2 → Paul, Hyunjoo, Peter, own desks, 1 hour",
-    "Good → figure, little window → no broken focus",
-    "Bad → Peter's call, voice cut in; left window for break",
-    "New → quiet in meetings, weekly slouch times",
-    "→ fit their day and habits"
-   ]
-  ]
- },
- {
-  "n": 16,
   "title": "Then I measured it",
   "time": "1 min",
   "part": "Version two",
   "segs": [
    [
     {
-     "t": "Then I measured it, with the same three people, and they did the same things in version one and version two."
+     "t": "Then I tested version two with the same three people, at their own desks for an hour each, and they did the same things in version one and version two."
     },
     {
      "t": "The one I cared about most was time aligned, because my hypothesis was that people would catch the drift sooner and stay aligned longer. It went from 85 to 90 percent. That might sound small, but everyone already sat well most of the time. All three went up, and Peter, who drifted the most, improved the most."
@@ -580,7 +549,7 @@
   ],
   "kw": [
    [
-    "Same 3 people, same tasks, v1 vs v2",
+    "Same 3 people, own desks, 1 hour each, v1 vs v2",
     "Cared most about time aligned",
     "Hypothesis → catch drift sooner, stay aligned longer",
     "85 → 90%",
@@ -591,7 +560,7 @@
   ]
  },
  {
-  "n": 17,
+  "n": 16,
   "title": "What I learned using AI",
   "time": "1 min 25 s",
   "part": "What I learned",
@@ -607,7 +576,7 @@
      "t": "When building, I wanted a real app to test within days, so AI coded the app and the Arduino from my flow. Then I had people try each build and watched them drift. So AI lets me build real things, but only users know if it helps them."
     },
     {
-     "t": "And for testing, I wanted to spend my time watching people use a real app, not a mockup, so AI read the posture data from every session, like how long they stayed aligned and how often they drifted, and compared version one and two. But I still checked every number myself against each session. And that way, I could catch things the data can't show, like when the voice cut into Peter's call. So AI can read the data, but only I can see how people really use it."
+     "t": "And for testing, I wanted to spend my time watching people use a real app, not a mockup, so AI read the posture data from every session, like how long they stayed aligned and how often they drifted, and compared version one and two. But I still checked every number myself against each session. And that way, I could catch things the data can't show, like when the voice cut in while Peter was on a call. So AI can read the data, but only I can see how people really use it."
     },
     {
      "t": "So yeah, overall, AI can boost your ideas, but it still needs a human to check and judge its work, because AI can make mistakes, and it can't see the full context or your big picture. So I think the best way to use AI is to treat it as your design assistant that you can discuss ideas with, and not let it do your work for you."
@@ -622,7 +591,7 @@
     "Building → real app in days → app + Arduino",
     "People tried it → “only users know if it helps them”",
     "Testing → watch people → AI read posture data",
-    "Checked every number → Peter's call",
+    "Checked every number → voice cut in on Peter's call",
     "“only I can see how people really use it”",
     "AI boosts ideas → still needs a human to check + judge → mistakes, no full context or big picture",
     "“Treat it as your design assistant you can discuss ideas with, and not let it do your work for you.”"
@@ -630,7 +599,7 @@
   ]
  },
  {
-  "n": 18,
+  "n": 17,
   "title": "Thank you",
   "time": "15 s, quick",
   "part": "What I learned",
