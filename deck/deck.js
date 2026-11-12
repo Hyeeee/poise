@@ -572,7 +572,7 @@ const V1 = Layers('v1');
 // LED colour each time it sends one; the colour is scaled up to full brightness for the strip and its
 // brightness drives how strong the glow is (idle is nearly off, white is soft, amber and red glow).
 // The laptop's camera light: the green dot in the bezel comes on while the app's camera is running.
-const camLight = (fr, slide) => setInterval(() => { let on = false; try { const v = fr.contentDocument?.getElementById('camera'); on = !!(v && v.srcObject && v.srcObject.active); } catch {} slide.classList.toggle('cam-on', on); }, 400);
+const camLight = (fr, slide) => setInterval(() => { if (slide.dataset.rec) return; let on = false; try { const v = fr.contentDocument?.getElementById('camera'); on = !!(v && v.srcObject && v.srcObject.active); } catch {} slide.classList.toggle('cam-on', on); }, 400);
 const mirrorLight = (fr, slide) => { camLight(fr, slide);
   const set = rgb => { const m = Math.max(...rgb, 1), k = 255 / m, c = rgb.map(v => Math.round(v * k));
     slide.style.setProperty('--led', `rgb(${c.join(',')})`); slide.style.setProperty('--led-on', Math.min(1, (m - 30) / 160).toFixed(2)); };
@@ -581,14 +581,18 @@ const mirrorLight = (fr, slide) => { camLight(fr, slide);
 };
 // Recordings drive the deck's light bar: led.json holds [time, r, g, b] points read from each video
 // (the app's own light colour on screen), so the bar changes at the same moment as in the recording.
+// The bezel camera light follows the recordings too: CAM gives the second the app's camera comes on in
+// each video (no entry means the camera stays off for that whole video).
+const CAM = { v1rec: { 1: 44, 2: 0, 3: 0, 4: 0 }, v2rec: { 2: 0, 3: 0, 4: 0, 5: 0 } };
 const recLight = (vid, slide, dir) => {
   let map = null, n = 0, raf = 0;
+  const cam = () => { const s = CAM[dir]?.[n]; slide.classList.toggle('cam-on', s != null && vid.currentTime >= s); };
   fetch(`${dir}/led.json`).then(r => r.ok ? r.json() : null).then(j => { map = j; }).catch(() => {});
   const set = rgb => { const m = Math.max(...rgb, 1), k = 255 / m, c = rgb.map(v => Math.round(v * k));
     slide.style.setProperty('--led', `rgb(${c.join(',')})`); slide.style.setProperty('--led-on', Math.min(1, (m - 30) / 160).toFixed(2)); };
-  const tick = () => { raf = requestAnimationFrame(tick); const pts = map && map[n]; if (!pts || vid.paused) return;
+  const tick = () => { raf = requestAnimationFrame(tick); cam(); const pts = map && map[n]; if (!pts || vid.paused) return;
     const t = vid.currentTime; let p = pts[0]; for (const q of pts) { if (q[0] <= t) p = q; else break; } set(p.slice(1)); };
-  return { play(num) { n = num; cancelAnimationFrame(raf); tick(); }, stop() { cancelAnimationFrame(raf); } };
+  return { play(num) { n = num; slide.dataset.rec = dir; cancelAnimationFrame(raf); tick(); }, stop() { cancelAnimationFrame(raf); delete slide.dataset.rec; } };
 };
 // Version one: one part of the app per step. Each part is the real version one app in demo mode (a stand-in
 // camera and pose, no sound), brought to the right screen, then a script plays that part on a loop with a tap dot.
