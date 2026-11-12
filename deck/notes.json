@@ -499,7 +499,7 @@
      "t": "Then I tested version two with the same three people, at their own desks for an hour each, and they did the same things in version one and version two."
     },
     {
-     "t": "The one I cared about most was time sitting well, because my hypothesis was that people would catch the drift sooner and stay aligned longer. It went from 85 to 90 percent. That might sound small, but everyone already sat well most of the time. All three went up, and Peter, who drifted the most, improved the most."
+     "t": "The one I cared about most was how long they sat well, because my hypothesis was that people would catch the drift sooner and stay aligned longer. It went from 85 to 90 percent. That might sound small, but everyone already sat well most of the time. All three went up, and Peter, who drifted the most, improved the most."
     },
     {
      "t": "So they stayed aligned longer, and it got easier to use."
@@ -509,7 +509,7 @@
   "kw": [
    [
     "Same 3 people, own desks, 1 hour each, v1 vs v2",
-    "Cared most about time sitting well",
+    "Cared most about how long they sat well",
     "Hypothesis → catch drift sooner, stay aligned longer",
     "85 → 90%",
     "Small, but already sat well",
