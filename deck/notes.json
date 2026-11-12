@@ -306,22 +306,22 @@
      "t": "So here's how it works, in four parts."
     },
     {
-     "t": "First, onboarding. I added four questions, like how long you focus, how you want to be told when you drift, and how you like to rest, so the app fits how each person works."
+     "t": "First, onboarding. I added four questions, like how long you focus and how you like to rest, because I learned from the interviews that everyone works differently."
     }
    ],
    [
     {
-     "t": "Next is focus mode. I made a bar that fills as you drift and a light that turns yellow, then red, and green when you sit back up, so people notice before it hurts. At the end, a report shows how long they sat well."
+     "t": "Next is focus mode. I made a bar that fills as you drift and a light that turns yellow, then red, and green when you sit back up, because I wanted people to notice before it hurts. At the end, a report shows how long they sat well."
     }
    ],
    [
     {
-     "t": "Then break mode. I made a figure to follow, and the camera scores how closely you match each stretch. There's also a small game, so taking a break feels fun."
+     "t": "Then break mode. I made a figure to follow, and the camera scores how closely you match each stretch, because I thought a short reset helps people sit well again."
     }
    ],
    [
     {
-     "t": "And last, settings. I put modes, how bright the light bar glows, and music together in one modal, so people can set it up the way they like."
+     "t": "And last, settings. I put modes, how bright the light bar glows, and music in one modal, because I wanted people to set it up the way they like."
     }
    ]
   ],
@@ -437,32 +437,32 @@
      "t": "So here's version two, with six changes."
     },
     {
-     "t": "First, clearer privacy. I explained up front that the camera never records you, and the sensor only checks how far you sit, so people feel safe using it."
+     "t": "First, clearer privacy. I explained up front that the camera never records you, and the sensor only checks how far you sit, because I thought people won't use it if they don't feel safe."
     }
    ],
    [
     {
-     "t": "Next, simpler steps. I turned twelve guide steps into four, and moved modes from a long list of sliders to a small side panel, so people can start faster."
+     "t": "Next, simpler steps. I turned twelve guide steps into four, and moved modes to a small side panel, because I saw that twelve steps was too much before even starting."
     }
    ],
    [
     {
-     "t": "Then, easier to notice. I added a figure that moves with you, a card that changes color, and a voice that tells you how to fix it, so people know what to change."
+     "t": "Then, easier to notice. I added a figure that moves with you and a voice that tells you how to fix it, because I realized the light alone didn't tell people what to fix."
     }
    ],
    [
     {
-     "t": "This is the mini window. I added a small window that floats over your other tabs and keeps showing your posture, so people keep tracking while they work."
+     "t": "This is the mini window. I added a small window that floats over your other tabs, because I wanted people to keep tracking even on other tabs."
     }
    ],
    [
     {
-     "t": "And Ask Poise. I added a text field where you just type what you want, like a one hour focus with breathing breaks, so people can set it up their own way, fast."
+     "t": "And Ask Poise. I added a text field where you just type what you want, like a one hour focus with breathing breaks, because I thought typing is the easiest way to make it your own."
     }
    ],
    [
     {
-     "t": "And last, one look and feel. I set clear rules for typography, color and spacing, and used the light bar's colors on every screen, so the whole app feels like one product."
+     "t": "And last, one look and feel. I set clear rules for typography, color and spacing, because I felt the look wasn't consistent after building with AI."
     }
    ]
   ],
