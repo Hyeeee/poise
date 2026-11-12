@@ -306,7 +306,7 @@
      "t": "So here's how it works, in four parts."
     },
     {
-     "t": "First, onboarding. I added four questions, like how long you focus and how you like to rest, so the app fits how each person works."
+     "t": "First, onboarding. I added four questions, like how long you focus, how you want to be told when you drift, and how you like to rest, so the app fits how each person works."
     }
    ],
    [
@@ -316,12 +316,12 @@
    ],
    [
     {
-     "t": "Then break mode. I made a figure to follow for each stretch, with a score and a small game, so taking a break feels fun."
+     "t": "Then break mode. I made a figure to follow, and the camera scores how closely you match each stretch. There's also a small game, so taking a break feels fun."
     }
    ],
    [
     {
-     "t": "And last, settings. I put modes, light brightness and music in one modal, so people can set it up the way they like."
+     "t": "And last, settings. I put modes, how bright the light bar glows, and music together in one modal, so people can set it up the way they like."
     }
    ]
   ],
@@ -437,22 +437,22 @@
      "t": "So here's version two, with six changes."
     },
     {
-     "t": "First, clearer privacy. I explained how the camera and the sensor work before you start, so people feel safe using it."
+     "t": "First, clearer privacy. I explained up front that the camera never records you, and the sensor only checks how far you sit, so people feel safe using it."
     }
    ],
    [
     {
-     "t": "Next, simpler steps. I turned twelve guide steps into four, and made modes a small side panel, so people can start faster."
+     "t": "Next, simpler steps. I turned twelve guide steps into four, and moved modes from a long list of sliders to a small side panel, so people can start faster."
     }
    ],
    [
     {
-     "t": "Then, easier to notice. I added a figure that moves with you and a voice that tells you how to fix it, so people know what to change."
+     "t": "Then, easier to notice. I added a figure that moves with you, a card that changes color, and a voice that tells you how to fix it, so people know what to change."
     }
    ],
    [
     {
-     "t": "This is the mini window. I added a small window that stays over your other tabs, so people keep tracking while they work."
+     "t": "This is the mini window. I added a small window that floats over your other tabs and keeps showing your posture, so people keep tracking while they work."
     }
    ],
    [
@@ -462,7 +462,7 @@
    ],
    [
     {
-     "t": "And last, one look and feel. I set clear rules for typography, color and spacing, so the whole app feels like one product."
+     "t": "And last, one look and feel. I set clear rules for typography, color and spacing, and used the light bar's colors on every screen, so the whole app feels like one product."
     }
    ]
   ],
