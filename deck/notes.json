@@ -334,7 +334,7 @@
    ],
    [
     {
-     "t": "Then break mode. This figure shows you each stretch, and the camera checks how closely you match it as a percent. Up top, you can switch to a reset or a small game."
+     "t": "Then break mode. You follow the figure as it moves, and you get a score for each stretch before moving on. Up top, you can switch to a reset or a small game."
     },
     {
      "t": "I came up with this from the survey too, because a lot of people stretch to fix their posture, so I made this break mode to help them reset."
@@ -363,7 +363,7 @@
     "From survey → 9/15 noticed once it hurt"
    ],
    [
-    "Break mode → figure shows stretch, camera % match",
+    "Break mode → follow the figure, get a score, move on",
     "Up top → reset or small game",
     "From survey → people stretch to fix posture"
    ],
