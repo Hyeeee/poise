@@ -532,7 +532,7 @@
      "t": "Now, what I learned using AI."
     },
     {
-     "t": "In research, I wanted to spend my one month hearing people's stories, so AI found papers and drafted my questions. But I still decide what fits."
+     "t": "In research, I wanted to spend my one month hearing people's stories, so AI found papers and drafted my questions. But I still decide what's useful."
     },
     {
      "t": "When building, I wanted a real app within days, so AI coded the app and the Arduino. But only users know if it helps them."
@@ -548,7 +548,7 @@
   "kw": [
    [
     "Research → 1 month, stories → papers + questions",
-    "→ “I still decide what fits”",
+    "→ “I still decide what's useful”",
     "Building → real app in days → app + Arduino",
     "→ “only users know if it helps them”",
     "Testing → AI read posture data, I checked the data",
