@@ -854,3 +854,38 @@ const recLight = (vid, slide, dir) => {
     if ((e.key === 'p' || e.key === 'P') && !e.metaKey && !e.ctrlKey) window.open('presenter.html', 'poise-presenter', 'width=1280,height=820');
   });
 }
+
+// ---------- Embed mode (for the portfolio) ----------
+// index.html?embed#N shows slide N on its own: no progress bar, no headline (the page around it has one),
+// and the slide plays by itself. Steps move on every few seconds, or when a screen recording ends,
+// then the slide starts over. A click moves to the next step. &step=k pins one step instead.
+{
+  const Q = new URLSearchParams(location.search);
+  if (Q.has('embed')) {
+    document.body.classList.add('embed');
+    for (const t of ['keydown', 'wheel']) addEventListener(t, e => e.stopImmediatePropagation(), true);
+    const sl = () => slides[cur];
+    const pin = Q.has('step') ? +Q.get('step') : null;
+    const HOLD = +(Q.get('hold') || 2800);
+    let timer = 0;
+    const advance = () => {
+      const s = sl(), k = +(s.dataset.at || 0), n = stepsOf(s);
+      setStep(s, k < n ? k + 1 : 0);
+      schedule();
+    };
+    const schedule = () => {
+      clearTimeout(timer);
+      if (pin != null) return;
+      const s = sl(), v = s.querySelector('video.rec');
+      if (v) { v.loop = false; return; }          // recordings move on when they end (see below)
+      const n = stepsOf(s); if (!n) return;
+      const last = +(s.dataset.at || 0) === n;
+      timer = setTimeout(advance, last ? HOLD * 2 : HOLD);
+    };
+    document.querySelectorAll('video.rec').forEach(v => v.addEventListener('ended', () => { if (pin == null) advance(); else { v.currentTime = 0; v.play().catch(() => {}); } }));
+    addEventListener('click', e => { e.stopImmediatePropagation(); if (pin == null) advance(); }, true);
+    const start = () => { if (pin != null) setStep(sl(), pin); schedule(); };
+    setTimeout(start, 600);
+    addEventListener('hashchange', () => setTimeout(start, 50));
+  }
+}

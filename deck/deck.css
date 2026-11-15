@@ -3260,3 +3260,8 @@ x-w { display: inline-block; }   /* one word of a headline, so each can rise on 
 /* plan cards: priority chip centered on the title line */
 .it-one .it-card li b { display: flex !important; align-items: center; gap: calc(var(--s) * 12); }
 .it-one .it-card li b .pr { margin: 0 !important; vertical-align: middle; position: static !important; transform: translateY(calc(var(--s) * 3)) !important; }   /* optical: sits a little lower, level with the title */
+
+/* Embed mode (portfolio): the slide alone, no chrome and no headline, centred in its frame */
+body.embed .progress, body.embed .chrome, body.embed .slide .head { display: none !important; }
+body.embed .slide { justify-content: center; padding-top: calc(var(--s) * 64); padding-bottom: calc(var(--s) * 64); }
+body.embed { cursor: pointer; }
