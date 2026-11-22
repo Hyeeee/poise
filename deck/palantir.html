@@ -150,6 +150,50 @@
 .nx .it-card ol.one li::before { display: none; }
 .nx .it-card ol.one li b { font-size: max(calc(var(--s) * 22), 13px); }
 @media (prefers-reduced-motion: reduce) { .nx .nxs2 .wkbars i { animation: none; } }
+
+/* next steps: the report with tabs, then shared with a physical therapist (16s loop) */
+.nx .rp { position: relative; width: calc(var(--s) * 420); background: #fff; border-radius: calc(var(--s) * 20); box-shadow: 0 1px 6px rgba(0,0,0,.06); padding: calc(var(--s) * 18) calc(var(--s) * 20) calc(var(--s) * 16); display: flex; flex-direction: column; gap: calc(var(--s) * 12); overflow: hidden; }
+.nx .rp p { margin: 0; }
+.nx .rp .tabs { position: relative; display: grid; grid-template-columns: repeat(3,1fr); background: #f1f0ec; border-radius: 99px; padding: calc(var(--s) * 3); }
+.nx .rp .tabs b { position: relative; z-index: 1; text-align: center; font-weight: 500; font-size: max(calc(var(--s) * 12), 8px); padding: calc(var(--s) * 6) 0; color: #6b6b64; animation: rpTab 16s infinite; }
+.nx .rp .tabs b:nth-child(2) { animation-name: rpTab2; } .nx .rp .tabs b:nth-child(3) { animation-name: rpTab3; }
+.nx .rp .ind { position: absolute; top: calc(var(--s) * 3); bottom: calc(var(--s) * 3); left: calc(var(--s) * 3); width: calc((100% - var(--s) * 6) / 3); border-radius: 99px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); animation: rpInd 16s cubic-bezier(.5,0,.2,1) infinite; }
+@keyframes rpInd { 0%,22% { transform: translateX(0); } 26%,46% { transform: translateX(100%); } 50%,100% { transform: translateX(200%); } }
+@keyframes rpTab { 0%,22% { color: #1e1f1c; } 26%,100% { color: #6b6b64; } }
+@keyframes rpTab2 { 0%,22% { color: #6b6b64; } 26%,46% { color: #1e1f1c; } 50%,100% { color: #6b6b64; } }
+@keyframes rpTab3 { 0%,46% { color: #6b6b64; } 50%,100% { color: #1e1f1c; } }
+.nx .rp .views { position: relative; height: calc(var(--s) * 168); }
+.nx .rp .v { position: absolute; inset: 0; display: flex; flex-direction: column; gap: calc(var(--s) * 5); opacity: 0; }
+.nx .rp .v1 { animation: rpV1 16s infinite; } .nx .rp .v2 { animation: rpV2 16s infinite; } .nx .rp .v3 { animation: rpV3 16s infinite; }
+@keyframes rpV1 { 0% { opacity: 0; } 2%,22% { opacity: 1; transform: none; } 25%,100% { opacity: 0; transform: translateX(-12px); } }
+@keyframes rpV2 { 0%,23% { opacity: 0; transform: translateX(12px); } 27%,46% { opacity: 1; transform: none; } 49%,100% { opacity: 0; transform: translateX(-12px); } }
+@keyframes rpV3 { 0%,47% { opacity: 0; transform: translateX(12px); } 51%,96% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+.nx .rp .h { font-size: max(calc(var(--s) * 19), 11px); font-weight: 600; color: #1e1f1c; letter-spacing: -.01em; }
+.nx .rp .l { font-size: max(calc(var(--s) * 12.5), 8px); color: #6b6b64; }
+.nx .rp .ch { flex: 1; margin-top: calc(var(--s) * 6); background: #f4f3ef; border-radius: calc(var(--s) * 12); padding: calc(var(--s) * 10); display: flex; align-items: flex-end; min-height: 0; }
+.nx .rp .ln { width: 100%; height: 100%; }
+.nx .rp .ln .ar { fill: rgba(111,191,135,.25); stroke: none; }
+.nx .rp .ln .st { fill: none; stroke: #4f9a69; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.nx .rp .v1 .ch { flex: none; height: calc(var(--s) * 62); }
+.nx .rp .sts { display: grid; grid-template-columns: repeat(3,1fr); margin-top: calc(var(--s) * 6); }
+.nx .rp .sts b { display: block; font-size: max(calc(var(--s) * 20), 11px); font-weight: 500; color: #1e1f1c; }
+.nx .rp .sts small { font-size: max(calc(var(--s) * 10.5), 7px); color: #6b6b64; }
+.nx .rp .wkbars { width: 100%; height: 100%; }
+.nx .rp .v2 .wkbars i { animation: none !important; }
+.nx .rp .share { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #eeede8; padding-top: calc(var(--s) * 12); }
+.nx .rp .share span { font-size: max(calc(var(--s) * 13), 8px); color: #1e1f1c; font-weight: 500; }
+.nx .rp s, .nx .rp .pt s { text-decoration: none; font-size: max(calc(var(--s) * 12), 8px); padding: calc(var(--s) * 8) calc(var(--s) * 16); border-radius: calc(var(--s) * 9); background: #111; color: #fff; }
+.nx .rp .share s { animation: rpPress 16s infinite; }
+@keyframes rpPress { 0%,63% { transform: none; } 65% { transform: scale(.94); background: #333; } 67%,100% { transform: none; } }
+.nx .rp .pt { position: absolute; left: calc(var(--s) * 14); right: calc(var(--s) * 14); bottom: calc(var(--s) * 14); background: #fff; border-radius: calc(var(--s) * 16); box-shadow: 0 calc(var(--s)*8) calc(var(--s)*28) rgba(0,0,0,.14); padding: calc(var(--s) * 18); display: flex; flex-direction: column; align-items: center; text-align: center; gap: calc(var(--s) * 6); opacity: 0; transform: translateY(20px); animation: rpPt 16s cubic-bezier(.2,.8,.2,1) infinite; }
+@keyframes rpPt { 0%,68% { opacity: 0; transform: translateY(20px); } 73%,95% { opacity: 1; transform: none; } 99%,100% { opacity: 0; } }
+.nx .rp .pt .ic { width: calc(var(--s) * 30); height: calc(var(--s) * 30); border-radius: 50%; background: #eaf5ee; display: grid; place-items: center; }
+.nx .rp .pt .ic svg { width: 55%; fill: #4f9a69; }
+.nx .rp .pt .l { max-width: 90%; }
+.nx .rp .pt s { margin-top: calc(var(--s) * 6); align-self: stretch; text-align: center; }
+.nx .rp .cur { position: absolute; width: calc(var(--s) * 14); fill: #1e1f1c; stroke: #fff; stroke-width: 1.2; stroke-linejoin: round; filter: drop-shadow(0 1px 2px rgba(0,0,0,.2)); opacity: 0; animation: rpCur 16s ease-in-out infinite; }
+@keyframes rpCur { 0%,52% { left: 60%; top: 105%; opacity: 0; } 56% { opacity: 1; } 63%,66% { left: 88%; top: 90%; opacity: 1; } 70%,100% { left: 88%; top: 90%; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .nx .rp * { animation: none !important; } .nx .rp .v1 { opacity: 1; } }
 </style>
 </head>
 <body class="on-cover">
@@ -270,8 +314,8 @@
     <div class="head">
       <h2 class="title" data-in>Next, a more personal app, <span>and a real light bar.</span></h2>
     </div>
-    <div class="it-row"><div class="it-card" data-in><p class="it-head">The app</p><div class="it-img app" role="img" aria-label="A weekly look back showing when you drift most">
-<div class="nx-play"><div class="nxs nxs2"><div class="win"><p class="t">This week</p><div class="wkbars"><span style="--h:46%"><i></i><em>M</em></span><span style="--h:58%"><i></i><em>T</em></span><span style="--h:40%"><i></i><em>W</em></span><span style="--h:92%" class="hi"><i></i><em>T</em></span><span style="--h:52%"><i></i><em>F</em></span><span style="--h:30%"><i></i><em>S</em></span><span style="--h:24%"><i></i><em>S</em></span></div><p class="cap">You drift most on Thursday afternoons</p></div></div></div></div><ol class="one"><li><b>A weekly look back</b><span>Every week, people get a short report on when they drift most.</span></li></ol></div><div class="it-card it-bar" data-in><p class="it-head">The light bar</p><div class="it-img"><img src="img/lightbar-3d.webp" alt="Mockup of the 3D printed Poise light bar"></div><ol class="one"><li><b>A 3D printed light bar</b><span>A real body instead of cardboard, with a battery so there is no cable.</span></li></ol></div></div>
+    <div class="it-row"><div class="it-card" data-in><p class="it-head">The app</p><div class="it-img app" role="img" aria-label="A posture report for the day, week and month, shared with a physical therapist">
+<div class="nx-play"><div class="nxs nxs2"><div class="rp"><div class="tabs"><b>Today</b><b>This week</b><b>This month</b><i class="ind"></i></div><div class="views"><div class="v v1"><p class="h">Good day.</p><p class="l">You stayed aligned 78% of the time.</p><div class="ch"><svg class="ln" viewBox="0 0 300 70" preserveAspectRatio="none"><path class="ar" d="M0 8 H40 L46 52 H110 L116 8 H150 L156 30 L162 8 H210 L216 52 H236 L242 8 H300 V70 H0Z"/><path class="st" d="M0 8 H40 L46 52 H110 L116 8 H150 L156 30 L162 8 H210 L216 52 H236 L242 8 H300"/></svg></div><div class="sts"><p><b>78%</b><small>in good posture</small></p><p><b>22s</b><small>to correct</small></p><p><b>5</b><small>drifts</small></p></div></div><div class="v v2"><p class="h">Better than last week.</p><p class="l">You drift most on Thursday afternoons.</p><div class="ch"><div class="wkbars"><span style="--h:46%"><i></i><em>M</em></span><span style="--h:58%"><i></i><em>T</em></span><span style="--h:40%"><i></i><em>W</em></span><span style="--h:92%" class="hi"><i></i><em>T</em></span><span style="--h:52%"><i></i><em>F</em></span><span style="--h:30%"><i></i><em>S</em></span><span style="--h:24%"><i></i><em>S</em></span></div></div></div><div class="v v3"><p class="h">Up 12% this month.</p><p class="l">Mornings are your best time to focus.</p><div class="ch"><svg class="ln" viewBox="0 0 300 70" preserveAspectRatio="none"><path class="ar" d="M0 52 C40 50 60 44 90 46 S150 34 180 30 S240 18 300 12 V70 H0Z"/><path class="st" d="M0 52 C40 50 60 44 90 46 S150 34 180 30 S240 18 300 12"/></svg></div></div></div><div class="share"><span>Share with a physical therapist</span><s>Share</s></div><div class="pt"><i class="ic"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></i><p class="h">Report shared</p><p class="l">A physical therapist looks at your month and suggests what to work on.</p><s>Book a consult</s></div><svg class="cur" viewBox="0 0 16 20" aria-hidden="true"><path d="M2 1.5v14.2l3.6-3.4 2.4 5.6 2.4-1-2.4-5.5h5z"/></svg></div></div></div></div><ol class="one"><li><b>A report you can share</b><span>See your day, week and month, then get advice from a physical therapist.</span></li></ol></div><div class="it-card it-bar" data-in><p class="it-head">The light bar</p><div class="it-img"><img src="img/lightbar-3d.webp" alt="Mockup of the 3D printed Poise light bar"></div><ol class="one"><li><b>A 3D printed light bar</b><span>A real body instead of cardboard, with a battery so there is no cable.</span></li></ol></div></div>
   </section>
 
   <section class="slide cover end-cover" data-title="Thank you">
