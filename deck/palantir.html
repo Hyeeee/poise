@@ -187,6 +187,17 @@
 .nx .rp .v2 .wkbars { gap: calc(var(--s) * 14) !important; height: 100%; }
 .nx .rp .v2 .wkbars span { gap: calc(var(--s) * 8) !important; }
 @media (prefers-reduced-motion: reduce) { .nx .rp * { animation: none !important; } .nx .rp .v1 { opacity: 1; } }
+
+/* hypothesis card on top, the two reasons inside it */
+.hy-wrap { display: flex; flex-direction: column; gap: calc(var(--s) * 28); padding: calc(var(--s) * 36) !important; }
+.hy-wrap .hy-in { margin: 0; gap: calc(var(--s) * 16); }
+.hy-wrap .hy-in .hy-card { background: #f5f4f0; box-shadow: none; border-radius: calc(var(--s) * 20); padding: calc(var(--s) * 24) !important; min-height: 0 !important; }
+.hy-wrap .hy-in .hy-card h3 { margin-top: calc(var(--s) * 10); color: var(--ink); font-size: max(calc(var(--s) * 22), 13px); }
+.hy-wrap .hy-in .hy-card h3 + p { color: var(--ink-2); font-size: max(calc(var(--s) * 16), 11px); margin-top: calc(var(--s) * 6); }
+.hy-wrap .hy-in .hy-card { height: auto !important; justify-content: flex-start !important; }
+.hy-wrap .hy-in { align-items: start; }
+.hy-wrap .hy-in .hy-card h3 + p { margin-bottom: 0 !important; }
+.hy-wrap .hy-in .hy-key { margin-top: calc(var(--s) * 14) !important; padding: calc(var(--s) * 4) calc(var(--s) * 10) !important; font-size: max(calc(var(--s) * 13), 9px) !important; align-self: flex-start; }
 </style>
 </head>
 <body class="on-cover">
@@ -271,8 +282,7 @@
     <div class="head">
       <h2 class="title" data-in>A quiet nudge, <span>not another alert.</span></h2>
     </div>
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0"><div class="hy-row" style="flex-shrink:0;grid-template-columns:repeat(2,minmax(0,1fr))"><div class="hy-card" data-auto="1"><p class="hy-src">Interviews with 3 people</p><h3>They wanted it quiet.</h3><p>I talked to three people. One said alerts get annoying, but a quiet reminder would be fine.</p><em class="hy-key">No interruptions</em></div><div class="hy-card" data-auto="2"><p class="hy-src">My own idea</p><h3>What about a light bar?</h3><p>Some people already use one for work and study. So I thought, what if it changed color to show posture?</p><em class="hy-key">Notice early</em></div></div>
-    <div class="hy-box" data-auto="3" style="flex:0 0 auto;margin-top:calc(var(--s) * 24)"><div class="hy-main"><p class="hy-tag">Hypothesis</p><p class="hy-line">If people get <mark>a clear cue</mark> that helps them <mark>notice early</mark> with <mark>no interruptions</mark>,<br>they’ll catch the drift sooner and stay aligned longer.</p></div></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0"><div class="hy-box hy-wrap" data-auto="1" style="flex:0 0 auto;margin-top:0"><div class="hy-main"><p class="hy-tag">Hypothesis</p><p class="hy-line">If people get <mark>a clear cue</mark> that helps them <mark>notice early</mark> with <mark>no interruptions</mark>,<br>they’ll catch the drift sooner and stay aligned longer.</p></div><div class="hy-row hy-in" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="hy-card" data-auto="2"><p class="hy-src">Interviews with 3 people</p><h3>They wanted it quiet.</h3><p>One said alerts can feel distracting, but a quiet reminder would be fine.</p><em class="hy-key">No interruptions</em></div><div class="hy-card" data-auto="3"><p class="hy-src">My own idea</p><h3>What about a light bar?</h3><p>Some people already use one, so what if it changed color to show posture?</p><em class="hy-key">Notice early</em></div></div></div></div>
   </section>
 
   <section class="slide paper" data-title="Playtest">
