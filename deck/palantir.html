@@ -10,57 +10,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Shantell+Sans:wght@500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="deck.css">
-<style>
-/* Where AI came in: small looping motions instead of the check / learned rows */
-.ai-mo .ai-cols { flex: 1 !important; max-height: none !important; grid-template-columns: repeat(3, minmax(0,1fr)) !important; margin: calc(var(--s) * 28) 0 calc(var(--s) * 40) !important; min-height: 0; }
-.ai-mo .ai-cols li { display: flex !important; flex-direction: column; gap: calc(var(--s) * 10); justify-content: flex-start; min-height: 0; }
-.ai-mo .ai-cols li > span { margin: 0 !important; flex: none !important; min-height: calc(1.45em * 3); }
-.aim { flex: 1; min-height: calc(var(--s) * 200); margin-top: calc(var(--s) * 22); border-radius: calc(var(--s) * 20); background: #f3f2ee; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; --u: calc(var(--s) * 1.45); }
-.aim *, .aim *::before { box-sizing: border-box; }
-/* 1 flow to app */
-.aim1 { gap: calc(var(--u) * 22); }
-.aim1 .f { display: flex; flex-direction: column; gap: calc(var(--u) * 14); }
-.aim1 .f i { display: block; width: calc(var(--u) * 70); height: calc(var(--u) * 26); border-radius: calc(var(--u) * 8); border: 1.5px solid #9a9a92; background: #fff; opacity: 0; animation: aimNode 7s infinite; }
-.aim1 .f i:nth-child(2) { animation-delay: .35s; } .aim1 .f i:nth-child(3) { animation-delay: .7s; }
-.aim1 .ar { width: calc(var(--u) * 40); fill: none; stroke: #9a9a92; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; animation: aimArrow 7s infinite; }
-.aim1 .app { width: calc(var(--u) * 150); height: calc(var(--u) * 118); border-radius: calc(var(--u) * 12); background: linear-gradient(150deg,#d9efe0,#cfe3ee); box-shadow: 0 calc(var(--u)*6) calc(var(--u)*18) rgba(0,0,0,.08); position: relative; padding: calc(var(--u) * 26) calc(var(--u) * 14) 0; display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--u) * 7); opacity: 0; transform: scale(.85); animation: aimApp 7s infinite; }
-.aim1 .bar { position: absolute; top: calc(var(--u) * 9); left: calc(var(--u) * 10); display: flex; gap: calc(var(--u) * 4); }
-.aim1 .bar i { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border-radius: 50%; background: rgba(0,0,0,.18); }
-.aim1 .orb { width: calc(var(--u) * 18); height: calc(var(--u) * 18); border-radius: 50%; background: radial-gradient(circle, #1e1f1c 1.2px, transparent 1.6px) 0 0 / calc(var(--u)*4) calc(var(--u)*4); opacity: .7; }
-.aim1 .app u { display: block; height: calc(var(--u) * 7); border-radius: 4px; background: rgba(30,31,28,.55); width: 0; animation: aimLine 7s infinite; }
-.aim1 .app u:nth-of-type(1) { --w: 80%; animation-delay: .1s; } .aim1 .app u:nth-of-type(2) { --w: 62%; background: rgba(30,31,28,.3); animation-delay: .25s; } .aim1 .app u:nth-of-type(3) { --w: 70%; background: rgba(30,31,28,.3); animation-delay: .4s; }
-@keyframes aimNode { 0%,4% { opacity: 0; transform: translateY(6px); } 12%,88% { opacity: 1; transform: none; } 96%,100% { opacity: 0; } }
-@keyframes aimArrow { 0%,28% { opacity: 0; transform: translateX(-6px); } 36%,88% { opacity: 1; transform: none; } 96%,100% { opacity: 0; } }
-@keyframes aimApp { 0%,36% { opacity: 0; transform: scale(.85); } 48%,88% { opacity: 1; transform: none; } 96%,100% { opacity: 0; transform: scale(.95); } }
-@keyframes aimLine { 0%,50% { width: 0; } 62%,88% { width: var(--w); } 96%,100% { width: var(--w); } }
-/* 2 and 3 the camera or sensor modal */
-.aim .md { width: 76%; background: #fff; border-radius: calc(var(--u) * 14); box-shadow: 0 calc(var(--u)*6) calc(var(--u)*18) rgba(0,0,0,.07); padding: calc(var(--u) * 16); display: flex; flex-direction: column; gap: calc(var(--u) * 7); }
-.aim .md .t { margin: 0 0 calc(var(--u) * 3); height: calc(var(--u) * 10); width: 55%; border-radius: 4px; background: #1e1f1c; }
-.aim .md u { display: block; height: calc(var(--u) * 6); border-radius: 3px; background: #b9b8b0; }
-.aim .md .bt { display: flex; gap: calc(var(--u) * 8); margin-top: calc(var(--u) * 8); }
-.aim .md s { text-decoration: none; font-size: max(calc(var(--u) * 11), 8px); line-height: 1; padding: calc(var(--u) * 8) calc(var(--u) * 10); border-radius: calc(var(--u) * 8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* messy */
-.aim2 .t { width: 80% !important; background: #3b5bdb !important; height: calc(var(--u) * 13) !important; }
-.aim2 u { width: 0; animation: aimType 6s infinite; }
-.aim2 .l1 { --w: 100%; } .aim2 .l2 { --w: 94%; background: #d9480f !important; height: calc(var(--u)*8) !important; animation-delay: .3s; } .aim2 .l3 { --w: 100%; animation-delay: .6s; } .aim2 .l4 { --w: 88%; background: #7048e8 !important; animation-delay: .9s; } .aim2 .l5 { --w: 97%; animation-delay: 1.2s; }
-.aim2 .b1 { background: #2f9e44; color: #fff; border-radius: 99px !important; font-family: Georgia, serif; }
-.aim2 .b2 { background: #fff; color: #7048e8; border: 1.5px dashed #7048e8; border-radius: 2px !important; flex: 1; }
-.aim2 .md { transform: rotate(-1.2deg); }
-@keyframes aimType { 0% { width: 0; } 30%,90% { width: var(--w); } 100% { width: var(--w); } }
-/* fixed: starts messy, then cleans up */
-.aim3 .md { animation: aimStraight 7s infinite; }
-.aim3 .t { animation: aimTitle 7s infinite; }
-.aim3 u { animation: aimTidy 7s infinite; }
-.aim3 .l1 { --a: 100%; --b: 92%; } .aim3 .l2 { --a: 94%; --b: 70%; --c0: #d9480f; } .aim3 .l3, .aim3 .l4, .aim3 .l5 { --b: 0%; --h1: 0px; --m1: calc(var(--u) * -7); } .aim3 .l3 { --a: 100%; } .aim3 .l4 { --a: 88%; --c0: #7048e8; } .aim3 .l5 { --a: 97%; }
-.aim3 .b1, .aim3 .b2 { flex: 1; text-align: center; transition: none; animation: aimBtn 7s infinite; }
-.aim3 .b2 { animation-name: aimBtn2; }
-@keyframes aimStraight { 0%,30% { transform: rotate(-1.2deg); } 45%,100% { transform: none; } }
-@keyframes aimTitle { 0%,30% { width: 80%; background: #3b5bdb; } 45%,100% { width: 55%; background: #1e1f1c; } }
-@keyframes aimTidy { 0%,30% { width: var(--a); background: var(--c0, #b9b8b0); height: calc(var(--u) * 6); margin: 0; } 45%,100% { width: var(--b); background: #b9b8b0; height: var(--h1, calc(var(--u) * 6)); margin-top: var(--m1, 0px); } }
-@keyframes aimBtn { 0%,30% { background: #2f9e44; color: #fff; border-radius: 99px; } 45%,100% { background: #1e1f1c; color: #fff; border-radius: calc(var(--u) * 8); } }
-@keyframes aimBtn2 { 0%,30% { background: #fff; color: #7048e8; box-shadow: inset 0 0 0 1.5px #7048e8; border-radius: 2px; } 45%,100% { background: #ecebe6; color: #1e1f1c; box-shadow: none; border-radius: calc(var(--u) * 8); } }
-@media (prefers-reduced-motion: reduce) { .aim * { animation: none !important; opacity: 1 !important; } .aim1 .app u { width: var(--w); } .aim2 u { width: var(--w); } }
-</style>
 </head>
 <body class="on-cover">
 
@@ -167,11 +116,11 @@
     </div>
   </section>
 
-  <section class="slide paper ai-shape ai-phases ai-mo" data-title="Where AI came in">
+  <section class="slide paper ai-shape ai-phases" data-title="Where AI came in">
     <div class="head">
       <h2 class="title" data-in>Where AI came in, <span>and where I stayed in charge.</span></h2>
     </div>
-    <ol class="ai-list ai-cols"><li data-in><p class="ai-k">What AI did</p><b>From my flow to a real app</b><span>I designed the flow and every state, and Claude turned it into a working web app and the Arduino code in a few days.</span><div class="aim aim1" aria-hidden="true"><div class="f"><i></i><i></i><i></i></div><svg class="ar" viewBox="0 0 40 12"><path d="M2 6h32M29 2l5 4-5 4"/></svg><div class="app"><div class="bar"><i></i><i></i><i></i></div><b class="orb"></b><u></u><u></u><u></u></div></div></li><li data-in><p class="ai-k">What AI got wrong</p><b>Too much on every screen</b><span>The text in modals was too long, setting names didn’t make sense, and with no design system, fonts, colors and spacing didn’t match.</span><div class="aim aim2" aria-hidden="true"><div class="md mess"><p class="t"></p><u class="l1"></u><u class="l2"></u><u class="l3"></u><u class="l4"></u><u class="l5"></u><div class="bt"><s class="b1">Turn on camera</s><s class="b2">Use the ultrasonic sensor</s></div></div></div></li><li data-in><p class="ai-k">What I fixed myself</p><b>I set the rules first</b><span>I cut each modal to what people need, renamed settings in plain words, and made a design system for AI to follow.</span><div class="aim aim3" aria-hidden="true"><div class="md fix"><p class="t"></p><u class="l1"></u><u class="l2"></u><u class="l3"></u><u class="l4"></u><u class="l5"></u><div class="bt"><s class="b1">Camera</s><s class="b2">Sensor</s></div></div></div></li></ol>
+    <ol class="ai-list ai-cols"><li data-in><p class="ai-k">What AI did</p><b>From my flow to a real app</b><span>I designed the flow and every state, and Claude turned it into a working web app and the Arduino code in a few days.</span><div class="ai-tg"><em>How I checked it</em><i class="tg">I put each build in front of people right away</i></div><div class="ai-tg"><em>What I learned</em><i class="tg out">AI gets a real thing into people’s hands fast</i></div></li><li data-in><p class="ai-k">What AI got wrong</p><b>Too much on every screen</b><span>The text in modals was too long, setting names didn’t make sense, and with no design system, fonts, colors and spacing didn’t match.</span><div class="ai-tg"><em>How I found it</em><i class="tg">Classmates got stuck in those spots in the playtest</i></div><div class="ai-tg"><em>What I learned</em><i class="tg out">AI fills a screen, but it doesn’t know what matters</i></div></li><li data-in><p class="ai-k">What I fixed myself</p><b>I set the rules first</b><span>I cut each modal to what people need, renamed settings in plain words, and made a design system for AI to follow.</span><div class="ai-tg"><em>How I checked it</em><i class="tg">I went through every screen one by one</i></div><div class="ai-tg"><em>What I learned</em><i class="tg out">AI builds fast, but deciding what matters is my job</i></div></li></ol>
   </section>
 
 
