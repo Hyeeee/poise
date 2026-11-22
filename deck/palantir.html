@@ -105,6 +105,15 @@
 @keyframes bApp { 0%,52% { opacity: 0; transform: scale(.94); } 58%,92% { opacity: 1; transform: none; } 98%,100% { opacity: 0; } }
 @keyframes bPart { 0%,56% { opacity: 0; transform: translateY(5px); } 62%,100% { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .aim .bld * { animation: none !important; } .aim .fl, .aim .cl { display: none; } .aim .app, .aim .app > * { opacity: 1; } }
+
+/* version two card: closer to the real camera card's proportions */
+.ai-mo .aim .m2 { width: 58% !important; aspect-ratio: 1.15; justify-content: center; padding: calc(var(--u) * 22) calc(var(--u) * 18) calc(var(--u) * 16) !important; gap: calc(var(--u) * 9) !important; border-radius: calc(var(--u) * 18); }
+.aim .m2 .ic { width: calc(var(--u) * 30) !important; height: calc(var(--u) * 30) !important; margin-bottom: calc(var(--u) * 4); }
+.ai-mo .aim .m2 .h { font-size: calc(var(--u) * 15) !important; }
+.ai-mo .aim .m2 .tx { font-size: calc(var(--u) * 11.5) !important; margin-bottom: calc(var(--u) * 10) !important; }
+.aim .m2 .bt { gap: calc(var(--u) * 7) !important; margin-top: 0 !important; }
+.aim .m2 .bt s { font-size: calc(var(--u) * 11.5) !important; padding: calc(var(--u) * 11) 0 !important; border-radius: calc(var(--u) * 10) !important; }
+.aim .m2 .dots { margin-top: calc(var(--u) * 8) !important; }
 </style>
 </head>
 <body class="on-cover">
