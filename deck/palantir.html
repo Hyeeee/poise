@@ -14,8 +14,8 @@
 /* Where AI came in: small UI cards in the style of the weekly view card */
 .ai-mo .ai-cols { flex: 1 !important; max-height: none !important; grid-template-columns: repeat(3, minmax(0,1fr)) !important; margin: calc(var(--s) * 28) 0 calc(var(--s) * 40) !important; min-height: 0; }
 .ai-mo .ai-cols li { display: flex !important; flex-direction: column; gap: calc(var(--s) * 10); justify-content: flex-start; min-height: 0; }
-.ai-mo .ai-cols li > span { margin: 0 !important; flex: none !important; min-height: calc(1.45em * 3); }
-.aim { flex: 1; min-height: calc(var(--s) * 200); margin-top: calc(var(--s) * 22); border-radius: calc(var(--s) * 20); background: #f3f2ee; display: flex; align-items: center; justify-content: center; --u: calc(var(--s) * 1); }
+.ai-mo .ai-cols li > span { margin: 0 !important; flex: none !important; }
+.aim { flex: 1; min-height: calc(var(--s) * 200); margin-top: calc(var(--s) * 12); border-radius: calc(var(--s) * 20); background: #f3f2ee; display: flex; align-items: center; justify-content: center; --u: calc(var(--s) * 1); }
 .aim .ac { width: 82%; background: #fff; border-radius: calc(var(--u) * 16); box-shadow: 0 calc(var(--u)*4) calc(var(--u)*16) rgba(0,0,0,.05); padding: calc(var(--u) * 22); display: flex; flex-direction: column; gap: calc(var(--u) * 10); font-family: inherit; }
 .aim .ac p { margin: 0; }
 .aim .ac .h { font-size: calc(var(--u) * 17); font-weight: 500; color: #1e1f1c; letter-spacing: -.01em; }
@@ -68,6 +68,43 @@
 .aim .m2 .dots b:first-child { animation-name: aimDot1; }
 .aim .m2 .dots b:nth-child(3) { animation: none; width: calc(var(--u) * 4); background: #d4d3cf; }
 @media (prefers-reduced-motion: reduce) { .aim .cur { display: none; } .aim .m2 .pri, .aim .m2 .dots b { animation: none; } }
+
+/* What AI did: my flow, then Claude builds it into the app */
+.aim .bld { position: relative; width: 84%; height: calc(var(--u) * 190); }
+.aim .bld > * { position: absolute; left: 0; right: 0; margin: auto; }
+.aim .fl { top: calc(var(--u) * 30); width: 100% !important; animation: bFlow 9s infinite; }
+.aim .fl .nodes { display: flex; align-items: center; gap: calc(var(--u) * 6); }
+.ai-mo .aim .fl .nodes b { font-weight: 500; font-size: calc(var(--u) * 12); color: #1e1f1c; background: #fff; border: 1px solid #d6d5cf; border-radius: calc(var(--u) * 8); padding: calc(var(--u) * 8) calc(var(--u) * 9); white-space: nowrap; opacity: 0; animation: bNode 9s infinite; animation-delay: 0s; }
+.aim .fl .nodes .ar { flex: 1; height: 1.5px; min-width: calc(var(--u) * 6); background: #b9b8b0; opacity: 0; animation: bNode 9s infinite; }
+.aim .cl { top: calc(var(--u) * 140); width: max-content; display: flex; align-items: center; gap: calc(var(--u) * 8); background: #fff; border-radius: 99px; padding: calc(var(--u) * 7) calc(var(--u) * 12); box-shadow: 0 calc(var(--u)*3) calc(var(--u)*10) rgba(0,0,0,.06); opacity: 0; animation: bChip 9s infinite; }
+.ai-mo .aim .cl span { font-size: calc(var(--u) * 12) !important; color: #3a3a36 !important; min-height: 0 !important; line-height: 1 !important; }
+.aim .cl .spark { width: calc(var(--u) * 10); height: calc(var(--u) * 10); border-radius: 50%; background: #d97757; animation: bPulse 1s ease-in-out infinite alternate; }
+.aim .cl u { width: calc(var(--u) * 50); height: calc(var(--u) * 4); border-radius: 9px; background: #ecebe6; overflow: hidden; }
+.aim .cl u em { display: block; height: 100%; width: 0; background: #e8b56a; animation: bFill 9s infinite; }
+.aim .app { top: 0; height: 100%; width: 100%; border-radius: calc(var(--u) * 14); overflow: hidden; background: radial-gradient(ellipse at 40% 60%, #9fd3b2, #cfe6dc 55%, #e3efe9); box-shadow: 0 calc(var(--u)*4) calc(var(--u)*16) rgba(0,0,0,.07); opacity: 0; animation: bApp 9s infinite; }
+.aim .app > * { opacity: 0; animation: bPart 9s infinite; }
+.aim .app .top { position: absolute; top: calc(var(--u) * 10); left: calc(var(--u) * 12); right: calc(var(--u) * 12); display: flex; align-items: center; justify-content: space-between; animation-delay: .35s; }
+.aim .app .wm { font-family: Georgia, serif; font-size: calc(var(--u) * 13) !important; color: #1e1f1c !important; min-height: 0 !important; line-height: 1 !important; }
+.ai-mo .aim .app .seg { display: flex !important; flex-direction: row !important; background: rgba(255,255,255,.6); border-radius: 99px; padding: 2px; min-height: 0 !important; line-height: 1 !important; }
+.ai-mo .aim .app .seg b { display: block; line-height: 1.2; }
+.ai-mo .aim .app .top > * { flex: none; }
+.ai-mo .aim .app .seg b { font-size: calc(var(--u) * 9); font-weight: 500; padding: calc(var(--u) * 3) calc(var(--u) * 7); border-radius: 99px; color: #3a3a36; }
+.ai-mo .aim .app .seg b:first-child { background: #1e1f1c; color: #fff; }
+.aim .app .ics { display: flex; gap: calc(var(--u) * 4); min-height: 0 !important; }
+.aim .app .ics i { width: calc(var(--u) * 12); height: calc(var(--u) * 12); border-radius: 50%; background: rgba(255,255,255,.75); }
+.aim .app .mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--u) * 6); animation-delay: .7s; }
+.aim .app .fig { width: calc(var(--u) * 30); height: calc(var(--u) * 30); border-radius: 50%; background: radial-gradient(circle, #1e1f1c 1.1px, transparent 1.5px) 0 0 / calc(var(--u)*4) calc(var(--u)*4); opacity: .75; }
+.ai-mo .aim .app .mid p { font-family: Georgia, serif; font-size: calc(var(--u) * 15) !important; color: #1e1f1c; text-align: center !important; }
+.aim .app .ask { position: absolute; bottom: calc(var(--u) * 10); left: 18%; right: 18%; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,.8); border-radius: 99px; padding: calc(var(--u) * 5) calc(var(--u) * 5) calc(var(--u) * 5) calc(var(--u) * 11); font-size: calc(var(--u) * 9); color: #6b6b64; animation-delay: 1.05s; }
+.aim .app .ask i { width: calc(var(--u) * 12); height: calc(var(--u) * 12); border-radius: 50%; background: #1e1f1c; }
+@keyframes bFlow { 0% { opacity: 0; } 4%,50% { opacity: 1; transform: none; } 56%,100% { opacity: 0; transform: translateY(-8px); } }
+@keyframes bNode { 0% { opacity: 0; transform: translateY(4px); } 5%,48% { opacity: 1; transform: none; } 56%,100% { opacity: 0; } }
+@keyframes bChip { 0%,28% { opacity: 0; transform: translateY(6px); } 33%,50% { opacity: 1; transform: none; } 56%,100% { opacity: 0; } }
+@keyframes bFill { 0%,32% { width: 0; } 50%,100% { width: 100%; } }
+@keyframes bPulse { from { transform: scale(.7); opacity: .6; } to { transform: scale(1); opacity: 1; } }
+@keyframes bApp { 0%,52% { opacity: 0; transform: scale(.94); } 58%,92% { opacity: 1; transform: none; } 98%,100% { opacity: 0; } }
+@keyframes bPart { 0%,56% { opacity: 0; transform: translateY(5px); } 62%,100% { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .aim .bld * { animation: none !important; } .aim .fl, .aim .cl { display: none; } .aim .app, .aim .app > * { opacity: 1; } }
 </style>
 </head>
 <body class="on-cover">
@@ -179,7 +216,7 @@
     <div class="head">
       <h2 class="title" data-in>Where AI came in, <span>and where I stayed in charge.</span></h2>
     </div>
-    <ol class="ai-list ai-cols"><li data-in><p class="ai-k">What AI did</p><b>From my flow to a real app</b><span>I designed the flow and every state, and Claude turned it into a working web app and the Arduino code in a few days.</span><div class="aim" aria-hidden="true"><div class="ac flow"><p class="h">Your flow</p><p><span>Set up</span><em style="--d:0.0s">Built</em></p><p><span>Focus</span><em style="--d:0.6s">Built</em></p><p><span>Drift</span><em style="--d:1.2s">Built</em></p><p><span>Report</span><em style="--d:1.7999999999999998s">Built</em></p><p class="cap">Built with Claude in a few days</p></div></div></li><li data-in><p class="ai-k">What AI got wrong</p><b>Too much on every screen</b><span>The text in modals was too long, setting names didn’t make sense, and with no design system, fonts, colors and spacing didn’t match.</span><div class="aim" aria-hidden="true"><div class="ac m1"><p class="v1t">Camera off. <span>Turn it on and I will start watching your posture. Your camera is processed on this device and never uploaded.</span></p><div class="bt"><s class="pri">Turn on camera</s><s class="lnk">Use sensor</s></div><svg class="cur" viewBox="0 0 16 20" aria-hidden="true"><path d="M2 1.5v14.2l3.6-3.4 2.4 5.6 2.4-1-2.4-5.5h5z"/></svg></div></div></li><li data-in><p class="ai-k">What I fixed myself</p><b>I set the rules first</b><span>I cut each modal to what people need, renamed settings in plain words, and made a design system for AI to follow.</span><div class="aim" aria-hidden="true"><div class="ac m2"><i class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="6.5" width="12.5" height="11" rx="2.5"/><path d="M15.5 10.5l5-3v9l-5-3"/></svg></i><p class="h">Turn on your camera</p><p class="tx">It sees your posture, never records it. The sensor works too, just less precisely.</p><div class="bt"><s class="sec">Use sensor</s><s class="pri">Turn on camera</s></div><i class="dots"><b></b><b></b><b></b></i><svg class="cur" viewBox="0 0 16 20" aria-hidden="true"><path d="M2 1.5v14.2l3.6-3.4 2.4 5.6 2.4-1-2.4-5.5h5z"/></svg></div></div></li></ol>
+    <ol class="ai-list ai-cols"><li data-in><p class="ai-k">What AI did</p><b>From my flow to a real app</b><span>I designed the flow and every state, and Claude turned it into a working web app and the Arduino code in a few days.</span><div class="aim" aria-hidden="true"><div class="bld"><div class="ac fl"><p class="h">My flow</p><div class="nodes"><b style="animation-delay:0.30s">Set up</b><i class="ar" style="animation-delay:1.02s"></i><b style="animation-delay:0.84s">Focus</b><i class="ar" style="animation-delay:1.56s"></i><b style="animation-delay:1.38s">Drift</b><i class="ar" style="animation-delay:2.10s"></i><b style="animation-delay:1.92s">Report</b></div></div><div class="cl"><i class="spark"></i><span>Claude is building it</span><u><em></em></u></div><div class="app"><div class="top"><span class="wm">poise</span><span class="seg"><b>Focus</b><b>Break</b></span><span class="ics"><i></i><i></i><i></i></span></div><div class="mid"><i class="fig"></i><p>Aligned</p></div><div class="ask">Ask Poise to change anything<i></i></div></div></div></div></li><li data-in><p class="ai-k">What AI got wrong</p><b>Too much on every screen</b><span>The text in modals was too long, setting names didn’t make sense, and with no design system, fonts, colors and spacing didn’t match.</span><div class="aim" aria-hidden="true"><div class="ac m1"><p class="v1t">Camera off. <span>Turn it on and I will start watching your posture. Your camera is processed on this device and never uploaded.</span></p><div class="bt"><s class="pri">Turn on camera</s><s class="lnk">Use sensor</s></div><svg class="cur" viewBox="0 0 16 20" aria-hidden="true"><path d="M2 1.5v14.2l3.6-3.4 2.4 5.6 2.4-1-2.4-5.5h5z"/></svg></div></div></li><li data-in><p class="ai-k">What I fixed myself</p><b>I set the rules first</b><span>I cut each modal to what people need, renamed settings in plain words, and made a design system for AI to follow.</span><div class="aim" aria-hidden="true"><div class="ac m2"><i class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="6.5" width="12.5" height="11" rx="2.5"/><path d="M15.5 10.5l5-3v9l-5-3"/></svg></i><p class="h">Turn on your camera</p><p class="tx">It sees your posture, never records it. The sensor works too, just less precisely.</p><div class="bt"><s class="sec">Use sensor</s><s class="pri">Turn on camera</s></div><i class="dots"><b></b><b></b><b></b></i><svg class="cur" viewBox="0 0 16 20" aria-hidden="true"><path d="M2 1.5v14.2l3.6-3.4 2.4 5.6 2.4-1-2.4-5.5h5z"/></svg></div></div></li></ol>
   </section>
 
 
