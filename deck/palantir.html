@@ -10,6 +10,38 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Shantell+Sans:wght@500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="deck.css">
+<style>
+/* Where AI came in: small UI cards in the style of the weekly view card */
+.ai-mo .ai-cols { flex: 1 !important; max-height: none !important; grid-template-columns: repeat(3, minmax(0,1fr)) !important; margin: calc(var(--s) * 28) 0 calc(var(--s) * 40) !important; min-height: 0; }
+.ai-mo .ai-cols li { display: flex !important; flex-direction: column; gap: calc(var(--s) * 10); justify-content: flex-start; min-height: 0; }
+.ai-mo .ai-cols li > span { margin: 0 !important; flex: none !important; min-height: calc(1.45em * 3); }
+.aim { flex: 1; min-height: calc(var(--s) * 200); margin-top: calc(var(--s) * 22); border-radius: calc(var(--s) * 20); background: #f3f2ee; display: flex; align-items: center; justify-content: center; --u: calc(var(--s) * 1); }
+.aim .ac { width: 82%; background: #fff; border-radius: calc(var(--u) * 16); box-shadow: 0 calc(var(--u)*4) calc(var(--u)*16) rgba(0,0,0,.05); padding: calc(var(--u) * 22); display: flex; flex-direction: column; gap: calc(var(--u) * 10); font-family: inherit; }
+.aim .ac p { margin: 0; }
+.aim .ac .h { font-size: calc(var(--u) * 17); font-weight: 500; color: #1e1f1c; letter-spacing: -.01em; }
+.aim .ac .tx { font-size: calc(var(--u) * 13); line-height: 1.45; color: #6b6b64; }
+.aim .ac .cap { font-size: calc(var(--u) * 13); color: #6b6b64; margin-top: calc(var(--u) * 4); }
+.aim .ac s { text-decoration: none; font-size: calc(var(--u) * 12); line-height: 1; padding: calc(var(--u) * 9) calc(var(--u) * 12); border-radius: calc(var(--u) * 8); text-align: center; white-space: nowrap; }
+.aim .bt { display: flex; gap: calc(var(--u) * 8); margin-top: calc(var(--u) * 4); }
+/* flow */
+.ai-mo .aim .ac, .ai-mo .aim .ac p { text-align: left !important; }
+.ai-mo .aim .ac { align-items: stretch !important; }
+.ai-mo .aim .flow span { font-size: calc(var(--u) * 14) !important; color: #1e1f1c !important; line-height: 1.3 !important; min-height: 0 !important; }
+.ai-mo .aim .flow p:not(.h):not(.cap) { display: flex !important; width: 100%; align-items: center; justify-content: space-between; padding: calc(var(--u) * 7) 0; border-top: 1px solid #eeede8; font-size: calc(var(--u) * 14); color: #1e1f1c; }
+.aim .flow em { font-style: normal; font-size: calc(var(--u) * 11); padding: calc(var(--u) * 4) calc(var(--u) * 9); border-radius: 99px; background: #ecebe6; color: #9a9a92; animation: aimBuilt 6s var(--d) infinite; }
+@keyframes aimBuilt { 0%,8% { background: #ecebe6; color: #9a9a92; } 14%,90% { background: #e8b56a; color: #fff; } 100% { background: #ecebe6; color: #9a9a92; } }
+/* version one: long text, mixed fonts, three ways to say sensor */
+.aim .m1 .h { font-family: Georgia, 'Times New Roman', serif; font-size: calc(var(--u) * 19); }
+.aim .m1 .tx { font-size: calc(var(--u) * 12.5); }
+.aim .m1 .pri { background: #1e1f1c; color: #fff; border-radius: 99px; }
+.aim .m1 .lnk { color: #6b6b64; text-decoration: underline; padding-left: 0; padding-right: 0; }
+.aim .m1 .gh { align-self: flex-start; border: 1px solid #d6d5cf; color: #6b6b64; border-radius: calc(var(--u) * 4); }
+/* version two: short text, two equal buttons */
+.aim .m2 .bt s { flex: 1; }
+.aim .m2 .sec { background: #ecebe6; color: #1e1f1c; }
+.aim .m2 .pri { background: #1e1f1c; color: #fff; }
+@media (prefers-reduced-motion: reduce) { .aim .flow em { animation: none; background: #e8b56a; color: #fff; } }
+</style>
 </head>
 <body class="on-cover">
 
@@ -98,7 +130,7 @@
 
   <section class="slide paper" data-title="Playtest">
     <div class="head">
-      <h2 class="title" data-in>I built a cardboard light bar, <span>and tested it with classmates in class.</span></h2>
+      <h2 class="title" data-in>I tested a cardboard version with classmates, <span>then turned their feedback into the final one.</span></h2>
     </div>
     <div class="pt-grid">
       <figure class="pt-ph pt-a" data-in><img src="img/pt-try.webp" alt="A classmate trying Poise with the cardboard light bar"></figure>
@@ -116,11 +148,11 @@
     </div>
   </section>
 
-  <section class="slide paper ai-shape ai-phases" data-title="Where AI came in">
+  <section class="slide paper ai-shape ai-phases ai-mo" data-title="Where AI came in">
     <div class="head">
       <h2 class="title" data-in>Where AI came in, <span>and where I stayed in charge.</span></h2>
     </div>
-    <ol class="ai-list ai-cols"><li data-in><p class="ai-k">What AI did</p><b>From my flow to a real app</b><span>I designed the flow and every state, and Claude turned it into a working web app and the Arduino code in a few days.</span><div class="ai-tg"><em>How I checked it</em><i class="tg">I put each build in front of people right away</i></div><div class="ai-tg"><em>What I learned</em><i class="tg out">AI gets a real thing into people’s hands fast</i></div></li><li data-in><p class="ai-k">What AI got wrong</p><b>Too much on every screen</b><span>The text in modals was too long, setting names didn’t make sense, and with no design system, fonts, colors and spacing didn’t match.</span><div class="ai-tg"><em>How I found it</em><i class="tg">Classmates got stuck in those spots in the playtest</i></div><div class="ai-tg"><em>What I learned</em><i class="tg out">AI fills a screen, but it doesn’t know what matters</i></div></li><li data-in><p class="ai-k">What I fixed myself</p><b>I set the rules first</b><span>I cut each modal to what people need, renamed settings in plain words, and made a design system for AI to follow.</span><div class="ai-tg"><em>How I checked it</em><i class="tg">I went through every screen one by one</i></div><div class="ai-tg"><em>What I learned</em><i class="tg out">AI builds fast, but deciding what matters is my job</i></div></li></ol>
+    <ol class="ai-list ai-cols"><li data-in><p class="ai-k">What AI did</p><b>From my flow to a real app</b><span>I designed the flow and every state, and Claude turned it into a working web app and the Arduino code in a few days.</span><div class="aim" aria-hidden="true"><div class="ac flow"><p class="h">Your flow</p><p><span>Set up</span><em style="--d:0.0s">Built</em></p><p><span>Focus</span><em style="--d:0.6s">Built</em></p><p><span>Drift</span><em style="--d:1.2s">Built</em></p><p><span>Report</span><em style="--d:1.7999999999999998s">Built</em></p><p class="cap">Built with Claude in a few days</p></div></div></li><li data-in><p class="ai-k">What AI got wrong</p><b>Too much on every screen</b><span>The text in modals was too long, setting names didn’t make sense, and with no design system, fonts, colors and spacing didn’t match.</span><div class="aim" aria-hidden="true"><div class="ac m1"><p class="h">Camera off.</p><p class="tx">Turn it on and I will start watching your posture. Your camera is processed on this device and never uploaded. The distance sensor is more exact about leaning toward the screen than the camera.</p><div class="bt"><s class="pri">Turn on camera</s><s class="lnk">Use sensor</s></div><s class="gh">Use the distance sensor instead</s></div></div></li><li data-in><p class="ai-k">What I fixed myself</p><b>I set the rules first</b><span>I cut each modal to what people need, renamed settings in plain words, and made a design system for AI to follow.</span><div class="aim" aria-hidden="true"><div class="ac m2"><p class="h">Turn on your camera</p><p class="tx">It sees your posture, never records it. The sensor works too, just less precisely.</p><div class="bt"><s class="sec">Use sensor</s><s class="pri">Turn on camera</s></div></div></div></li></ol>
   </section>
 
 
