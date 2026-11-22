@@ -140,6 +140,16 @@
 .aim .bld { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--u) * 14); }
 .aim .bld > .fl, .aim .bld > .cl { position: relative !important; top: auto !important; left: auto; right: auto; margin: 0 !important; }
 .aim .bld > .app { position: absolute; inset: 0; }
+
+/* next steps: one item per card, the weekly view stays on screen */
+.nx .nxs2 { animation: none !important; opacity: 1 !important; }
+.nx .nxs2 .wkbars i { transform-origin: bottom; animation: nxGrow 5s cubic-bezier(.2,.8,.2,1) infinite; }
+.nx .nxs2 .wkbars span:nth-child(2) i { animation-delay: .08s; } .nx .nxs2 .wkbars span:nth-child(3) i { animation-delay: .16s; } .nx .nxs2 .wkbars span:nth-child(4) i { animation-delay: .24s; } .nx .nxs2 .wkbars span:nth-child(5) i { animation-delay: .32s; } .nx .nxs2 .wkbars span:nth-child(6) i { animation-delay: .4s; } .nx .nxs2 .wkbars span:nth-child(7) i { animation-delay: .48s; }
+@keyframes nxGrow { 0% { transform: scaleY(0); } 18%,88% { transform: scaleY(1); } 100% { transform: scaleY(1); } }
+.nx .it-card ol.one li { grid-template-columns: 1fr; }
+.nx .it-card ol.one li::before { display: none; }
+.nx .it-card ol.one li b { font-size: max(calc(var(--s) * 22), 13px); }
+@media (prefers-reduced-motion: reduce) { .nx .nxs2 .wkbars i { animation: none; } }
 </style>
 </head>
 <body class="on-cover">
@@ -260,8 +270,8 @@
     <div class="head">
       <h2 class="title" data-in>Next, a more personal app, <span>and a real light bar.</span></h2>
     </div>
-    <div class="it-row"><div class="it-card" data-in><p class="it-head">The app</p><div class="it-img app" role="img" aria-label="Poise pausing during a call, a weekly look back, and Poise in the Mac menu bar">
-<div class="nx-play"><div class="nxs nxs1"><div class="win"><span class="dots"><i></i><i></i><i></i></span><div class="tiles"><span><i class="bu"></i></span><span><i class="bu"></i></span><span><i class="bu"></i></span><span><i class="bu"></i></span></div><p class="pill"><svg viewBox="0 0 16 16"><rect x="4" y="3" width="2.6" height="10" rx="1.2" fill="currentColor"/><rect x="9.4" y="3" width="2.6" height="10" rx="1.2" fill="currentColor"/></svg>Cues paused while you are on a call</p></div></div><div class="nxs nxs2"><div class="win"><p class="t">This week</p><div class="wkbars"><span style="--h:46%"><i></i><em>M</em></span><span style="--h:58%"><i></i><em>T</em></span><span style="--h:40%"><i></i><em>W</em></span><span style="--h:92%" class="hi"><i></i><em>T</em></span><span style="--h:52%"><i></i><em>F</em></span><span style="--h:30%"><i></i><em>S</em></span><span style="--h:24%"><i></i><em>S</em></span></div><p class="cap">You drift most on Thursday afternoons</p></div></div><div class="nxs nxs3"><div class="mb"><div class="mb-bar"><i></i><i></i><i></i><span class="mb-poise"><b></b>24 min</span><i class="w"></i><em>11:47</em></div><div class="mb-menu"><p class="mb-state"><b></b>Drifting a little</p><p>Pause</p><p>Take a break</p><p>Open Poise</p></div></div></div></div></div><ol><li><b>Quiet during meetings</b><span>Check your calendar and pause cues while you are on a call.</span></li><li><b>A weekly look back</b><span>A short summary of when you drift most, so the habit shows.</span></li><li><b>A menu bar app</b><span>Open Poise from the top of your screen, no website needed.</span></li></ol></div><div class="it-card it-bar" data-in><p class="it-head">The light bar</p><div class="it-img"><img src="img/lightbar-3d.webp" alt="Mockup of the 3D printed Poise light bar"></div><ol><li><b>Light that fits the room</b><span>Brighter on sunny days, softer at night, never too bright.</span></li><li><b>Blinks, not just colors</b><span>The light blinks too, so people who are color blind can tell when they drift.</span></li><li><b>A 3D printed light bar</b><span>Looks like a real product, with a battery so there is no cable.</span></li></ol></div></div>
+    <div class="it-row"><div class="it-card" data-in><p class="it-head">The app</p><div class="it-img app" role="img" aria-label="A weekly look back showing when you drift most">
+<div class="nx-play"><div class="nxs nxs2"><div class="win"><p class="t">This week</p><div class="wkbars"><span style="--h:46%"><i></i><em>M</em></span><span style="--h:58%"><i></i><em>T</em></span><span style="--h:40%"><i></i><em>W</em></span><span style="--h:92%" class="hi"><i></i><em>T</em></span><span style="--h:52%"><i></i><em>F</em></span><span style="--h:30%"><i></i><em>S</em></span><span style="--h:24%"><i></i><em>S</em></span></div><p class="cap">You drift most on Thursday afternoons</p></div></div></div></div><ol class="one"><li><b>A weekly look back</b><span>Every week, people get a short report on when they drift most.</span></li></ol></div><div class="it-card it-bar" data-in><p class="it-head">The light bar</p><div class="it-img"><img src="img/lightbar-3d.webp" alt="Mockup of the 3D printed Poise light bar"></div><ol class="one"><li><b>A 3D printed light bar</b><span>A real body instead of cardboard, with a battery so there is no cable.</span></li></ol></div></div>
   </section>
 
   <section class="slide cover end-cover" data-title="Thank you">
