@@ -817,7 +817,7 @@ const recLight = (vid, slide, dir) => {
   const has = {};
   const check = n => has[n] ?? (has[n] = fetch(`v2rec/${n}.mp4`, { method: 'HEAD' }).then(r => r.ok && /video/.test(r.headers.get('content-type') || '')).catch(() => false));
   let cur = -1, run = 0;
-  const show = async k => { const my = ++run; const n = k + 1;
+  const show = async k => { const my = ++run; const n = +(items[k].dataset.rec || k + 1);
     items.forEach((it, i) => it.classList.toggle('on', i === k));
     if (await check(n)) { if (my !== run) return; fr.src = 'about:blank'; box.classList.add('has-rec'); v2led.play(n); vid.src = `v2rec/${n}.mp4`; vid.currentTime = 0; vid.play().catch(() => {}); return; }
     box.classList.remove('has-rec'); v2led.stop(); vid.removeAttribute('src');
