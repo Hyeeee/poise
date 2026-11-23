@@ -12,6 +12,7 @@ import { sensor, readSensor, stopSensor } from './sensor.js';
 mountPainting();
 // Welcome entrance: words drift in, then the buttons.
 (() => {
+  requestAnimationFrame(() => document.documentElement.classList.remove('booting'));
   const lede = document.querySelector('.welcome-main .lede');
   if (!lede || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   let i = 0;
